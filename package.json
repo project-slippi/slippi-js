@@ -1,0 +1,71 @@
+{
+  "name": "slp-parser-js",
+  "version": "0.0.1",
+  "description": "Official javascript slp file parser",
+  "license": "MIT",
+  "repository": "JLaferri/slp-parser-js",
+  "main": "index.js",
+  "author": {
+    "name": "Jas Laferriere",
+    "email": "jas.laferriere@gmail.com",
+    "url": "github.com/JLaferri"
+  },
+  "engines": {
+    "node": ">=6"
+  },
+  "files": [
+    "dist",
+    "index.js"
+  ],
+  "scripts": {
+    "test": "jest",
+    "coverage": "npm test -- --coverage",
+    "postcoverage": "opn coverage/lcov-report/index.html",
+    "lint": "eslint src test",
+    "flow": "flow check",
+    "docs": "documentation readme src --section=API",
+    "clean": "rimraf dist",
+    "prebuild": "npm run docs && npm run clean",
+    "build": "babel src -d dist",
+    "watch": "npm-watch",
+    "patch": "npm version patch && npm publish",
+    "minor": "npm version minor && npm publish",
+    "major": "npm version major && npm publish",
+    "prepublish": "npm run lint && npm test && npm run build",
+    "postpublish": "git push origin master --follow-tags"
+  },
+  "watch": {
+    "test": "{src,test}/*.js",
+    "lint": "{src,test}/*.js",
+    "build": "src"
+  },
+  "jest": {
+    "testRegex": "/test/.*",
+    "testEnvironment": "node"
+  },
+  "keywords": [
+    "slp-parser-js"
+  ],
+  "dependencies": {
+    "lodash": "^4.17.4"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.18.0",
+    "babel-eslint": "^8.0.0",
+    "babel-jest": "^21.0.2",
+    "babel-preset-env": "^1.1.8",
+    "babel-preset-flow": "^6.23.0",
+    "babel-preset-stage-2": "^6.18.0",
+    "documentation": "^5.3.2",
+    "eslint": "^4.11.0",
+    "eslint-config-airbnb-base": "^12.0.0",
+    "eslint-plugin-flowtype": "^2.29.2",
+    "eslint-plugin-flowtype-errors": "^3.0.0",
+    "eslint-plugin-import": "^2.2.0",
+    "flow-bin": "^0.54.1",
+    "jest-cli": "^21.1.0",
+    "npm-watch": "^0.2.0",
+    "opn-cli": "^3.1.0",
+    "rimraf": "^2.6.1"
+  }
+}

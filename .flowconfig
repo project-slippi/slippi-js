@@ -1,0 +1,4 @@
+[ignore]
+.*/dist
+.*/coverage
+.*/node_modules/documentation
