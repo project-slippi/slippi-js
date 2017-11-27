@@ -17,6 +17,7 @@ export type SlpFileType = {
 }
 
 export type PlayerType = {
+  playerIndex: number,
   port: number,
   characterId: number,
   characterColor: number,
@@ -61,6 +62,9 @@ export type GameEndType = {|
   gameEndMethod: number,
 |};
 
+/**
+ * Opens a file at path
+ */
 export function openSlpFile(path: string): SlpFileType {
   const fd = fs.openSync(path, "r");
 
@@ -142,6 +146,10 @@ function getMessageSizes(fd: number, position: number): { [command: number]: num
 
 type EventPayloadTypes = GameStartType | FrameUpdateType | GameEndType;
 type EventCallbackFunc = (command: number, payload: ?EventPayloadTypes) => boolean;
+
+/**
+ * Iterates through slp events and parses payloads
+ */
 export function iterateEvents(slpFile: SlpFileType, callback: EventCallbackFunc) {
   const fd = slpFile.fileDescriptor;
 
@@ -187,6 +195,7 @@ function parseMessage(command, payload): ?EventPayloadTypes {
       players: _.map([0, 1, 2, 3], playerIndex => {
         const offset = playerIndex * 0x24;
         return {
+          playerIndex: playerIndex,
           port: playerIndex + 1,
           characterId: view.getUint8(0x65 + offset),
           characterColor: view.getUint8(0x68 + offset),

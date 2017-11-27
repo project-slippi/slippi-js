@@ -5,3 +5,9 @@ test('read settings', () => {
   const settings = game.getSettings();
   expect(settings.stageId).toBe(31);
 });
+
+test('test stats', () => {
+  const game = new SlippiGame("test/test.slp");
+  const stats = game.getStats();
+  console.log(stats.events.punishes);
+});

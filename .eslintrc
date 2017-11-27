@@ -19,6 +19,7 @@
     "default-case": "off",
     "dot-notation": "off",
     "flowtype-errors/show-errors": "error",
+    "function-paren-newline": "off",
     "generator-star-spacing": "off",
     "import/no-unresolved": "error",
     "import/no-extraneous-dependencies": "off",
