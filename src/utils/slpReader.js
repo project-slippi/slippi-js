@@ -5,7 +5,8 @@ import fs from 'fs';
 export const Commands = {
   MESSAGE_SIZES: 0x35,
   GAME_START: 0x36,
-  FRAME_UPDATE: 0x38,
+  PRE_FRAME_UPDATE: 0x37,
+  POST_FRAME_UPDATE: 0x38,
   GAME_END: 0x39
 };
 
@@ -31,12 +32,11 @@ export type GameStartType = {|
   players: PlayerType[]
 |};
 
-export type FrameUpdateType = {|
+export type PreFrameUpdateType = {|
   frame: number,
-  seed: number,
   playerIndex: number,
   isFollower: boolean,
-  internalCharacterId: number,
+  seed: number,
   actionStateId: number,
   positionX: number,
   positionY: number,
@@ -47,16 +47,28 @@ export type FrameUpdateType = {|
   cStickY: number,
   trigger: number,
   buttons: number,
+  physicalButtons: number,
+  physicalLTrigger: number,
+  physicalRTrigger: number,
+|};
+
+export type PostFrameUpdateType = {|
+  frame: number,
+  playerIndex: number,
+  isFollower: boolean,
+  internalCharacterId: number,
+  actionStateId: number,
+  positionX: number,
+  positionY: number,
+  facingDirection: number,
   percent: number,
   shieldSize: number,
   lastAttackLanded: number,
   currentComboCount: number,
   lastHitBy: number,
   stocksRemaining: number,
-  physicalButtons: number,
-  physicalLTrigger: number,
-  physicalRTrigger: number,
 |};
+
 
 export type GameEndType = {|
   gameEndMethod: number,
@@ -144,7 +156,7 @@ function getMessageSizes(fd: number, position: number): { [command: number]: num
   return messageSizes;
 }
 
-type EventPayloadTypes = GameStartType | FrameUpdateType | GameEndType;
+type EventPayloadTypes = GameStartType | PreFrameUpdateType | PostFrameUpdateType | GameEndType;
 type EventCallbackFunc = (command: number, payload: ?EventPayloadTypes) => boolean;
 
 /**
@@ -204,32 +216,42 @@ function parseMessage(command, payload): ?EventPayloadTypes {
         };
       })
     };
-  case Commands.FRAME_UPDATE:
+  case Commands.PRE_FRAME_UPDATE:
     return {
       frame: view.getInt32(0x1),
-      seed: view.getUint32(0x5),
-      playerIndex: view.getUint8(0x9),
-      isFollower: !!view.getUint8(0xA),
-      internalCharacterId: view.getUint8(0xB),
-      actionStateId: view.getUint16(0xC),
-      positionX: view.getFloat32(0xE),
-      positionY: view.getFloat32(0x12),
-      facingDirection: view.getFloat32(0x16),
-      joystickX: view.getFloat32(0x1A),
-      joystickY: view.getFloat32(0x1E),
-      cStickX: view.getFloat32(0x22),
-      cStickY: view.getFloat32(0x26),
-      trigger: view.getFloat32(0x2A),
-      buttons: view.getUint32(0x2E),
-      percent: view.getFloat32(0x32),
-      shieldSize: view.getFloat32(0x36),
-      lastAttackLanded: view.getUint8(0x3A),
-      currentComboCount: view.getUint8(0x3B),
-      lastHitBy: view.getUint8(0x3C),
-      stocksRemaining: view.getUint8(0x3D),
-      physicalButtons: view.getUint16(0x3E),
-      physicalLTrigger: view.getFloat32(0x40),
-      physicalRTrigger: view.getFloat32(0x44)
+      playerIndex: view.getUint8(0x5),
+      isFollower: !!view.getUint8(0x6),
+      seed: view.getUint32(0x7),
+      actionStateId: view.getUint16(0xB),
+      positionX: view.getFloat32(0xD),
+      positionY: view.getFloat32(0x11),
+      facingDirection: view.getFloat32(0x15),
+      joystickX: view.getFloat32(0x19),
+      joystickY: view.getFloat32(0x1D),
+      cStickX: view.getFloat32(0x21),
+      cStickY: view.getFloat32(0x25),
+      trigger: view.getFloat32(0x29),
+      buttons: view.getUint32(0x2D),
+      physicalButtons: view.getUint16(0x31),
+      physicalLTrigger: view.getFloat32(0x33),
+      physicalRTrigger: view.getFloat32(0x37),
+    };
+  case Commands.POST_FRAME_UPDATE:
+    return {
+      frame: view.getInt32(0x1),
+      playerIndex: view.getUint8(0x5),
+      isFollower: !!view.getUint8(0x6),
+      internalCharacterId: view.getUint8(0x7),
+      actionStateId: view.getUint16(0x8),
+      positionX: view.getFloat32(0xA),
+      positionY: view.getFloat32(0xE),
+      facingDirection: view.getFloat32(0x12),
+      percent: view.getFloat32(0x16),
+      shieldSize: view.getFloat32(0x1A),
+      lastAttackLanded: view.getUint8(0x1E),
+      currentComboCount: view.getUint8(0x1F),
+      lastHitBy: view.getUint8(0x20),
+      stocksRemaining: view.getUint8(0x21),
     };
   case Commands.GAME_END:
     return {

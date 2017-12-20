@@ -79,7 +79,7 @@ export default class SlippiGame {
         settings.isTeams = payload.isTeams;
         settings.players = _.filter(payload.players, player => player.type !== 3);
         break;
-      case Commands.FRAME_UPDATE:
+      case Commands.POST_FRAME_UPDATE:
         if (!payload.frame) {
           return true; // Why do I have to do this? Still not sold on Flow
         }
@@ -125,14 +125,16 @@ export default class SlippiGame {
       }
 
       switch (command) {
-      case Commands.FRAME_UPDATE:
+      case Commands.PRE_FRAME_UPDATE:
+      case Commands.POST_FRAME_UPDATE:
         if (!payload.frame && payload.frame !== 0) {
           // If payload is messed up, stop iterating. This shouldn't ever happen
           return true;
         }
 
+        const location = command === Commands.PRE_FRAME_UPDATE ? "pre" : "post";
         const frames = payload.isFollower ? followerFrames : playerFrames;
-        _.set(frames, [payload.frame, 'players', payload.playerIndex], payload);
+        _.set(frames, [payload.frame, 'players', payload.playerIndex, location], payload);
         _.set(frames, [payload.frame, 'frame'], payload.frame);
         break;
       }

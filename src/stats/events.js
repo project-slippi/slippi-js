@@ -1,7 +1,7 @@
 // @flow
 import _ from 'lodash';
 import SlippiGame from "../index";
-import type { FrameUpdateType } from "../utils/slpReader";
+import type { PostFrameUpdateType } from "../utils/slpReader";
 
 type PlayerIndexedType = {
   playerIndex: number,
@@ -80,7 +80,7 @@ function getSinglesOpponentIndices(game: SlippiGame): PlayerIndexedType[] {
   ];
 }
 
-function didLoseStock(frame: FrameUpdateType, prevFrame: FrameUpdateType): boolean {
+function didLoseStock(frame: PostFrameUpdateType, prevFrame: PostFrameUpdateType): boolean {
   if (!frame || !prevFrame) {
     return false;
   }
@@ -100,7 +100,7 @@ function isGrabbed(state: number): boolean {
   return state >= States.CAPTURE_START && state <= States.CAPTURE_END;
 }
 
-function calcDamageTaken(frame: FrameUpdateType, prevFrame: FrameUpdateType): number {
+function calcDamageTaken(frame: PostFrameUpdateType, prevFrame: PostFrameUpdateType): number {
   const percent = _.get(frame, 'percent', 0);
   const prevPercent = _.get(prevFrame, 'percent', 0);
 
@@ -133,10 +133,10 @@ export function generatePunishes(game: SlippiGame): PunishType[] {
     };
 
     _.forEach(sortedFrames, (frame) => {
-      const playerFrame: FrameUpdateType = frame.players[indices.playerIndex];
-      const opponentFrame: FrameUpdateType = frame.players[indices.opponentIndex];
-      const prevOpponentFrame: FrameUpdateType = _.get(
-        frames, [playerFrame.frame - 1, 'players', indices.opponentIndex], {}
+      const playerFrame: PostFrameUpdateType = frame.players[indices.playerIndex].post;
+      const opponentFrame: PostFrameUpdateType = frame.players[indices.opponentIndex].post;
+      const prevOpponentFrame: PostFrameUpdateType = _.get(
+        frames, [playerFrame.frame - 1, 'players', indices.opponentIndex, 'post'], {}
       );
 
       const opntIsDamaged = isDamaged(opponentFrame.actionStateId);
@@ -165,11 +165,6 @@ export function generatePunishes(game: SlippiGame): PunishType[] {
       }
 
       state.count += 1;
-
-      if (state.count === 7767) {
-        console.log(opponentFrame.frame);
-        console.log(opponentFrame.actionStateId);
-      }
 
       if (!state.punish) {
         // The rest of the function handles punish termination logic, so if we don't
@@ -215,8 +210,6 @@ export function generatePunishes(game: SlippiGame): PunishType[] {
         state.punish = null;
       }
     });
-
-    console.log(state.count);
   });
 
   return punishes;
