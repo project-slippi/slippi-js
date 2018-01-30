@@ -19,4 +19,6 @@ test('test stats', () => {
 test('test metadata', () => {
   const game = new SlippiGame("test/test.slp");
   const metadata = game.getMetadata();
+  expect(metadata.startAt).toBe("2017-12-18T21:14:14Z");
+  expect(metadata.playedOn).toBe("dolphin");
 });

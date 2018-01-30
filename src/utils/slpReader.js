@@ -1,7 +1,7 @@
 // @flow
 import _ from 'lodash';
 import fs from 'fs';
-import UBJSON from '../external/ubjson';
+import { decode } from '../ubjson/ubjson';
 
 export const Commands = {
   MESSAGE_SIZES: 0x35,
@@ -85,7 +85,7 @@ export function openSlpFile(path: string): SlpFileType {
 
   const rawDataPosition = getRawDataPosition(fd);
   const rawDataLength = getRawDataLength(fd, rawDataPosition);
-  const metadataPosition = rawDataPosition + rawDataLength;
+  const metadataPosition = rawDataPosition + rawDataLength + 10; // remove metadata string
   const metadataLength = getMetadataLength(fd, metadataPosition);
   const messageSizes = getMessageSizes(fd, rawDataPosition);
 
@@ -131,7 +131,7 @@ function getRawDataLength(fd: number, position: number) {
 
 function getMetadataLength(fd: number, position: number) {
   const fileStats = fs.fstatSync(fd) || {};
-  return fileStats.size - position;
+  return fileStats.size - position - 1;
 }
 
 function getMessageSizes(fd: number, position: number): { [command: number]: number } {
@@ -328,13 +328,8 @@ function readBool(view: DataView, offset: number): ?boolean {
 }
 
 export function getMetadata(slpFile: SlpFileType) {
-  console.log("hello");
-
   const buffer = new Uint8Array(slpFile.metadataLength);
   fs.readSync(slpFile.fileDescriptor, buffer, 0, buffer.length, slpFile.metadataPosition);
 
-  console.log(buffer);
-
-  const ubjson = UBJSON(buffer);
-  return ubjson.decode();
+  return decode(buffer);
 }
