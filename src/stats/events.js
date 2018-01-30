@@ -2,6 +2,7 @@
 import _ from 'lodash';
 import SlippiGame from "../index";
 import type { PostFrameUpdateType } from "../utils/slpReader";
+import type { FrameEntryType } from "../index";
 
 type PlayerIndexedType = {
   playerIndex: number,
@@ -17,6 +18,8 @@ export type DamageType = {
   startPercent: number,
   endPercent: ?number
 }
+
+export type StockType = PlayerIndexedType & DurationType & DamageType;
 
 export type ComboStringType = PlayerIndexedType & DurationType & DamageType & {
   hitCount: number
@@ -42,6 +45,8 @@ export const States = {
   TECH_END: 0xCC,
   DYING_START: 0x0,
   DYING_END: 0xA,
+  SPAWN_START: 0x0, // TODO: Set correct number
+  SPAWN_END: 0x0, // TODO: Set correct number
 
   // Animation ID specific
   ROLL_FORWARD: 0xE9,
@@ -100,6 +105,10 @@ function isGrabbed(state: number): boolean {
   return state >= States.CAPTURE_START && state <= States.CAPTURE_END;
 }
 
+function isSpawning(state: number): boolean {
+  return state >= States.SPAWN_START && state <= States.SPAWN_END;
+}
+
 function calcDamageTaken(frame: PostFrameUpdateType, prevFrame: PostFrameUpdateType): number {
   const percent = _.get(frame, 'percent', 0);
   const prevPercent = _.get(prevFrame, 'percent', 0);
@@ -107,109 +116,184 @@ function calcDamageTaken(frame: PostFrameUpdateType, prevFrame: PostFrameUpdateT
   return percent - prevPercent;
 }
 
-export function generatePunishes(game: SlippiGame): PunishType[] {
-  const opponentIndices = getSinglesOpponentIndices(game);
-  if (opponentIndices.length === 0) {
-    return [];
+function getSortedFrames(game: SlippiGame) {
+  // TODO: This is obviously jank and probably shouldn't be done this way. I just didn't
+  // TODO: want the primary game object to have the concept of sortedFrames because it's
+  // TODO: kinda shitty I need to do that anyway. It's required because javascript doesn't
+  // TODO: support sorted objects... I could use a Map but that felt pretty heavy for
+  // TODO: little reason.
+  if (_.has(game, ['external', 'sortedFrames'])) {
+    // $FlowFixMe
+    return game.external.sortedFrames;
   }
 
+  const frames = game.getFrames();
+  const sortedFrames = _.orderBy(frames, 'frame');
+  _.set(game, ['external', 'sortedFrames'], sortedFrames);
+
+  // $FlowFixMe
+  return game.external.sortedFrames;
+}
+
+function iterateFramesInOrder(
+  game: SlippiGame,
+  initialize: (indices: PlayerIndexedType) => void,
+  processFrame: (indices: PlayerIndexedType, frame: FrameEntryType) => void
+) {
+  const opponentIndices = getSinglesOpponentIndices(game);
+  if (opponentIndices.length === 0) {
+    return;
+  }
+
+  const sortedFrames = getSortedFrames(game);
+
+  // Iterates through both of the player/opponent pairs
+  _.forEach(opponentIndices, (indices) => {
+    initialize(indices);
+
+    // Iterates through all of the frames for the current player and opponent
+    _.forEach(sortedFrames, (frame) => {
+      processFrame(indices, frame);
+    });
+  });
+}
+
+export function getLastFrame(game: SlippiGame): number {
+  const sortedFrames = getSortedFrames(game);
+  const lastFrame = _.last(sortedFrames);
+
+  return lastFrame.frame;
+}
+
+export function generateStocks(game: SlippiGame): StockType[] {
+  const stocks = [];
+  const frames = game.getFrames();
+
+  const initialState: {
+    stock: ?StockType
+  } = {
+    stock: null
+  };
+
+  let state = initialState;
+
+  // Iterates the frames in order in order to compute stocks
+  iterateFramesInOrder(game, () => {
+    state = { ...initialState };
+  }, (indices, frame) => {
+    const playerFrame = frame.players[indices.playerIndex].post;
+    const prevPlayerFrame: PostFrameUpdateType = _.get(
+      frames, [playerFrame.frame - 1, 'players', indices.playerIndex, 'post'], {}
+    );
+
+    // If there is currently no active stock, wait until the player is no longer spawning.
+    // Once the player is no longer spawning, start the stock
+    if (!state.stock) {
+      // TODO: Finish implementing
+    }
+  });
+
+  return stocks;
+}
+
+export function generatePunishes(game: SlippiGame): PunishType[] {
+  // TODO: Perhaps call punishes "conversions"?
   const punishes = [];
   const frames = game.getFrames();
 
-  // TODO: Probably sort order ahead of time or iterate through frame range
-  const sortedFrames = _.orderBy(frames, 'frame');
+  const initialState: {
+    punish: ?PunishType,
+    resetCounter: number,
+    count: number
+  } = {
+    punish: null,
+    resetCounter: 0,
+    count: 0
+  };
 
-  // Iterate through every frame for the pairs of player/opponent and add punishes to the
-  // output
-  _.forEach(opponentIndices, (indices) => {
-    const state: {
-      punish: ?PunishType,
-      resetCounter: number,
-      count: number
-    } = {
-      punish: null,
-      resetCounter: 0,
-      count: 0
-    };
+  // Only really doing assignment here for flow
+  let state = initialState;
 
-    _.forEach(sortedFrames, (frame) => {
-      const playerFrame: PostFrameUpdateType = frame.players[indices.playerIndex].post;
-      const opponentFrame: PostFrameUpdateType = frame.players[indices.opponentIndex].post;
-      const prevOpponentFrame: PostFrameUpdateType = _.get(
-        frames, [playerFrame.frame - 1, 'players', indices.opponentIndex, 'post'], {}
-      );
+  // Iterates the frames in order in order to compute punishes
+  iterateFramesInOrder(game, () => {
+    state = { ...initialState };
+  }, (indices, frame) => {
+    const playerFrame: PostFrameUpdateType = frame.players[indices.playerIndex].post;
+    const opponentFrame: PostFrameUpdateType = frame.players[indices.opponentIndex].post;
+    const prevOpponentFrame: PostFrameUpdateType = _.get(
+      frames, [playerFrame.frame - 1, 'players', indices.opponentIndex, 'post'], {}
+    );
 
-      const opntIsDamaged = isDamaged(opponentFrame.actionStateId);
-      const opntIsGrabbed = isGrabbed(opponentFrame.actionStateId);
-      const opntDamageTaken = calcDamageTaken(opponentFrame, prevOpponentFrame);
+    const opntIsDamaged = isDamaged(opponentFrame.actionStateId);
+    const opntIsGrabbed = isGrabbed(opponentFrame.actionStateId);
+    const opntDamageTaken = calcDamageTaken(opponentFrame, prevOpponentFrame);
 
-      // If opponent took damage and was put in some kind of stun this frame, either
-      // start a punish or
-      if (opntDamageTaken && (opntIsDamaged || opntIsGrabbed)) {
-        if (!state.punish) {
-          state.punish = {
-            playerIndex: indices.playerIndex,
-            opponentIndex: indices.opponentIndex,
-            startFrame: playerFrame.frame,
-            endFrame: null,
-            startPercent: prevOpponentFrame.percent || 0,
-            endPercent: null,
-            hitCount: 0,
-            didKill: false
-          };
-
-          punishes.push(state.punish);
-        }
-
-        state.punish.hitCount += 1;
-      }
-
-      state.count += 1;
-
+    // If opponent took damage and was put in some kind of stun this frame, either
+    // start a punish or
+    if (opntDamageTaken && (opntIsDamaged || opntIsGrabbed)) {
       if (!state.punish) {
-        // The rest of the function handles punish termination logic, so if we don't
-        // have a punish started, there is no need to continue
-        return;
+        state.punish = {
+          playerIndex: indices.playerIndex,
+          opponentIndex: indices.opponentIndex,
+          startFrame: playerFrame.frame,
+          endFrame: null,
+          startPercent: prevOpponentFrame.percent || 0,
+          endPercent: null,
+          hitCount: 0,
+          didKill: false
+        };
+
+        punishes.push(state.punish);
       }
 
-      const opntInControl = isInControl(opponentFrame.actionStateId);
-      const opntDidLoseStock = didLoseStock(opponentFrame, prevOpponentFrame);
+      state.punish.hitCount += 1;
+    }
 
-      if (opntIsDamaged || opntIsGrabbed) {
-        // If opponent got grabbed or damaged, reset the reset counter
-        state.resetCounter = 0;
-      }
+    state.count += 1;
 
-      const shouldStartResetCounter = state.resetCounter === 0 && opntInControl;
-      const shouldContinueResetCounter = state.resetCounter > 0;
-      if (shouldStartResetCounter || shouldContinueResetCounter) {
-        // This will increment the reset timer under the following conditions:
-        // 1) if we were punishing opponent but they have now entered an actionable state
-        // 2) if counter has already started counting meaning opponent has entered actionable state
-        state.resetCounter += 1;
-      }
+    if (!state.punish) {
+      // The rest of the function handles punish termination logic, so if we don't
+      // have a punish started, there is no need to continue
+      return;
+    }
 
-      let shouldTerminate = false;
+    const opntInControl = isInControl(opponentFrame.actionStateId);
+    const opntDidLoseStock = didLoseStock(opponentFrame, prevOpponentFrame);
 
-      // Termination condition 1 - player kills opponent
-      if (opntDidLoseStock) {
-        state.punish.didKill = true;
-        shouldTerminate = true;
-      }
+    if (opntIsDamaged || opntIsGrabbed) {
+      // If opponent got grabbed or damaged, reset the reset counter
+      state.resetCounter = 0;
+    }
 
-      // Termination condition 2 - punish resets on time
-      if (state.resetCounter > Timers.PUNISH_RESET_FRAMES) {
-        shouldTerminate = true;
-      }
+    const shouldStartResetCounter = state.resetCounter === 0 && opntInControl;
+    const shouldContinueResetCounter = state.resetCounter > 0;
+    if (shouldStartResetCounter || shouldContinueResetCounter) {
+      // This will increment the reset timer under the following conditions:
+      // 1) if we were punishing opponent but they have now entered an actionable state
+      // 2) if counter has already started counting meaning opponent has entered actionable state
+      state.resetCounter += 1;
+    }
 
-      // If punish should terminate, mark the end states and add it to list
-      if (shouldTerminate) {
-        state.punish.endFrame = playerFrame.frame;
-        state.punish.endPercent = prevOpponentFrame.percent || 0;
+    let shouldTerminate = false;
 
-        state.punish = null;
-      }
-    });
+    // Termination condition 1 - player kills opponent
+    if (opntDidLoseStock) {
+      state.punish.didKill = true;
+      shouldTerminate = true;
+    }
+
+    // Termination condition 2 - punish resets on time
+    if (state.resetCounter > Timers.PUNISH_RESET_FRAMES) {
+      shouldTerminate = true;
+    }
+
+    // If punish should terminate, mark the end states and add it to list
+    if (shouldTerminate) {
+      state.punish.endFrame = playerFrame.frame;
+      state.punish.endPercent = prevOpponentFrame.percent || 0;
+
+      state.punish = null;
+    }
   });
 
   return punishes;

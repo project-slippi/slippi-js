@@ -1,6 +1,7 @@
 // @flow
 import _ from 'lodash';
 import fs from 'fs';
+import UBJSON from '../external/ubjson';
 
 export const Commands = {
   MESSAGE_SIZES: 0x35,
@@ -14,64 +15,66 @@ export type SlpFileType = {
   fileDescriptor: number,
   rawDataPosition: number,
   rawDataLength: number,
+  metadataPosition: number,
+  metadataLength: number,
   messageSizes: { [command: number]: number }
 }
 
 export type PlayerType = {
   playerIndex: number,
   port: number,
-  characterId: number,
-  characterColor: number,
-  type: number,
-  teamId: number
+  characterId: ?number,
+  characterColor: ?number,
+  type: ?number,
+  teamId: ?number
 };
 
 export type GameStartType = {|
-  isTeams: boolean,
-  stageId: number,
+  isTeams: ?boolean,
+  stageId: ?number,
   players: PlayerType[]
 |};
 
 export type PreFrameUpdateType = {|
-  frame: number,
-  playerIndex: number,
-  isFollower: boolean,
-  seed: number,
-  actionStateId: number,
-  positionX: number,
-  positionY: number,
-  facingDirection: number,
-  joystickX: number,
-  joystickY: number,
-  cStickX: number,
-  cStickY: number,
-  trigger: number,
-  buttons: number,
-  physicalButtons: number,
-  physicalLTrigger: number,
-  physicalRTrigger: number,
+  frame: ?number,
+  playerIndex: ?number,
+  isFollower: ?boolean,
+  seed: ?number,
+  actionStateId: ?number,
+  positionX: ?number,
+  positionY: ?number,
+  facingDirection: ?number,
+  joystickX: ?number,
+  joystickY: ?number,
+  cStickX: ?number,
+  cStickY: ?number,
+  trigger: ?number,
+  buttons: ?number,
+  physicalButtons: ?number,
+  physicalLTrigger: ?number,
+  physicalRTrigger: ?number,
 |};
 
 export type PostFrameUpdateType = {|
-  frame: number,
-  playerIndex: number,
-  isFollower: boolean,
-  internalCharacterId: number,
-  actionStateId: number,
-  positionX: number,
-  positionY: number,
-  facingDirection: number,
-  percent: number,
-  shieldSize: number,
-  lastAttackLanded: number,
-  currentComboCount: number,
-  lastHitBy: number,
-  stocksRemaining: number,
+  frame: ?number,
+  playerIndex: ?number,
+  isFollower: ?boolean,
+  internalCharacterId: ?number,
+  actionStateId: ?number,
+  positionX: ?number,
+  positionY: ?number,
+  facingDirection: ?number,
+  percent: ?number,
+  shieldSize: ?number,
+  lastAttackLanded: ?number,
+  currentComboCount: ?number,
+  lastHitBy: ?number,
+  stocksRemaining: ?number,
 |};
 
 
 export type GameEndType = {|
-  gameEndMethod: number,
+  gameEndMethod: ?number,
 |};
 
 /**
@@ -82,12 +85,16 @@ export function openSlpFile(path: string): SlpFileType {
 
   const rawDataPosition = getRawDataPosition(fd);
   const rawDataLength = getRawDataLength(fd, rawDataPosition);
+  const metadataPosition = rawDataPosition + rawDataLength;
+  const metadataLength = getMetadataLength(fd, metadataPosition);
   const messageSizes = getMessageSizes(fd, rawDataPosition);
 
   return {
     fileDescriptor: fd,
     rawDataPosition: rawDataPosition,
     rawDataLength: rawDataLength,
+    metadataPosition: metadataPosition,
+    metadataLength: metadataLength,
     messageSizes: messageSizes
   };
 }
@@ -120,6 +127,11 @@ function getRawDataLength(fd: number, position: number) {
   fs.readSync(fd, buffer, 0, buffer.length, position - 4);
 
   return buffer[0] << 24 | buffer[1] << 16 | buffer[2] << 8 | buffer[3];
+}
+
+function getMetadataLength(fd: number, position: number) {
+  const fileStats = fs.fstatSync(fd) || {};
+  return fileStats.size - position;
 }
 
 function getMessageSizes(fd: number, position: number): { [command: number]: number } {
@@ -202,62 +214,127 @@ function parseMessage(command, payload): ?EventPayloadTypes {
   switch (command) {
   case Commands.GAME_START:
     return {
-      isTeams: !!view.getUint8(0xD),
-      stageId: view.getUint16(0x13),
+      isTeams: readBool(view, 0xD),
+      stageId: readUint16(view, 0x13),
       players: _.map([0, 1, 2, 3], playerIndex => {
         const offset = playerIndex * 0x24;
         return {
           playerIndex: playerIndex,
           port: playerIndex + 1,
-          characterId: view.getUint8(0x65 + offset),
-          characterColor: view.getUint8(0x68 + offset),
-          type: view.getUint8(0x66 + offset),
-          teamId: view.getUint8(0x6E + offset)
+          characterId: readUint8(view, 0x65 + offset),
+          characterColor: readUint8(view, 0x68 + offset),
+          type: readUint8(view, 0x66 + offset),
+          teamId: readUint8(view, 0x6E + offset)
         };
       })
     };
   case Commands.PRE_FRAME_UPDATE:
     return {
-      frame: view.getInt32(0x1),
-      playerIndex: view.getUint8(0x5),
-      isFollower: !!view.getUint8(0x6),
-      seed: view.getUint32(0x7),
-      actionStateId: view.getUint16(0xB),
-      positionX: view.getFloat32(0xD),
-      positionY: view.getFloat32(0x11),
-      facingDirection: view.getFloat32(0x15),
-      joystickX: view.getFloat32(0x19),
-      joystickY: view.getFloat32(0x1D),
-      cStickX: view.getFloat32(0x21),
-      cStickY: view.getFloat32(0x25),
-      trigger: view.getFloat32(0x29),
-      buttons: view.getUint32(0x2D),
-      physicalButtons: view.getUint16(0x31),
-      physicalLTrigger: view.getFloat32(0x33),
-      physicalRTrigger: view.getFloat32(0x37),
+      frame: readInt32(view, 0x1),
+      playerIndex: readUint8(view, 0x5),
+      isFollower: readBool(view, 0x6),
+      seed: readUint32(view, 0x7),
+      actionStateId: readUint16(view, 0xB),
+      positionX: readFloat(view, 0xD),
+      positionY: readFloat(view, 0x11),
+      facingDirection: readFloat(view, 0x15),
+      joystickX: readFloat(view, 0x19),
+      joystickY: readFloat(view, 0x1D),
+      cStickX: readFloat(view, 0x21),
+      cStickY: readFloat(view, 0x25),
+      trigger: readFloat(view, 0x29),
+      buttons: readUint32(view, 0x2D),
+      physicalButtons: readUint16(view, 0x31),
+      physicalLTrigger: readFloat(view, 0x33),
+      physicalRTrigger: readFloat(view, 0x37),
     };
   case Commands.POST_FRAME_UPDATE:
     return {
-      frame: view.getInt32(0x1),
-      playerIndex: view.getUint8(0x5),
-      isFollower: !!view.getUint8(0x6),
-      internalCharacterId: view.getUint8(0x7),
-      actionStateId: view.getUint16(0x8),
-      positionX: view.getFloat32(0xA),
-      positionY: view.getFloat32(0xE),
-      facingDirection: view.getFloat32(0x12),
-      percent: view.getFloat32(0x16),
-      shieldSize: view.getFloat32(0x1A),
-      lastAttackLanded: view.getUint8(0x1E),
-      currentComboCount: view.getUint8(0x1F),
-      lastHitBy: view.getUint8(0x20),
-      stocksRemaining: view.getUint8(0x21),
+      frame: readInt32(view, 0x1),
+      playerIndex: readUint8(view, 0x5),
+      isFollower: readBool(view, 0x6),
+      internalCharacterId: readUint8(view, 0x7),
+      actionStateId: readUint16(view, 0x8),
+      positionX: readFloat(view, 0xA),
+      positionY: readFloat(view, 0xE),
+      facingDirection: readFloat(view, 0x12),
+      percent: readFloat(view, 0x16),
+      shieldSize: readFloat(view, 0x1A),
+      lastAttackLanded: readUint8(view, 0x1E),
+      currentComboCount: readUint8(view, 0x1F),
+      lastHitBy: readUint8(view, 0x20),
+      stocksRemaining: readUint8(view, 0x21),
     };
   case Commands.GAME_END:
     return {
-      gameEndMethod: view.getUint8(0x1)
+      gameEndMethod: readUint8(view, 0x1)
     };
   default:
     return null;
   }
+}
+
+function canReadFromView(view: DataView, offset, length) {
+  const viewLength = view.byteLength;
+  return offset + length <= viewLength;
+}
+
+function readFloat(view: DataView, offset: number): ?number {
+  if (!canReadFromView(view, offset, 4)) {
+    return null;
+  }
+  
+  return view.getFloat32(offset);
+}
+
+function readInt32(view: DataView, offset: number): ?number {
+  if (!canReadFromView(view, offset, 4)) {
+    return null;
+  }
+
+  return view.getInt32(offset);
+}
+
+function readUint32(view: DataView, offset: number): ?number {
+  if (!canReadFromView(view, offset, 4)) {
+    return null;
+  }
+
+  return view.getUint32(offset);
+}
+
+function readUint16(view: DataView, offset: number): ?number {
+  if (!canReadFromView(view, offset, 2)) {
+    return null;
+  }
+
+  return view.getUint16(offset);
+}
+
+function readUint8(view: DataView, offset: number): ?number {
+  if (!canReadFromView(view, offset, 1)) {
+    return null;
+  }
+
+  return view.getUint8(offset);
+}
+
+function readBool(view: DataView, offset: number): ?boolean {
+  if (!canReadFromView(view, offset, 1)) {
+    return null;
+  }
+
+  return !!view.getUint8(offset);
+}
+
+export function getMetadata(slpFile: SlpFileType) {
+  console.log("hello");
+
+  const buffer = new Uint8Array(slpFile.metadataLength);
+  fs.readSync(slpFile.fileDescriptor, buffer, 0, buffer.length, slpFile.metadataPosition);
+
+  console.log(buffer);
+
+  const ubjson = UBJSON(buffer);
+  return ubjson.decode();
 }
