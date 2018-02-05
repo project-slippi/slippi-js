@@ -19,7 +19,10 @@ export type DamageType = {
   endPercent: ?number
 }
 
-export type StockType = PlayerIndexedType & DurationType & DamageType;
+export type StockType = PlayerIndexedType & DurationType & DamageType & {
+  moveKilledBy: ?number,
+  deathAnimation: ?number
+};
 
 export type ComboStringType = PlayerIndexedType & DurationType & DamageType & {
   hitCount: number
@@ -45,8 +48,6 @@ export const States = {
   TECH_END: 0xCC,
   DYING_START: 0x0,
   DYING_END: 0xA,
-  SPAWN_START: 0x0, // TODO: Set correct number
-  SPAWN_END: 0x0, // TODO: Set correct number
 
   // Animation ID specific
   ROLL_FORWARD: 0xE9,
@@ -105,8 +106,8 @@ function isGrabbed(state: number): boolean {
   return state >= States.CAPTURE_START && state <= States.CAPTURE_END;
 }
 
-function isSpawning(state: number): boolean {
-  return state >= States.SPAWN_START && state <= States.SPAWN_END;
+function isDead(state: number): boolean {
+  return state >= States.DYING_START && state <= States.DYING_END;
 }
 
 function calcDamageTaken(frame: PostFrameUpdateType, prevFrame: PostFrameUpdateType): number {
@@ -186,10 +187,34 @@ export function generateStocks(game: SlippiGame): StockType[] {
       frames, [playerFrame.frame - 1, 'players', indices.playerIndex, 'post'], {}
     );
 
+    const opponentFrame = frame.players[indices.opponentIndex].post;
+
     // If there is currently no active stock, wait until the player is no longer spawning.
     // Once the player is no longer spawning, start the stock
     if (!state.stock) {
-      // TODO: Finish implementing
+      const isPlayerDead = isDead(playerFrame.actionStateId);
+      if (isPlayerDead) {
+        return;
+      }
+
+      state.stock = {
+        playerIndex: indices.playerIndex,
+        opponentIndex: indices.opponentIndex,
+        startFrame: playerFrame.frame,
+        endFrame: null,
+        startPercent: 0,
+        endPercent: null,
+        moveKilledBy: null,
+        deathAnimation: null,
+      };
+
+      stocks.push(state.stock);
+    } else if (didLoseStock(playerFrame, prevPlayerFrame)) {
+      state.stock.endFrame = playerFrame.frame;
+      state.stock.endPercent = prevPlayerFrame.percent || 0;
+      state.stock.moveKilledBy = opponentFrame.lastAttackLanded;
+      state.stock.deathAnimation = playerFrame.actionStateId;
+      state.stock = null;
     }
   });
 
@@ -240,7 +265,7 @@ export function generatePunishes(game: SlippiGame): PunishType[] {
           startPercent: prevOpponentFrame.percent || 0,
           endPercent: null,
           hitCount: 0,
-          didKill: false
+          didKill: false,
         };
 
         punishes.push(state.punish);

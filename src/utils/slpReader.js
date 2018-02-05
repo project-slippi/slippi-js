@@ -77,6 +77,11 @@ export type GameEndType = {|
   gameEndMethod: ?number,
 |};
 
+export type MetadataType = {
+  startAt: ?string,
+  playedOn: ?string
+};
+
 /**
  * Opens a file at path
  */
@@ -283,7 +288,7 @@ function readFloat(view: DataView, offset: number): ?number {
   if (!canReadFromView(view, offset, 4)) {
     return null;
   }
-  
+
   return view.getFloat32(offset);
 }
 
@@ -327,9 +332,19 @@ function readBool(view: DataView, offset: number): ?boolean {
   return !!view.getUint8(offset);
 }
 
-export function getMetadata(slpFile: SlpFileType) {
+export function getMetadata(slpFile: SlpFileType): MetadataType {
   const buffer = new Uint8Array(slpFile.metadataLength);
+
+  // $FlowFixMe
   fs.readSync(slpFile.fileDescriptor, buffer, 0, buffer.length, slpFile.metadataPosition);
 
-  return decode(buffer);
+  let metadata = {};
+  try {
+    metadata = decode(buffer);
+  } catch (ex) {
+    // Do nothing
+  }
+
+  // $FlowFixMe
+  return metadata;
 }

@@ -13,6 +13,13 @@ test('test stats', () => {
   const game = new SlippiGame("test/test.slp");
   const stats = game.getStats();
   expect(stats.gameDuration).toBe(3694);
+
+  // Test stocks
+  console.log(stats.events.stocks);
+  expect(stats.events.stocks.length).toBe(5);
+  expect(_.last(stats.events.stocks).endFrame).toBe(3694);
+
+
   // console.log(stats.events.punishes);
 });
 

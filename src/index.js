@@ -1,11 +1,13 @@
 // @flow
 import _ from 'lodash';
 import { Commands, openSlpFile, iterateEvents, getMetadata } from './utils/slpReader';
-import { generatePunishes, getLastFrame } from "./stats/events";
+import {
+  generatePunishes, generateStocks, getLastFrame
+} from "./stats/events";
 
 // Type imports
 import type {
-  PlayerType, PreFrameUpdateType, PostFrameUpdateType, SlpFileType
+  PlayerType, PreFrameUpdateType, PostFrameUpdateType, SlpFileType, MetadataType
 } from "./utils/slpReader";
 import type { PunishType } from "./stats/events";
 
@@ -32,11 +34,6 @@ type StatsType = {
     punishes: PunishType[]
   },
   gameDuration: number
-};
-
-type MetadataType = {
-  startAt: string,
-  playedOn: string
 };
 
 /**
@@ -166,6 +163,7 @@ export default class SlippiGame {
 
     this.stats = {
       events: {
+        stocks: generateStocks(this),
         punishes: generatePunishes(this)
       },
       gameDuration: getLastFrame(this)
