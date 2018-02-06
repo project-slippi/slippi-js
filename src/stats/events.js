@@ -20,8 +20,9 @@ export type DamageType = {
 }
 
 export type StockType = PlayerIndexedType & DurationType & DamageType & {
+  count: number,
   moveKilledBy: ?number,
-  deathAnimation: ?number
+  deathAnimation: ?number,
 };
 
 export type ComboStringType = PlayerIndexedType & DurationType & DamageType & {
@@ -204,6 +205,7 @@ export function generateStocks(game: SlippiGame): StockType[] {
         endFrame: null,
         startPercent: 0,
         endPercent: null,
+        count: playerFrame.stocksRemaining,
         moveKilledBy: null,
         deathAnimation: null,
       };
