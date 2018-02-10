@@ -25,6 +25,7 @@ export type PlayerType = {
   port: number,
   characterId: ?number,
   characterColor: ?number,
+  startStocks: ?number,
   type: ?number,
   teamId: ?number
 };
@@ -228,6 +229,7 @@ function parseMessage(command, payload): ?EventPayloadTypes {
           port: playerIndex + 1,
           characterId: readUint8(view, 0x65 + offset),
           characterColor: readUint8(view, 0x68 + offset),
+          startStocks: readUint8(view, 0x67 + offset),
           type: readUint8(view, 0x66 + offset),
           teamId: readUint8(view, 0x6E + offset)
         };
