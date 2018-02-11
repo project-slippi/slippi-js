@@ -16,12 +16,12 @@ export type DurationType = {
 
 export type DamageType = {
   startPercent: number,
+  currentPercent: number,
   endPercent: ?number
 }
 
 export type StockType = PlayerIndexedType & DurationType & DamageType & {
   count: number,
-  moveKilledBy: ?number,
   deathAnimation: ?number,
 };
 
@@ -30,6 +30,8 @@ export type ComboStringType = PlayerIndexedType & DurationType & DamageType & {
 }
 
 export type PunishType = ComboStringType & {
+  lastMove: number,
+  moveCount: number,
   didKill: boolean
 }
 
@@ -45,6 +47,8 @@ export const States = {
   GUARD_END: 0xB6,
   GROUNDED_CONTROL_START: 0xE,
   GROUNDED_CONTROL_END: 0x18,
+  SQUAT_START: 0x27,
+  SQUAT_END: 0x29,
   TECH_START: 0xC7,
   TECH_END: 0xCC,
   DYING_START: 0x0,
@@ -96,7 +100,9 @@ function didLoseStock(frame: PostFrameUpdateType, prevFrame: PostFrameUpdateType
 }
 
 function isInControl(state: number): boolean {
-  return state >= States.GROUNDED_CONTROL_START && state <= States.GROUNDED_CONTROL_END;
+  const ground = state >= States.GROUNDED_CONTROL_START && state <= States.GROUNDED_CONTROL_END;
+  const squat = state >= States.SQUAT_START && state <= States.SQUAT_END;
+  return ground || squat;
 }
 
 function isDamaged(state: number): boolean {
@@ -188,8 +194,6 @@ export function generateStocks(game: SlippiGame): StockType[] {
       frames, [playerFrame.frame - 1, 'players', indices.playerIndex, 'post'], {}
     );
 
-    const opponentFrame = frame.players[indices.opponentIndex].post;
-
     // If there is currently no active stock, wait until the player is no longer spawning.
     // Once the player is no longer spawning, start the stock
     if (!state.stock) {
@@ -205,6 +209,7 @@ export function generateStocks(game: SlippiGame): StockType[] {
         endFrame: null,
         startPercent: 0,
         endPercent: null,
+        currentPercent: 0,
         count: playerFrame.stocksRemaining,
         moveKilledBy: null,
         deathAnimation: null,
@@ -214,9 +219,10 @@ export function generateStocks(game: SlippiGame): StockType[] {
     } else if (didLoseStock(playerFrame, prevPlayerFrame)) {
       state.stock.endFrame = playerFrame.frame;
       state.stock.endPercent = prevPlayerFrame.percent || 0;
-      state.stock.moveKilledBy = opponentFrame.lastAttackLanded;
       state.stock.deathAnimation = playerFrame.actionStateId;
       state.stock = null;
+    } else {
+      state.stock.currentPercent = playerFrame.percent || 0;
     }
   });
 
@@ -231,11 +237,13 @@ export function generatePunishes(game: SlippiGame): PunishType[] {
   const initialState: {
     punish: ?PunishType,
     resetCounter: number,
-    count: number
+    count: number,
+    lastHitAnimation: ?number,
   } = {
     punish: null,
     resetCounter: 0,
-    count: 0
+    count: 0,
+    lastHitAnimation: null,
   };
 
   // Only really doing assignment here for flow
@@ -246,6 +254,9 @@ export function generatePunishes(game: SlippiGame): PunishType[] {
     state = { ...initialState };
   }, (indices, frame) => {
     const playerFrame: PostFrameUpdateType = frame.players[indices.playerIndex].post;
+    const prevPlayerFrame: PostFrameUpdateType = _.get(
+      frames, [playerFrame.frame - 1, 'players', indices.playerIndex, 'post'], {}
+    );
     const opponentFrame: PostFrameUpdateType = frame.players[indices.opponentIndex].post;
     const prevOpponentFrame: PostFrameUpdateType = _.get(
       frames, [playerFrame.frame - 1, 'players', indices.opponentIndex, 'post'], {}
@@ -254,6 +265,11 @@ export function generatePunishes(game: SlippiGame): PunishType[] {
     const opntIsDamaged = isDamaged(opponentFrame.actionStateId);
     const opntIsGrabbed = isGrabbed(opponentFrame.actionStateId);
     const opntDamageTaken = calcDamageTaken(opponentFrame, prevOpponentFrame);
+
+    // Keep track of whether actionState changes after a hit. Used to computer move count
+    if (playerFrame.actionStateId !== state.lastHitAnimation) {
+      state.lastHitAnimation = null;
+    }
 
     // If opponent took damage and was put in some kind of stun this frame, either
     // start a punish or
@@ -265,15 +281,29 @@ export function generatePunishes(game: SlippiGame): PunishType[] {
           startFrame: playerFrame.frame,
           endFrame: null,
           startPercent: prevOpponentFrame.percent || 0,
+          currentPercent: opponentFrame.percent || 0,
           endPercent: null,
           hitCount: 0,
+          moveCount: 0,
+          lastMove: playerFrame.lastAttackLanded,
           didKill: false,
         };
 
         punishes.push(state.punish);
       }
 
+      state.punish.lastMove = playerFrame.lastAttackLanded;
       state.punish.hitCount += 1;
+
+      // If animation of last hit has been cleared that means this is a new move. This
+      // prevents counting multiple hits from the same move such as fox's drill
+      if (!state.lastHitAnimation) {
+        state.punish.moveCount += 1;
+      }
+
+      // Store previous frame animation to consider the case of a trade, the previous
+      // frame should always be the move that actually connected... I hope
+      state.lastHitAnimation = prevPlayerFrame.actionStateId;
     }
 
     state.count += 1;
@@ -286,6 +316,11 @@ export function generatePunishes(game: SlippiGame): PunishType[] {
 
     const opntInControl = isInControl(opponentFrame.actionStateId);
     const opntDidLoseStock = didLoseStock(opponentFrame, prevOpponentFrame);
+
+    // Update percent if opponent didn't lose stock
+    if (!opntDidLoseStock) {
+      state.punish.currentPercent = opponentFrame.percent || 0;
+    }
 
     if (opntIsDamaged || opntIsGrabbed) {
       // If opponent got grabbed or damaged, reset the reset counter
