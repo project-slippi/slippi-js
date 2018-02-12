@@ -30,9 +30,11 @@ export type ComboStringType = PlayerIndexedType & DurationType & DamageType & {
 }
 
 export type PunishType = ComboStringType & {
+  openingMove: number,
   lastMove: number,
   moveCount: number,
-  didKill: boolean
+  openingType: string,
+  didKill: boolean,
 }
 
 export type EdgeguardType = PunishType;
@@ -211,7 +213,6 @@ export function generateStocks(game: SlippiGame): StockType[] {
         endPercent: null,
         currentPercent: 0,
         count: playerFrame.stocksRemaining,
-        moveKilledBy: null,
         deathAnimation: null,
       };
 
@@ -287,6 +288,8 @@ export function generatePunishes(game: SlippiGame): PunishType[] {
           moveCount: 0,
           lastMove: playerFrame.lastAttackLanded,
           didKill: false,
+          openingMove: playerFrame.lastAttackLanded,
+          openingType: "unknown", // Will be updated later
         };
 
         punishes.push(state.punish);
@@ -358,5 +361,63 @@ export function generatePunishes(game: SlippiGame): PunishType[] {
     }
   });
 
+  // Adds opening type to the punishes
+  addOpeningTypeToPunishes(game, punishes);
+
   return punishes;
+}
+
+function addOpeningTypeToPunishes(game, punishes) {
+  const punishesByPlayerIndex = _.groupBy(punishes, 'playerIndex');
+  const keyedPunishes = _.mapValues(punishesByPlayerIndex, (playerPunishes) => (
+    _.keyBy(playerPunishes, 'startFrame')
+  ));
+
+  const initialState: {
+    opponentPunish: ?PunishType,
+  } = {
+    opponentPunish: null
+  };
+
+  // Only really doing assignment here for flow
+  let state = initialState;
+
+  // console.log(punishesByPlayerIndex);
+
+  // Iterates the frames in order in order to compute punishes
+  iterateFramesInOrder(game, () => {
+    state = { ...initialState };
+  }, (indices, frame) => {
+    const frameNum = frame.frame;
+
+    // Clear opponent punish if it ended this frame
+    if (_.get(state, ['opponentPunish', 'endFrame']) === frameNum) {
+      state.opponentPunish = null;
+    }
+
+    // Get opponent punish. Add to state if exists for this frame
+    const opponentPunish = _.get(keyedPunishes, [indices.opponentIndex, frameNum]);
+    if (opponentPunish) {
+      state.opponentPunish = opponentPunish;
+    }
+
+    const playerPunish = _.get(keyedPunishes, [indices.playerIndex, frameNum]);
+    if (!playerPunish) {
+      // Only need to do something if a punish for this player started on this frame
+      return;
+    }
+
+    // In the case where punishes from both players start on the same frame, set trade
+    if (playerPunish && opponentPunish) {
+      playerPunish.openingType = "trade";
+      return;
+    }
+
+    // TODO: Handle this in a better way. It probably shouldn't be considered a neutral
+    // TODO: win in the case where a player attacks into a crouch cancel and gets
+    // TODO: countered on.
+
+    // If opponent has an active punish, this is a counter-attack, otherwise a neutral win
+    playerPunish.openingType = state.opponentPunish ? "counter-attack" : "neutral-win";
+  });
 }
