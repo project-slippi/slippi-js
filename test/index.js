@@ -19,8 +19,10 @@ test('test stats', () => {
   expect(stats.events.stocks.length).toBe(5);
   expect(_.last(stats.events.stocks).endFrame).toBe(3694);
 
-
-  console.log(stats.events.punishes);
+  // Test action counts
+  expect(stats.actionCounts[0].wavedashCount).toBe(16);
+  expect(stats.actionCounts[0].wavelandCount).toBe(1);
+  expect(stats.actionCounts[0].airDodgeCount).toBe(3);
 });
 
 test('test metadata', () => {
