@@ -1,5 +1,5 @@
-import SlippiGame from '../src';
 import _ from 'lodash';
+import SlippiGame from '../src';
 
 test('read settings', () => {
   const game = new SlippiGame("test/sheik_vs_ics_yoshis.slp");
