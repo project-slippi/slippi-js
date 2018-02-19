@@ -1,13 +1,15 @@
 // @flow
 import _ from 'lodash';
-import { Commands, openSlpFile, iterateEvents } from './utils/slpReader';
-import { generatePunishes } from "./stats/events";
+import { Commands, openSlpFile, iterateEvents, getMetadata } from './utils/slpReader';
+import {
+  generateActionCounts, generatePunishes, generateStocks, getLastFrame
+} from "./stats/events";
 
 // Type imports
 import type {
-  PlayerType, FrameUpdateType, SlpFileType
+  PlayerType, PreFrameUpdateType, PostFrameUpdateType, SlpFileType, MetadataType
 } from "./utils/slpReader";
-import type { PunishType } from "./stats/events";
+import type { ActionCountsType, PunishType, StockType } from "./stats/events";
 
 type GameSettingsType = {
   stageId: number,
@@ -15,18 +17,26 @@ type GameSettingsType = {
   players: PlayerType[]
 };
 
+export type FrameEntryType = {
+  frame: number,
+  players: { [playerIndex: number]: {
+    pre: PreFrameUpdateType,
+    post: PostFrameUpdateType
+  }}
+};
+
 type FramesType = {
-  [frameIndex: number]: {
-    frame: number,
-    players: { [playerIndex: number]: FrameUpdateType }
-  }
-}
+  [frameIndex: number]: FrameEntryType
+};
 
 type StatsType = {
   events: {
-    punishes: PunishType[]
-  }
-}
+    stocks: StockType[],
+    punishes: PunishType[],
+  },
+  actionCounts: ActionCountsType[],
+  gameDuration: number,
+};
 
 /**
  * Slippi Game class that wraps a file
@@ -38,6 +48,7 @@ export default class SlippiGame {
   playerFrames: FramesType;
   followerFrames: FramesType;
   stats: StatsType;
+  metadata: MetadataType;
 
   constructor(filePath: string) {
     this.filePath = filePath;
@@ -154,10 +165,23 @@ export default class SlippiGame {
 
     this.stats = {
       events: {
-        punishes: generatePunishes(this)
-      }
+        stocks: generateStocks(this),
+        punishes: generatePunishes(this),
+      },
+      actionCounts: generateActionCounts(this),
+      gameDuration: getLastFrame(this),
     };
 
     return this.stats;
+  }
+
+  getMetadata(): MetadataType {
+    if (this.metadata) {
+      return this.metadata;
+    }
+
+    this.metadata = getMetadata(this.file);
+
+    return this.metadata;
   }
 }
