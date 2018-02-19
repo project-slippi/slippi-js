@@ -4,6 +4,7 @@ const valueMarkers = {
   object: "{".charCodeAt(0),
   string: "S".charCodeAt(0),
   uint8: "U".charCodeAt(0),
+  int32: "l".charCodeAt(0),
 };
 
 const terminationMarkers = {
@@ -64,6 +65,15 @@ class UbjsonDecoder {
     return this.dataView.getUint8(pos);
   }
 
+  readInt32() {
+    // Grab current position and update
+    const pos = this.position;
+    this.position += 4;
+
+    // Read number
+    return this.dataView.getInt32(pos);
+  }
+
   readValueAtPosition(): * {
     const valueMarker = this.buffer[this.position];
 
@@ -77,6 +87,8 @@ class UbjsonDecoder {
       return this.readString();
     case valueMarkers.uint8:
       return this.readUint8();
+    case valueMarkers.int32:
+      return this.readInt32();
     default:
       throw `UBJSON decoder - value type with marker ${valueMarker} is not supported yet.`;
     }
