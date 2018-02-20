@@ -87,15 +87,11 @@ export default class SlippiGame {
         }
 
         settings.stageId = payload.stageId;
-        settings.isTeams = payload.isTeams;
+        settings.isTeams = !!payload.isTeams;
         settings.players = _.filter(payload.players, player => player.type !== 3);
         break;
       case Commands.POST_FRAME_UPDATE:
-        if (!payload.frame) {
-          return true; // Why do I have to do this? Still not sold on Flow
-        }
-
-        if (payload.frame > -123) {
+        if (payload.frame === null || payload.frame > -123) {
           // Once we are an frame -122 or higher we are done getting match settings
           // Tell the iterator to stop
           return true;

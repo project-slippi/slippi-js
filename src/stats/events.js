@@ -563,7 +563,7 @@ function isWavedashInitiationAnimation(animation) {
   return isAboveMin && isBelowMax;
 }
 
-function handleActionWavedash(counts: ActionCountsType, animations, frame) {
+function handleActionWavedash(counts: ActionCountsType, animations) {
   const currentAnimation = _.last(animations);
   const prevAnimation = animations[animations.length - 2];
 

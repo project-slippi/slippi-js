@@ -24,9 +24,9 @@ class UbjsonDecoder {
   }
 
   readObject() {
-    const shouldContinueRead = () => {
-      return this.buffer[this.position] !== terminationMarkers.object;
-    };
+    const shouldContinueRead = () => (
+      this.buffer[this.position] !== terminationMarkers.object
+    );
 
     const object = {};
     while (shouldContinueRead()) {
@@ -44,7 +44,7 @@ class UbjsonDecoder {
     // First we need to read the string length
     const length: number = this.readValueAtPosition();
     if (!Number.isInteger(length)) {
-      throw "UBJSON decoder - failed to read string length";
+      throw new Error("UBJSON decoder - failed to read string length");
     }
 
     // Grab current position and update
@@ -90,7 +90,9 @@ class UbjsonDecoder {
     case valueMarkers.int32:
       return this.readInt32();
     default:
-      throw `UBJSON decoder - value type with marker ${valueMarker} is not supported yet.`;
+      throw new Error(
+        `UBJSON decoder - value type with marker ${valueMarker} is not supported yet.`
+      );
     }
   }
 

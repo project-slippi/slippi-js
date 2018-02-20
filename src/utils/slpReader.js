@@ -20,67 +20,75 @@ export type SlpFileType = {
   messageSizes: { [command: number]: number }
 }
 
-export type PlayerType = {
+export type PlayerType = {|
   playerIndex: number,
   port: number,
-  characterId: ?number,
-  characterColor: ?number,
-  startStocks: ?number,
-  type: ?number,
-  teamId: ?number
-};
+  characterId: number | null,
+  characterColor: number | null,
+  startStocks: number | null,
+  type: number | null,
+  teamId: number | null
+|};
 
 export type GameStartType = {|
-  isTeams: ?boolean,
-  stageId: ?number,
+  isTeams: boolean | null,
+  stageId: number | null,
   players: PlayerType[]
 |};
 
 export type PreFrameUpdateType = {|
-  frame: ?number,
-  playerIndex: ?number,
-  isFollower: ?boolean,
-  seed: ?number,
-  actionStateId: ?number,
-  positionX: ?number,
-  positionY: ?number,
-  facingDirection: ?number,
-  joystickX: ?number,
-  joystickY: ?number,
-  cStickX: ?number,
-  cStickY: ?number,
-  trigger: ?number,
-  buttons: ?number,
-  physicalButtons: ?number,
-  physicalLTrigger: ?number,
-  physicalRTrigger: ?number,
+  frame: number | null,
+  playerIndex: number | null,
+  isFollower: boolean | null,
+  seed: number | null,
+  actionStateId: number | null,
+  positionX: number | null,
+  positionY: number | null,
+  facingDirection: number | null,
+  joystickX: number | null,
+  joystickY: number | null,
+  cStickX: number | null,
+  cStickY: number | null,
+  trigger: number | null,
+  buttons: number | null,
+  physicalButtons: number | null,
+  physicalLTrigger: number | null,
+  physicalRTrigger: number | null,
 |};
 
 export type PostFrameUpdateType = {|
-  frame: ?number,
-  playerIndex: ?number,
-  isFollower: ?boolean,
-  internalCharacterId: ?number,
-  actionStateId: ?number,
-  positionX: ?number,
-  positionY: ?number,
-  facingDirection: ?number,
-  percent: ?number,
-  shieldSize: ?number,
-  lastAttackLanded: ?number,
-  currentComboCount: ?number,
-  lastHitBy: ?number,
-  stocksRemaining: ?number,
+  frame: number | null,
+  playerIndex: number | null,
+  isFollower: boolean | null,
+  internalCharacterId: number | null,
+  actionStateId: number | null,
+  positionX: number | null,
+  positionY: number | null,
+  facingDirection: number | null,
+  percent: number | null,
+  shieldSize: number | null,
+  lastAttackLanded: number | null,
+  currentComboCount: number | null,
+  lastHitBy: number | null,
+  stocksRemaining: number | null,
 |};
 
 
 export type GameEndType = {|
-  gameEndMethod: ?number,
+  gameEndMethod: number | null,
 |};
 
 export type MetadataType = {
   startAt: ?string,
-  playedOn: ?string
+  playedOn: ?string,
+  lastFrame: ?number,
+  players: ?{
+    [playerIndex: number]: {
+      characters: {
+        [internalCharacterId: number]: number
+      }
+    }
+  }
 };
 
 /**
@@ -174,7 +182,9 @@ function getMessageSizes(fd: number, position: number): { [command: number]: num
   return messageSizes;
 }
 
-type EventPayloadTypes = GameStartType | PreFrameUpdateType | PostFrameUpdateType | GameEndType;
+type EventPayloadTypes = (
+  GameStartType | PreFrameUpdateType | PostFrameUpdateType | GameEndType
+);
 type EventCallbackFunc = (command: number, payload: ?EventPayloadTypes) => boolean;
 
 /**
@@ -231,7 +241,7 @@ function parseMessage(command, payload): ?EventPayloadTypes {
           characterColor: readUint8(view, 0x68 + offset),
           startStocks: readUint8(view, 0x67 + offset),
           type: readUint8(view, 0x66 + offset),
-          teamId: readUint8(view, 0x6E + offset)
+          teamId: readUint8(view, 0x6E + offset),
         };
       })
     };
@@ -286,7 +296,7 @@ function canReadFromView(view: DataView, offset, length) {
   return offset + length <= viewLength;
 }
 
-function readFloat(view: DataView, offset: number): ?number {
+function readFloat(view: DataView, offset: number): number | null {
   if (!canReadFromView(view, offset, 4)) {
     return null;
   }
@@ -294,7 +304,7 @@ function readFloat(view: DataView, offset: number): ?number {
   return view.getFloat32(offset);
 }
 
-function readInt32(view: DataView, offset: number): ?number {
+function readInt32(view: DataView, offset: number): number | null {
   if (!canReadFromView(view, offset, 4)) {
     return null;
   }
@@ -302,7 +312,7 @@ function readInt32(view: DataView, offset: number): ?number {
   return view.getInt32(offset);
 }
 
-function readUint32(view: DataView, offset: number): ?number {
+function readUint32(view: DataView, offset: number): number | null {
   if (!canReadFromView(view, offset, 4)) {
     return null;
   }
@@ -310,7 +320,7 @@ function readUint32(view: DataView, offset: number): ?number {
   return view.getUint32(offset);
 }
 
-function readUint16(view: DataView, offset: number): ?number {
+function readUint16(view: DataView, offset: number): number | null {
   if (!canReadFromView(view, offset, 2)) {
     return null;
   }
@@ -318,7 +328,7 @@ function readUint16(view: DataView, offset: number): ?number {
   return view.getUint16(offset);
 }
 
-function readUint8(view: DataView, offset: number): ?number {
+function readUint8(view: DataView, offset: number): number | null {
   if (!canReadFromView(view, offset, 1)) {
     return null;
   }
@@ -326,7 +336,7 @@ function readUint8(view: DataView, offset: number): ?number {
   return view.getUint8(offset);
 }
 
-function readBool(view: DataView, offset: number): ?boolean {
+function readBool(view: DataView, offset: number): boolean | null {
   if (!canReadFromView(view, offset, 1)) {
     return null;
   }
