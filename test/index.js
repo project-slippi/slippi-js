@@ -15,9 +15,17 @@ test('test stats', () => {
   expect(stats.gameDuration).toBe(3694);
 
   // Test stocks
-  // console.log(stats.events.stocks);
-  expect(stats.events.stocks.length).toBe(5);
-  expect(_.last(stats.events.stocks).endFrame).toBe(3694);
+  // console.log(stats.stocks);
+  expect(stats.stocks.length).toBe(5);
+  expect(_.last(stats.stocks).endFrame).toBe(3694);
+
+  // Test punishes
+  // console.log(stats.events.punishes);
+  expect(stats.punishes.length).toBe(10);
+  const firstPunish = _.first(stats.punishes);
+  expect(firstPunish.moves.length).toBe(4);
+  expect(_.first(firstPunish.moves).moveId).toBe(15);
+  expect(_.last(firstPunish.moves).moveId).toBe(17);
 
   // Test action counts
   expect(stats.actionCounts[0].wavedashCount).toBe(16);
