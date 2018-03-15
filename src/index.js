@@ -6,12 +6,15 @@ import { getLastFrame } from "./stats/common";
 import { generatePunishes } from "./stats/punishes";
 import { generateStocks } from "./stats/stocks";
 import { generateActionCounts } from "./stats/actions";
+import { generateOverall as generateOverallStats } from "./stats/overall";
 
 // Type imports
 import type {
   PlayerType, PreFrameUpdateType, PostFrameUpdateType, SlpFileType, MetadataType
 } from "./utils/slpReader";
-import type { StockType, PunishType, ActionCountsType } from "./stats/common";
+import type {
+  StockType, PunishType, ActionCountsType, OverallType
+} from "./stats/common";
 
 type GameSettingsType = {
   stageId: number,
@@ -32,10 +35,11 @@ type FramesType = {
 };
 
 type StatsType = {
+  gameDuration: number,
   stocks: StockType[],
   punishes: PunishType[],
   actionCounts: ActionCountsType[],
-  gameDuration: number,
+  overall: OverallType[],
 };
 
 /**
@@ -159,12 +163,14 @@ export default class SlippiGame {
       return this.stats;
     }
 
-    this.stats = {
-      stocks: generateStocks(this),
-      punishes: generatePunishes(this),
-      actionCounts: generateActionCounts(this),
-      gameDuration: getLastFrame(this),
-    };
+    // The order here kind of matters because things later in the call order might
+    // reference things calculated earlier
+    this.stats = {};
+    this.stats.stocks = generateStocks(this);
+    this.stats.punishes = generatePunishes(this);
+    this.stats.actionCounts = generateActionCounts(this);
+    this.stats.gameDuration = getLastFrame(this);
+    this.stats.overall = generateOverallStats(this);
 
     return this.stats;
   }

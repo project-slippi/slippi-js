@@ -46,6 +46,23 @@ export type ActionCountsType = PlayerIndexedType & {
   rollCount: number,
 }
 
+export type OverallType = PlayerIndexedType & {
+  inputCount: number,
+  openingCount: number,
+  totalDamage: number,
+  killCount: number,
+
+  inputsPerMinute: number | null,
+  openingsPerKill: number | null,
+  damagePerOpening: number | null,
+  neutralWinCount: number,
+  neutralWinTotal: number,
+  reversalCount: number,
+  reversalTotal: number,
+  beneficialTradeCount: number,
+  beneficialTradeTotal: number,
+}
+
 export type EdgeguardType = PunishType;
 
 export const States = {
