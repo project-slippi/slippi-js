@@ -2,24 +2,23 @@
 import _ from 'lodash';
 import SlippiGame from "../index";
 import type { PostFrameUpdateType } from "../utils/slpReader";
-import type { MoveLandedType, PunishType } from "./common";
+import type { MoveLandedType, ConversionType } from "./common";
 import {
   iterateFramesInOrder, isDamaged, isGrabbed, calcDamageTaken, isInControl, didLoseStock,
   Timers
 } from "./common";
 
-export function generatePunishes(game: SlippiGame): PunishType[] {
-  // TODO: Perhaps call punishes "conversions"?
-  const punishes = [];
+export function generateConversions(game: SlippiGame): ConversionType[] {
+  const conversions = [];
   const frames = game.getFrames();
 
   const initialState: {
-    punish: PunishType | null,
+    conversion: ConversionType | null,
     move: MoveLandedType | null,
     resetCounter: number,
     lastHitAnimation: number | null,
   } = {
-    punish: null,
+    conversion: null,
     move: null,
     resetCounter: 0,
     lastHitAnimation: null,
@@ -28,7 +27,7 @@ export function generatePunishes(game: SlippiGame): PunishType[] {
   // Only really doing assignment here for flow
   let state = initialState;
 
-  // Iterates the frames in order in order to compute punishes
+  // Iterates the frames in order in order to compute conversions
   iterateFramesInOrder(game, () => {
     state = { ...initialState };
   }, (indices, frame) => {
@@ -51,10 +50,10 @@ export function generatePunishes(game: SlippiGame): PunishType[] {
     }
 
     // If opponent took damage and was put in some kind of stun this frame, either
-    // start a punish or
+    // start a conversion or
     if (opntDamageTaken && (opntIsDamaged || opntIsGrabbed)) {
-      if (!state.punish) {
-        state.punish = {
+      if (!state.conversion) {
+        state.conversion = {
           playerIndex: indices.playerIndex,
           opponentIndex: indices.opponentIndex,
           startFrame: playerFrame.frame,
@@ -67,7 +66,7 @@ export function generatePunishes(game: SlippiGame): PunishType[] {
           openingType: "unknown", // Will be updated later
         };
 
-        punishes.push(state.punish);
+        conversions.push(state.conversion);
       }
 
       // If animation of last hit has been cleared that means this is a new move. This
@@ -79,7 +78,7 @@ export function generatePunishes(game: SlippiGame): PunishType[] {
           hitCount: 0,
         };
 
-        state.punish.moves.push(state.move);
+        state.conversion.moves.push(state.move);
       }
 
       if (state.move) {
@@ -91,9 +90,9 @@ export function generatePunishes(game: SlippiGame): PunishType[] {
       state.lastHitAnimation = prevPlayerFrame.actionStateId;
     }
 
-    if (!state.punish) {
-      // The rest of the function handles punish termination logic, so if we don't
-      // have a punish started, there is no need to continue
+    if (!state.conversion) {
+      // The rest of the function handles conversion termination logic, so if we don't
+      // have a conversion started, there is no need to continue
       return;
     }
 
@@ -102,7 +101,7 @@ export function generatePunishes(game: SlippiGame): PunishType[] {
 
     // Update percent if opponent didn't lose stock
     if (!opntDidLoseStock) {
-      state.punish.currentPercent = opponentFrame.percent || 0;
+      state.conversion.currentPercent = opponentFrame.percent || 0;
     }
 
     if (opntIsDamaged || opntIsGrabbed) {
@@ -123,41 +122,41 @@ export function generatePunishes(game: SlippiGame): PunishType[] {
 
     // Termination condition 1 - player kills opponent
     if (opntDidLoseStock) {
-      state.punish.didKill = true;
+      state.conversion.didKill = true;
       shouldTerminate = true;
     }
 
-    // Termination condition 2 - punish resets on time
+    // Termination condition 2 - conversion resets on time
     if (state.resetCounter > Timers.PUNISH_RESET_FRAMES) {
       shouldTerminate = true;
     }
 
-    // If punish should terminate, mark the end states and add it to list
+    // If conversion should terminate, mark the end states and add it to list
     if (shouldTerminate) {
-      state.punish.endFrame = playerFrame.frame;
-      state.punish.endPercent = prevOpponentFrame.percent || 0;
+      state.conversion.endFrame = playerFrame.frame;
+      state.conversion.endPercent = prevOpponentFrame.percent || 0;
 
-      state.punish = null;
+      state.conversion = null;
       state.move = null;
     }
   });
 
   // Adds opening type to the punishes
-  addOpeningTypeToPunishes(game, punishes);
+  addOpeningTypeToConversions(game, conversions);
 
-  return punishes;
+  return conversions;
 }
 
-function addOpeningTypeToPunishes(game, punishes) {
-  const punishesByPlayerIndex = _.groupBy(punishes, 'playerIndex');
-  const keyedPunishes = _.mapValues(punishesByPlayerIndex, (playerPunishes) => (
-    _.keyBy(playerPunishes, 'startFrame')
+function addOpeningTypeToConversions(game, conversions) {
+  const conversionsByPlayerIndex = _.groupBy(conversions, 'playerIndex');
+  const keyedConversions = _.mapValues(conversionsByPlayerIndex, (playerConversions) => (
+    _.keyBy(playerConversions, 'startFrame')
   ));
 
   const initialState: {
-    opponentPunish: PunishType | null,
+    opponentConversion: ConversionType | null,
   } = {
-    opponentPunish: null
+    opponentConversion: null
   };
 
   // Only really doing assignment here for flow
@@ -171,26 +170,26 @@ function addOpeningTypeToPunishes(game, punishes) {
   }, (indices, frame) => {
     const frameNum = frame.frame;
 
-    // Clear opponent punish if it ended this frame
-    if (_.get(state, ['opponentPunish', 'endFrame']) === frameNum) {
-      state.opponentPunish = null;
+    // Clear opponent conversion if it ended this frame
+    if (_.get(state, ['opponentConversion', 'endFrame']) === frameNum) {
+      state.opponentConversion = null;
     }
 
-    // Get opponent punish. Add to state if exists for this frame
-    const opponentPunish = _.get(keyedPunishes, [indices.opponentIndex, frameNum]);
-    if (opponentPunish) {
-      state.opponentPunish = opponentPunish;
+    // Get opponent conversion. Add to state if exists for this frame
+    const opponentConversion = _.get(keyedConversions, [indices.opponentIndex, frameNum]);
+    if (opponentConversion) {
+      state.opponentConversion = opponentConversion;
     }
 
-    const playerPunish = _.get(keyedPunishes, [indices.playerIndex, frameNum]);
-    if (!playerPunish) {
-      // Only need to do something if a punish for this player started on this frame
+    const playerConversion = _.get(keyedConversions, [indices.playerIndex, frameNum]);
+    if (!playerConversion) {
+      // Only need to do something if a conversion for this player started on this frame
       return;
     }
 
     // In the case where punishes from both players start on the same frame, set trade
-    if (playerPunish && opponentPunish) {
-      playerPunish.openingType = "trade";
+    if (playerConversion && opponentConversion) {
+      playerConversion.openingType = "trade";
       return;
     }
 
@@ -200,7 +199,7 @@ function addOpeningTypeToPunishes(game, punishes) {
     // TODO: Also perhaps if a player gets a random hit in the middle of a the other
     // TODO: player's combo it shouldn't be called a counter-attack
 
-    // If opponent has an active punish, this is a counter-attack, otherwise a neutral win
-    playerPunish.openingType = state.opponentPunish ? "counter-attack" : "neutral-win";
+    // If opponent has an active conversion, this is a counter-attack, otherwise a neutral win
+    playerConversion.openingType = state.opponentConversion ? "counter-attack" : "neutral-win";
   });
 }

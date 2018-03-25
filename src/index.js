@@ -3,7 +3,7 @@ import _ from 'lodash';
 import { Commands, openSlpFile, iterateEvents, getMetadata } from './utils/slpReader';
 
 import { getLastFrame } from "./stats/common";
-import { generatePunishes } from "./stats/punishes";
+import { generateConversions } from "./stats/conversions";
 import { generateStocks } from "./stats/stocks";
 import { generateActionCounts } from "./stats/actions";
 import { generateOverall as generateOverallStats } from "./stats/overall";
@@ -13,7 +13,7 @@ import type {
   PlayerType, PreFrameUpdateType, PostFrameUpdateType, SlpFileType, MetadataType
 } from "./utils/slpReader";
 import type {
-  StockType, PunishType, ActionCountsType, OverallType
+  StockType, ConversionType, ActionCountsType, OverallType
 } from "./stats/common";
 
 type GameSettingsType = {
@@ -37,7 +37,7 @@ type FramesType = {
 type StatsType = {
   gameDuration: number,
   stocks: StockType[],
-  punishes: PunishType[],
+  conversions: ConversionType[],
   actionCounts: ActionCountsType[],
   overall: OverallType[],
 };
@@ -164,10 +164,11 @@ export default class SlippiGame {
     }
 
     // The order here kind of matters because things later in the call order might
-    // reference things calculated earlier
+    // reference things calculated earlier. More specifically, currently the overall
+    // calculation uses the others
     this.stats = {};
     this.stats.stocks = generateStocks(this);
-    this.stats.punishes = generatePunishes(this);
+    this.stats.conversions = generateConversions(this);
     this.stats.actionCounts = generateActionCounts(this);
     this.stats.gameDuration = getLastFrame(this);
     this.stats.overall = generateOverallStats(this);

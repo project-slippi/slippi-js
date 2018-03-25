@@ -4,6 +4,12 @@ import SlippiGame from "../index";
 import type { PostFrameUpdateType } from "../utils/slpReader";
 import type { FrameEntryType } from "../index";
 
+type RatioType = {
+  count: number,
+  total: number,
+  ratio: number | null,
+}
+
 type PlayerIndexedType = {
   playerIndex: number,
   opponentIndex: number
@@ -31,7 +37,7 @@ export type MoveLandedType = {
   hitCount: number,
 }
 
-export type PunishType = PlayerIndexedType & DurationType & DamageType & {
+export type ConversionType = PlayerIndexedType & DurationType & DamageType & {
   moves: MoveLandedType[],
   openingType: string,
   didKill: boolean,
@@ -48,22 +54,18 @@ export type ActionCountsType = PlayerIndexedType & {
 
 export type OverallType = PlayerIndexedType & {
   inputCount: number,
-  openingCount: number,
+  conversionCount: number,
   totalDamage: number,
   killCount: number,
 
-  inputsPerMinute: number | null,
-  openingsPerKill: number | null,
-  damagePerOpening: number | null,
-  neutralWinCount: number,
-  neutralWinTotal: number,
-  reversalCount: number,
-  reversalTotal: number,
-  beneficialTradeCount: number,
-  beneficialTradeTotal: number,
+  successfulConversions: RatioType,
+  inputsPerMinute: RatioType,
+  openingsPerKill: RatioType,
+  damagePerOpening: RatioType,
+  neutralWinRatio: RatioType,
+  counterHitRatio: RatioType,
+  beneficialTradeRatio: RatioType,
 }
-
-export type EdgeguardType = PunishType;
 
 export const States = {
   // Animation ID ranges
@@ -110,7 +112,7 @@ export const Timers = {
   COMBO_STRING_RESET_FRAMES: 45
 };
 
-function getSinglesOpponentIndices(game: SlippiGame): PlayerIndexedType[] {
+export function getSinglesOpponentIndices(game: SlippiGame): PlayerIndexedType[] {
   const settings = game.getSettings();
   if (settings.players.length !== 2) {
     // Only return opponent indices for singles
