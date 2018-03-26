@@ -44,8 +44,15 @@ export function generateConversions(game: SlippiGame): ConversionType[] {
     const opntIsGrabbed = isGrabbed(opponentFrame.actionStateId);
     const opntDamageTaken = calcDamageTaken(opponentFrame, prevOpponentFrame);
 
-    // Keep track of whether actionState changes after a hit. Used to computer move count
-    if (playerFrame.actionStateId !== state.lastHitAnimation) {
+    // Keep track of whether actionState changes after a hit. Used to compute move count
+    // When purely using action state there was a bug where if you did two of the same
+    // move really fast (such as ganon's jab), it would count as one move. Added
+    // the actionStateCounter at this point which counts the number of frames since
+    // an animation started. Should be more robust, for old files it should always be
+    // null and null < null = false
+    const actionChangedSinceHit = playerFrame.actionStateId !== state.lastHitAnimation;
+    const actionFrameCounterReset = playerFrame.actionStateCounter < prevPlayerFrame.actionStateCounter;
+    if (actionChangedSinceHit || actionFrameCounterReset) {
       state.lastHitAnimation = null;
     }
 

@@ -85,6 +85,8 @@ export const States = {
   DYING_END: 0xA,
   CONTROLLED_JUMP_START: 0x18,
   CONTROLLED_JUMP_END: 0x22,
+  GROUND_ATTACK_START: 0x2C,
+  GROUND_ATTACK_END: 0x40,
 
   // Animation ID specific
   ROLL_FORWARD: 0xE9,
@@ -104,6 +106,7 @@ export const States = {
   JUMP_BACKWARD: 0x1A,
   FALL_FORWARD: 0x1E,
   FALL_BACKWARD: 0x1F,
+  GRAB: 0xD4,
 };
 
 export const Timers = {
@@ -146,7 +149,10 @@ export function didLoseStock(frame: PostFrameUpdateType, prevFrame: PostFrameUpd
 export function isInControl(state: number): boolean {
   const ground = state >= States.GROUNDED_CONTROL_START && state <= States.GROUNDED_CONTROL_END;
   const squat = state >= States.SQUAT_START && state <= States.SQUAT_END;
-  return ground || squat;
+  const groundAttack = state > States.GROUND_ATTACK_START && state <= States.GROUND_ATTACK_END;
+  const isGrab = state === States.GRAB;
+  // TODO: Add grounded b moves?
+  return ground || squat || groundAttack || isGrab;
 }
 
 export function isDamaged(state: number): boolean {
