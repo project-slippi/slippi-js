@@ -112,6 +112,11 @@ export const Timers = {
   COMBO_STRING_RESET_FRAMES: 45
 };
 
+export const Frames = {
+  FIRST: -123,
+  FIRST_PLAYABLE: -39,
+};
+
 export function getSinglesOpponentIndices(game: SlippiGame): PlayerIndexedType[] {
   const settings = game.getSettings();
   if (settings.players.length !== 2) {
