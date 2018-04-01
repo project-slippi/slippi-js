@@ -12,25 +12,28 @@ test('read settings', () => {
 test('test stats', () => {
   const game = new SlippiGame("test/test.slp");
   const stats = game.getStats();
-  expect(stats.gameDuration).toBe(3694);
+  expect(stats.lastFrame).toBe(3694);
 
   // Test stocks
   // console.log(stats.stocks);
   expect(stats.stocks.length).toBe(5);
   expect(_.last(stats.stocks).endFrame).toBe(3694);
 
-  // Test punishes
+  // Test conversions
   // console.log(stats.events.punishes);
-  expect(stats.punishes.length).toBe(10);
-  const firstPunish = _.first(stats.punishes);
-  expect(firstPunish.moves.length).toBe(4);
-  expect(_.first(firstPunish.moves).moveId).toBe(15);
-  expect(_.last(firstPunish.moves).moveId).toBe(17);
+  expect(stats.conversions.length).toBe(10);
+  const firstConversion = _.first(stats.conversions);
+  expect(firstConversion.moves.length).toBe(4);
+  expect(_.first(firstConversion.moves).moveId).toBe(15);
+  expect(_.last(firstConversion.moves).moveId).toBe(17);
 
   // Test action counts
   expect(stats.actionCounts[0].wavedashCount).toBe(16);
   expect(stats.actionCounts[0].wavelandCount).toBe(1);
   expect(stats.actionCounts[0].airDodgeCount).toBe(3);
+
+  // Test overall
+  expect(stats.overall[0].inputCount).toBe(459);
 });
 
 test('test metadata', () => {

@@ -2,16 +2,19 @@
 import _ from 'lodash';
 import { Commands, openSlpFile, iterateEvents, getMetadata } from './utils/slpReader';
 
-import { getLastFrame } from "./stats/common";
-import { generatePunishes } from "./stats/punishes";
+import { getLastFrame, Frames } from "./stats/common";
+import { generateConversions } from "./stats/conversions";
 import { generateStocks } from "./stats/stocks";
 import { generateActionCounts } from "./stats/actions";
+import { generateOverall as generateOverallStats } from "./stats/overall";
 
 // Type imports
 import type {
   PlayerType, PreFrameUpdateType, PostFrameUpdateType, SlpFileType, MetadataType
 } from "./utils/slpReader";
-import type { StockType, PunishType, ActionCountsType } from "./stats/common";
+import type {
+  StockType, ConversionType, ActionCountsType, OverallType
+} from "./stats/common";
 
 type GameSettingsType = {
   stageId: number,
@@ -32,10 +35,12 @@ type FramesType = {
 };
 
 type StatsType = {
+  lastFrame: number,
+  playableFrameCount: number,
   stocks: StockType[],
-  punishes: PunishType[],
+  conversions: ConversionType[],
   actionCounts: ActionCountsType[],
-  gameDuration: number,
+  overall: OverallType[],
 };
 
 /**
@@ -91,7 +96,7 @@ export default class SlippiGame {
         settings.players = _.filter(payload.players, player => player.type !== 3);
         break;
       case Commands.POST_FRAME_UPDATE:
-        if (payload.frame === null || payload.frame > -123) {
+        if (payload.frame === null || payload.frame > Frames.FIRST) {
           // Once we are an frame -122 or higher we are done getting match settings
           // Tell the iterator to stop
           return true;
@@ -159,12 +164,18 @@ export default class SlippiGame {
       return this.stats;
     }
 
-    this.stats = {
-      stocks: generateStocks(this),
-      punishes: generatePunishes(this),
-      actionCounts: generateActionCounts(this),
-      gameDuration: getLastFrame(this),
-    };
+    const lastFrame = getLastFrame(this);
+
+    // The order here kind of matters because things later in the call order might
+    // reference things calculated earlier. More specifically, currently the overall
+    // calculation uses the others
+    this.stats = {};
+    this.stats.stocks = generateStocks(this);
+    this.stats.conversions = generateConversions(this);
+    this.stats.actionCounts = generateActionCounts(this);
+    this.stats.lastFrame = lastFrame;
+    this.stats.playableFrameCount = lastFrame + Math.abs(Frames.FIRST_PLAYABLE);
+    this.stats.overall = generateOverallStats(this);
 
     return this.stats;
   }

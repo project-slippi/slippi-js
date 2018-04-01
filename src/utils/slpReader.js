@@ -71,6 +71,7 @@ export type PostFrameUpdateType = {|
   currentComboCount: number | null,
   lastHitBy: number | null,
   stocksRemaining: number | null,
+  actionStateCounter: number | null,
 |};
 
 
@@ -281,6 +282,7 @@ function parseMessage(command, payload): ?EventPayloadTypes {
       currentComboCount: readUint8(view, 0x1F),
       lastHitBy: readUint8(view, 0x20),
       stocksRemaining: readUint8(view, 0x21),
+      actionStateCounter: readFloat(view, 0x22),
     };
   case Commands.GAME_END:
     return {

@@ -4,6 +4,12 @@ import SlippiGame from "../index";
 import type { PostFrameUpdateType } from "../utils/slpReader";
 import type { FrameEntryType } from "../index";
 
+type RatioType = {
+  count: number,
+  total: number,
+  ratio: number | null,
+}
+
 type PlayerIndexedType = {
   playerIndex: number,
   opponentIndex: number
@@ -31,7 +37,7 @@ export type MoveLandedType = {
   hitCount: number,
 }
 
-export type PunishType = PlayerIndexedType & DurationType & DamageType & {
+export type ConversionType = PlayerIndexedType & DurationType & DamageType & {
   moves: MoveLandedType[],
   openingType: string,
   didKill: boolean,
@@ -46,7 +52,20 @@ export type ActionCountsType = PlayerIndexedType & {
   rollCount: number,
 }
 
-export type EdgeguardType = PunishType;
+export type OverallType = PlayerIndexedType & {
+  inputCount: number,
+  conversionCount: number,
+  totalDamage: number,
+  killCount: number,
+
+  successfulConversions: RatioType,
+  inputsPerMinute: RatioType,
+  openingsPerKill: RatioType,
+  damagePerOpening: RatioType,
+  neutralWinRatio: RatioType,
+  counterHitRatio: RatioType,
+  beneficialTradeRatio: RatioType,
+}
 
 export const States = {
   // Animation ID ranges
@@ -66,6 +85,8 @@ export const States = {
   DYING_END: 0xA,
   CONTROLLED_JUMP_START: 0x18,
   CONTROLLED_JUMP_END: 0x22,
+  GROUND_ATTACK_START: 0x2C,
+  GROUND_ATTACK_END: 0x40,
 
   // Animation ID specific
   ROLL_FORWARD: 0xE9,
@@ -85,6 +106,7 @@ export const States = {
   JUMP_BACKWARD: 0x1A,
   FALL_FORWARD: 0x1E,
   FALL_BACKWARD: 0x1F,
+  GRAB: 0xD4,
 };
 
 export const Timers = {
@@ -93,7 +115,12 @@ export const Timers = {
   COMBO_STRING_RESET_FRAMES: 45
 };
 
-function getSinglesOpponentIndices(game: SlippiGame): PlayerIndexedType[] {
+export const Frames = {
+  FIRST: -123,
+  FIRST_PLAYABLE: -39,
+};
+
+export function getSinglesOpponentIndices(game: SlippiGame): PlayerIndexedType[] {
   const settings = game.getSettings();
   if (settings.players.length !== 2) {
     // Only return opponent indices for singles
@@ -122,7 +149,10 @@ export function didLoseStock(frame: PostFrameUpdateType, prevFrame: PostFrameUpd
 export function isInControl(state: number): boolean {
   const ground = state >= States.GROUNDED_CONTROL_START && state <= States.GROUNDED_CONTROL_END;
   const squat = state >= States.SQUAT_START && state <= States.SQUAT_END;
-  return ground || squat;
+  const groundAttack = state > States.GROUND_ATTACK_START && state <= States.GROUND_ATTACK_END;
+  const isGrab = state === States.GRAB;
+  // TODO: Add grounded b moves?
+  return ground || squat || groundAttack || isGrab;
 }
 
 export function isDamaged(state: number): boolean {
