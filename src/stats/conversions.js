@@ -51,7 +51,9 @@ export function generateConversions(game: SlippiGame): ConversionType[] {
     // an animation started. Should be more robust, for old files it should always be
     // null and null < null = false
     const actionChangedSinceHit = playerFrame.actionStateId !== state.lastHitAnimation;
-    const actionFrameCounterReset = playerFrame.actionStateCounter < prevPlayerFrame.actionStateCounter;
+    const actionCounter = playerFrame.actionStateCounter;
+    const prevActionCounter = prevPlayerFrame.actionStateCounter;
+    const actionFrameCounterReset = actionCounter < prevActionCounter;
     if (actionChangedSinceHit || actionFrameCounterReset) {
       state.lastHitAnimation = null;
     }

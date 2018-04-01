@@ -1,7 +1,7 @@
 // @flow
 import _ from 'lodash';
 import SlippiGame from "../index";
-import {Frames, getSinglesOpponentIndices, iterateFramesInOrder} from "./common";
+import { Frames, getSinglesOpponentIndices, iterateFramesInOrder } from "./common";
 
 import type { OverallType } from "./common";
 import type { PreFrameUpdateType } from "../utils/slpReader";
@@ -26,9 +26,9 @@ export function generateOverall(game: SlippiGame): OverallType[] {
   const inputsByPlayer = _.keyBy(inputs, 'playerIndex');
   const stocksByPlayer = _.groupBy(game.stats.stocks, 'playerIndex');
   const conversionsByPlayer = _.groupBy(game.stats.conversions, 'playerIndex');
-  const conversionsByPlayerByOpening = _.map(conversionsByPlayer, (conversions) => {
-    return _.groupBy(conversions, 'openingType');
-  });
+  const conversionsByPlayerByOpening = _.map(conversionsByPlayer, (conversions) => (
+    _.groupBy(conversions, 'openingType')
+  ));
 
   const gameMinutes = game.stats.playableFrameCount / 3600;
 
@@ -162,8 +162,12 @@ function generateInputs(game: SlippiGame) {
 
     // Increment action count when sticks change from one region to another.
     // Don't increment when stick returns to deadzone
-    const prevAnalogRegion = getJoystickRegion(prevPlayerFrame.joystickX, prevPlayerFrame.joystickY);
-    const currentAnalogRegion = getJoystickRegion(playerFrame.joystickX, playerFrame.joystickY);
+    const prevAnalogRegion = getJoystickRegion(
+      prevPlayerFrame.joystickX, prevPlayerFrame.joystickY
+    );
+    const currentAnalogRegion = getJoystickRegion(
+      playerFrame.joystickX, playerFrame.joystickY
+    );
     if ((prevAnalogRegion !== currentAnalogRegion) && (currentAnalogRegion !== 0)) {
       state.inputCount += 1;
     }
@@ -195,9 +199,11 @@ function countSetBits(x) {
   // bits in the input that are set to 1
   // This implementation is supposedly very efficient when most bits are zero.
   // Found: https://en.wikipedia.org/wiki/Hamming_weight#Efficient_implementation
+  let bits = x;
+
   let count;
-  for (count = 0; x; count += 1) {
-    x &= x - 1;
+  for (count = 0; bits; count += 1) {
+    bits &= bits - 1;
   }
   return count;
 }
@@ -217,7 +223,7 @@ function getJoystickRegion(x: number, y: number) {
     region = JoystickRegion.N;
   } else if (x >= 0.2875) {
     region = JoystickRegion.E;
-  }  else if (y <= -0.2875) {
+  } else if (y <= -0.2875) {
     region = JoystickRegion.S;
   } else if (x <= -0.2875) {
     region = JoystickRegion.W;
