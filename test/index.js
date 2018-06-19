@@ -15,7 +15,7 @@ test('test stats', () => {
   expect(stats.lastFrame).toBe(3694);
 
   // Test stocks
-  // console.log(stats.stocks);
+  // console.log(stats);
   expect(stats.stocks.length).toBe(5);
   expect(_.last(stats.stocks).endFrame).toBe(3694);
 

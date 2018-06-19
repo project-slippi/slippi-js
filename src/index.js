@@ -103,12 +103,14 @@ export default class SlippiGame {
         }
 
         const playerIndex = payload.playerIndex;
+        const playersByIndex = _.keyBy(settings.players, 'playerIndex');
+
         switch (payload.internalCharacterId) {
         case 0x7:
-          settings.players[playerIndex].characterId = 0x13; // Sheik
+          playersByIndex[playerIndex].characterId = 0x13; // Sheik
           break;
         case 0x13:
-          settings.players[playerIndex].characterId = 0x12; // Zelda
+          playersByIndex[playerIndex].characterId = 0x12; // Zelda
           break;
         }
         break;

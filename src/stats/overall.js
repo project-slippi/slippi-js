@@ -26,7 +26,7 @@ export function generateOverall(game: SlippiGame): OverallType[] {
   const inputsByPlayer = _.keyBy(inputs, 'playerIndex');
   const stocksByPlayer = _.groupBy(game.stats.stocks, 'playerIndex');
   const conversionsByPlayer = _.groupBy(game.stats.conversions, 'playerIndex');
-  const conversionsByPlayerByOpening = _.map(conversionsByPlayer, (conversions) => (
+  const conversionsByPlayerByOpening = _.mapValues(conversionsByPlayer, (conversions) => (
     _.groupBy(conversions, 'openingType')
   ));
 
