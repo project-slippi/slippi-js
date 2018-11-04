@@ -132,9 +132,21 @@ function getRawDataPosition(fd) {
 }
 
 function getRawDataLength(fd: number, position: number) {
+  const fileStats = fs.fstatSync(fd) || {};
+  const fileSize = fileStats.size;
   if (position === 0) {
-    const fileStats = fs.fstatSync(fd) || {};
-    return fileStats.size;
+    return fileSize;
+  }
+
+  const endBytes = new Uint8Array(2);
+  // $FlowFixMe
+  fs.readSync(fd, endBytes, 0, 2, fileSize - 2);
+  const endFileByte = '}'.charCodeAt(0);
+  if (endBytes[0] !== endFileByte && endBytes[1] !== endFileByte) {
+    // If the two final bytes do not close out the UBJSON file,
+    // return a file size based on file length. This enables
+    // some support for severed files
+    return fileSize - position;
   }
 
   const buffer = new Uint8Array(4);
@@ -347,6 +359,12 @@ function readBool(view: DataView, offset: number): boolean | null {
 }
 
 export function getMetadata(slpFile: SlpFileType): MetadataType {
+  if (slpFile.metadataLength <= 0) {
+    // This will happen on a severed incomplete file
+    // $FlowFixMe
+    return {};
+  }
+
   const buffer = new Uint8Array(slpFile.metadataLength);
 
   // $FlowFixMe

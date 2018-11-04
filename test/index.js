@@ -42,3 +42,11 @@ test('test metadata', () => {
   expect(metadata.startAt).toBe("2017-12-18T21:14:14Z");
   expect(metadata.playedOn).toBe("dolphin");
 });
+
+test('test incomplete', () => {
+  const game = new SlippiGame("test/incomplete.slp");
+  const settings = game.getSettings();
+  expect(settings.players.length).toBe(2);
+  game.getMetadata();
+  game.getStats();
+});
