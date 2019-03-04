@@ -1,9 +1,10 @@
 // @flow
 import _ from 'lodash';
 import fs from 'fs';
-import { decode } from '../ubjson/ubjson';
 import diacritics from 'diacritics';
 import iconv from 'iconv-lite';
+
+import { decode } from '../ubjson/ubjson';
 
 export const Commands = {
   MESSAGE_SIZES: 0x35,

@@ -26,6 +26,7 @@
     "import/prefer-default-export": "off",
     "indent": ["error", 2, { "SwitchCase": 0 }],
     "jsx-quotes": "off",
+    "lines-between-class-members": "off",
     "no-bitwise": "off",
     "no-case-declarations": "off",
     "no-console": "off",
@@ -33,9 +34,11 @@
     "no-param-reassign": ["error", { "props": false }],
     "no-use-before-define": "off",
     "no-multi-assign": "off",
+    "object-curly-newline": "off",
     "object-shorthand": ["error", "never"],
     "one-var": "off",
     "one-var-declaration-per-line": "off",
+    "operator-linebreak": "off",
     "prefer-destructuring": "off",
     "quotes": "off"
   }
