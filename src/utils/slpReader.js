@@ -375,6 +375,7 @@ export function getMetadata(slpFile: SlpFileType): MetadataType {
     metadata = decode(buffer);
   } catch (ex) {
     // Do nothing
+    console.log(ex);
   }
 
   // $FlowFixMe

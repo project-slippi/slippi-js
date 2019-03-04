@@ -91,7 +91,8 @@ class UbjsonDecoder {
       return this.readInt32();
     default:
       throw new Error(
-        `UBJSON decoder - value type with marker ${valueMarker} is not supported yet.`
+        `UBJSON decoder - value type with marker ${valueMarker} is not supported yet. ` +
+        `Position: ${this.position - 1}.`
       );
     }
   }
