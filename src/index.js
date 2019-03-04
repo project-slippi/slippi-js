@@ -71,9 +71,10 @@ export default class SlippiGame {
     }
 
     // Prepare default settings
-    const settings: GameSettingsType = {
+    let settings: GameSettingsType = {
       stageId: 0,
       isTeams: false,
+      isPAL: false,
       players: []
     };
 
@@ -91,8 +92,7 @@ export default class SlippiGame {
           return true; // Why do I have to do this? Still not sold on Flow
         }
 
-        settings.stageId = payload.stageId;
-        settings.isTeams = !!payload.isTeams;
+        settings = payload;
         settings.players = _.filter(payload.players, player => player.type !== 3);
         break;
       case Commands.POST_FRAME_UPDATE:

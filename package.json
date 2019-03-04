@@ -47,6 +47,8 @@
     "slp-parser-js"
   ],
   "dependencies": {
+    "diacritics": "^1.3.0",
+    "iconv-lite": "^0.4.24",
     "lodash": "^4.17.4"
   },
   "devDependencies": {

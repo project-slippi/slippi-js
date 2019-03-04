@@ -2,6 +2,8 @@
 import _ from 'lodash';
 import fs from 'fs';
 import { decode } from '../ubjson/ubjson';
+import diacritics from 'diacritics';
+import iconv from 'iconv-lite';
 
 export const Commands = {
   MESSAGE_SIZES: 0x35,
@@ -27,11 +29,14 @@ export type PlayerType = {|
   characterColor: number | null,
   startStocks: number | null,
   type: number | null,
-  teamId: number | null
+  teamId: number | null,
+  controllerFix: string | null,
+  nametag: string | null
 |};
 
 export type GameStartType = {|
   isTeams: boolean | null,
+  isPAL: boolean | null,
   stageId: number | null,
   players: PlayerType[]
 |};
@@ -54,6 +59,7 @@ export type PreFrameUpdateType = {|
   physicalButtons: number | null,
   physicalLTrigger: number | null,
   physicalRTrigger: number | null,
+  percent: number | null,
 |};
 
 export type PostFrameUpdateType = {|
@@ -244,8 +250,28 @@ function parseMessage(command, payload): ?EventPayloadTypes {
   case Commands.GAME_START:
     return {
       isTeams: readBool(view, 0xD),
+      isPAL: readBool(view, 0x1A1),
       stageId: readUint16(view, 0x13),
       players: _.map([0, 1, 2, 3], playerIndex => {
+        // Controller Fix stuff
+        const cfOffset = playerIndex * 0x8;
+        const dashback = readUint32(view, 0x141 + cfOffset);
+        const shieldDrop = readUint32(view, 0x145 + cfOffset);
+        let cfOption = "None";
+        if (dashback !== shieldDrop) {
+          cfOption = "Mixed";
+        } else if (dashback === 1) {
+          cfOption = "UCF";
+        } else if (dashback === 2) {
+          cfOption = "Dween";
+        }
+
+        // Nametag stuff
+        const nametagOffset = playerIndex * 0x10;
+        const nametagStart = 0x161 + nametagOffset;
+        const nametagBuf = payload.slice(nametagStart, nametagStart + 16);
+        const nametag = diacritics.remove(iconv.decode(nametagBuf, 'Shift_JIS').split('\0').shift());
+
         const offset = playerIndex * 0x24;
         return {
           playerIndex: playerIndex,
@@ -255,6 +281,8 @@ function parseMessage(command, payload): ?EventPayloadTypes {
           startStocks: readUint8(view, 0x67 + offset),
           type: readUint8(view, 0x66 + offset),
           teamId: readUint8(view, 0x6E + offset),
+          controllerFix: cfOption,
+          nametag: nametag,
         };
       })
     };
@@ -277,6 +305,7 @@ function parseMessage(command, payload): ?EventPayloadTypes {
       physicalButtons: readUint16(view, 0x31),
       physicalLTrigger: readFloat(view, 0x33),
       physicalRTrigger: readFloat(view, 0x37),
+      percent: readFloat(view, 0x3C),
     };
   case Commands.POST_FRAME_UPDATE:
     return {

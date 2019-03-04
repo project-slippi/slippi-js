@@ -50,3 +50,26 @@ test('test incomplete', () => {
   game.getMetadata();
   game.getStats();
 });
+
+test('test nametags', () => {
+  const game = new SlippiGame("test/nametags.slp");
+  const settings = game.getSettings();
+  expect(settings.players[0].nametag).toBe("AMNイ");
+  expect(settings.players[1].nametag).toBe("");
+});
+
+test('test isPAL', () => {
+  const palGame = new SlippiGame("test/pal.slp");
+  const ntscGame = new SlippiGame("test/ntsc.slp");
+
+  expect(palGame.getSettings().isPAL).toBe(true);
+  expect(ntscGame.getSettings().isPAL).toBe(false);
+});
+
+test('test controllerFixes', () => {
+  const game = new SlippiGame("test/controllerFixes.slp");
+  const settings = game.getSettings();
+  expect(settings.players[0].controllerFix).toBe("Dween");
+  expect(settings.players[1].controllerFix).toBe("UCF");
+  expect(settings.players[2].controllerFix).toBe("None");
+});
