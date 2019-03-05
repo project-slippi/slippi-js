@@ -1,5 +1,6 @@
 // @flow
 import _ from 'lodash';
+import fs from 'fs';
 import { Commands, openSlpFile, iterateEvents, getMetadata } from './utils/slpReader';
 
 import { getLastFrame, Frames } from "./stats/common";
@@ -58,6 +59,13 @@ export default class SlippiGame {
   constructor(filePath: string) {
     this.filePath = filePath;
     this.file = openSlpFile(filePath);
+  }
+
+  /**
+   * Closes the file so the user can manipulate it as they see fit
+   */
+  closeFile() {
+    fs.closeSync(this.file.fileDescriptor);
   }
 
   /**
