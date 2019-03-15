@@ -1,9 +1,9 @@
 // @flow
 import _ from 'lodash';
 import fs from 'fs';
-import { toHalfwidth } from './fullwidth';
 import iconv from 'iconv-lite';
 
+import { toHalfwidth } from './fullwidth';
 import { decode } from '../ubjson/ubjson';
 
 export const Commands = {
