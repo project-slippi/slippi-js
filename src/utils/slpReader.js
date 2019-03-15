@@ -1,7 +1,7 @@
 // @flow
 import _ from 'lodash';
 import fs from 'fs';
-import diacritics from 'diacritics';
+import { toHalfwidth } from './fullwidth';
 import iconv from 'iconv-lite';
 
 import { decode } from '../ubjson/ubjson';
@@ -271,7 +271,7 @@ function parseMessage(command, payload): ?EventPayloadTypes {
         const nametagOffset = playerIndex * 0x10;
         const nametagStart = 0x161 + nametagOffset;
         const nametagBuf = payload.slice(nametagStart, nametagStart + 16);
-        const nametag = diacritics.remove(iconv.decode(nametagBuf, 'Shift_JIS').split('\0').shift());
+        const nametag = toHalfwidth(iconv.decode(nametagBuf, 'Shift_JIS').split('\0').shift());
 
         const offset = playerIndex * 0x24;
         return {

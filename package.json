@@ -8,7 +8,7 @@
   "author": {
     "name": "Jas Laferriere",
     "email": "jas.laferriere@gmail.com",
-    "url": "github.com/JLaferri"
+    "url": "https://github.com/JLaferri"
   },
   "engines": {
     "node": ">=6"
@@ -47,7 +47,6 @@
     "slp-parser-js"
   ],
   "dependencies": {
-    "diacritics": "^1.3.0",
     "iconv-lite": "^0.4.24",
     "lodash": "^4.17.11"
   },
