@@ -61,13 +61,6 @@ export default class SlippiGame {
   }
 
   /**
-   * Closes the file so the user can manipulate it as they see fit
-   */
-  closeFile() {
-    fs.closeSync(this.file.fileDescriptor);
-  }
-
-  /**
    * Gets the game settings, these are the settings that describe the starting state of
    * the game such as characters, stage, etc.
    */
@@ -77,7 +70,7 @@ export default class SlippiGame {
       return this.settings;
     }
 
-    this.file = openSlpFile(this.filePath);
+    const slpfile = openSlpFile(this.filePath);
 
     // Prepare default settings
     let settings: GameSettingsType = {
@@ -88,7 +81,7 @@ export default class SlippiGame {
     };
 
     // Generate settings from iterating through file
-    iterateEvents(this.file, (command, payload) => {
+    iterateEvents(slpfile, (command, payload) => {
       if (!payload) {
         // If payload is falsy, keep iterating. The parser probably just doesn't know
         // about this command yet
@@ -129,7 +122,7 @@ export default class SlippiGame {
     });
 
     this.settings = settings;
-    fs.closeSync(this.file.fileDescriptor);
+    fs.closeSync(slpfile.fileDescriptor);
     return settings;
   }
 
@@ -138,12 +131,12 @@ export default class SlippiGame {
       return this.playerFrames;
     }
 
-    this.file = openSlpFile(this.filePath);
+    const slpfile = openSlpFile(this.filePath);
 
     const playerFrames: FramesType = {};
     const followerFrames: FramesType = {};
 
-    iterateEvents(this.file, (command, payload) => {
+    iterateEvents(slpfile, (command, payload) => {
       if (!payload) {
         // If payload is falsy, keep iterating. The parser probably just doesn't know
         // about this command yet
@@ -170,7 +163,7 @@ export default class SlippiGame {
 
     this.playerFrames = playerFrames;
     this.followerFrames = followerFrames;
-    fs.closeSync(this.file.fileDescriptor);
+    fs.closeSync(slpfile.fileDescriptor);
     return playerFrames;
   }
 
@@ -179,7 +172,7 @@ export default class SlippiGame {
       return this.stats;
     }
 
-    this.file = openSlpFile(this.filePath);
+    const slpfile = openSlpFile(this.filePath);
 
     const lastFrame = getLastFrame(this);
 
@@ -194,7 +187,8 @@ export default class SlippiGame {
     this.stats.playableFrameCount = lastFrame + Math.abs(Frames.FIRST_PLAYABLE);
     this.stats.overall = generateOverallStats(this);
 
-    fs.closeSync(this.file.fileDescriptor);
+    fs.closeSync(slpfile.fileDescriptor);
+
     return this.stats;
   }
 
@@ -203,11 +197,11 @@ export default class SlippiGame {
       return this.metadata;
     }
 
-    this.file = openSlpFile(this.filePath);
+    const slpfile = openSlpFile(this.filePath);
 
-    this.metadata = getMetadata(this.file);
+    this.metadata = getMetadata(slpfile);
 
-    fs.closeSync(this.file.fileDescriptor);
+    fs.closeSync(slpfile.fileDescriptor);
     return this.metadata;
   }
 }
