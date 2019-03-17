@@ -56,6 +56,16 @@ test('test nametags', () => {
   const settings = game.getSettings();
   expect(settings.players[0].nametag).toBe("AMNイ");
   expect(settings.players[1].nametag).toBe("");
+
+  const game2 = new SlippiGame("test/nametags2.slp");
+  const settings2 = game2.getSettings();
+  expect(settings2.players[0].nametag).toBe("A1=$");
+  expect(settings2.players[1].nametag).toBe("か、9@");
+
+  const game3 = new SlippiGame("test/nametags3.slp");
+  const settings3 = game3.getSettings();
+  expect(settings3.players[0].nametag).toBe("B  R");
+  expect(settings3.players[1].nametag).toBe(".  。");
 });
 
 test('test isPAL', () => {

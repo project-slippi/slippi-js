@@ -61,6 +61,13 @@ export default class SlippiGame {
   }
 
   /**
+   * Closes the file so the user can manipulate it as they see fit
+   */
+  closeFile() {
+    fs.closeSync(this.file.fileDescriptor);
+  }
+
+  /**
    * Gets the game settings, these are the settings that describe the starting state of
    * the game such as characters, stage, etc.
    */
