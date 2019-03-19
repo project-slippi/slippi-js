@@ -60,14 +60,6 @@ export default class SlippiGame {
 
   constructor(filePath: string) {
     this.filePath = filePath;
-    this.file = openSlpFile(filePath);
-  }
-
-  /**
-   * Closes the file so the user can manipulate it as they see fit
-   */
-  closeFile() {
-    fs.closeSync(this.file.fileDescriptor);
   }
 
   /**
@@ -80,6 +72,8 @@ export default class SlippiGame {
       return this.settings;
     }
 
+    const slpfile = openSlpFile(this.filePath);
+
     // Prepare default settings
     let settings: GameSettingsType = {
       stageId: 0,
@@ -89,7 +83,7 @@ export default class SlippiGame {
     };
 
     // Generate settings from iterating through file
-    iterateEvents(this.file, (command, payload) => {
+    iterateEvents(slpfile, (command, payload) => {
       if (!payload) {
         // If payload is falsy, keep iterating. The parser probably just doesn't know
         // about this command yet
@@ -130,6 +124,7 @@ export default class SlippiGame {
     });
 
     this.settings = settings;
+    fs.closeSync(slpfile.fileDescriptor);
     return settings;
   }
 
@@ -138,10 +133,12 @@ export default class SlippiGame {
       return this.playerFrames;
     }
 
+    const slpfile = openSlpFile(this.filePath);
+
     const playerFrames: FramesType = {};
     const followerFrames: FramesType = {};
 
-    iterateEvents(this.file, (command, payload) => {
+    iterateEvents(slpfile, (command, payload) => {
       if (!payload) {
         // If payload is falsy, keep iterating. The parser probably just doesn't know
         // about this command yet
@@ -168,6 +165,7 @@ export default class SlippiGame {
 
     this.playerFrames = playerFrames;
     this.followerFrames = followerFrames;
+    fs.closeSync(slpfile.fileDescriptor);
     return playerFrames;
   }
 
@@ -175,6 +173,8 @@ export default class SlippiGame {
     if (this.stats) {
       return this.stats;
     }
+
+    const slpfile = openSlpFile(this.filePath);
 
     const lastFrame = getLastFrame(this);
 
@@ -190,6 +190,8 @@ export default class SlippiGame {
     this.stats.playableFrameCount = lastFrame + Math.abs(Frames.FIRST_PLAYABLE);
     this.stats.overall = generateOverallStats(this);
 
+    fs.closeSync(slpfile.fileDescriptor);
+
     return this.stats;
   }
 
@@ -198,8 +200,11 @@ export default class SlippiGame {
       return this.metadata;
     }
 
-    this.metadata = getMetadata(this.file);
+    const slpfile = openSlpFile(this.filePath);
 
+    this.metadata = getMetadata(slpfile);
+
+    fs.closeSync(slpfile.fileDescriptor);
     return this.metadata;
   }
 }
