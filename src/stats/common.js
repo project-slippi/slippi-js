@@ -43,6 +43,11 @@ export type ConversionType = PlayerIndexedType & DurationType & DamageType & {
   didKill: boolean,
 }
 
+export type ComboType = PlayerIndexedType & DurationType & DamageType & {
+  moves: MoveLandedType[],
+  didKill: boolean,
+}
+
 export type ActionCountsType = PlayerIndexedType & {
   wavedashCount: number,
   wavelandCount: number,
@@ -79,6 +84,8 @@ export const States = {
   GROUNDED_CONTROL_END: 0x18,
   SQUAT_START: 0x27,
   SQUAT_END: 0x29,
+  DOWN_START: 0xB7,
+  DOWN_END: 0xC6,
   TECH_START: 0xC7,
   TECH_END: 0xCC,
   DYING_START: 0x0,
@@ -112,7 +119,7 @@ export const States = {
 export const Timers = {
   PUNISH_RESET_FRAMES: 45,
   RECOVERY_RESET_FRAMES: 45,
-  COMBO_STRING_RESET_FRAMES: 45
+  COMBO_STRING_RESET_FRAMES: 45,
 };
 
 export const Frames = {
@@ -153,6 +160,14 @@ export function isInControl(state: number): boolean {
   const isGrab = state === States.GRAB;
   // TODO: Add grounded b moves?
   return ground || squat || groundAttack || isGrab;
+}
+
+export function isTeching(state: number): boolean {
+  return state >= States.TECH_START && state <= States.TECH_END;
+}
+
+export function isDown(state: number): boolean {
+  return state >= States.DOWN_START && state <= States.DOWN_END;
 }
 
 export function isDamaged(state: number): boolean {

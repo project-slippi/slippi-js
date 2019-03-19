@@ -60,7 +60,7 @@ export function generateConversions(game: SlippiGame): ConversionType[] {
 
     // If opponent took damage and was put in some kind of stun this frame, either
     // start a conversion or
-    if (opntDamageTaken && (opntIsDamaged || opntIsGrabbed)) {
+    if (opntIsDamaged || opntIsGrabbed) {
       if (!state.conversion) {
         state.conversion = {
           playerIndex: indices.playerIndex,
@@ -78,25 +78,27 @@ export function generateConversions(game: SlippiGame): ConversionType[] {
         conversions.push(state.conversion);
       }
 
-      // If animation of last hit has been cleared that means this is a new move. This
-      // prevents counting multiple hits from the same move such as fox's drill
-      if (!state.lastHitAnimation) {
-        state.move = {
-          frame: playerFrame.frame,
-          moveId: playerFrame.lastAttackLanded,
-          hitCount: 0,
-        };
+      if (opntDamageTaken) {
+        // If animation of last hit has been cleared that means this is a new move. This
+        // prevents counting multiple hits from the same move such as fox's drill
+        if (!state.lastHitAnimation) {
+          state.move = {
+            frame: playerFrame.frame,
+            moveId: playerFrame.lastAttackLanded,
+            hitCount: 0,
+          };
 
-        state.conversion.moves.push(state.move);
+          state.conversion.moves.push(state.move);
+        }
+
+        if (state.move) {
+          state.move.hitCount += 1;
+        }
+
+        // Store previous frame animation to consider the case of a trade, the previous
+        // frame should always be the move that actually connected... I hope
+        state.lastHitAnimation = prevPlayerFrame.actionStateId;
       }
-
-      if (state.move) {
-        state.move.hitCount += 1;
-      }
-
-      // Store previous frame animation to consider the case of a trade, the previous
-      // frame should always be the move that actually connected... I hope
-      state.lastHitAnimation = prevPlayerFrame.actionStateId;
     }
 
     if (!state.conversion) {

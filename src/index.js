@@ -5,6 +5,7 @@ import { Commands, openSlpFile, iterateEvents, getMetadata } from './utils/slpRe
 
 import { getLastFrame, Frames } from "./stats/common";
 import { generateConversions } from "./stats/conversions";
+import { generateCombos } from "./stats/combos";
 import { generateStocks } from "./stats/stocks";
 import { generateActionCounts } from "./stats/actions";
 import { generateOverall as generateOverallStats } from "./stats/overall";
@@ -14,7 +15,7 @@ import type {
   PlayerType, PreFrameUpdateType, PostFrameUpdateType, SlpFileType, MetadataType
 } from "./utils/slpReader";
 import type {
-  StockType, ConversionType, ActionCountsType, OverallType
+  StockType, ConversionType, ComboType, ActionCountsType, OverallType
 } from "./stats/common";
 
 type GameSettingsType = {
@@ -40,6 +41,7 @@ type StatsType = {
   playableFrameCount: number,
   stocks: StockType[],
   conversions: ConversionType[],
+  combos: ComboType[],
   actionCounts: ActionCountsType[],
   overall: OverallType[],
 };
@@ -50,11 +52,11 @@ type StatsType = {
 export default class SlippiGame {
   filePath: string;
   file: SlpFileType;
-  settings: GameSettingsType;
-  playerFrames: FramesType;
-  followerFrames: FramesType;
-  stats: StatsType;
-  metadata: MetadataType;
+  settings: GameSettingsType | null;
+  playerFrames: FramesType | null;
+  followerFrames: FramesType | null;
+  stats: StatsType | null;
+  metadata: MetadataType | null;
 
   constructor(filePath: string) {
     this.filePath = filePath;
@@ -182,6 +184,7 @@ export default class SlippiGame {
     this.stats = {};
     this.stats.stocks = generateStocks(this);
     this.stats.conversions = generateConversions(this);
+    this.stats.combos = generateCombos(this);
     this.stats.actionCounts = generateActionCounts(this);
     this.stats.lastFrame = lastFrame;
     this.stats.playableFrameCount = lastFrame + Math.abs(Frames.FIRST_PLAYABLE);
