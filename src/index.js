@@ -12,7 +12,7 @@ import { generateOverall as generateOverallStats } from "./stats/overall";
 
 // Type imports
 import type {
-  PlayerType, PreFrameUpdateType, PostFrameUpdateType, SlpFileType, MetadataType
+  PlayerType, PreFrameUpdateType, PostFrameUpdateType, SlpFileType, MetadataType, GameEndType
 } from "./utils/slpReader";
 import type {
   StockType, ConversionType, ComboType, ActionCountsType, OverallType
@@ -57,9 +57,15 @@ export default class SlippiGame {
   followerFrames: FramesType | null;
   stats: StatsType | null;
   metadata: MetadataType | null;
+  gameEnd: GameEndType | null;
+
+  latestFrameIndex: number | null;
+  frameReadPos: number | null;
 
   constructor(filePath: string) {
     this.filePath = filePath;
+    this.frameReadPos = null;
+    this.latestFrameIndex = null;
   }
 
   /**
@@ -128,17 +134,31 @@ export default class SlippiGame {
     return settings;
   }
 
-  getFrames(): FramesType {
-    if (this.playerFrames) {
-      return this.playerFrames;
+  getLatestFrame(): FrameEntryType | null {
+    // TODO: Write this to check if we actually have all the latest frame data and return that
+    // TODO: If we do. For now I'm just going to take a shortcut
+    const allFrames = this.getFrames();
+    const frameIndex = this.latestFrameIndex || Frames.FIRST;
+    return _.get(allFrames, frameIndex - 1) || null;
+  }
+
+  getGameEnd(): GameEndType | null {
+    if (this.gameEnd) {
+      return this.gameEnd;
     }
 
+    // Trigger getFrames because that is where the flag is set
+    this.getFrames();
+    return this.gameEnd || null;
+  }
+
+  getFrames(): FramesType {
     const slpfile = openSlpFile(this.filePath);
 
-    const playerFrames: FramesType = {};
-    const followerFrames: FramesType = {};
+    const playerFrames: FramesType = this.playerFrames || {};
+    const followerFrames: FramesType = this.followerFrames || {};
 
-    iterateEvents(slpfile, (command, payload) => {
+    this.frameReadPos = iterateEvents(slpfile, (command, payload) => {
       if (!payload) {
         // If payload is falsy, keep iterating. The parser probably just doesn't know
         // about this command yet
@@ -155,13 +175,17 @@ export default class SlippiGame {
 
         const location = command === Commands.PRE_FRAME_UPDATE ? "pre" : "post";
         const frames = payload.isFollower ? followerFrames : playerFrames;
+        this.latestFrameIndex = payload.frame;
         _.set(frames, [payload.frame, 'players', payload.playerIndex, location], payload);
         _.set(frames, [payload.frame, 'frame'], payload.frame);
+        break;
+      case Commands.GAME_END:
+        this.gameEnd = payload;
         break;
       }
 
       return false; // Tell the iterator to keep iterating
-    });
+    }, this.frameReadPos);
 
     this.playerFrames = playerFrames;
     this.followerFrames = followerFrames;
@@ -170,10 +194,6 @@ export default class SlippiGame {
   }
 
   getStats(): StatsType {
-    if (this.stats) {
-      return this.stats;
-    }
-
     const slpfile = openSlpFile(this.filePath);
 
     const lastFrame = getLastFrame(this);

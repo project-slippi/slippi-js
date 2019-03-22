@@ -84,6 +84,7 @@ export type PostFrameUpdateType = {|
 
 export type GameEndType = {|
   gameEndMethod: number | null,
+  lrasInitiatorIndex: number | null,
 |};
 
 export type MetadataType = {
@@ -210,11 +211,13 @@ type EventCallbackFunc = (command: number, payload: ?EventPayloadTypes) => boole
 /**
  * Iterates through slp events and parses payloads
  */
-export function iterateEvents(slpFile: SlpFileType, callback: EventCallbackFunc) {
+export function iterateEvents(
+  slpFile: SlpFileType, callback: EventCallbackFunc, startPos: number | null = null
+): number {
   const fd = slpFile.fileDescriptor;
 
-  let readPosition = slpFile.rawDataPosition;
-  const stopReadingAt = readPosition + slpFile.rawDataLength;
+  let readPosition = startPos || slpFile.rawDataPosition;
+  const stopReadingAt = slpFile.rawDataPosition + slpFile.rawDataLength;
 
   // Generate read buffers for each
   const commandPayloadBuffers = _.mapValues(slpFile.messageSizes, (size) => (
@@ -229,7 +232,11 @@ export function iterateEvents(slpFile: SlpFileType, callback: EventCallbackFunc)
     const buffer = commandPayloadBuffers[commandByte];
     if (buffer === undefined) {
       // If we don't have an entry for this command, return false to indicate failed read
-      return false;
+      return readPosition;
+    }
+
+    if (buffer.length > stopReadingAt - readPosition) {
+      return readPosition;
     }
 
     fs.readSync(fd, buffer, 0, buffer.length, readPosition);
@@ -242,7 +249,7 @@ export function iterateEvents(slpFile: SlpFileType, callback: EventCallbackFunc)
     readPosition += buffer.length;
   }
 
-  return true;
+  return readPosition;
 }
 
 function parseMessage(command, payload): ?EventPayloadTypes {
@@ -328,7 +335,8 @@ function parseMessage(command, payload): ?EventPayloadTypes {
     };
   case Commands.GAME_END:
     return {
-      gameEndMethod: readUint8(view, 0x1)
+      gameEndMethod: readUint8(view, 0x1),
+      lrasInitiatorIndex: readInt8(view, 0x2),
     };
   default:
     return null;
@@ -354,6 +362,14 @@ function readInt32(view: DataView, offset: number): number | null {
   }
 
   return view.getInt32(offset);
+}
+
+function readInt8(view: DataView, offset: number): number | null {
+  if (!canReadFromView(view, offset, 1)) {
+    return null;
+  }
+
+  return view.getInt8(offset);
 }
 
 function readUint32(view: DataView, offset: number): number | null {

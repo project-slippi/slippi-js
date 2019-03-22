@@ -197,17 +197,17 @@ function getSortedFrames(game: SlippiGame) {
   // TODO: kinda shitty I need to do that anyway. It's required because javascript doesn't
   // TODO: support sorted objects... I could use a Map but that felt pretty heavy for
   // TODO: little reason.
-  if (_.has(game, ['external', 'sortedFrames'])) {
-    // $FlowFixMe
-    return game.external.sortedFrames;
-  }
+  // if (_.has(game, ['external', 'sortedFrames'])) {
+  //   // $FlowFixMe
+  //   return game.external.sortedFrames;
+  // }
 
   const frames = game.getFrames();
   const sortedFrames = _.orderBy(frames, 'frame');
-  _.set(game, ['external', 'sortedFrames'], sortedFrames);
+  // _.set(game, ['external', 'sortedFrames'], sortedFrames);
 
   // $FlowFixMe
-  return game.external.sortedFrames;
+  return sortedFrames;
 }
 
 export function iterateFramesInOrder(
@@ -228,6 +228,13 @@ export function iterateFramesInOrder(
 
     // Iterates through all of the frames for the current player and opponent
     _.forEach(sortedFrames, (frame) => {
+      const playerPostFrame = _.get(frame, ['players', indices.playerIndex, 'post']);
+      const oppPostFrame = _.get(frame, ['players', indices.opponentIndex, 'post']);
+      if (!playerPostFrame || !oppPostFrame) {
+        // Don't attempt to compute stats on frames that have not been fully received
+        return;
+      }
+
       processFrame(indices, frame);
     });
   });

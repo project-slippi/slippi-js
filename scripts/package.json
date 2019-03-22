@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "chokidar": "^2.1.4",
+    "lodash": "^4.17.11"
+  }
+}
