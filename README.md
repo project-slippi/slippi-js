@@ -45,3 +45,6 @@ To use the above script, do the following:
 
 At this point, you should see an output as you play games on the connected console.
 
+### Notice about stats
+While it is possible to load the stats in a real-time fashion, the stat calculation logic has not yet been optimized to work only on the latest data. Because of this, the longer the game goes, the longer stat calculation will take. As long as you don't call `game.getStats()` you do not have to worry about this.
+
