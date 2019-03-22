@@ -420,7 +420,7 @@ has-values@^1.0.0:
     is-number "^3.0.0"
     kind-of "^4.0.0"
 
-iconv-lite@^0.4.4:
+iconv-lite@^0.4.24, iconv-lite@^0.4.4:
   version "0.4.24"
   resolved "https://registry.yarnpkg.com/iconv-lite/-/iconv-lite-0.4.24.tgz#2022b4b25fbddc21d2f524974a474aafe733908b"
   integrity sha512-v3MXnZAcvnywkTUEZomIActle7RXXeedOR31wwl7VlyoXO4Qi9arvSenNQWne1TcRwhCL1HwLI21bEqdpj8/rA==
@@ -1002,6 +1002,14 @@ signal-exit@^3.0.0:
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/signal-exit/-/signal-exit-3.0.2.tgz#b5fdc08f1287ea1178628e415e25132b73646c6d"
   integrity sha1-tf3AjxKH6hF4Yo5BXiUTK3NkbG0=
+
+slp-parser-js@^2.3.0:
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/slp-parser-js/-/slp-parser-js-2.3.0.tgz#8da986cf41112dfa2f38fc261d493acbd9a5ddc2"
+  integrity sha512-UUzLpwFhtoXquC8ytuNFD/W/LWhR6wxe5cj21mSRkO0x68ESqItVoq7gaAMeqVon4XhPmKn9H7AU/BWgtaPvqQ==
+  dependencies:
+    iconv-lite "^0.4.24"
+    lodash "^4.17.11"
 
 snapdragon-node@^2.0.1:
   version "2.1.1"

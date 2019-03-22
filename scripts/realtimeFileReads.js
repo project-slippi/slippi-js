@@ -1,4 +1,4 @@
-const { default: SlippiGame } = require('../dist/index');
+const { default: SlippiGame } = require('slp-parser-js');
 const chokidar = require('chokidar');
 const _ = require('lodash');
 

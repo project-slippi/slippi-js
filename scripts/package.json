@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "chokidar": "^2.1.4",
-    "lodash": "^4.17.11"
+    "lodash": "^4.17.11",
+    "slp-parser-js": "^2.3.0"
   }
 }
