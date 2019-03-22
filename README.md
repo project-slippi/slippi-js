@@ -33,3 +33,15 @@ console.log(frames[0].players); // Print frame when timer starts counting down
 4) Copy a .slp file into the directory and call it `test.slp`
 4) Browse to the directory from the command line and run the command: `npm install slp-parser-js`. This should create a `node_modules` directory in the folder.
 4) Run the command: `node script.js`. This will run the script above and will print data about the `test.slp` file
+## Reading live files
+When using Slippi to mirror gameplay, it can be useful to extract game data about the live game. There are a few different methods of doing this but `slp-parser-js` can also be used to read live files. It is written in such a way where as long as the same SlippiGame class is used, it will only read from disk the data it has not yet read.
+
+An example script for how to do this is provided as part of this repo here: https://github.com/project-slippi/slp-parser-js/blob/master/scripts/realtimeFileReads.js
+
+To use the above script, do the following:
+1) Open a terminal prompt in the folder containing the script file and the package.json file
+1) Run `yarn` to fetch the dependencies
+1) Run `node realtimeFileReads.js "C:\mirror\output\path"`
+
+At this point, you should see an output as you play games on the connected console.
+
