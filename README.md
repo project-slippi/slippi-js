@@ -41,7 +41,7 @@ An example script for how to do this is provided as part of this repo here: http
 To use the above script, do the following:
 1) Open a terminal prompt in the folder containing the script file and the package.json file
 1) Run `yarn` to fetch the dependencies
-1) Run `node realtimeFileReads.js "C:\mirror\output\path"`
+1) Run `node realtimeFileReads.js "C:\mirror\output\path"` replacing the path argument with where your connected console outputs replay files to
 
 At this point, you should see an output as you play games on the connected console.
 
