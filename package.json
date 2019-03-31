@@ -47,6 +47,7 @@
     "slp-parser-js"
   ],
   "dependencies": {
+    "@shelacek/ubjson": "^1.0.1",
     "iconv-lite": "^0.4.24",
     "lodash": "^4.17.11"
   },

@@ -928,6 +928,11 @@
     lodash "^4.17.11"
     to-fast-properties "^2.0.0"
 
+"@shelacek/ubjson@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@shelacek/ubjson/-/ubjson-1.0.1.tgz#009d39ea22fa80e036f97e936650951a8225fafe"
+  integrity sha512-0vlllP3M7fUElSd4239wmnv6SqDeymJgjRkb/iusOyDN4I0xjc8hrX4Zk/KYoAesgSdsnnSwhOU7g+IewmdaAw==
+
 JSONStream@^1.0.3:
   version "1.3.5"
   resolved "https://registry.yarnpkg.com/JSONStream/-/JSONStream-1.3.5.tgz#3208c1f08d3a4d99261ab64f92302bc15e111ca0"

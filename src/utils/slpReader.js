@@ -4,7 +4,7 @@ import fs from 'fs';
 import iconv from 'iconv-lite';
 
 import { toHalfwidth } from './fullwidth';
-import { decode } from '../ubjson/ubjson';
+import ubjson from '@shelacek/ubjson';
 
 export const Commands = {
   MESSAGE_SIZES: 0x35,
@@ -418,7 +418,7 @@ export function getMetadata(slpFile: SlpFileType): MetadataType {
 
   let metadata = {};
   try {
-    metadata = decode(buffer);
+    metadata = ubjson.decode(buffer);
   } catch (ex) {
     // Do nothing
     console.log(ex);
