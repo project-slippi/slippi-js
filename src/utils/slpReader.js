@@ -2,9 +2,9 @@
 import _ from 'lodash';
 import fs from 'fs';
 import iconv from 'iconv-lite';
+import ubjson from '@shelacek/ubjson';
 
 import { toHalfwidth } from './fullwidth';
-import ubjson from '@shelacek/ubjson';
 
 export const Commands = {
   MESSAGE_SIZES: 0x35,
