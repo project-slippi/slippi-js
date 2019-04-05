@@ -1,4 +1,6 @@
 import _ from 'lodash';
+// import path from 'path';
+// import fs from 'fs';
 import SlippiGame from '../src';
 
 test('read settings', () => {
@@ -83,3 +85,40 @@ test('test controllerFixes', () => {
   expect(settings.players[1].controllerFix).toBe("UCF");
   expect(settings.players[2].controllerFix).toBe("None");
 });
+
+// test('test speedReadTest', () => {
+//   const replayPath = "D:\\Slippi\\Tournament-Replays\\Smash-in-Wittenberg-5";
+
+//   const dirContents = fs.readdirSync(replayPath, {
+//     withFileTypes: true,
+//   }) || [];
+
+//   // Loop through and upload all of the slp files
+//   _.forEach(dirContents, (folder) => {
+//     if (!folder.isDirectory()) {
+//       return;
+//     }
+
+//     console.log(folder.name);
+//     const subPath = path.join(replayPath, folder.name);
+//     const subDirContents = fs.readdirSync(subPath, {
+//       withFileTypes: true,
+//     }) || [];
+
+//     // Iterate for files now
+//     _.forEach(subDirContents, (file) => {
+//       if (!file.isFile()) {
+//         return;
+//       }
+
+//       if (path.extname(file.name) !== ".slp") {
+//         return;
+//       }
+
+//       const filePath = path.join(subPath, file.name);
+
+//       const game = new SlippiGame(filePath);
+//       game.getMetadata();
+//     });
+//   });
+// });

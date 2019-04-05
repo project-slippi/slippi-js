@@ -37,6 +37,7 @@ type FramesType = {
 };
 
 type StatsType = {
+  gameComplete: boolean,
   lastFrame: number,
   playableFrameCount: number,
   stocks: StockType[],
@@ -153,6 +154,11 @@ export default class SlippiGame {
   }
 
   getFrames(): FramesType {
+    if (this.playerFrames && this.gameEnd) {
+      // If game end has been detected, we can returned cached version of frames
+      return this.playerFrames;
+    }
+
     const slpfile = openSlpFile(this.filePath);
 
     const playerFrames: FramesType = this.playerFrames || {};
@@ -194,6 +200,11 @@ export default class SlippiGame {
   }
 
   getStats(): StatsType {
+    if (this.stats && this.stats.gameComplete) {
+      // If game end has been detected, we can returned cached version stats since they wont change
+      return this.stats;
+    }
+
     const slpfile = openSlpFile(this.filePath);
 
     const lastFrame = getLastFrame(this);
@@ -209,6 +220,7 @@ export default class SlippiGame {
     this.stats.lastFrame = lastFrame;
     this.stats.playableFrameCount = lastFrame + Math.abs(Frames.FIRST_PLAYABLE);
     this.stats.overall = generateOverallStats(this);
+    this.stats.gameComplete = !!this.gameEnd;
 
     fs.closeSync(slpfile.fileDescriptor);
 
