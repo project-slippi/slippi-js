@@ -86,6 +86,7 @@ export function generateConversions(game: SlippiGame): ConversionType[] {
             frame: playerFrame.frame,
             moveId: playerFrame.lastAttackLanded,
             hitCount: 0,
+            damage: 0,
           };
 
           state.conversion.moves.push(state.move);
@@ -93,6 +94,7 @@ export function generateConversions(game: SlippiGame): ConversionType[] {
 
         if (state.move) {
           state.move.hitCount += 1;
+          state.move.damage += opntDamageTaken;
         }
 
         // Store previous frame animation to consider the case of a trade, the previous

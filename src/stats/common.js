@@ -35,6 +35,7 @@ export type MoveLandedType = {
   frame: number,
   moveId: number,
   hitCount: number,
+  damage: number,
 }
 
 export type ConversionType = PlayerIndexedType & DurationType & DamageType & {
