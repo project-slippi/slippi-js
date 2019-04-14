@@ -85,6 +85,7 @@ export function generateCombos(game: SlippiGame): ComboType[] {
             frame: playerFrame.frame,
             moveId: playerFrame.lastAttackLanded,
             hitCount: 0,
+            damage: 0,
           };
 
           state.combo.moves.push(state.move);
@@ -92,6 +93,7 @@ export function generateCombos(game: SlippiGame): ComboType[] {
 
         if (state.move) {
           state.move.hitCount += 1;
+          state.move.damage += opntDamageTaken;
         }
 
         // Store previous frame animation to consider the case of a trade, the previous
