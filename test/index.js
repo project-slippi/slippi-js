@@ -1,6 +1,6 @@
 import _ from 'lodash';
 // import path from 'path';
-// import fs from 'fs';
+import fs from 'fs';
 import SlippiGame from '../src';
 
 test('read settings', () => {
@@ -84,6 +84,15 @@ test('test controllerFixes', () => {
   expect(settings.players[0].controllerFix).toBe("Dween");
   expect(settings.players[1].controllerFix).toBe("UCF");
   expect(settings.players[2].controllerFix).toBe("None");
+});
+
+test('test bufferInput', () => {
+  const buf = fs.readFileSync("test/sheik_vs_ics_yoshis.slp");
+  const game = new SlippiGame(buf);
+  const settings = game.getSettings();
+  expect(settings.stageId).toBe(8);
+  expect(_.first(settings.players).characterId).toBe(0x13);
+  expect(_.last(settings.players).characterId).toBe(0xE);
 });
 
 // test('test speedReadTest', () => {

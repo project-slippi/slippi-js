@@ -2,7 +2,7 @@
 import _ from 'lodash';
 import fs from 'fs';
 import iconv from 'iconv-lite';
-import ubjson from '@shelacek/ubjson';
+import { decode } from '@shelacek/ubjson';
 
 import { toHalfwidth } from './fullwidth';
 
@@ -14,8 +14,20 @@ export const Commands = {
   GAME_END: 0x39
 };
 
+export type SlpReadInput = {
+  source: string,
+  filePath?: string,
+  buffer?: Buffer,
+}
+
+export type SlpRefType = {
+  source: string,
+  fileDescriptor?: number,
+  buffer?: Buffer,
+}
+
 export type SlpFileType = {
-  fileDescriptor: number,
+  ref: SlpRefType,
   rawDataPosition: number,
   rawDataLength: number,
   metadataPosition: number,
@@ -100,20 +112,61 @@ export type MetadataType = {
   }
 };
 
+function getRef(input: SlpReadInput) {
+  switch (input.source) {
+  case 'file':
+    const fd = fs.openSync(input.filePath, "r");
+    return {
+      source: input.source,
+      fileDescriptor: fd,
+    };
+  case 'buffer':
+    return {
+      source: input.source,
+      buffer: input.buffer,
+    };
+  default:
+    throw new Error("Source type not supported");
+  }
+}
+
+function readRef(ref, buffer, offset, length, position) {
+  switch (ref.source) {
+  case 'file':
+    return fs.readSync(ref.fileDescriptor, buffer, offset, length, position);
+  case 'buffer':
+    return ref.buffer.copy(buffer, offset, position, position + length);
+  default:
+    throw new Error("Source type not supported");
+  }
+}
+
+function getLenRef(ref: SlpRefType) {
+  switch (ref.source) {
+  case 'file':
+    const fileStats = fs.fstatSync(ref.fileDescriptor) || {};
+    return fileStats.size;
+  case 'buffer':
+    return ref.buffer.length;
+  default:
+    throw new Error("Source type not supported");
+  }
+}
+
 /**
  * Opens a file at path
  */
-export function openSlpFile(path: string): SlpFileType {
-  const fd = fs.openSync(path, "r");
+export function openSlpFile(input: SlpReadInput): SlpFileType {
+  const ref = getRef(input);
 
-  const rawDataPosition = getRawDataPosition(fd);
-  const rawDataLength = getRawDataLength(fd, rawDataPosition);
+  const rawDataPosition = getRawDataPosition(ref);
+  const rawDataLength = getRawDataLength(ref, rawDataPosition);
   const metadataPosition = rawDataPosition + rawDataLength + 10; // remove metadata string
-  const metadataLength = getMetadataLength(fd, metadataPosition);
-  const messageSizes = getMessageSizes(fd, rawDataPosition);
+  const metadataLength = getMetadataLength(ref, metadataPosition);
+  const messageSizes = getMessageSizes(ref, rawDataPosition);
 
   return {
-    fileDescriptor: fd,
+    ref: ref,
     rawDataPosition: rawDataPosition,
     rawDataLength: rawDataLength,
     metadataPosition: metadataPosition,
@@ -122,11 +175,19 @@ export function openSlpFile(path: string): SlpFileType {
   };
 }
 
+export function closeSlpFile(file: SlpFileType) {
+  if (file.ref.source !== 'file') {
+    // No need to do anything if not file
+    return;
+  }
+
+  fs.closeSync(file.ref.fileDescriptor);
+}
+
 // This function gets the position where the raw data starts
-function getRawDataPosition(fd) {
+function getRawDataPosition(ref) {
   const buffer = new Uint8Array(1);
-  // $FlowFixMe
-  fs.readSync(fd, buffer, 0, buffer.length, 0);
+  readRef(ref, buffer, 0, buffer.length, 0);
 
   if (buffer[0] === 0x36) {
     return 0;
@@ -139,16 +200,14 @@ function getRawDataPosition(fd) {
   return 15;
 }
 
-function getRawDataLength(fd: number, position: number) {
-  const fileStats = fs.fstatSync(fd) || {};
-  const fileSize = fileStats.size;
+function getRawDataLength(ref: SlpRefType, position: number) {
+  const fileSize = getLenRef(ref);
   if (position === 0) {
     return fileSize;
   }
 
   const endBytes = new Uint8Array(2);
-  // $FlowFixMe
-  fs.readSync(fd, endBytes, 0, 2, fileSize - 2);
+  readRef(ref, endBytes, 0, 2, fileSize - 2);
   const endFileByte = '}'.charCodeAt(0);
   if (endBytes[0] !== endFileByte && endBytes[1] !== endFileByte) {
     // If the two final bytes do not close out the UBJSON file,
@@ -158,18 +217,17 @@ function getRawDataLength(fd: number, position: number) {
   }
 
   const buffer = new Uint8Array(4);
-  // $FlowFixMe
-  fs.readSync(fd, buffer, 0, buffer.length, position - 4);
+  readRef(ref, buffer, 0, buffer.length, position - 4);
 
   return buffer[0] << 24 | buffer[1] << 16 | buffer[2] << 8 | buffer[3];
 }
 
-function getMetadataLength(fd: number, position: number) {
-  const fileStats = fs.fstatSync(fd) || {};
-  return fileStats.size - position - 1;
+function getMetadataLength(ref: SlpRefType, position: number) {
+  const len = getLenRef(ref);
+  return len - position - 1;
 }
 
-function getMessageSizes(fd: number, position: number): { [command: number]: number } {
+function getMessageSizes(ref: SlpRefType, position: number): { [command: number]: number } {
   const messageSizes: { [command: number]: number } = {};
   // Support old file format
   if (position === 0) {
@@ -181,8 +239,7 @@ function getMessageSizes(fd: number, position: number): { [command: number]: num
   }
 
   const buffer = new Uint8Array(2);
-  // $FlowFixMe
-  fs.readSync(fd, buffer, 0, buffer.length, position);
+  readRef(ref, buffer, 0, buffer.length, position);
   if (buffer[0] !== Commands.MESSAGE_SIZES) {
     return {};
   }
@@ -191,8 +248,7 @@ function getMessageSizes(fd: number, position: number): { [command: number]: num
   messageSizes[0x35] = payloadLength;
 
   const messageSizesBuffer = new Uint8Array(payloadLength - 1);
-  // $FlowFixMe
-  fs.readSync(fd, messageSizesBuffer, 0, messageSizesBuffer.length, position + 2);
+  readRef(ref, messageSizesBuffer, 0, messageSizesBuffer.length, position + 2);
   for (let i = 0; i < payloadLength - 1; i += 3) {
     const command = messageSizesBuffer[i];
 
@@ -214,7 +270,7 @@ type EventCallbackFunc = (command: number, payload: ?EventPayloadTypes) => boole
 export function iterateEvents(
   slpFile: SlpFileType, callback: EventCallbackFunc, startPos: number | null = null
 ): number {
-  const fd = slpFile.fileDescriptor;
+  const ref = slpFile.ref;
 
   let readPosition = startPos || slpFile.rawDataPosition;
   const stopReadingAt = slpFile.rawDataPosition + slpFile.rawDataLength;
@@ -226,8 +282,7 @@ export function iterateEvents(
 
   const commandByteBuffer = new Uint8Array(1);
   while (readPosition < stopReadingAt) {
-    // $FlowFixMe
-    fs.readSync(fd, commandByteBuffer, 0, 1, readPosition);
+    readRef(ref, commandByteBuffer, 0, 1, readPosition);
     const commandByte = commandByteBuffer[0];
     const buffer = commandPayloadBuffers[commandByte];
     if (buffer === undefined) {
@@ -239,7 +294,7 @@ export function iterateEvents(
       return readPosition;
     }
 
-    fs.readSync(fd, buffer, 0, buffer.length, readPosition);
+    readRef(ref, buffer, 0, buffer.length, readPosition);
     const parsedPayload = parseMessage(commandByte, buffer);
     const shouldStop = callback(commandByte, parsedPayload);
     if (shouldStop) {
@@ -413,12 +468,11 @@ export function getMetadata(slpFile: SlpFileType): MetadataType {
 
   const buffer = new Uint8Array(slpFile.metadataLength);
 
-  // $FlowFixMe
-  fs.readSync(slpFile.fileDescriptor, buffer, 0, buffer.length, slpFile.metadataPosition);
+  readRef(slpFile.ref, buffer, 0, buffer.length, slpFile.metadataPosition);
 
   let metadata = {};
   try {
-    metadata = ubjson.decode(buffer);
+    metadata = decode(buffer);
   } catch (ex) {
     // Do nothing
     console.log(ex);

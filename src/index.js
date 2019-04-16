@@ -1,7 +1,6 @@
 // @flow
 import _ from 'lodash';
-import fs from 'fs';
-import { Commands, openSlpFile, iterateEvents, getMetadata } from './utils/slpReader';
+import { Commands, openSlpFile, closeSlpFile, iterateEvents, getMetadata } from './utils/slpReader';
 
 import { getLastFrame, Frames } from "./stats/common";
 import { generateConversions } from "./stats/conversions";
@@ -12,7 +11,8 @@ import { generateOverall as generateOverallStats } from "./stats/overall";
 
 // Type imports
 import type {
-  PlayerType, PreFrameUpdateType, PostFrameUpdateType, SlpFileType, MetadataType, GameEndType
+  PlayerType, PreFrameUpdateType, PostFrameUpdateType, SlpFileType, MetadataType, GameEndType,
+  SlpReadInput
 } from "./utils/slpReader";
 import type {
   StockType, ConversionType, ComboType, ActionCountsType, OverallType
@@ -51,7 +51,7 @@ type StatsType = {
  * Slippi Game class that wraps a file
  */
 export default class SlippiGame {
-  filePath: string;
+  input: SlpReadInput;
   file: SlpFileType;
   settings: GameSettingsType | null;
   playerFrames: FramesType | null;
@@ -63,8 +63,21 @@ export default class SlippiGame {
   latestFrameIndex: number | null;
   frameReadPos: number | null;
 
-  constructor(filePath: string) {
-    this.filePath = filePath;
+  constructor(input: string | Buffer) {
+    if (_.isString(input)) {
+      this.input = {
+        source: 'file',
+        filePath: input,
+      };
+    } else if (input instanceof Buffer) {
+      this.input = {
+        source: 'buffer',
+        buffer: input,
+      };
+    } else {
+      throw new Error("Cannot create SlippiGame with input of that type");
+    }
+
     this.frameReadPos = null;
     this.latestFrameIndex = null;
   }
@@ -79,7 +92,7 @@ export default class SlippiGame {
       return this.settings;
     }
 
-    const slpfile = openSlpFile(this.filePath);
+    const slpfile = openSlpFile(this.input);
 
     // Prepare default settings
     let settings: GameSettingsType = {
@@ -131,7 +144,7 @@ export default class SlippiGame {
     });
 
     this.settings = settings;
-    fs.closeSync(slpfile.fileDescriptor);
+    closeSlpFile(slpfile);
     return settings;
   }
 
@@ -159,7 +172,7 @@ export default class SlippiGame {
       return this.playerFrames;
     }
 
-    const slpfile = openSlpFile(this.filePath);
+    const slpfile = openSlpFile(this.input);
 
     const playerFrames: FramesType = this.playerFrames || {};
     const followerFrames: FramesType = this.followerFrames || {};
@@ -195,7 +208,7 @@ export default class SlippiGame {
 
     this.playerFrames = playerFrames;
     this.followerFrames = followerFrames;
-    fs.closeSync(slpfile.fileDescriptor);
+    closeSlpFile(slpfile);
     return playerFrames;
   }
 
@@ -205,7 +218,7 @@ export default class SlippiGame {
       return this.stats;
     }
 
-    const slpfile = openSlpFile(this.filePath);
+    const slpfile = openSlpFile(this.input);
 
     const lastFrame = getLastFrame(this);
 
@@ -222,7 +235,7 @@ export default class SlippiGame {
     this.stats.overall = generateOverallStats(this);
     this.stats.gameComplete = !!this.gameEnd;
 
-    fs.closeSync(slpfile.fileDescriptor);
+    closeSlpFile(slpfile);
 
     return this.stats;
   }
@@ -232,11 +245,11 @@ export default class SlippiGame {
       return this.metadata;
     }
 
-    const slpfile = openSlpFile(this.filePath);
+    const slpfile = openSlpFile(this.input);
 
     this.metadata = getMetadata(slpfile);
 
-    fs.closeSync(slpfile.fileDescriptor);
+    closeSlpFile(slpfile);
     return this.metadata;
   }
 }
