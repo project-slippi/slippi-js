@@ -116,3 +116,8 @@ export function getCharacterShortName(externalCharacterId) {
   const character = getCharacterInfo(externalCharacterId) || {};
   return character.shortName;
 }
+
+export function getCharacterName(externalCharacterId) {
+  const character = getCharacterInfo(externalCharacterId) || {};
+  return character.name;
+}
