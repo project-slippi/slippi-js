@@ -143,6 +143,11 @@ export function getCharacterShortName(externalCharacterId) {
   return character.shortName;
 }
 
+export function getCharacterName(externalCharacterId) {
+  const character = getCharacterInfo(externalCharacterId) || {};
+  return character.name;
+}
+
 // Return a human-readable color from a characterCode.
 export function getCharacterColorName(externalCharacterId, characterColor) {
   const character = getCharacterInfo(externalCharacterId) || {};
