@@ -49,6 +49,7 @@ test('test incomplete', () => {
   const game = new SlippiGame("test/incomplete.slp");
   const settings = game.getSettings();
   expect(settings.players.length).toBe(2);
+  expect(game.getGameEnd()).toEqual({});
   game.getMetadata();
   game.getStats();
 });
@@ -93,6 +94,13 @@ test('test bufferInput', () => {
   expect(settings.stageId).toBe(8);
   expect(_.first(settings.players).characterId).toBe(0x13);
   expect(_.last(settings.players).characterId).toBe(0xE);
+});
+
+test('test v2 gameEnd', () => {
+  const game = new SlippiGame("test/testv2.slp");
+  const gameEnd = game.getGameEnd();
+  expect(gameEnd.gameEndMethod).toBe(1);
+  expect(gameEnd.lrasInitiatorIndex).toBe(-1);
 });
 
 // test('test speedReadTest', () => {
