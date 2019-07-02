@@ -206,20 +206,19 @@ function getRawDataLength(ref: SlpRefType, position: number) {
     return fileSize;
   }
 
-  const endBytes = new Uint8Array(2);
-  readRef(ref, endBytes, 0, 2, fileSize - 2);
-  const endFileByte = '}'.charCodeAt(0);
-  if (endBytes[0] !== endFileByte && endBytes[1] !== endFileByte) {
-    // If the two final bytes do not close out the UBJSON file,
-    // return a file size based on file length. This enables
-    // some support for severed files
-    return fileSize - position;
-  }
-
   const buffer = new Uint8Array(4);
   readRef(ref, buffer, 0, buffer.length, position - 4);
 
-  return buffer[0] << 24 | buffer[1] << 16 | buffer[2] << 8 | buffer[3];
+  const rawDataLen = buffer[0] << 24 | buffer[1] << 16 | buffer[2] << 8 | buffer[3];
+  if (rawDataLen > 0) {
+    // If this method manages to read a number, it's probably trustworthy
+    return rawDataLen;
+  }
+
+  // If the above does not return a valid data length,
+  // return a file size based on file length. This enables
+  // some support for severed files
+  return fileSize - position;
 }
 
 function getMetadataLength(ref: SlpRefType, position: number) {
@@ -459,23 +458,23 @@ function readBool(view: DataView, offset: number): boolean | null {
   return !!view.getUint8(offset);
 }
 
-export function getMetadata(slpFile: SlpFileType): MetadataType {
+export function getMetadata(slpFile: SlpFileType): MetadataType | null {
   if (slpFile.metadataLength <= 0) {
     // This will happen on a severed incomplete file
     // $FlowFixMe
-    return {};
+    return null;
   }
 
   const buffer = new Uint8Array(slpFile.metadataLength);
 
   readRef(slpFile.ref, buffer, 0, buffer.length, slpFile.metadataPosition);
 
-  let metadata = {};
+  let metadata = null;
   try {
     metadata = decode(buffer);
   } catch (ex) {
     // Do nothing
-    console.log(ex);
+    // console.log(ex);
   }
 
   // $FlowFixMe

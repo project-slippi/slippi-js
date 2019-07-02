@@ -95,6 +95,62 @@ test('test bufferInput', () => {
   expect(_.last(settings.players).characterId).toBe(0xE);
 });
 
+test('test realtime', () => {
+  const fullData = fs.readFileSync("test/realtimeTest.slp");
+  const buf = Buffer.alloc(100e6); // Allocate 100 MB of space
+  const game = new SlippiGame(buf);
+
+  let data, copyPos = 0;
+
+  const getData = () => ({
+    settings: game.getSettings(),
+    frames: game.getFrames(),
+    metadata: game.getMetadata(),
+    gameEnd: game.getGameEnd(),
+    stats: game.getStats(),
+    latestFrame: game.getLatestFrame(),
+  });
+
+  const copyBuf = (len) => {
+    const res = fullData.copy(buf, copyPos, copyPos, copyPos + len);
+    copyPos += res;
+  };
+
+  // Test results with empty buffer
+  data = getData();
+  expect(data.settings).toBe(null);
+
+  // Add the header and 0x35 command to buffer
+  copyBuf(0x1D);
+  data = getData();
+
+  // Copy settings
+  copyBuf(0x1A3);
+  data = getData();
+  expect(data.settings.stageId).toBe(8);
+
+  // Copy first 3 frames
+  copyBuf(0xE8 * 3);
+  data = getData();
+  expect(_.size(data.frames)).toBe(3);
+  expect(data.latestFrame.frame).toBe(-122); // Eventually this should be -121
+  expect(data.stats.stocks[1].endFrame).toBe(null);
+
+  // Load the rest of the game data
+  copyBuf(0x8271B);
+  data = getData();
+  expect(_.size(data.frames)).toBe(2306);
+  expect(data.stats.lastFrame).toBe(2182);
+  expect(data.gameEnd.gameEndMethod).toBe(7);
+  expect(data.latestFrame.frame).toBe(2182);
+  expect(data.stats.stocks[1].endFrame).toBe(766);
+
+  // Load metadata
+  copyBuf(0xA7);
+  data = getData();
+  expect(data.metadata.playedOn).toBe("network");
+});
+
 // test('test speedReadTest', () => {
 //   const replayPath = "D:\\Slippi\\Tournament-Replays\\Smash-in-Wittenberg-5";
 

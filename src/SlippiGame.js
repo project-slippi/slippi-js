@@ -95,12 +95,7 @@ export default class SlippiGame {
     const slpfile = openSlpFile(this.input);
 
     // Prepare default settings
-    let settings: GameSettingsType = {
-      stageId: 0,
-      isTeams: false,
-      isPAL: false,
-      players: []
-    };
+    let settings: GameSettingsType = null;
 
     // Generate settings from iterating through file
     iterateEvents(slpfile, (command, payload) => {
@@ -223,6 +218,13 @@ export default class SlippiGame {
 
     const lastFrame = getLastFrame(this);
 
+    // Get playable frame count
+    let playableFrameCount = null;
+    if (lastFrame !== null) {
+      const firstPlayabable = Frames.FIRST_PLAYABLE;
+      playableFrameCount = lastFrame < firstPlayabable ? 0 : lastFrame - firstPlayabable;
+    }
+
     // The order here kind of matters because things later in the call order might
     // reference things calculated earlier. More specifically, currently the overall
     // calculation uses the others
@@ -232,7 +234,7 @@ export default class SlippiGame {
     this.stats.combos = generateCombos(this);
     this.stats.actionCounts = generateActionCounts(this);
     this.stats.lastFrame = lastFrame;
-    this.stats.playableFrameCount = lastFrame + Math.abs(Frames.FIRST_PLAYABLE);
+    this.stats.playableFrameCount = playableFrameCount;
     this.stats.overall = generateOverallStats(this);
     this.stats.gameComplete = !!this.gameEnd;
 

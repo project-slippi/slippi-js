@@ -130,7 +130,7 @@ export const Frames = {
 
 export function getSinglesOpponentIndices(game: SlippiGame): PlayerIndexedType[] {
   const settings = game.getSettings();
-  if (settings.players.length !== 2) {
+  if (!settings || settings.players.length !== 2) {
     // Only return opponent indices for singles
     return [];
   }
@@ -241,9 +241,9 @@ export function iterateFramesInOrder(
   });
 }
 
-export function getLastFrame(game: SlippiGame): number {
+export function getLastFrame(game: SlippiGame): number | null {
   const sortedFrames = getSortedFrames(game);
-  const lastFrame = _.last(sortedFrames);
+  const lastFrame = _.last(sortedFrames) || {};
 
-  return lastFrame.frame;
+  return lastFrame.frame || null;
 }
