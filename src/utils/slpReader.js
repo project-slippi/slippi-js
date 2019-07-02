@@ -484,21 +484,16 @@ export function getMetadata(slpFile: SlpFileType): MetadataType | null {
   return metadata;
 }
 
-export function getGameEnd(slpFile: SlpFileType): GameEndType {
-  const gameEndLength = slpFile.messageSizes[0x39] + 1;
-  if (gameEndLength <= 1 || slpFile.metadataLength <= 0) {
+export function getGameEnd(slpFile: SlpFileType): GameEndType | null {
+  if (slpFile.metadataLength <= 0) {
     // This will happen on a severed incomplete file
     // $FlowFixMe
-    return {};
+    return null;
   }
 
+  const gameEndLength = slpFile.messageSizes[0x39] + 1;
   const buffer = new Uint8Array(gameEndLength);
   const start = slpFile.metadataPosition - METADATA_OFFSET - gameEndLength;
   readRef(slpFile.ref, buffer, 0, gameEndLength, start);
-  const view = new DataView(buffer.buffer);
-
-  return {
-    gameEndMethod: readUint8(view, 0x1),
-    lrasInitiatorIndex: readInt8(view, 0x2),
-  };
+  return parseMessage(buffer[0], buffer);
 }

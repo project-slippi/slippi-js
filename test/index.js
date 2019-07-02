@@ -49,7 +49,7 @@ test('test incomplete', () => {
   const game = new SlippiGame("test/incomplete.slp");
   const settings = game.getSettings();
   expect(settings.players.length).toBe(2);
-  expect(game.getGameEnd()).toEqual({});
+  expect(game.getGameEnd()).toBe(null);
   game.getMetadata();
   game.getStats();
 });
@@ -127,6 +127,20 @@ test('test realtime', () => {
   // Test results with empty buffer
   data = getData();
   expect(data.settings).toBe(null);
+  expect(data.frames).toEqual({});
+  expect(data.metadata).toBe(null);
+  expect(data.gameEnd).toBe(null);
+  expect(data.stats).toEqual({
+    "actionCounts": [],
+    "combos": [],
+    "conversions": [],
+    "gameComplete": false,
+    "lastFrame": null,
+    "overall": [],
+    "playableFrameCount": null,
+    "stocks": [],
+  });
+  expect(data.latestFrame).toBe(null);
 
   // Add the header and 0x35 command to buffer
   copyBuf(0x1D);

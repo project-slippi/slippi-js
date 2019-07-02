@@ -86,7 +86,7 @@ export default class SlippiGame {
    * Gets the game settings, these are the settings that describe the starting state of
    * the game such as characters, stage, etc.
    */
-  getSettings(): GameSettingsType {
+  getSettings(): GameSettingsType | null {
     if (this.settings) {
       // If header is already generated, return it
       return this.settings;
@@ -246,7 +246,7 @@ export default class SlippiGame {
     return this.stats;
   }
 
-  getMetadata(): MetadataType {
+  getMetadata(): MetadataType | null {
     if (this.metadata) {
       return this.metadata;
     }
