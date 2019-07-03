@@ -1,43 +1,39 @@
 declare module 'slp-parser-js' {
-  // exports
-
   // animations
-  export function getDeathDirection(actionStateId: number): string | null
-
-  // characters
-  export function getAllCharacters(): { id: number, name: string, shortName: string, colors: string[] }[]
-  export function getCharacterInfo(externalCharacterId: number): { id: number, name: string, shortName: string, colors: string[] }
-  export function getCharacterShortName(externalCharacterId: number): string
-  export function getCharacterName(externalCharacterId: number): string
-  export function getCharacterColorName(externalCharacterId: number, characterColor: number): string | null
-
-  // moves
-  export function getMoveInfo(moveId: number): { id: number, name: string, shortName: string }
-  export function getMoveShortName(moveId: number): string
-  export function getMoveName(moveId: number): string
-
-  // stages
-  export const STAGE_FOD = 2
-  export const STAGE_POKEMON = 3
-  export const STAGE_YOSHIS = 8
-  export const STAGE_DREAM_LAND = 28
-  export const STAGE_BATTLEFIELD = 31
-  export const STAGE_FD = 32
-
-  export function getStageInfo(stageId: number): { id: number, name: string }
-  export function getStageName(stageId: number): string
-
-  // SlippiGame
-  export type FrameEntryType = {
-    frame: number,
-    players: {
-      [playerIndex: number]: {
-        pre: PreFrameUpdateType,
-        post: PostFrameUpdateType
-      }
-    }
+  export namespace animations {
+    export function getDeathDirection(actionStateId: number): string | null
   }
 
+  // characters
+  export namespace characters {
+    export function getAllCharacters(): { id: number, name: string, shortName: string, colors: string[] }[]
+    export function getCharacterInfo(externalCharacterId: number): { id: number, name: string, shortName: string, colors: string[] }
+    export function getCharacterShortName(externalCharacterId: number): string
+    export function getCharacterName(externalCharacterId: number): string
+    export function getCharacterColorName(externalCharacterId: number, characterColor: number): string | null
+  }
+
+  // moves
+  export namespace moves {
+    export function getMoveInfo(moveId: number): { id: number, name: string, shortName: string }
+    export function getMoveShortName(moveId: number): string
+    export function getMoveName(moveId: number): string
+  }
+
+  // stages
+  export namespace stages {
+    export const STAGE_FOD = 2
+    export const STAGE_POKEMON = 3
+    export const STAGE_YOSHIS = 8
+    export const STAGE_DREAM_LAND = 28
+    export const STAGE_BATTLEFIELD = 31
+    export const STAGE_FD = 32
+
+    export function getStageInfo(stageId: number): { id: number, name: string }
+    export function getStageName(stageId: number): string
+  }
+
+  // SlippiGame
   export default class SlippiGame {
     constructor(input: string | Buffer)
     input: SlpReadInput
@@ -59,9 +55,17 @@ declare module 'slp-parser-js' {
     getMetadata(): MetadataType | null
   }
 
-  // non exported
-
   // Typedefs
+
+  type FrameEntryType = {
+    frame: number,
+    players: {
+      [playerIndex: number]: {
+        pre: PreFrameUpdateType,
+        post: PostFrameUpdateType
+      }
+    }
+  }
 
   type SlpReadInput = {
     source: string,
@@ -252,45 +256,4 @@ declare module 'slp-parser-js' {
     counterHitRatio: RatioType,
     beneficialTradeRatio: RatioType
   }
-
-  // Functions
-  function openSlpFile(input: SlpReadInput): SlpFileType
-
-  function closeSlpFile(file: SlpFileType): void
-
-  function iterateEvents(slpFile: SlpFileType, callback: EventCallbackFunc, startPos: number | null): number
-
-  function getSinglesOpponentIndices(game: SlippiGame): PlayerIndexedType[]
-
-  function didLoseStock(frame: PostFrameUpdateType, prevFrame: PostFrameUpdateType): boolean
-
-  function isInControl(state: number): boolean
-
-  function isTeching(state: number): boolean
-
-  function isDown(state: number): boolean
-
-  function isDamaged(state: number): boolean
-
-  function isGrabbed(state: number): boolean
-
-  function isDead(state: number): boolean
-
-  function calcDamageTaken(frame: PostFrameUpdateType, prevFrame: PostFrameUpdateType): number
-
-  function iterateFramesInOrder(game: SlippiGame, initialize: (indices: PlayerIndexedType) => void, processFrame: (indices: PlayerIndexedType, frame: FrameEntryType) => void): void
-
-  function getLastFrame(game: SlippiGame): number | null
-
-  function generateConversions(game: SlippiGame): ConversionType[]
-
-  function generateCombos(game: SlippiGame): ComboType[]
-
-  function generateStocks(game: SlippiGame): StockType[]
-
-  function generateActionCounts(game: SlippiGame): ActionCountsType[]
-
-  function generateOverall(game: SlippiGame): OverallType[]
-
-  function toHalfwidth(str: string): string
 }
