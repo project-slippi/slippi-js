@@ -49,6 +49,7 @@ test('test incomplete', () => {
   const game = new SlippiGame("test/incomplete.slp");
   const settings = game.getSettings();
   expect(settings.players.length).toBe(2);
+  expect(game.getGameEnd()).toBe(null);
   game.getMetadata();
   game.getStats();
 });
@@ -95,6 +96,13 @@ test('test bufferInput', () => {
   expect(_.last(settings.players).characterId).toBe(0xE);
 });
 
+test('test v2 gameEnd', () => {
+  const game = new SlippiGame("test/testv2.slp");
+  const gameEnd = game.getGameEnd();
+  expect(gameEnd.gameEndMethod).toBe(1);
+  expect(gameEnd.lrasInitiatorIndex).toBe(-1);
+});
+
 test('test realtime', () => {
   const fullData = fs.readFileSync("test/realtimeTest.slp");
   const buf = Buffer.alloc(100e6); // Allocate 100 MB of space
@@ -119,6 +127,20 @@ test('test realtime', () => {
   // Test results with empty buffer
   data = getData();
   expect(data.settings).toBe(null);
+  expect(data.frames).toEqual({});
+  expect(data.metadata).toBe(null);
+  expect(data.gameEnd).toBe(null);
+  expect(data.stats).toEqual({
+    "actionCounts": [],
+    "combos": [],
+    "conversions": [],
+    "gameComplete": false,
+    "lastFrame": null,
+    "overall": [],
+    "playableFrameCount": null,
+    "stocks": [],
+  });
+  expect(data.latestFrame).toBe(null);
 
   // Add the header and 0x35 command to buffer
   copyBuf(0x1D);

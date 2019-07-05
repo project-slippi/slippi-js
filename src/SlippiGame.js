@@ -1,6 +1,6 @@
 // @flow
 import _ from 'lodash';
-import { Commands, openSlpFile, closeSlpFile, iterateEvents, getMetadata } from './utils/slpReader';
+import { Commands, openSlpFile, closeSlpFile, iterateEvents, getMetadata, getGameEnd } from './utils/slpReader';
 
 import { getLastFrame, Frames } from "./stats/common";
 import { generateConversions } from "./stats/conversions";
@@ -86,7 +86,7 @@ export default class SlippiGame {
    * Gets the game settings, these are the settings that describe the starting state of
    * the game such as characters, stage, etc.
    */
-  getSettings(): GameSettingsType {
+  getSettings(): GameSettingsType | null {
     if (this.settings) {
       // If header is already generated, return it
       return this.settings;
@@ -157,9 +157,12 @@ export default class SlippiGame {
       return this.gameEnd;
     }
 
-    // Trigger getFrames because that is where the flag is set
-    this.getFrames();
-    return this.gameEnd || null;
+    const slpfile = openSlpFile(this.input);
+
+    this.gameEnd = getGameEnd(slpfile);
+
+    closeSlpFile(slpfile);
+    return this.gameEnd;
   }
 
   getFrames(): FramesType {
@@ -243,7 +246,7 @@ export default class SlippiGame {
     return this.stats;
   }
 
-  getMetadata(): MetadataType {
+  getMetadata(): MetadataType | null {
     if (this.metadata) {
       return this.metadata;
     }

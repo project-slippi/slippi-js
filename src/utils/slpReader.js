@@ -112,6 +112,8 @@ export type MetadataType = {
   }
 };
 
+const METADATA_OFFSET = 10;
+
 function getRef(input: SlpReadInput) {
   switch (input.source) {
   case 'file':
@@ -161,7 +163,8 @@ export function openSlpFile(input: SlpReadInput): SlpFileType {
 
   const rawDataPosition = getRawDataPosition(ref);
   const rawDataLength = getRawDataLength(ref, rawDataPosition);
-  const metadataPosition = rawDataPosition + rawDataLength + 10; // remove metadata string
+  // remove metadata string
+  const metadataPosition = rawDataPosition + rawDataLength + METADATA_OFFSET;
   const metadataLength = getMetadataLength(ref, metadataPosition);
   const messageSizes = getMessageSizes(ref, rawDataPosition);
 
@@ -479,4 +482,18 @@ export function getMetadata(slpFile: SlpFileType): MetadataType | null {
 
   // $FlowFixMe
   return metadata;
+}
+
+export function getGameEnd(slpFile: SlpFileType): GameEndType | null {
+  if (slpFile.metadataLength <= 0) {
+    // This will happen on a severed incomplete file
+    // $FlowFixMe
+    return null;
+  }
+
+  const gameEndLength = slpFile.messageSizes[0x39] + 1;
+  const buffer = new Uint8Array(gameEndLength);
+  const start = slpFile.metadataPosition - METADATA_OFFSET - gameEndLength;
+  readRef(slpFile.ref, buffer, 0, gameEndLength, start);
+  return parseMessage(buffer[0], buffer);
 }
