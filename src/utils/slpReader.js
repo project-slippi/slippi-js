@@ -491,9 +491,13 @@ export function getGameEnd(slpFile: SlpFileType): GameEndType | null {
     return null;
   }
 
-  const gameEndLength = slpFile.messageSizes[0x39] + 1;
+  const gameEndLength = slpFile.messageSizes[Commands.GAME_END] + 1;
   const buffer = new Uint8Array(gameEndLength);
   const start = slpFile.metadataPosition - METADATA_OFFSET - gameEndLength;
+  
   readRef(slpFile.ref, buffer, 0, gameEndLength, start);
+  if (buffer[0] !== Commands.GAME_END) {
+    return null;
+  }
   return parseMessage(buffer[0], buffer);
 }
