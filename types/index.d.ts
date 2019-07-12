@@ -1,27 +1,27 @@
 declare module 'slp-parser-js' {
   // animations
-  export namespace animations {
+  namespace animations {
     export function getDeathDirection(actionStateId: number): string | null
   }
 
   // characters
-  export namespace characters {
+  namespace characters {
     export function getAllCharacters(): { id: number, name: string, shortName: string, colors: string[] }[]
-    export function getCharacterInfo(externalCharacterId: number): { id: number, name: string, shortName: string, colors: string[] }
-    export function getCharacterShortName(externalCharacterId: number): string
-    export function getCharacterName(externalCharacterId: number): string
+    export function getCharacterInfo(externalCharacterId: number): { id: number, name: string, shortName: string, colors: string[] } | undefined
+    export function getCharacterShortName(externalCharacterId: number): string | undefined
+    export function getCharacterName(externalCharacterId: number): string | undefined
     export function getCharacterColorName(externalCharacterId: number, characterColor: number): string | null
   }
 
   // moves
-  export namespace moves {
+  namespace moves {
     export function getMoveInfo(moveId: number): { id: number, name: string, shortName: string }
     export function getMoveShortName(moveId: number): string
     export function getMoveName(moveId: number): string
   }
 
   // stages
-  export namespace stages {
+  namespace stages {
     export const STAGE_FOD = 2
     export const STAGE_POKEMON = 3
     export const STAGE_YOSHIS = 8
@@ -29,8 +29,15 @@ declare module 'slp-parser-js' {
     export const STAGE_BATTLEFIELD = 31
     export const STAGE_FD = 32
 
-    export function getStageInfo(stageId: number): { id: number, name: string }
-    export function getStageName(stageId: number): string
+    export function getStageInfo(stageId: number): { id: number, name: string } | undefined
+    export function getStageName(stageId: number): string | undefined
+  }
+
+  export {
+    animations,
+    characters,
+    moves,
+    stages
   }
 
   // SlippiGame
@@ -47,7 +54,6 @@ declare module 'slp-parser-js' {
     latestFrameIndex: number | null
     frameReadPos: number | null
     getSettings(): GameSettingsType | null
-    iterateEvents(slpfile: SlpFileType, callback: (command: number, payload: any) => boolean): void
     getLatestFrame(): FrameEntryType | null
     getGameEnd(): GameEndType | null
     getFrames(): FramesType
