@@ -1,27 +1,21 @@
-{
-  "parser": "babel-eslint",
-  "extends": [
-    "airbnb-base",
-    "plugin:flowtype/recommended"
+module.exports =  {
+  parser:  '@typescript-eslint/parser',  // Specifies the ESLint parser
+  extends:  [
+    'plugin:@typescript-eslint/recommended',  // Uses the recommended rules from the @typescript-eslint/eslint-plugin
   ],
-  "plugins": [
-    "flowtype",
-    "flowtype-errors"
-  ],
-  "env": {
-    "jest": true
+ parserOptions:  {
+    ecmaVersion:  2018,  // Allows for the parsing of modern ECMAScript features
+    sourceType:  'module',  // Allows for the use of imports
   },
-  "rules": {
+  rules: {
     "arrow-parens": ["off"],
     "class-methods-use-this": "off",
     "consistent-return": "off",
     "comma-dangle": "off",
     "default-case": "off",
     "dot-notation": "off",
-    "flowtype-errors/show-errors": "warn",
     "function-paren-newline": "off",
     "generator-star-spacing": "off",
-    "import/no-unresolved": "error",
     "import/no-extraneous-dependencies": "off",
     "import/prefer-default-export": "off",
     "indent": ["error", 2, { "SwitchCase": 0 }],
@@ -42,4 +36,4 @@
     "prefer-destructuring": "off",
     "quotes": "off"
   }
-}
+};
