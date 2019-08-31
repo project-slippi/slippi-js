@@ -1,4 +1,3 @@
-// @flow
 import _ from 'lodash';
 import { Commands, openSlpFile, closeSlpFile, iterateEvents, getMetadata } from './utils/slpReader';
 
@@ -10,11 +9,11 @@ import { generateActionCounts } from "./stats/actions";
 import { generateOverall as generateOverallStats } from "./stats/overall";
 
 // Type imports
-import type {
+import {
   PlayerType, PreFrameUpdateType, PostFrameUpdateType, SlpFileType, MetadataType, GameEndType,
   SlpReadInput
 } from "./utils/slpReader";
-import type {
+import {
   StockType, ConversionType, ComboType, ActionCountsType, OverallType
 } from "./stats/common";
 
@@ -228,7 +227,7 @@ export default class SlippiGame {
     // The order here kind of matters because things later in the call order might
     // reference things calculated earlier. More specifically, currently the overall
     // calculation uses the others
-    this.stats = {};
+    this.stats = {} as any;
     this.stats.stocks = generateStocks(this);
     this.stats.conversions = generateConversions(this);
     this.stats.combos = generateCombos(this);

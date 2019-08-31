@@ -1,4 +1,13 @@
-const externalCharacters = [{
+export type CharacterColor = string
+
+export interface CharacterInfo {
+  id: number;
+  name: string;
+  shortName: string;
+  colors: Array<CharacterColor>;
+}
+
+const externalCharacters: Array<CharacterInfo> = [{
   id: 0,
   name: "Captain Falcon",
   shortName: "Falcon",
@@ -134,23 +143,26 @@ export function getAllCharacters() {
   return externalCharacters;
 }
 
-export function getCharacterInfo(externalCharacterId) {
+export function getCharacterInfo(externalCharacterId: number): CharacterInfo {
+  if (externalCharacterId <= 0 || externalCharacterId >= externalCharacters.length) {
+    throw new Error(`Invalid character id: ${externalCharacterId}`);
+  }
   return externalCharacters[externalCharacterId];
 }
 
-export function getCharacterShortName(externalCharacterId) {
-  const character = getCharacterInfo(externalCharacterId) || {};
+export function getCharacterShortName(externalCharacterId: number): string {
+  const character = getCharacterInfo(externalCharacterId);
   return character.shortName;
 }
 
-export function getCharacterName(externalCharacterId) {
-  const character = getCharacterInfo(externalCharacterId) || {};
+export function getCharacterName(externalCharacterId : number) {
+  const character = getCharacterInfo(externalCharacterId);
   return character.name;
 }
 
 // Return a human-readable color from a characterCode.
-export function getCharacterColorName(externalCharacterId, characterColor) {
-  const character = getCharacterInfo(externalCharacterId) || {};
-  const colors = character.colors || [];
-  return colors[characterColor] || null;
+export function getCharacterColorName(externalCharacterId: number, characterColor: number): CharacterColor {
+  const character = getCharacterInfo(externalCharacterId);
+  const colors = character.colors;
+  return colors[characterColor];
 }
