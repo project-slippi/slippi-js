@@ -10,6 +10,12 @@ This is the official .slp file parsing library. It parses a .slp file into struc
 
 * node – https://nodejs.org/en/download/
 
+### Installation
+
+```bash
+npm install slp-parser-js
+```
+
 ### Writing a simple script
 
 1) Create a fresh directory on your disk
