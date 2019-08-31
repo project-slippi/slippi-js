@@ -64,7 +64,7 @@ export class SlippiGame {
   frameReadPos: number | null;
 
   constructor(input: string | Buffer) {
-    if (_.isString(input)) {
+    if (typeof input === "string") {
       this.input = {
         source: SlpInputSource.FILE,
         filePath: input as string,
