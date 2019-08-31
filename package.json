@@ -31,7 +31,7 @@
     "patch": "npm version patch && npm publish",
     "minor": "npm version minor && npm publish",
     "major": "npm version major && npm publish",
-    "prepublish": "$npm_execpath run lint && $npm_execpath run test && $npm_execpath run build",
+    "prepublishOnly": "$npm_execpath run lint && $npm_execpath run test && $npm_execpath run build",
     "postpublish": "git push origin master --follow-tags"
   },
   "watch": {
