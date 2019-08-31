@@ -1,5 +1,5 @@
-import _ from 'lodash';
-import { Commands, openSlpFile, closeSlpFile, iterateEvents, getMetadata } from './utils/slpReader';
+import * as _ from 'lodash';
+import { Command, openSlpFile, closeSlpFile, iterateEvents, getMetadata, GameStartType } from './utils/slpReader';
 
 import { getLastFrame, Frames } from "./stats/common";
 import { generateConversions } from "./stats/conversions";
@@ -105,7 +105,8 @@ export default class SlippiGame {
       }
 
       switch (command) {
-      case Commands.GAME_START:
+      case Command.GAME_START:
+        payload = payload as GameStartType;
         if (!payload.stageId) {
           return true; // Why do I have to do this? Still not sold on Flow
         }
@@ -113,7 +114,8 @@ export default class SlippiGame {
         settings = payload;
         settings.players = _.filter(payload.players, player => player.type !== 3);
         break;
-      case Commands.POST_FRAME_UPDATE:
+      case Command.POST_FRAME_UPDATE:
+        payload = payload as PostFrameUpdateType;
         if (payload.frame === null || payload.frame > Frames.FIRST) {
           // Once we are an frame -122 or higher we are done getting match settings
           // Tell the iterator to stop
@@ -180,20 +182,22 @@ export default class SlippiGame {
       }
 
       switch (command) {
-      case Commands.PRE_FRAME_UPDATE:
-      case Commands.POST_FRAME_UPDATE:
+      case Command.PRE_FRAME_UPDATE:
+      case Command.POST_FRAME_UPDATE:
+        payload = payload as PostFrameUpdateType;
         if (!payload.frame && payload.frame !== 0) {
           // If payload is messed up, stop iterating. This shouldn't ever happen
           return true;
         }
 
-        const location = command === Commands.PRE_FRAME_UPDATE ? "pre" : "post";
+        const location = command === Command.PRE_FRAME_UPDATE ? "pre" : "post";
         const frames = payload.isFollower ? followerFrames : playerFrames;
         this.latestFrameIndex = payload.frame;
         _.set(frames, [payload.frame, 'players', payload.playerIndex, location], payload);
         _.set(frames, [payload.frame, 'frame'], payload.frame);
         break;
-      case Commands.GAME_END:
+      case Command.GAME_END:
+        payload = payload as GameEndType;
         this.gameEnd = payload;
         break;
       }

@@ -1,21 +1,21 @@
 // @flow
-import _ from 'lodash';
+import * as _ from 'lodash';
 import SlippiGame from "../index";
 import { Frames, getSinglesOpponentIndices, iterateFramesInOrder } from "./common";
 
-import type { OverallType } from "./common";
-import type { PreFrameUpdateType } from "../utils/slpReader";
+import { OverallType } from "./common";
+import { PreFrameUpdateType } from "../utils/slpReader";
 
-const JoystickRegion = {
-  DZ: 0,
-  NE: 1,
-  SE: 2,
-  SW: 3,
-  NW: 4,
-  N: 5,
-  E: 6,
-  S: 7,
-  W: 8,
+enum JoystickRegion {
+  DZ = 0,
+  NE = 1,
+  SE = 2,
+  SW = 3,
+  NW = 4,
+  N = 5,
+  E = 6,
+  S = 7,
+  W = 8,
 };
 
 export function generateOverall(game: SlippiGame): OverallType[] {
@@ -77,7 +77,7 @@ export function generateOverall(game: SlippiGame): OverallType[] {
   return overall;
 }
 
-function getRatio(count, total) {
+function getRatio(count: number, total: number) {
   return {
     count: count,
     total: total,
@@ -85,7 +85,7 @@ function getRatio(count, total) {
   };
 }
 
-function getOpeningRatio(conversionsByPlayerByOpening, playerIndex, opponentIndex, type) {
+function getOpeningRatio(conversionsByPlayerByOpening: any, playerIndex: number, opponentIndex: number, type: any) {
   const openings = _.get(
     conversionsByPlayerByOpening, [playerIndex, type]
   ) || [];
@@ -97,7 +97,7 @@ function getOpeningRatio(conversionsByPlayerByOpening, playerIndex, opponentInde
   return getRatio(openings.length, openings.length + opponentOpenings.length);
 }
 
-function getBeneficialTradeRatio(conversionsByPlayerByOpening, playerIndex, opponentIndex) {
+function getBeneficialTradeRatio(conversionsByPlayerByOpening: any, playerIndex: number, opponentIndex: number) {
   const playerTrades = _.get(
     conversionsByPlayerByOpening, [playerIndex, 'trade']
   ) || [];
@@ -112,10 +112,10 @@ function getBeneficialTradeRatio(conversionsByPlayerByOpening, playerIndex, oppo
   zippedTrades.forEach((conversionPair) => {
     const playerConversion = _.first(conversionPair);
     const opponentConversion = _.last(conversionPair);
-    const playerDamage = playerConversion.currentPercent - playerConversion.startPercent;
-    const opponentDamage = opponentConversion.currentPercent - opponentConversion.startPercent;
+    const playerDamage = (playerConversion as any).currentPercent - (playerConversion as any).startPercent;
+    const opponentDamage = (opponentConversion as any).currentPercent - (opponentConversion as any).startPercent;
 
-    if (playerConversion.didKill && !opponentConversion.didKill) {
+    if ((playerConversion as any).didKill && !(opponentConversion as any).didKill) {
       benefitsPlayer.push(playerConversion);
     } else if (playerDamage > opponentDamage) {
       benefitsPlayer.push(playerConversion);
@@ -125,15 +125,21 @@ function getBeneficialTradeRatio(conversionsByPlayerByOpening, playerIndex, oppo
   return getRatio(benefitsPlayer.length, playerTrades.length);
 }
 
+interface PlayerInput {
+  playerIndex: number;
+  opponentIndex: number;
+  inputCount: number;
+}
+
 function generateInputs(game: SlippiGame) {
-  const inputs = [];
+  const inputs: Array<PlayerInput> = [];
   const frames = game.getFrames();
 
-  let state;
+  let state: PlayerInput;
 
   // Iterates the frames in order in order to compute stocks
   iterateFramesInOrder(game, (indices) => {
-    const playerInputs = {
+    const playerInputs: PlayerInput = {
       playerIndex: indices.playerIndex,
       opponentIndex: indices.opponentIndex,
       inputCount: 0,
@@ -144,7 +150,8 @@ function generateInputs(game: SlippiGame) {
     inputs.push(playerInputs);
   }, (indices, frame) => {
     const playerFrame = frame.players[indices.playerIndex].pre;
-    const prevPlayerFrame: PreFrameUpdateType = _.get(
+    // FIXME: use PreFrameUpdateType instead of any
+    const prevPlayerFrame: any = _.get(
       frames, [playerFrame.frame - 1, 'players', indices.playerIndex, 'pre'], {}
     );
 
@@ -174,7 +181,7 @@ function generateInputs(game: SlippiGame) {
 
     // Do the same for c-stick
     const prevCstickRegion = getJoystickRegion(prevPlayerFrame.cstickX, prevPlayerFrame.cstickY);
-    const currentCstickRegion = getJoystickRegion(playerFrame.cstickX, playerFrame.cstickY);
+    const currentCstickRegion = getJoystickRegion((playerFrame as any).cstickX, (playerFrame as any).cstickY);
     if ((prevCstickRegion !== currentCstickRegion) && (currentCstickRegion !== 0)) {
       state.inputCount += 1;
     }
@@ -183,10 +190,10 @@ function generateInputs(game: SlippiGame) {
     // Currently will update input count when the button gets pressed past 0.3
     // Changes from hard shield to light shield should probably count as inputs but
     // are not counted here
-    if (prevPlayerFrame.lTrigger < 0.3 && playerFrame.lTrigger >= 0.3) {
+    if (prevPlayerFrame.lTrigger < 0.3 && (playerFrame as any).lTrigger >= 0.3) {
       state.inputCount += 1;
     }
-    if (prevPlayerFrame.rTrigger < 0.3 && playerFrame.rTrigger >= 0.3) {
+    if (prevPlayerFrame.rTrigger < 0.3 && (playerFrame as any).rTrigger >= 0.3) {
       state.inputCount += 1;
     }
   });
@@ -194,7 +201,7 @@ function generateInputs(game: SlippiGame) {
   return inputs;
 }
 
-function countSetBits(x) {
+function countSetBits(x: any) {
   // This function solves the Hamming Weight problem. Effectively it counts the number of
   // bits in the input that are set to 1
   // This implementation is supposedly very efficient when most bits are zero.

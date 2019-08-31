@@ -1,22 +1,21 @@
-// @flow
-import _ from 'lodash';
+import * as _ from 'lodash';
 import SlippiGame from "../index";
-import type { PostFrameUpdateType } from "../utils/slpReader";
-import type { MoveLandedType, ConversionType } from "./common";
+import { PostFrameUpdateType } from "../utils/slpReader";
+import { MoveLandedType, ConversionType } from "./common";
 import {
   iterateFramesInOrder, isDamaged, isGrabbed, calcDamageTaken, isInControl, didLoseStock,
   Timers
 } from "./common";
 
 export function generateConversions(game: SlippiGame): ConversionType[] {
-  const conversions = [];
+  const conversions: ConversionType[] = [];
   const frames = game.getFrames();
 
   const initialState: {
     conversion: ConversionType | null,
     move: MoveLandedType | null,
     resetCounter: number,
-    lastHitAnimation: number | null,
+    lastHitAnimation: number | null
   } = {
     conversion: null,
     move: null,
@@ -32,11 +31,13 @@ export function generateConversions(game: SlippiGame): ConversionType[] {
     state = { ...initialState };
   }, (indices, frame) => {
     const playerFrame: PostFrameUpdateType = frame.players[indices.playerIndex].post;
-    const prevPlayerFrame: PostFrameUpdateType = _.get(
+    // FIXME: use type PostFrameUpdateType instead of any
+    const prevPlayerFrame: any = _.get(
       frames, [playerFrame.frame - 1, 'players', indices.playerIndex, 'post'], {}
     );
     const opponentFrame: PostFrameUpdateType = frame.players[indices.opponentIndex].post;
-    const prevOpponentFrame: PostFrameUpdateType = _.get(
+    // FIXME: use type PostFrameUpdateType instead of any
+    const prevOpponentFrame: any = _.get(
       frames, [playerFrame.frame - 1, 'players', indices.opponentIndex, 'post'], {}
     );
 
@@ -160,14 +161,14 @@ export function generateConversions(game: SlippiGame): ConversionType[] {
   return conversions;
 }
 
-function addOpeningTypeToConversions(game, conversions) {
+function addOpeningTypeToConversions(game: SlippiGame, conversions: Array<ConversionType>) {
   const conversionsByPlayerIndex = _.groupBy(conversions, 'playerIndex');
   const keyedConversions = _.mapValues(conversionsByPlayerIndex, (playerConversions) => (
     _.keyBy(playerConversions, 'startFrame')
   ));
 
   const initialState: {
-    opponentConversion: ConversionType | null,
+    opponentConversion: ConversionType | null
   } = {
     opponentConversion: null
   };
