@@ -188,7 +188,7 @@ export function calcDamageTaken(frame: PostFrameUpdateType, prevFrame: PostFrame
   return percent - prevPercent;
 }
 
-function getSortedFrames(game: SlippiGame) {
+function getSortedFrames(game: SlippiGame): Array<FrameEntryType> {
   // TODO: This is obviously jank and probably shouldn't be done this way. I just didn't
   // TODO: want the primary game object to have the concept of sortedFrames because it's
   // TODO: kinda shitty I need to do that anyway. It's required because javascript doesn't
@@ -211,7 +211,7 @@ export function iterateFramesInOrder(
   game: SlippiGame,
   initialize: (indices: PlayerIndexedType) => void,
   processFrame: (indices: PlayerIndexedType, frame: FrameEntryType) => void
-) {
+): void {
   const opponentIndices = getSinglesOpponentIndices(game);
   if (opponentIndices.length === 0) {
     return;

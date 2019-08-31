@@ -13,17 +13,18 @@ export enum Command {
   GAME_END = 0x39
 };
 
+export enum SlpInputSource {
+  BUFFER = "buffer",
+  FILE = "file",
+}
+
 export type SlpReadInput = {
-  source: string;
+  source: SlpInputSource;
   filePath?: string;
   buffer?: Buffer;
 };
 
-export type SlpRefType = {
-  source: string;
-  fileDescriptor?: number;
-  buffer?: Buffer;
-};
+export type SlpRefType = SlpFileSourceRef | SlpBufferSourceRef;
 
 export type SlpFileType = {
   ref: SlpRefType;
@@ -112,45 +113,52 @@ export type MetadataType = {
   } | null | undefined;
 };
 
-function getRef(input: SlpReadInput) {
+export interface SlpFileSourceRef {
+  source: SlpInputSource;
+  fileDescriptor: number;
+}
+
+export interface SlpBufferSourceRef {
+  source: SlpInputSource;
+  buffer: Buffer;
+}
+
+function getRef(input: SlpReadInput): SlpRefType {
   switch (input.source) {
-  case 'file':
+  case SlpInputSource.FILE:
     const fd = fs.openSync(input.filePath, "r");
     return {
       source: input.source,
       fileDescriptor: fd,
-    };
-  case 'buffer':
+    } as SlpFileSourceRef;
+  case SlpInputSource.BUFFER:
     return {
       source: input.source,
       buffer: input.buffer,
-    };
+    } as SlpBufferSourceRef;
   default:
     throw new Error("Source type not supported");
   }
 }
 
-function readRef(ref: SlpRefType, buffer: Uint8Array, offset: number, length: number, position: number) {
+function readRef(ref: SlpRefType, buffer: Uint8Array, offset: number, length: number, position: number): number {
   switch (ref.source) {
-  case 'file':
-    return fs.readSync(ref.fileDescriptor, buffer, offset, length, position);
-  case 'buffer':
-    return ref.buffer.copy(buffer, offset, position, position + length);
+  case SlpInputSource.FILE:
+    return fs.readSync((ref as SlpFileSourceRef).fileDescriptor, buffer, offset, length, position);
+  case SlpInputSource.BUFFER:
+    return (ref as SlpBufferSourceRef).buffer.copy(buffer, offset, position, position + length);
   default:
     throw new Error("Source type not supported");
   }
 }
 
-function getLenRef(ref: SlpRefType) {
+function getLenRef(ref: SlpRefType): number {
   switch (ref.source) {
-  case 'file':
-    if (ref.fileDescriptor) {
-      const fileStats = fs.fstatSync(ref.fileDescriptor);
-      return fileStats.size;
-    }
-    throw new Error("No file descriptor provided")
-  case 'buffer':
-    return ref.buffer.length;
+  case SlpInputSource.FILE:
+    const fileStats = fs.fstatSync((ref as SlpFileSourceRef).fileDescriptor);
+    return fileStats.size;
+  case SlpInputSource.BUFFER:
+    return (ref as SlpBufferSourceRef).buffer.length;
   default:
     throw new Error("Source type not supported");
   }
@@ -178,17 +186,16 @@ export function openSlpFile(input: SlpReadInput): SlpFileType {
   };
 }
 
-export function closeSlpFile(file: SlpFileType) {
-  if (file.ref.source !== 'file') {
-    // No need to do anything if not file
-    return;
+export function closeSlpFile(file: SlpFileType): void {
+  switch (file.ref.source) {
+  case SlpInputSource.FILE:
+    fs.closeSync((file.ref as SlpFileSourceRef).fileDescriptor);
+    break;
   }
-
-  fs.closeSync(file.ref.fileDescriptor);
 }
 
 // This function gets the position where the raw data starts
-function getRawDataPosition(ref: SlpRefType) {
+function getRawDataPosition(ref: SlpRefType): number {
   const buffer = new Uint8Array(1);
   readRef(ref, buffer, 0, buffer.length, 0);
 
@@ -203,7 +210,7 @@ function getRawDataPosition(ref: SlpRefType) {
   return 15;
 }
 
-function getRawDataLength(ref: SlpRefType, position: number) {
+function getRawDataLength(ref: SlpRefType, position: number): number {
   const fileSize = getLenRef(ref);
   if (position === 0) {
     return fileSize;
@@ -224,7 +231,7 @@ function getRawDataLength(ref: SlpRefType, position: number) {
   return fileSize - position;
 }
 
-function getMetadataLength(ref: SlpRefType, position: number) {
+function getMetadataLength(ref: SlpRefType, position: number): number {
   const len = getLenRef(ref);
   return len - position - 1;
 }
@@ -313,6 +320,7 @@ export function iterateEvents(
   return readPosition;
 }
 
+// FIXME: figure out what type payload is
 function parseMessage(command: Command, payload: any): EventPayloadTypes | null | undefined {
   const view = new DataView(payload.buffer);
   switch (command) {
@@ -404,7 +412,7 @@ function parseMessage(command: Command, payload: any): EventPayloadTypes | null 
   }
 }
 
-function canReadFromView(view: DataView, offset: number, length: number) {
+function canReadFromView(view: DataView, offset: number, length: number): boolean {
   const viewLength = view.byteLength;
   return offset + length <= viewLength;
 }
