@@ -1,6 +1,6 @@
 /* eslint-disable no-param-reassign */
 import * as _ from 'lodash';
-import { Command, openSlpFile, closeSlpFile, iterateEvents, getMetadata, GameStartType } from './utils/slpReader';
+import { Command, openSlpFile, closeSlpFile, iterateEvents, getMetadata, GameStartType, SlpInputSource } from './utils/slpReader';
 
 import { getLastFrame, Frames } from "./stats/common";
 import { generateConversions } from "./stats/conversions";
@@ -66,12 +66,12 @@ export default class SlippiGame {
   constructor(input: string | Buffer) {
     if (_.isString(input)) {
       this.input = {
-        source: 'file',
+        source: SlpInputSource.FILE,
         filePath: input,
       };
     } else if (input instanceof Buffer) {
       this.input = {
-        source: 'buffer',
+        source: SlpInputSource.BUFFER,
         buffer: input,
       };
     } else {
