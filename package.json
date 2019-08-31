@@ -28,9 +28,9 @@
     "prebuild": "$npm_execpath run clean",
     "build": "babel src -d dist",
     "watch": "npm-watch",
-    "patch": "$npm_execpath version patch && $npm_execpath publish",
-    "minor": "$npm_execpath version minor && $npm_execpath publish",
-    "major": "$npm_execpath version major && $npm_execpath publish",
+    "patch": "npm version patch && npm publish",
+    "minor": "npm version minor && npm publish",
+    "major": "npm version major && npm publish",
     "prepublish": "$npm_execpath run lint && $npm_execpath run test && $npm_execpath run build",
     "postpublish": "git push origin master --follow-tags"
   },
