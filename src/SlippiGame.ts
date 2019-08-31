@@ -113,7 +113,7 @@ export class SlippiGame {
         }
 
         settings = payload;
-        settings.players = _.filter(payload.players, (player: PlayerType) => player.type !== 3);
+        settings.players = payload.players.filter(player => player.type !== 3);
         break;
       case Command.POST_FRAME_UPDATE:
         payload = payload as PostFrameUpdateType;

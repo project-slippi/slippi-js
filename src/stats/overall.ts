@@ -31,15 +31,13 @@ export function generateOverall(game: SlippiGame): OverallType[] {
 
   const gameMinutes = game.stats.playableFrameCount / 3600;
 
-  const overall = _.map(playerIndices, (indices) => {
+  const overall = playerIndices.map(indices => {
     const playerIndex = indices.playerIndex;
     const opponentIndex = indices.opponentIndex;
 
     const inputCount = _.get(inputsByPlayer, [playerIndex, 'inputCount']) || 0;
     const conversions = _.get(conversionsByPlayer, playerIndex) || [];
-    const successfulConversions = _.filter(conversions, (conversion) => (
-      conversion.moves.length > 1
-    ));
+    const successfulConversions = conversions.filter(conversion => conversion.moves.length > 1);
     const opponentStocks = _.get(stocksByPlayer, opponentIndex) || [];
     const opponentEndedStocks = _.filter(opponentStocks, 'endFrame');
 

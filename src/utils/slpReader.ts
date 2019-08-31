@@ -329,7 +329,7 @@ function parseMessage(command: Command, payload: any): EventPayloadTypes | null 
       isTeams: readBool(view, 0xD),
       isPAL: readBool(view, 0x1A1),
       stageId: readUint16(view, 0x13),
-      players: _.map([0, 1, 2, 3], playerIndex => {
+      players: [0, 1, 2, 3].map(playerIndex => {
         // Controller Fix stuff
         const cfOffset = playerIndex * 0x8;
         const dashback = readUint32(view, 0x141 + cfOffset);
@@ -361,7 +361,7 @@ function parseMessage(command: Command, payload: any): EventPayloadTypes | null 
           controllerFix: cfOption,
           nametag: nametag,
         };
-      })
+      }),
     };
   case Command.PRE_FRAME_UPDATE:
     return {

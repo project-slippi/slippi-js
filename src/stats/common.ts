@@ -219,11 +219,11 @@ export function iterateFramesInOrder(
   const sortedFrames = getSortedFrames(game);
 
   // Iterates through both of the player/opponent pairs
-  _.forEach(opponentIndices, (indices) => {
+  opponentIndices.forEach(indices => {
     initialize(indices);
 
     // Iterates through all of the frames for the current player and opponent
-    _.forEach(sortedFrames, (frame) => {
+    sortedFrames.forEach(frame => {
       const playerPostFrame = _.get(frame, ['players', indices.playerIndex, 'post']);
       const oppPostFrame = _.get(frame, ['players', indices.opponentIndex, 'post']);
       if (!playerPostFrame || !oppPostFrame) {
