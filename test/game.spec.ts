@@ -1,10 +1,10 @@
 import _ from 'lodash';
 // import path from 'path';
 import fs from 'fs';
-import SlippiGame from '../src';
+import SlippiGame from '../dist';
 
 test('read settings', () => {
-  const game = new SlippiGame("test/sheik_vs_ics_yoshis.slp");
+  const game = new SlippiGame("slp/sheik_vs_ics_yoshis.slp");
   const settings = game.getSettings();
   expect(settings.stageId).toBe(8);
   expect(_.first(settings.players).characterId).toBe(0x13);
@@ -12,7 +12,7 @@ test('read settings', () => {
 });
 
 test('test stats', () => {
-  const game = new SlippiGame("test/test.slp");
+  const game = new SlippiGame("slp/test.slp");
   const stats = game.getStats();
   expect(stats.lastFrame).toBe(3694);
 
@@ -39,14 +39,14 @@ test('test stats', () => {
 });
 
 test('test metadata', () => {
-  const game = new SlippiGame("test/test.slp");
+  const game = new SlippiGame("slp/test.slp");
   const metadata = game.getMetadata();
   expect(metadata.startAt).toBe("2017-12-18T21:14:14Z");
   expect(metadata.playedOn).toBe("dolphin");
 });
 
 test('test incomplete', () => {
-  const game = new SlippiGame("test/incomplete.slp");
+  const game = new SlippiGame("slp/incomplete.slp");
   const settings = game.getSettings();
   expect(settings.players.length).toBe(2);
   game.getMetadata();
@@ -54,32 +54,32 @@ test('test incomplete', () => {
 });
 
 test('test nametags', () => {
-  const game = new SlippiGame("test/nametags.slp");
+  const game = new SlippiGame("slp/nametags.slp");
   const settings = game.getSettings();
   expect(settings.players[0].nametag).toBe("AMNイ");
   expect(settings.players[1].nametag).toBe("");
 
-  const game2 = new SlippiGame("test/nametags2.slp");
+  const game2 = new SlippiGame("slp/nametags2.slp");
   const settings2 = game2.getSettings();
   expect(settings2.players[0].nametag).toBe("A1=$");
   expect(settings2.players[1].nametag).toBe("か、9@");
 
-  const game3 = new SlippiGame("test/nametags3.slp");
+  const game3 = new SlippiGame("slp/nametags3.slp");
   const settings3 = game3.getSettings();
   expect(settings3.players[0].nametag).toBe("B  R");
   expect(settings3.players[1].nametag).toBe(".  。");
 });
 
 test('test isPAL', () => {
-  const palGame = new SlippiGame("test/pal.slp");
-  const ntscGame = new SlippiGame("test/ntsc.slp");
+  const palGame = new SlippiGame("slp/pal.slp");
+  const ntscGame = new SlippiGame("slp/ntsc.slp");
 
-  expect(palGame.getSettings().isPAL).toBe(true);
-  expect(ntscGame.getSettings().isPAL).toBe(false);
+  expect((palGame.getSettings() as any).isPAL).toBe(true);
+  expect((ntscGame.getSettings() as any).isPAL).toBe(false);
 });
 
 test('test controllerFixes', () => {
-  const game = new SlippiGame("test/controllerFixes.slp");
+  const game = new SlippiGame("slp/controllerFixes.slp");
   const settings = game.getSettings();
   expect(settings.players[0].controllerFix).toBe("Dween");
   expect(settings.players[1].controllerFix).toBe("UCF");
@@ -87,7 +87,7 @@ test('test controllerFixes', () => {
 });
 
 test('test bufferInput', () => {
-  const buf = fs.readFileSync("test/sheik_vs_ics_yoshis.slp");
+  const buf = fs.readFileSync("slp/sheik_vs_ics_yoshis.slp");
   const game = new SlippiGame(buf);
   const settings = game.getSettings();
   expect(settings.stageId).toBe(8);
@@ -96,7 +96,7 @@ test('test bufferInput', () => {
 });
 
 test('test realtime', () => {
-  const fullData = fs.readFileSync("test/realtimeTest.slp");
+  const fullData = fs.readFileSync("slp/realtimeTest.slp");
   const buf = Buffer.alloc(100e6); // Allocate 100 MB of space
   const game = new SlippiGame(buf);
 
@@ -111,7 +111,7 @@ test('test realtime', () => {
     latestFrame: game.getLatestFrame(),
   });
 
-  const copyBuf = (len) => {
+  const copyBuf = (len: number) => {
     const res = fullData.copy(buf, copyPos, copyPos, copyPos + len);
     copyPos += res;
   };
