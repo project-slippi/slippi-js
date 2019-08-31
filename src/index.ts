@@ -10,6 +10,7 @@ export {
   characters,
   moves,
   stages,
+  SlippiGame, // Support both named and default exports
 };
 
 export default SlippiGame;
