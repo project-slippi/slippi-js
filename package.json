@@ -42,12 +42,12 @@
   ],
   "dependencies": {
     "@shelacek/ubjson": "^1.0.1",
-    "@types/lodash": "^4.14.138",
     "iconv-lite": "^0.4.24",
     "lodash": "^4.17.11"
   },
   "devDependencies": {
     "@types/jest": "^24.0.18",
+    "@types/lodash": "^4.14.138",
     "@types/node": "^12.7.3",
     "@typescript-eslint/eslint-plugin": "^2.0.0",
     "@typescript-eslint/parser": "^2.0.0",
