@@ -18,29 +18,29 @@ function isRolling(animation: State): boolean {
   }
 }
 
-function didStartRoll(currentAnimation: number, previousAnimation: number) {
+function didStartRoll(currentAnimation: number, previousAnimation: number): boolean {
   const isCurrentlyRolling = isRolling(currentAnimation);
   const wasPreviouslyRolling = isRolling(previousAnimation);
 
   return isCurrentlyRolling && !wasPreviouslyRolling;
 }
 
-function isSpotDodging(animation: State) {
+function isSpotDodging(animation: State): boolean {
   return animation === State.SPOT_DODGE;
 }
 
-function didStartSpotDodge(currentAnimation: State, previousAnimation: State) {
+function didStartSpotDodge(currentAnimation: State, previousAnimation: State): boolean {
   const isCurrentlyDodging = isSpotDodging(currentAnimation);
   const wasPreviouslyDodging = isSpotDodging(previousAnimation);
 
   return isCurrentlyDodging && !wasPreviouslyDodging;
 }
 
-function isAirDodging(animation: State) {
+function isAirDodging(animation: State): boolean {
   return animation === State.AIR_DODGE;
 }
 
-function didStartAirDodge(currentAnimation: State, previousAnimation: State) {
+function didStartAirDodge(currentAnimation: State, previousAnimation: State): boolean {
   const isCurrentlyDodging = isAirDodging(currentAnimation);
   const wasPreviouslyDodging = isAirDodging(previousAnimation);
 
@@ -64,7 +64,7 @@ export function generateActionCounts(game: SlippiGame): ActionCountsType[] {
   let state = initialState;
 
   // Helper function for incrementing counts
-  const incrementCount = (field: string, condition: boolean) => {
+  const incrementCount = (field: string, condition: boolean): void => {
     if (!condition) {
       return;
     }
@@ -122,7 +122,7 @@ export function generateActionCounts(game: SlippiGame): ActionCountsType[] {
   return actionCounts;
 }
 
-function handleActionWavedash(counts: ActionCountsType, animations: State[]) {
+function handleActionWavedash(counts: ActionCountsType, animations: State[]): void {
   const currentAnimation = _.last(animations);
   const prevAnimation = animations[animations.length - 2];
 
@@ -161,7 +161,7 @@ function handleActionWavedash(counts: ActionCountsType, animations: State[]) {
   }
 }
 
-function isWavedashInitiationAnimation(animation: State) {
+function isWavedashInitiationAnimation(animation: State): boolean {
   if (animation === State.AIR_DODGE) {
     return true;
   }
