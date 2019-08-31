@@ -33,11 +33,6 @@
     "build": "rollup -c",
     "watch": "rollup -cw"
   },
-  "watch": {
-    "test": "{src,test}/*.js",
-    "lint": "{src,test}/*.js",
-    "build": "src"
-  },
   "jest": {
     "testRegex": "/test/.*",
     "testEnvironment": "node"
