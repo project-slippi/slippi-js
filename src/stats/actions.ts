@@ -1,11 +1,11 @@
 // @flow
 import * as _ from 'lodash';
-import SlippiGame from "../index";
 import {
   State, iterateFramesInOrder
 } from "./common";
 
 import { ActionCountsType } from "./common";
+import { SlippiGame } from '../SlippiGame';
 
 function isRolling(animation: State): boolean {
   switch (animation) {

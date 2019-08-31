@@ -1,6 +1,6 @@
 // @flow
 import * as _ from 'lodash';
-import SlippiGame from "../index";
+import { SlippiGame } from "../SlippiGame";
 import { iterateFramesInOrder, isDead, didLoseStock } from "./common";
 
 import { StockType } from "./common";

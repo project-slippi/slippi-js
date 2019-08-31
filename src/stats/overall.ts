@@ -1,10 +1,9 @@
 // @flow
 import * as _ from 'lodash';
-import SlippiGame from "../index";
+import { SlippiGame } from "../SlippiGame";
 import { Frames, getSinglesOpponentIndices, iterateFramesInOrder } from "./common";
 
 import { OverallType } from "./common";
-import { PreFrameUpdateType } from "../utils/slpReader";
 
 enum JoystickRegion {
   DZ = 0,

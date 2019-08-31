@@ -1,5 +1,5 @@
 import * as _ from 'lodash';
-import SlippiGame from "../index";
+import { SlippiGame } from "../SlippiGame";
 import { PostFrameUpdateType } from "../utils/slpReader";
 import { MoveLandedType, ComboType } from "./common";
 import {

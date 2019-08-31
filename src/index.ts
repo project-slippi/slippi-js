@@ -1,4 +1,4 @@
-import SlippiGame from './SlippiGame';
+import { SlippiGame } from './SlippiGame';
 
 import * as animations from './melee/animations';
 import * as characters from './melee/characters';

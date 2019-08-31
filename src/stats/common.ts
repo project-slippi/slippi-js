@@ -1,7 +1,6 @@
 import * as _ from 'lodash';
-import SlippiGame from "../index";
 import { PostFrameUpdateType } from "../utils/slpReader";
-import { FrameEntryType } from '../SlippiGame';
+import { SlippiGame, FrameEntryType } from '../SlippiGame';
 
 type RatioType = {
   count: number;

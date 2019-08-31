@@ -1,7 +1,7 @@
 import * as _ from 'lodash';
 // import path from 'path';
 import * as fs from 'fs';
-import SlippiGame from '../src';
+import { SlippiGame } from '../src';
 
 test('read settings', () => {
   const game = new SlippiGame("slp/sheik_vs_ics_yoshis.slp");

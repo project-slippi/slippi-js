@@ -50,7 +50,7 @@ type StatsType = {
 /**
  * Slippi Game class that wraps a file
  */
-export default class SlippiGame {
+export class SlippiGame {
   input: SlpReadInput;
   file: SlpFileType;
   settings: GameSettingsType | null;
