@@ -161,7 +161,7 @@ export function generateConversions(game: SlippiGame): ConversionType[] {
   return conversions;
 }
 
-function addOpeningTypeToConversions(game: SlippiGame, conversions: Array<ConversionType>) {
+function addOpeningTypeToConversions(game: SlippiGame, conversions: Array<ConversionType>): void {
   const conversionsByPlayerIndex = _.groupBy(conversions, 'playerIndex');
   const keyedConversions = _.mapValues(conversionsByPlayerIndex, (playerConversions) => (
     _.keyBy(playerConversions, 'startFrame')

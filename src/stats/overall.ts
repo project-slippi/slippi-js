@@ -77,15 +77,21 @@ export function generateOverall(game: SlippiGame): OverallType[] {
   return overall;
 }
 
-function getRatio(count: number, total: number) {
+interface Ratio {
+  count: number;
+  total: number;
+  ratio: number | null;
+}
+
+function getRatio(count: number, total: number): Ratio {
   return {
     count: count,
     total: total,
     ratio: total ? count / total : null,
-  };
+  } as Ratio;
 }
 
-function getOpeningRatio(conversionsByPlayerByOpening: any, playerIndex: number, opponentIndex: number, type: any) {
+function getOpeningRatio(conversionsByPlayerByOpening: any, playerIndex: number, opponentIndex: number, type: any): Ratio {
   const openings = _.get(
     conversionsByPlayerByOpening, [playerIndex, type]
   ) || [];
@@ -97,7 +103,7 @@ function getOpeningRatio(conversionsByPlayerByOpening: any, playerIndex: number,
   return getRatio(openings.length, openings.length + opponentOpenings.length);
 }
 
-function getBeneficialTradeRatio(conversionsByPlayerByOpening: any, playerIndex: number, opponentIndex: number) {
+function getBeneficialTradeRatio(conversionsByPlayerByOpening: any, playerIndex: number, opponentIndex: number): Ratio {
   const playerTrades = _.get(
     conversionsByPlayerByOpening, [playerIndex, 'trade']
   ) || [];
@@ -131,7 +137,7 @@ interface PlayerInput {
   inputCount: number;
 }
 
-function generateInputs(game: SlippiGame) {
+function generateInputs(game: SlippiGame): Array<PlayerInput> {
   const inputs: Array<PlayerInput> = [];
   const frames = game.getFrames();
 
@@ -201,7 +207,7 @@ function generateInputs(game: SlippiGame) {
   return inputs;
 }
 
-function countSetBits(x: any) {
+function countSetBits(x: any): number {
   // This function solves the Hamming Weight problem. Effectively it counts the number of
   // bits in the input that are set to 1
   // This implementation is supposedly very efficient when most bits are zero.
@@ -215,7 +221,7 @@ function countSetBits(x: any) {
   return count;
 }
 
-function getJoystickRegion(x: number, y: number) {
+function getJoystickRegion(x: number, y: number): JoystickRegion {
   let region = JoystickRegion.DZ;
 
   if (x >= 0.2875 && y >= 0.2875) {
