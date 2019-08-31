@@ -2,8 +2,6 @@
 
 [![npm version](http://img.shields.io/npm/v/slp-parser-js.svg?style=flat)](https://npmjs.org/package/slp-parser-js "View this project on npm")
 
-## Introduction
-
 This is the official .slp file parsing library. It parses a .slp file into structured data and can be used to compute stats. There are already many built-in stats that are computed by the library but the data provided can also be used to compute your own stats.
 
 ## Quick-Start
