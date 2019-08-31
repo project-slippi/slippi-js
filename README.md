@@ -66,3 +66,27 @@ At this point, you should see an output as you play games on the connected conso
 
 While it is possible to load the stats in a real-time fashion, the stat calculation logic has not yet been optimized to work only on the latest data. Because of this, the longer the game goes, the longer stat calculation will take. As long as you don't call `game.getStats()` you do not have to worry about this.
 
+
+## Development
+
+### Setup
+
+```bash
+git clone https://github.com/project-slippi/slp-parser-js
+cd slp-parser-js
+yarn install
+```
+
+### Build
+
+```bash
+yarn run build
+```
+
+You can also run `yarn run watch` to continuously build whenever changes are detected.
+
+### Test
+
+```bash
+yarn run test
+```
