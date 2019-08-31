@@ -18,32 +18,32 @@ import {
 } from "./stats/common";
 
 type GameSettingsType = {
-  stageId: number,
-  isTeams: boolean,
-  players: PlayerType[]
+  stageId: number;
+  isTeams: boolean;
+  players: PlayerType[];
 };
 
 export type FrameEntryType = {
-  frame: number,
+  frame: number;
   players: { [playerIndex: number]: {
-    pre: PreFrameUpdateType,
-    post: PostFrameUpdateType
-  }}
+    pre: PreFrameUpdateType;
+    post: PostFrameUpdateType;
+  };};
 };
 
 type FramesType = {
-  [frameIndex: number]: FrameEntryType
+  [frameIndex: number]: FrameEntryType;
 };
 
 type StatsType = {
-  gameComplete: boolean,
-  lastFrame: number,
-  playableFrameCount: number,
-  stocks: StockType[],
-  conversions: ConversionType[],
-  combos: ComboType[],
-  actionCounts: ActionCountsType[],
-  overall: OverallType[],
+  gameComplete: boolean;
+  lastFrame: number;
+  playableFrameCount: number;
+  stocks: StockType[];
+  conversions: ConversionType[];
+  combos: ComboType[];
+  actionCounts: ActionCountsType[];
+  overall: OverallType[];
 };
 
 /**

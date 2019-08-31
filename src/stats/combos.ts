@@ -12,10 +12,10 @@ export function generateCombos(game: SlippiGame): Array<ComboType> {
   const frames = game.getFrames();
 
   const initialState: {
-    combo: ComboType | null,
-    move: MoveLandedType | null,
-    resetCounter: number,
-    lastHitAnimation: number | null,
+    combo: ComboType | null;
+    move: MoveLandedType | null;
+    resetCounter: number;
+    lastHitAnimation: number | null;
   } = {
     combo: null,
     move: null,

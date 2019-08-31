@@ -12,10 +12,10 @@ export function generateConversions(game: SlippiGame): ConversionType[] {
   const frames = game.getFrames();
 
   const initialState: {
-    conversion: ConversionType | null,
-    move: MoveLandedType | null,
-    resetCounter: number,
-    lastHitAnimation: number | null
+    conversion: ConversionType | null;
+    move: MoveLandedType | null;
+    resetCounter: number;
+    lastHitAnimation: number | null;
   } = {
     conversion: null,
     move: null,
@@ -168,7 +168,7 @@ function addOpeningTypeToConversions(game: SlippiGame, conversions: Array<Conver
   ));
 
   const initialState: {
-    opponentConversion: ConversionType | null
+    opponentConversion: ConversionType | null;
   } = {
     opponentConversion: null
   };

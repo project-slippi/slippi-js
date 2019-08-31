@@ -14,102 +14,102 @@ export enum Command {
 };
 
 export type SlpReadInput = {
-  source: string,
-  filePath?: string,
-  buffer?: Buffer
+  source: string;
+  filePath?: string;
+  buffer?: Buffer;
 };
 
 export type SlpRefType = {
-  source: string,
-  fileDescriptor?: number,
-  buffer?: Buffer
+  source: string;
+  fileDescriptor?: number;
+  buffer?: Buffer;
 };
 
 export type SlpFileType = {
-  ref: SlpRefType,
-  rawDataPosition: number,
-  rawDataLength: number,
-  metadataPosition: number,
-  metadataLength: number,
+  ref: SlpRefType;
+  rawDataPosition: number;
+  rawDataLength: number;
+  metadataPosition: number;
+  metadataLength: number;
   messageSizes: {
-    [command: number]: number
-  }
+    [command: number]: number;
+  };
 };
 
 export type PlayerType = {
-  playerIndex: number,
-  port: number,
-  characterId: number | null,
-  characterColor: number | null,
-  startStocks: number | null,
-  type: number | null,
-  teamId: number | null,
-  controllerFix: string | null,
-  nametag: string | null
+  playerIndex: number;
+  port: number;
+  characterId: number | null;
+  characterColor: number | null;
+  startStocks: number | null;
+  type: number | null;
+  teamId: number | null;
+  controllerFix: string | null;
+  nametag: string | null;
 };
 
 export type GameStartType = {
-  isTeams: boolean | null,
-  isPAL: boolean | null,
-  stageId: number | null,
-  players: PlayerType[]
+  isTeams: boolean | null;
+  isPAL: boolean | null;
+  stageId: number | null;
+  players: PlayerType[];
 };
 
 export type PreFrameUpdateType = {
-  frame: number | null,
-  playerIndex: number | null,
-  isFollower: boolean | null,
-  seed: number | null,
-  actionStateId: number | null,
-  positionX: number | null,
-  positionY: number | null,
-  facingDirection: number | null,
-  joystickX: number | null,
-  joystickY: number | null,
-  cStickX: number | null,
-  cStickY: number | null,
-  trigger: number | null,
-  buttons: number | null,
-  physicalButtons: number | null,
-  physicalLTrigger: number | null,
-  physicalRTrigger: number | null,
-  percent: number | null
+  frame: number | null;
+  playerIndex: number | null;
+  isFollower: boolean | null;
+  seed: number | null;
+  actionStateId: number | null;
+  positionX: number | null;
+  positionY: number | null;
+  facingDirection: number | null;
+  joystickX: number | null;
+  joystickY: number | null;
+  cStickX: number | null;
+  cStickY: number | null;
+  trigger: number | null;
+  buttons: number | null;
+  physicalButtons: number | null;
+  physicalLTrigger: number | null;
+  physicalRTrigger: number | null;
+  percent: number | null;
 };
 
 export type PostFrameUpdateType = {
-  frame: number | null,
-  playerIndex: number | null,
-  isFollower: boolean | null,
-  internalCharacterId: number | null,
-  actionStateId: number | null,
-  positionX: number | null,
-  positionY: number | null,
-  facingDirection: number | null,
-  percent: number | null,
-  shieldSize: number | null,
-  lastAttackLanded: number | null,
-  currentComboCount: number | null,
-  lastHitBy: number | null,
-  stocksRemaining: number | null,
-  actionStateCounter: number | null
+  frame: number | null;
+  playerIndex: number | null;
+  isFollower: boolean | null;
+  internalCharacterId: number | null;
+  actionStateId: number | null;
+  positionX: number | null;
+  positionY: number | null;
+  facingDirection: number | null;
+  percent: number | null;
+  shieldSize: number | null;
+  lastAttackLanded: number | null;
+  currentComboCount: number | null;
+  lastHitBy: number | null;
+  stocksRemaining: number | null;
+  actionStateCounter: number | null;
 };
 
 export type GameEndType = {
-  gameEndMethod: number | null,
-  lrasInitiatorIndex: number | null
+  gameEndMethod: number | null;
+  lrasInitiatorIndex: number | null;
 };
 
 export type MetadataType = {
-  startAt: string | null | undefined,
-  playedOn: string | null | undefined,
-  lastFrame: number | null | undefined,
+  startAt: string | null | undefined;
+  playedOn: string | null | undefined;
+  lastFrame: number | null | undefined;
   players: {
     [playerIndex: number]: {
       characters: {
-        [internalCharacterId: number]: number
-      }
-    }
-  } | null | undefined
+        [internalCharacterId: number]: number;
+      };
+    };
+  } | null | undefined;
 };
 
 function getRef(input: SlpReadInput) {
@@ -230,10 +230,10 @@ function getMetadataLength(ref: SlpRefType, position: number) {
 }
 
 function getMessageSizes(ref: SlpRefType, position: number): {
-  [command: number]: number
+  [command: number]: number;
 } {
   const messageSizes: {
-    [command: number]: number
+    [command: number]: number;
   } = {};
   // Support old file format
   if (position === 0) {

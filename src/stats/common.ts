@@ -4,71 +4,71 @@ import { PostFrameUpdateType } from "../utils/slpReader";
 import { FrameEntryType } from '../SlippiGame';
 
 type RatioType = {
-  count: number,
-  total: number,
-  ratio: number | null
+  count: number;
+  total: number;
+  ratio: number | null;
 };
 
 type PlayerIndexedType = {
-  playerIndex: number,
-  opponentIndex: number
+  playerIndex: number;
+  opponentIndex: number;
 };
 
 export type DurationType = {
-  startFrame: number,
-  endFrame: number | null | undefined
+  startFrame: number;
+  endFrame: number | null | undefined;
 };
 
 export type DamageType = {
-  startPercent: number,
-  currentPercent: number,
-  endPercent: number | null | undefined
+  startPercent: number;
+  currentPercent: number;
+  endPercent: number | null | undefined;
 };
 
 export type StockType = PlayerIndexedType & DurationType & DamageType & {
-  count: number,
-  deathAnimation: number | null | undefined
+  count: number;
+  deathAnimation: number | null | undefined;
 };
 
 export type MoveLandedType = {
-  frame: number,
-  moveId: number,
-  hitCount: number,
-  damage: number
+  frame: number;
+  moveId: number;
+  hitCount: number;
+  damage: number;
 };
 
 export type ConversionType = PlayerIndexedType & DurationType & DamageType & {
-  moves: MoveLandedType[],
-  openingType: string,
-  didKill: boolean
+  moves: MoveLandedType[];
+  openingType: string;
+  didKill: boolean;
 };
 
 export type ComboType = PlayerIndexedType & DurationType & DamageType & {
-  moves: MoveLandedType[],
-  didKill: boolean
+  moves: MoveLandedType[];
+  didKill: boolean;
 };
 
 export type ActionCountsType = PlayerIndexedType & {
-  wavedashCount: number,
-  wavelandCount: number,
-  airDodgeCount: number,
-  dashDanceCount: number,
-  spotDodgeCount: number,
-  rollCount: number
+  wavedashCount: number;
+  wavelandCount: number;
+  airDodgeCount: number;
+  dashDanceCount: number;
+  spotDodgeCount: number;
+  rollCount: number;
 };
 
 export type OverallType = PlayerIndexedType & {
-  inputCount: number,
-  conversionCount: number,
-  totalDamage: number,
-  killCount: number,
-  successfulConversions: RatioType,
-  inputsPerMinute: RatioType,
-  openingsPerKill: RatioType,
-  damagePerOpening: RatioType,
-  neutralWinRatio: RatioType,
-  counterHitRatio: RatioType,
-  beneficialTradeRatio: RatioType
+  inputCount: number;
+  conversionCount: number;
+  totalDamage: number;
+  killCount: number;
+  successfulConversions: RatioType;
+  inputsPerMinute: RatioType;
+  openingsPerKill: RatioType;
+  damagePerOpening: RatioType;
+  neutralWinRatio: RatioType;
+  counterHitRatio: RatioType;
+  beneficialTradeRatio: RatioType;
 };
 
 export enum State {

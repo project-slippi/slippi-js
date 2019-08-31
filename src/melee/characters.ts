@@ -139,7 +139,7 @@ const externalCharacters: Array<CharacterInfo> = [{
   colors: ["Default", "Red", "Blue", "Green", "Purple"],
 }];
 
-export function getAllCharacters() {
+export function getAllCharacters(): Array<CharacterInfo> {
   return externalCharacters;
 }
 
@@ -155,7 +155,7 @@ export function getCharacterShortName(externalCharacterId: number): string {
   return character.shortName;
 }
 
-export function getCharacterName(externalCharacterId : number) {
+export function getCharacterName(externalCharacterId: number): string {
   const character = getCharacterInfo(externalCharacterId);
   return character.name;
 }

@@ -11,7 +11,7 @@ export function generateStocks(game: SlippiGame): StockType[] {
   const frames = game.getFrames();
 
   const initialState: {
-    stock: StockType | null | undefined
+    stock: StockType | null | undefined;
   } = {
     stock: null
   };

@@ -9,12 +9,12 @@ import { ActionCountsType } from "./common";
 
 function isRolling(animation: State): boolean {
   switch (animation) {
-    case State.ROLL_BACKWARD:
-      return true;
-    case State.ROLL_FORWARD:
-      return true;
-    default:
-      return false;
+  case State.ROLL_BACKWARD:
+    return true;
+  case State.ROLL_FORWARD:
+    return true;
+  default:
+    return false;
   }
 }
 
@@ -54,8 +54,8 @@ export function generateActionCounts(game: SlippiGame): ActionCountsType[] {
   const dashDanceAnimations = [State.DASH, State.TURN, State.DASH];
 
   const initialState: {
-    animations: number[],
-    playerCounts: ActionCountsType | null | undefined
+    animations: number[];
+    playerCounts: ActionCountsType | null | undefined;
   } = {
     animations: [],
     playerCounts: null

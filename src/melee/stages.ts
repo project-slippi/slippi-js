@@ -1,6 +1,6 @@
 export interface Stage {
   id: number;
-  name :string;
+  name: string;
 }
 
 const stages: { [id: number]: Stage } = {
