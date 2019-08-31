@@ -42,7 +42,7 @@
   ],
   "dependencies": {
     "@shelacek/ubjson": "^1.0.1",
-    "iconv-lite": "^0.4.24",
+    "iconv-lite": "^0.5.0",
     "lodash": "^4.17.11"
   },
   "devDependencies": {
