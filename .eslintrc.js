@@ -27,6 +27,7 @@ module.exports =  {
     "no-mixed-operators": "off",
     "no-param-reassign": ["error", { "props": false }],
     "no-use-before-define": "off",
+    "@typescript-eslint/no-use-before-define": "off",
     "no-multi-assign": "off",
     "object-curly-newline": "off",
     "object-shorthand": ["error", "never"],

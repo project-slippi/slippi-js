@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 import * as _ from 'lodash';
 import { Command, openSlpFile, closeSlpFile, iterateEvents, getMetadata, GameStartType } from './utils/slpReader';
 
@@ -231,6 +232,7 @@ export default class SlippiGame {
     // The order here kind of matters because things later in the call order might
     // reference things calculated earlier. More specifically, currently the overall
     // calculation uses the others
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     this.stats = {} as any;
     this.stats.stocks = generateStocks(this);
     this.stats.conversions = generateConversions(this);
@@ -259,3 +261,5 @@ export default class SlippiGame {
     return this.metadata;
   }
 }
+
+/* eslint-enable no-param-reassign */
