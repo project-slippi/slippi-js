@@ -123,7 +123,7 @@ export function generateActionCounts(game: SlippiGame): ActionCountsType[] {
 }
 
 function handleActionWavedash(counts: ActionCountsType, animations: State[]): void {
-  const currentAnimation = _.last(animations);
+  const currentAnimation = animations[animations.length - 1];
   const prevAnimation = animations[animations.length - 2];
 
   const isSpecialLanding = currentAnimation === State.LANDING_FALL_SPECIAL;
