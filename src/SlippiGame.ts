@@ -67,7 +67,7 @@ export default class SlippiGame {
     if (_.isString(input)) {
       this.input = {
         source: SlpInputSource.FILE,
-        filePath: input,
+        filePath: input as string,
       };
     } else if (input instanceof Buffer) {
       this.input = {
@@ -113,7 +113,7 @@ export default class SlippiGame {
         }
 
         settings = payload;
-        settings.players = _.filter(payload.players, player => player.type !== 3);
+        settings.players = _.filter(payload.players, (player: PlayerType) => player.type !== 3);
         break;
       case Command.POST_FRAME_UPDATE:
         payload = payload as PostFrameUpdateType;
