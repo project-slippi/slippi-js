@@ -4,7 +4,6 @@ import SlippiGame from "../index";
 import { iterateFramesInOrder, isDead, didLoseStock } from "./common";
 
 import { StockType } from "./common";
-import { PostFrameUpdateType } from "../utils/slpReader";
 
 export function generateStocks(game: SlippiGame): StockType[] {
   const stocks: Array<StockType> = [];
