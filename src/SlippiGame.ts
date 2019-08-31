@@ -1,5 +1,5 @@
 /* eslint-disable no-param-reassign */
-import * as _ from 'lodash';
+import _ from 'lodash';
 import { Command, openSlpFile, closeSlpFile, iterateEvents, getMetadata, GameStartType, SlpInputSource } from './utils/slpReader';
 
 import { getLastFrame, Frames } from "./stats/common";

@@ -1,4 +1,4 @@
-import * as _ from 'lodash';
+import _ from 'lodash';
 import { PostFrameUpdateType } from "../utils/slpReader";
 import { SlippiGame, FrameEntryType } from '../SlippiGame';
 

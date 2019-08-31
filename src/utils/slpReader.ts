@@ -1,5 +1,5 @@
-import * as _ from 'lodash';
-import * as fs from 'fs';
+import _ from 'lodash';
+import fs from 'fs';
 import iconv from 'iconv-lite';
 import { decode } from '@shelacek/ubjson';
 
