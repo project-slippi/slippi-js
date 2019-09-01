@@ -1,7 +1,7 @@
 // @flow
 import _ from 'lodash';
 import { SlippiGame } from "../SlippiGame";
-import { Frames, getSinglesOpponentIndices, iterateFramesInOrder } from "./common";
+import { Frames, getSinglesOpponentIndices, iterateFramesInOrder, ConversionType } from "./common";
 
 import { OverallType } from "./common";
 
@@ -111,14 +111,14 @@ function getBeneficialTradeRatio(conversionsByPlayerByOpening: any, playerIndex:
   const benefitsPlayer = [];
 
   // Figure out which punishes benefited this player
-  const zippedTrades = _.zip(playerTrades, opponentTrades);
+  const zippedTrades: [ConversionType, ConversionType][] = _.zip(playerTrades, opponentTrades);
   zippedTrades.forEach((conversionPair) => {
     const playerConversion = _.first(conversionPair);
     const opponentConversion = _.last(conversionPair);
-    const playerDamage = (playerConversion as any).currentPercent - (playerConversion as any).startPercent;
-    const opponentDamage = (opponentConversion as any).currentPercent - (opponentConversion as any).startPercent;
+    const playerDamage = playerConversion.currentPercent - playerConversion.startPercent;
+    const opponentDamage = opponentConversion.currentPercent - opponentConversion.startPercent;
 
-    if ((playerConversion as any).didKill && !(opponentConversion as any).didKill) {
+    if (playerConversion.didKill && !opponentConversion.didKill) {
       benefitsPlayer.push(playerConversion);
     } else if (playerDamage > opponentDamage) {
       benefitsPlayer.push(playerConversion);
