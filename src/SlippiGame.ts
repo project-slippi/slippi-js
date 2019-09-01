@@ -11,18 +11,12 @@ import { generateOverall as generateOverallStats } from "./stats/overall";
 
 // Type imports
 import {
-  PlayerType, PreFrameUpdateType, PostFrameUpdateType, SlpFileType, MetadataType, GameEndType,
+  PreFrameUpdateType, PostFrameUpdateType, SlpFileType, MetadataType, GameEndType,
   SlpReadInput
 } from "./utils/slpReader";
 import {
   StockType, ConversionType, ComboType, ActionCountsType, OverallType
 } from "./stats/common";
-
-type GameSettingsType = {
-  stageId: number;
-  isTeams: boolean;
-  players: PlayerType[];
-};
 
 export type FrameEntryType = {
   frame: number;
@@ -53,7 +47,7 @@ type StatsType = {
 export class SlippiGame {
   input: SlpReadInput;
   file: SlpFileType;
-  settings: GameSettingsType | null;
+  settings: GameStartType | null;
   playerFrames: FramesType | null;
   followerFrames: FramesType | null;
   stats: StatsType | null;
@@ -86,7 +80,7 @@ export class SlippiGame {
    * Gets the game settings, these are the settings that describe the starting state of
    * the game such as characters, stage, etc.
    */
-  getSettings(): GameSettingsType {
+  getSettings(): GameStartType {
     if (this.settings) {
       // If header is already generated, return it
       return this.settings;
@@ -95,7 +89,7 @@ export class SlippiGame {
     const slpfile = openSlpFile(this.input);
 
     // Prepare default settings
-    let settings: GameSettingsType = null;
+    let settings: GameStartType = null;
 
     // Generate settings from iterating through file
     iterateEvents(slpfile, (command, payload) => {
@@ -233,7 +227,7 @@ export class SlippiGame {
     // The order here kind of matters because things later in the call order might
     // reference things calculated earlier. More specifically, currently the overall
     // calculation uses the others
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // FIXME: Use proper typing instead of any
     this.stats = {} as any;
     this.stats.stocks = generateStocks(this);
     this.stats.conversions = generateConversions(this);

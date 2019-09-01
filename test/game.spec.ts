@@ -74,8 +74,8 @@ test('test isPAL', () => {
   const palGame = new SlippiGame("slp/pal.slp");
   const ntscGame = new SlippiGame("slp/ntsc.slp");
 
-  expect((palGame.getSettings() as any).isPAL).toBe(true);
-  expect((ntscGame.getSettings() as any).isPAL).toBe(false);
+  expect(palGame.getSettings().isPAL).toBe(true);
+  expect(ntscGame.getSettings().isPAL).toBe(false);
 });
 
 test('test controllerFixes', () => {
@@ -111,7 +111,7 @@ test('test realtime', () => {
     latestFrame: game.getLatestFrame(),
   });
 
-  const copyBuf = (len: number) => {
+  const copyBuf = (len: number): void => {
     const res = fullData.copy(buf, copyPos, copyPos, copyPos + len);
     copyPos += res;
   };

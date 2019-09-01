@@ -32,11 +32,13 @@ export function generateCombos(game: SlippiGame): Array<ComboType> {
   }, (indices, frame) => {
     const playerFrame: PostFrameUpdateType = frame.players[indices.playerIndex].post;
     // FIXME: use type PostFrameUpdateType instead of any
+    // This is because the default value {} should not be casted as a type of PostFrameUpdateType
     const prevPlayerFrame: any = _.get(
       frames, [playerFrame.frame - 1, 'players', indices.playerIndex, 'post'], {}
     );
     const opponentFrame: PostFrameUpdateType = frame.players[indices.opponentIndex].post;
     // FIXME: use type PostFrameUpdateType instead of any
+    // This is because the default value {} should not be casted as a type of PostFrameUpdateType
     const prevOpponentFrame: any = _.get(
       frames, [playerFrame.frame - 1, 'players', indices.opponentIndex, 'post'], {}
     );

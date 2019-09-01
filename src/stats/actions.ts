@@ -69,6 +69,7 @@ export function generateActionCounts(game: SlippiGame): ActionCountsType[] {
       return;
     }
 
+    // FIXME: ActionsCountsType should be a map of actions -> number, instead of accessing the field via string
     (state.playerCounts as any)[field] += 1;
   };
 

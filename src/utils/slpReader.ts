@@ -320,7 +320,7 @@ export function iterateEvents(
   return readPosition;
 }
 
-// FIXME: figure out what type payload is
+// FIXME: figure out what type payload is. It seems to be either a Buffer or a Uint8Array
 function parseMessage(command: Command, payload: any): EventPayloadTypes | null | undefined {
   const view = new DataView(payload.buffer);
   switch (command) {

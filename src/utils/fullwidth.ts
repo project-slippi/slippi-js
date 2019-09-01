@@ -16,8 +16,8 @@ export function toHalfwidth(str: string): string {
     return charCode;
   };
 
-  const ret = _.map(str, (char: any) => (
-    convertChar(char.charCodeAt())
+  const ret = _.map(str, char => (
+    convertChar(char.charCodeAt(0))
   ));
 
   return String.fromCharCode(...ret);
