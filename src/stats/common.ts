@@ -239,7 +239,7 @@ export function iterateFramesInOrder(
 export function getLastFrame(game: SlippiGame): number | null {
   const sortedFrames = getSortedFrames(game);
   if (sortedFrames.length > 0) {
-    const lastFrame = sortedFrames[sortedFrames.length - 1];
+    const lastFrame = _.last(sortedFrames);
     return lastFrame.frame;
   }
   return null;
