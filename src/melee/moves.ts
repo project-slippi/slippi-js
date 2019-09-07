@@ -4,6 +4,12 @@ export interface Move {
   shortName: string;
 }
 
+export const UnknownMove: Move = {
+  id: -1,
+  name: "Unknown Move",
+  shortName: "unknown",
+}
+
 const moves: {[id: number]: Move} = {
   1: {
     // This includes all thrown items, zair, luigi's taunt, samus bombs, etc
@@ -161,7 +167,7 @@ const moves: {[id: number]: Move} = {
 export function getMoveInfo(moveId: number): Move {
   const m = moves[moveId];
   if (!m) {
-    throw new Error(`Could not find move with id: ${moveId}`);
+    return UnknownMove;
   }
   return m;
 }
