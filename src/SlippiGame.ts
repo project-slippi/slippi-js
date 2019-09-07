@@ -118,16 +118,15 @@ export class SlippiGame {
         }
 
         const playerIndex = payload.playerIndex;
-        const playerType = settings.players.find(p => p.playerIndex === playerIndex)
-        if (playerType) {
-          switch (payload.internalCharacterId) {
-          case 0x7:
-            playerType.characterId = 0x13; // Sheik
-            break;
-          case 0x13:
-            playerType.characterId = 0x12; // Zelda
-            break;
-          }
+        const playersByIndex = _.keyBy(settings.players, 'playerIndex');
+
+        switch (payload.internalCharacterId) {
+        case 0x7:
+          playersByIndex[playerIndex].characterId = 0x13; // Sheik
+          break;
+        case 0x13:
+          playersByIndex[playerIndex].characterId = 0x12; // Zelda
+          break;
         }
         break;
       }
