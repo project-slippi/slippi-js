@@ -140,13 +140,13 @@ export class SlippiGame {
     return settings;
   }
 
-  getLatestFrame(): FrameEntryType {
+  getLatestFrame(): FrameEntryType | null {
     // TODO: Modify this to check if we actually have all the latest frame data and return that
     // TODO: If we do. For now I'm just going to take a shortcut
     const allFrames = this.getFrames();
     const frameIndex = this.latestFrameIndex || Frames.FIRST;
     const indexToUse = this.gameEnd ? frameIndex : frameIndex - 1;
-    return allFrames[indexToUse];
+    return _.get(allFrames, indexToUse) || null;
   }
 
   getGameEnd(): GameEndType | null {

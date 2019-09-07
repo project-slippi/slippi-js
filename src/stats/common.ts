@@ -224,8 +224,8 @@ export function iterateFramesInOrder(
 
     // Iterates through all of the frames for the current player and opponent
     sortedFrames.forEach(frame => {
-      const playerPostFrame = frame.players[indices.playerIndex].post;
-      const oppPostFrame = frame.players[indices.opponentIndex].post;
+      const playerPostFrame = _.get(frame, ['players', indices.playerIndex, 'post']);
+      const oppPostFrame = _.get(frame, ['players', indices.opponentIndex, 'post']);
       if (!playerPostFrame || !oppPostFrame) {
         // Don't attempt to compute stats on frames that have not been fully received
         return;
