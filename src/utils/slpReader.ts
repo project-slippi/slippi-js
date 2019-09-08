@@ -320,8 +320,7 @@ export function iterateEvents(
   return readPosition;
 }
 
-// FIXME: figure out what type payload is. It seems to be either a Buffer or a Uint8Array
-function parseMessage(command: Command, payload: any): EventPayloadTypes | null | undefined {
+function parseMessage(command: Command, payload: Uint8Array): EventPayloadTypes | null | undefined {
   const view = new DataView(payload.buffer);
   switch (command) {
   case Command.GAME_START:
@@ -347,7 +346,7 @@ function parseMessage(command: Command, payload: any): EventPayloadTypes | null 
         const nametagOffset = playerIndex * 0x10;
         const nametagStart = 0x161 + nametagOffset;
         const nametagBuf = payload.slice(nametagStart, nametagStart + 16);
-        const nametag = toHalfwidth(iconv.decode(nametagBuf, 'Shift_JIS').split('\0').shift());
+        const nametag = toHalfwidth(iconv.decode(nametagBuf as Buffer, 'Shift_JIS').split('\0').shift());
 
         const offset = playerIndex * 0x24;
         return {
