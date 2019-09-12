@@ -20,15 +20,15 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "test": "jest",
-    "coverage": "$npm_execpath run test -- --coverage",
+    "coverage": "yarpm run test -- --coverage",
     "postcoverage": "open-cli coverage/lcov-report/index.html",
     "lint": "eslint \"src/**/*.ts\" \"test/**/*.ts\"",
     "clean": "rimraf dist",
-    "prebuild": "$npm_execpath run clean",
+    "prebuild": "yarpm run clean",
     "patch": "npm version patch && npm publish",
     "minor": "npm version minor && npm publish",
     "major": "npm version major && npm publish",
-    "prepublishOnly": "$npm_execpath run lint && $npm_execpath run test && $npm_execpath run build",
+    "prepublishOnly": "yarpm run lint && yarpm run test && yarpm run build",
     "postpublish": "git push origin master --follow-tags",
     "build": "rollup -c",
     "watch": "rollup -cw"
@@ -58,6 +58,7 @@
     "rollup": "^1.20.3",
     "rollup-plugin-typescript2": "^0.24.0",
     "ts-jest": "^24.0.2",
-    "typescript": "^3.6.2"
+    "typescript": "^3.6.2",
+    "yarpm": "^0.2.1"
   }
 }
