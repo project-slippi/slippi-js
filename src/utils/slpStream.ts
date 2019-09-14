@@ -11,33 +11,42 @@ export class SlpStream {
   metadataPosition: number;
   metadataLength: number;
   messageSizes: {[cmd: number]: number}
-
+  totalDataRead: number;
 
   constructor(stream: Readable) {
+    this.totalDataRead = 0;
     stream.on('readable', () => {
       let chunk;
       while (null !== (chunk = stream.read())) {
+        this.totalDataRead += chunk.length;
         this.setMetadata(chunk);
         console.log('chunk: ', chunk);
       }
-    })
+    });
+
+    stream.on('end', () => {
+      this.setMetadataLength();
+      console.log(this.metadataPosition);
+      console.log(this.metadataLength);
+    });
   }
 
   setMetadata(chunk: Buffer): void {
     if (this.metadataSet) {
       return;
     }
-    const rawDataPosition = getRawDataPosition(chunk);
-    const rawDataLength = getRawDataLength(chunk, rawDataPosition);
-    const metadataPosition = rawDataPosition + rawDataLength + 10; // remove metadata string
-    const metadataLength = getMetadataLength(chunk, metadataPosition);
-    const messageSizes = getMessageSizes(chunk, rawDataPosition);
-    console.log(rawDataPosition);
-    console.log(rawDataLength);
-    console.log(metadataPosition);
-    console.log(metadataLength);
-    console.log(messageSizes);
+    this.rawDataPosition = getRawDataPosition(chunk);
+    this.rawDataLength = getRawDataLength(chunk, this.rawDataPosition);
+    this.messageSizes = getMessageSizes(chunk, this.rawDataPosition);
+    console.log(this.rawDataPosition);
+    console.log(this.rawDataLength);
+    console.log(this.messageSizes);
     this.metadataSet = true;
+  }
+
+  setMetadataLength(): void {
+    this.metadataPosition = this.rawDataPosition + this.rawDataLength + 10; // remove metadata string
+    this.metadataLength = this.totalDataRead - this.metadataPosition - 1;
   }
 }
 
@@ -80,11 +89,6 @@ function getRawDataLength(chunk: Buffer, position: number): number {
   // return a file size based on file length. This enables
   // some support for severed files
   return fileSize - position;
-}
-
-function getMetadataLength(chunk: Buffer, position: number): number {
-  const len = chunk.length;
-  return len - position - 1;
 }
 
 function getMessageSizes(chunk: Buffer, position: number): {
