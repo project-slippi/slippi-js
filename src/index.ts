@@ -18,8 +18,11 @@ export {
   SlippiGame, // Support both named and default exports
 };
 
+const frameToTest = 1337;
+const fileToTest = "slp/sheik_vs_ics_yoshis.slp";
 
-const stream = fs.createReadStream("slp/sheik_vs_ics_yoshis.slp");
+
+const stream = fs.createReadStream(fileToTest);
 const parser = new SlpParser();
 const slp = new SlpStream(stream);
 slp.on(SlpEvent.GAME_START, (command: Command, payload: GameStartType) => {
@@ -35,8 +38,6 @@ slp.on(SlpEvent.PRE_FRAME_UPDATE, (command: Command, payload: PreFrameUpdateType
   parser.handleFrameUpdate(command, payload);
 });
 
-const frameToTest = 1337;
-
 slp.on(SlpEvent.GAME_END, (command: Command, payload: GameEndType) => {
   parser.handleGameEnd(payload);
   console.log(parser.getSettings());
@@ -44,7 +45,7 @@ slp.on(SlpEvent.GAME_END, (command: Command, payload: GameEndType) => {
   console.log(JSON.stringify(frames[frameToTest]));
 });
 
-const game = new SlippiGame("slp/sheik_vs_ics_yoshis.slp");
+const game = new SlippiGame(fileToTest);
 const frames = game.getFrames();
 console.log(JSON.stringify(frames[frameToTest]));
 
