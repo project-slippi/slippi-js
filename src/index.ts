@@ -6,8 +6,9 @@ import * as moves from './melee/moves';
 import * as stages from './melee/stages';
 
 import fs from "fs";
+import { SlpParser } from './utils/slpParser';
 import { SlpStream, SlpEvent } from './utils/slpStream';
-import { PreFrameUpdateType } from './utils/slpReader';
+import { GameStartType, PostFrameUpdateType } from './utils/slpReader';
 
 export {
   animations,
@@ -19,27 +20,18 @@ export {
 
 
 const stream = fs.createReadStream("slp/sheik_vs_ics_yoshis.slp");
+const parser = new SlpParser();
 const slp = new SlpStream(stream);
+slp.on(SlpEvent.GAME_START, (payload: GameStartType) => {
+  parser.handleGameStart(payload);
+});
+
+slp.on(SlpEvent.POST_FRAME_UPDATE, (payload: PostFrameUpdateType) => {
+  parser.handlePostFrameUpdate(payload);
+});
+
 slp.on(SlpEvent.GAME_END, () => {
-  console.log("game ended");
-});
-
-slp.on(SlpEvent.PRE_FRAME_UPDATE, (payload: PreFrameUpdateType) => {
-  // console.log("got pre frame update");
-  // const frame = parseMessage(payload[0], payload);
-  console.log(payload.frame);
-});
-
-slp.on(SlpEvent.GAME_START, () => {
-  console.log("game started");
-});
-
-slp.on(SlpEvent.PRE_FRAME_UPDATE, () => {
-  console.log("got pre frame update");
-});
-
-slp.on(SlpEvent.POST_FRAME_UPDATE, () => {
-  console.log("got post frame update");
+  console.log(parser.getSettings());
 });
 
 export default SlippiGame;
