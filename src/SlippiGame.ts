@@ -30,7 +30,7 @@ export type FramesType = {
   [frameIndex: number]: FrameEntryType;
 };
 
-type StatsType = {
+export type StatsType = {
   gameComplete: boolean;
   lastFrame: number;
   playableFrameCount: number;
