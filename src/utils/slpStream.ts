@@ -25,8 +25,10 @@ export class SlpStream {
       if (!this.metadataSet) {
         this.rawDataPosition = this._getRawDataPosition();
         this.rawDataLength = this._getRawDataLength(this.rawDataPosition);
+        this._getMessageSizes();
         console.log(this.rawDataPosition);
         console.log(this.rawDataLength);
+        console.log(this.messageSizes);
         this.metadataSet = true;
       }
 
@@ -58,8 +60,7 @@ export class SlpStream {
 
   private _handleChunk(command: Command): void {
     switch (command) {
-      case Command.MESSAGE_SIZES:
-        this._getMessageSizes();
+      default:
         break;
     }
   }
@@ -83,8 +84,12 @@ export class SlpStream {
       this.messageSizes[0x39] = 0x1;
     }
 
-    const buffer = this._readStream(1);
-    const payloadLength = buffer[0];
+    const buffer = this._readStream(2);
+    if (buffer[0] !== Command.MESSAGE_SIZES) {
+      return;
+    }
+
+    const payloadLength = buffer[1];
     this.messageSizes[0x35] = payloadLength;
 
     const messageSizesBuffer = this._readStream(payloadLength - 1);
@@ -94,7 +99,6 @@ export class SlpStream {
       // Get size of command
       this.messageSizes[command] = messageSizesBuffer[i + 1] << 8 | messageSizesBuffer[i + 2];
     }
-    console.log(this.messageSizes);
   }
 
   // This function gets the position where the raw data starts
