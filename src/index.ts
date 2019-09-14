@@ -7,6 +7,7 @@ import * as stages from './melee/stages';
 
 import fs from "fs";
 import { SlpStream, SlpEvent } from './utils/slpStream';
+import { PreFrameUpdateType } from './utils/slpReader';
 
 export {
   animations,
@@ -21,6 +22,12 @@ const stream = fs.createReadStream("slp/sheik_vs_ics_yoshis.slp");
 const slp = new SlpStream(stream);
 slp.on(SlpEvent.GAME_END, () => {
   console.log("game ended");
+});
+
+slp.on(SlpEvent.PRE_FRAME_UPDATE, (payload: PreFrameUpdateType) => {
+  // console.log("got pre frame update");
+  // const frame = parseMessage(payload[0], payload);
+  console.log(payload.frame);
 });
 
 slp.on(SlpEvent.GAME_START, () => {

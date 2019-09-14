@@ -320,7 +320,7 @@ export function iterateEvents(
   return readPosition;
 }
 
-function parseMessage(command: Command, payload: Uint8Array): EventPayloadTypes | null | undefined {
+export function parseMessage(command: Command, payload: Uint8Array): EventPayloadTypes | null | undefined {
   const view = new DataView(payload.buffer);
   switch (command) {
   case Command.GAME_START:

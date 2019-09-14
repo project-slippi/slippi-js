@@ -1,7 +1,7 @@
 import EventEmitter from "events";
 
 import { Readable } from "stream";
-import { Command } from "./slpReader";
+import { Command, parseMessage } from "./slpReader";
 
 
 export enum SlpEvent {
@@ -70,26 +70,27 @@ export class SlpStream extends EventEmitter {
       return;
     }
 
-    const cmdBuffer = new Uint8Array([command]);
     const message = this._readStream(messageSize);
     if (!message) {
       // We've reached the end of the read stream
       return;
     }
 
-    const payload = Buffer.concat([cmdBuffer, message]);
+    const cmdBuffer = new Uint8Array([command]);
+    const payload = new Uint8Array(Buffer.concat([cmdBuffer, message]));
+    const parsedPayload = parseMessage(command, payload);
     switch (command) {
       case Command.GAME_START:
-        this.emit(SlpEvent.GAME_START, payload);
+        this.emit(SlpEvent.GAME_START, parsedPayload);
         break;
       case Command.GAME_END:
-        this.emit(SlpEvent.GAME_END, payload);
+        this.emit(SlpEvent.GAME_END, parsedPayload);
         break;
       case Command.PRE_FRAME_UPDATE:
-        this.emit(SlpEvent.PRE_FRAME_UPDATE, payload);
+        this.emit(SlpEvent.PRE_FRAME_UPDATE, parsedPayload);
         break;
       case Command.POST_FRAME_UPDATE:
-        this.emit(SlpEvent.POST_FRAME_UPDATE, payload);
+        this.emit(SlpEvent.POST_FRAME_UPDATE, parsedPayload);
         break;
       default:
         break;
