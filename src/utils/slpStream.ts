@@ -1,9 +1,17 @@
-import _ from "lodash";
+import EventEmitter from "events";
 
 import { Readable } from "stream";
 import { Command } from "./slpReader";
 
-export class SlpStream {
+
+export enum SlpEvent {
+  GAME_START = "gameStart",
+  PRE_FRAME_UPDATE = "preFrameUpdate",
+  POST_FRAME_UPDATE = "postFrameUpdate",
+  GAME_END = "gameEnd",
+}
+
+export class SlpStream extends EventEmitter {
   metadataSet = false;
 
   stream: Readable;
@@ -17,6 +25,7 @@ export class SlpStream {
   rawData: Buffer;
 
   constructor(stream: Readable) {
+    super();
     this.stream = stream;
     this.totalDataRead = 0;
     this.messageSizes = null;
@@ -70,6 +79,18 @@ export class SlpStream {
 
     const payload = Buffer.concat([cmdBuffer, message]);
     switch (command) {
+      case Command.GAME_START:
+        this.emit(SlpEvent.GAME_START, payload);
+        break;
+      case Command.GAME_END:
+        this.emit(SlpEvent.GAME_END, payload);
+        break;
+      case Command.PRE_FRAME_UPDATE:
+        this.emit(SlpEvent.PRE_FRAME_UPDATE, payload);
+        break;
+      case Command.POST_FRAME_UPDATE:
+        this.emit(SlpEvent.POST_FRAME_UPDATE, payload);
+        break;
       default:
         break;
     }
