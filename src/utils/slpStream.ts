@@ -97,39 +97,39 @@ export class SlpStream {
     console.log(this.messageSizes);
   }
 
-// This function gets the position where the raw data starts
-private _getRawDataPosition(): number {
-  const buffer = this._readStream(1);
-  if (buffer[0] === 0x36) {
-    return 0;
+  // This function gets the position where the raw data starts
+  private _getRawDataPosition(): number {
+    const buffer = this._readStream(1);
+    if (buffer[0] === 0x36) {
+      return 0;
+    }
+
+    if (buffer[0] !== '{'.charCodeAt(0)) {
+      return 0; // return error?
+    }
+
+    return 15;
   }
 
-  if (buffer[0] !== '{'.charCodeAt(0)) {
-    return 0; // return error?
+  private _getRawDataLength(position: number): number {
+    const fileSize = this.stream.readableLength;
+    if (position === 0) {
+      return fileSize;
+    }
+
+    // take the intermediary data off the buffer
+    this._readStream(position - 5);
+
+    const buffer = this._readStream(4);
+    const rawDataLen = buffer[0] << 24 | buffer[1] << 16 | buffer[2] << 8 | buffer[3];
+    if (rawDataLen > 0) {
+      // If this method manages to read a number, it's probably trustworthy
+      return rawDataLen;
+    }
+
+    // If the above does not return a valid data length,
+    // return a file size based on file length. This enables
+    // some support for severed files
+    return fileSize - position;
   }
-
-  return 15;
-}
-
-private _getRawDataLength(position: number): number {
-  const fileSize = this.stream.readableLength;
-  if (position === 0) {
-    return fileSize;
-  }
-
-  // take the intermediary data off the buffer
-  this._readStream(position - 5);
-
-  const buffer = this._readStream(4);
-  const rawDataLen = buffer[0] << 24 | buffer[1] << 16 | buffer[2] << 8 | buffer[3];
-  if (rawDataLen > 0) {
-    // If this method manages to read a number, it's probably trustworthy
-    return rawDataLen;
-  }
-
-  // If the above does not return a valid data length,
-  // return a file size based on file length. This enables
-  // some support for severed files
-  return fileSize - position;
-}
 }
