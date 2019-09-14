@@ -26,7 +26,7 @@ export type FrameEntryType = {
   };};
 };
 
-type FramesType = {
+export type FramesType = {
   [frameIndex: number]: FrameEntryType;
 };
 

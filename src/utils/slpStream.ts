@@ -86,16 +86,16 @@ export class SlpStream extends EventEmitter {
 
     switch (command) {
       case Command.GAME_START:
-        this.emit(SlpEvent.GAME_START, parsedPayload);
+        this.emit(SlpEvent.GAME_START, command, parsedPayload);
         break;
       case Command.GAME_END:
-        this.emit(SlpEvent.GAME_END, parsedPayload);
+        this.emit(SlpEvent.GAME_END, command, parsedPayload);
         break;
       case Command.PRE_FRAME_UPDATE:
-        this.emit(SlpEvent.PRE_FRAME_UPDATE, parsedPayload);
+        this.emit(SlpEvent.PRE_FRAME_UPDATE, command, parsedPayload);
         break;
       case Command.POST_FRAME_UPDATE:
-        this.emit(SlpEvent.POST_FRAME_UPDATE, parsedPayload);
+        this.emit(SlpEvent.POST_FRAME_UPDATE, command, parsedPayload);
         break;
       default:
         break;
