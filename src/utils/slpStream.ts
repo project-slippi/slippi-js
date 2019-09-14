@@ -55,6 +55,20 @@ export class SlpStream {
   }
 
   private _handleChunk(command: Command): void {
+    const messageSize = this.messageSizes[command];
+    if (!messageSize) {
+      // We don't have an entry for this command
+      return;
+    }
+
+    const cmdBuffer = new Uint8Array([command]);
+    const message = this._readStream(messageSize);
+    if (!message) {
+      // We've reached the end of the read stream
+      return;
+    }
+
+    const payload = Buffer.concat([cmdBuffer, message]);
     switch (command) {
       default:
         break;
