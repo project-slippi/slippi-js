@@ -33,11 +33,7 @@ export class SlpStream {
       }
 
       let command: Buffer;
-      while (true) {
-        command = this._readStream(1);
-        if (command === null) {
-          break;
-        }
+      while (null !== (command = this._readStream(1))) {
         this._handleChunk(command[0]);
       }
     });
