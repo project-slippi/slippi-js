@@ -79,6 +79,11 @@ export class SlpStream extends EventEmitter {
     const cmdBuffer = new Uint8Array([command]);
     const payload = new Uint8Array(Buffer.concat([cmdBuffer, message]));
     const parsedPayload = parseMessage(command, payload);
+    if (!parsedPayload) {
+      // Failed to parse
+      return;
+    }
+
     switch (command) {
       case Command.GAME_START:
         this.emit(SlpEvent.GAME_START, parsedPayload);
