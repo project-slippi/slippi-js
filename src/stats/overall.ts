@@ -186,9 +186,9 @@ function generateInputs(game: SlippiGame): Array<PlayerInput> {
     }
 
     // Do the same for c-stick
-    const prevCstickRegion = getJoystickRegion(prevPlayerFrame.cstickX, prevPlayerFrame.cstickY);
+    const prevCstickRegion = getJoystickRegion(prevPlayerFrame.cStickX, prevPlayerFrame.cStickY);
     // FIXME: stop using any. it is not clear what type this is. cstickX does not exist on the type PreFrameUpdateType
-    const currentCstickRegion = getJoystickRegion((playerFrame as any).cstickX, (playerFrame as any).cstickY);
+    const currentCstickRegion = getJoystickRegion((playerFrame as any).cStickX, (playerFrame as any).cStickY);
     if ((prevCstickRegion !== currentCstickRegion) && (currentCstickRegion !== 0)) {
       state.inputCount += 1;
     }
