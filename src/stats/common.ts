@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { PostFrameUpdateType } from "../utils/slpReader";
-import { SlippiGame, FrameEntryType } from '../SlippiGame';
+import { SlippiGame, FrameEntryType, FramesType } from '../SlippiGame';
 
 type RatioType = {
   count: number;
@@ -68,6 +68,18 @@ export interface OverallType extends PlayerIndexedType {
   neutralWinRatio: RatioType;
   counterHitRatio: RatioType;
   beneficialTradeRatio: RatioType;
+};
+
+export interface StatCalculatorType {
+  run: (frames: FramesType) => PlayerIndexedType[];
+};
+
+export interface ProcessorType {
+  processFrame: (frame: FrameEntryType, framesByIndex: FramesType) => void;
+  getFrameIndex: () => number;
+  incrementFrameIndex: () => void;
+  getResult: () => PlayerIndexedType[];
+  getIndices: () => PlayerIndexedType;
 };
 
 export enum State {
@@ -187,85 +199,41 @@ export function calcDamageTaken(frame: PostFrameUpdateType, prevFrame: PostFrame
   return percent - prevPercent;
 }
 
-function getSortedFrames(game: SlippiGame): Array<FrameEntryType> {
-  const frames = game.getFrames();
-  const sortIndex = game.internal.stats.sortIndex;
-
-  // This should only do work when there are new frames to sort
-  for (let i = sortIndex; i <= game.latestFrameIndex; i++) {
-    const frame = frames[i];
-    if (!frame) {
-      break;
-    }
-
-    game.internal.stats.sortedFrames.push(frame);
-    game.internal.stats.sortIndex = i;
-  }
-
-  return game.internal.stats.sortedFrames;
-}
-
-export function iterateFramesInOrder(
+export function genStatCalculator(
   game: SlippiGame,
-  key: string,
-  initialize: (indices: PlayerIndexedType) => object,
-  processFrame: (indices: PlayerIndexedType, frame: FrameEntryType, state: any, result: PlayerIndexedType[]) => void
-): PlayerIndexedType[] {
+  getProcessor: (indices: PlayerIndexedType) => ProcessorType
+): StatCalculatorType {
   const opponentIndices = getSinglesOpponentIndices(game);
   if (opponentIndices.length === 0) {
     return;
   }
 
-  const sortedFrames = getSortedFrames(game);
+  const frameProcessors = opponentIndices.map(getProcessor);
+  const run = (frames: FramesType) => {
+    const results = frameProcessors.map((frameProcessor) => {
+      const frameIndex = frameProcessor.getFrameIndex();
+      const indices = frameProcessor.getIndices();
 
-  const processor = game.internal.stats.processors[key];
-  if (!processor) {
-    game.internal.stats.processors[key] = {
-      result: [],
-      states: []
-    };
-  }
-  const result = game.internal.stats.processors[key].result;
+      while (_.has(frames, frameIndex)) {
+        const frame = frames[frameIndex];
+        const playerPostFrame = _.get(frame, ['players', indices.playerIndex, 'post']);
+        const oppPostFrame = _.get(frame, ['players', indices.opponentIndex, 'post']);
+        if (!playerPostFrame || !oppPostFrame) {
+          // Don't attempt to compute stats on frames that have not been fully received
+          break;
+        }
 
-  // Iterates through both of the player/opponent pairs
-  opponentIndices.forEach((indices, i) => {
-    const processorState = _.get(game.internal.stats.processors, [key, 'states', i]);
-    if (!processorState) {
-      game.internal.stats.processors[key]['states'][i] = {
-        state: initialize(indices),
-        lastProcessedFrame: null,
-      };
-    }
-
-    const state = game.internal.stats.processors[key]['states'][i].state;
-
-    // Iterates through all of the frames for the current player and opponent
-    sortedFrames.forEach(frame => {
-      if (frame.frame <= game.internal.stats.processors[key]['states'][i].lastProcessedFrame) {
-        // TODO: Skip frames in a better way than this
-        return;
+        frameProcessor.processFrame(frame, frames);
+        frameProcessor.incrementFrameIndex();
       }
 
-      const playerPostFrame = _.get(frame, ['players', indices.playerIndex, 'post']);
-      const oppPostFrame = _.get(frame, ['players', indices.opponentIndex, 'post']);
-      if (!playerPostFrame || !oppPostFrame) {
-        // Don't attempt to compute stats on frames that have not been fully received
-        return;
-      }
-
-      processFrame(indices, frame, state, result);
-      game.internal.stats.processors[key]['states'][i].lastProcessedFrame = frame.frame;
+      return frameProcessor.getResult();
     });
-  });
 
-  return game.internal.stats.processors[key].result;
-}
-
-export function getLastFrame(game: SlippiGame): number | null {
-  const sortedFrames = getSortedFrames(game);
-  if (sortedFrames.length > 0) {
-    const lastFrame = _.last(sortedFrames);
-    return lastFrame.frame;
+    return _.flatten(results);
   }
-  return null;
+
+  return {
+    run: run,
+  };
 }

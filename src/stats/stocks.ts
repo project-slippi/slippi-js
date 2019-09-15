@@ -1,9 +1,10 @@
 // @flow
 import _ from 'lodash';
-import { SlippiGame } from "../SlippiGame";
-import { iterateFramesInOrder, isDead, didLoseStock } from "./common";
+import { isDead, didLoseStock, Frames } from "./common";
 
-import { StockType } from "./common";
+import { StockType, PlayerIndexedType, ProcessorType } from "./common";
+import { FrameEntryType, FramesType } from "../SlippiGame";
+import { PostFrameUpdateType } from "../utils/slpReader";
 
 type StateType = {
   stock: StockType | null | undefined;
@@ -11,27 +12,17 @@ type StateType = {
 
 type ResultType = StockType[];
 
-export function generateStocks(game: SlippiGame): ResultType {
-  // TODO: getFrames calls still do some stupid file operations when sometimes
-  // TODO: they probably don't have to. Figure out something to do about this
-  const frames = game.getFrames();
-
-  const initialState: StateType = {
+export function getStocksProcessor(indices: PlayerIndexedType): ProcessorType {
+  let frameIndex = Frames.FIRST;
+  const result: ResultType = [];
+  const state: StateType = {
     stock: null,
   };
 
-  // Iterates the frames in order in order to compute stocks
-  const output = iterateFramesInOrder(game, 'stocks', () => {
-    return initialState;
-  }, (indices, frame, state, result) => {
-    // TODO: Probably shouldn't do so much direct object mutation?
-    state as StateType;
-    result as ResultType;
-
+  const processFrame = (frame: FrameEntryType, framesByIndex: FramesType) => {
     const playerFrame = frame.players[indices.playerIndex].post;
-    // FIXME: use PostFrameUpdateType instead of any
-    const prevPlayerFrame: any = _.get(
-      frames, [playerFrame.frame - 1, 'players', indices.playerIndex, 'post'], {}
+    const prevPlayerFrame: PostFrameUpdateType = _.get(
+      framesByIndex, [playerFrame.frame - 1, 'players', indices.playerIndex, 'post'], {}
     );
 
     // If there is currently no active stock, wait until the player is no longer spawning.
@@ -63,8 +54,13 @@ export function generateStocks(game: SlippiGame): ResultType {
     } else {
       state.stock.currentPercent = playerFrame.percent || 0;
     }
-  });
+  };
 
-  // Cast the PlayerIndexedType to the correct sub-interface
-  return <ResultType>output;
+  return {
+    processFrame: processFrame,
+    getFrameIndex: () => frameIndex,
+    incrementFrameIndex: () => frameIndex++,
+    getResult: () => result,
+    getIndices: () => indices,
+  };
 }

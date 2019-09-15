@@ -2,10 +2,10 @@
 import _ from 'lodash';
 import { Command, openSlpFile, closeSlpFile, iterateEvents, getMetadata, GameStartType, SlpInputSource } from './utils/slpReader';
 
-import { getLastFrame, Frames } from "./stats/common";
+import { Frames, StatCalculatorType, genStatCalculator } from "./stats/common";
 import { generateConversions } from "./stats/conversions";
 import { generateCombos } from "./stats/combos";
-import { generateStocks } from "./stats/stocks";
+import { getStocksProcessor } from "./stats/stocks";
 import { generateActionCounts } from "./stats/actions";
 import { generateOverall as generateOverallStats } from "./stats/overall";
 
@@ -41,25 +41,9 @@ export type StatsType = {
   overall: OverallType[];
 };
 
-// This type is used for internal processing memory types
-export type InternalType = {
-  stats: InternalStatsType;
+export interface StatProcessorType {
+  process: () => PlayerIndexedType[];
 };
-
-
-export type InternalStatsType = {
-  sortIndex: number;
-  sortedFrames: FrameEntryType[];
-  processors: {
-    [key: string]: {
-      result: PlayerIndexedType[];
-      states: {
-        lastProcessedFrame: number | null;
-        state: object;
-      }[] ;
-    };
-  };
-}
 
 /**
  * Slippi Game class that wraps a file
@@ -73,7 +57,9 @@ export class SlippiGame {
   stats: StatsType | null;
   metadata: MetadataType | null;
   gameEnd: GameEndType | null;
-  internal: InternalType | null;
+  statCalculators: {
+    [key: string]: StatCalculatorType;
+  } | null;
 
   latestFrameIndex: number | null;
   frameReadPos: number | null;
@@ -95,13 +81,7 @@ export class SlippiGame {
 
     this.frameReadPos = null;
     this.latestFrameIndex = null;
-    this.internal = {
-      stats: {
-        sortIndex: Frames.FIRST,
-        sortedFrames: [],
-        processors: {},
-      },
-    };
+    this.statCalculators = null;
   }
 
   /**
@@ -240,9 +220,16 @@ export class SlippiGame {
       return this.stats;
     }
 
-    const slpfile = openSlpFile(this.input);
+    if (!this.statCalculators) {
+      // TODO: Add remaining calculators
+      this.statCalculators = {
+        stocks: genStatCalculator(this, getStocksProcessor),
+      };
+    }
 
-    const lastFrame = getLastFrame(this);
+    const frames = this.getFrames();
+
+    const lastFrame = this.latestFrameIndex;
 
     // Get playable frame count
     let playableFrameCount = null;
@@ -256,7 +243,9 @@ export class SlippiGame {
     // calculation uses the others
     // FIXME: Use proper typing instead of any
     this.stats = {} as any;
-    this.stats.stocks = generateStocks(this);
+
+    // TODO: Modify remaining types
+    this.stats.stocks = <StockType[]>this.statCalculators.stocks.run(frames);
     this.stats.conversions = generateConversions(this);
     this.stats.combos = generateCombos(this);
     this.stats.actionCounts = generateActionCounts(this);
@@ -264,8 +253,6 @@ export class SlippiGame {
     this.stats.playableFrameCount = playableFrameCount;
     this.stats.overall = generateOverallStats(this);
     this.stats.gameComplete = !!this.gameEnd;
-
-    closeSlpFile(slpfile);
 
     return this.stats;
   }
