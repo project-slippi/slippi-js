@@ -188,29 +188,29 @@ export function calcDamageTaken(frame: PostFrameUpdateType, prevFrame: PostFrame
 }
 
 function getSortedFrames(game: SlippiGame): Array<FrameEntryType> {
-  // TODO: This is obviously jank and probably shouldn't be done this way. I just didn't
-  // TODO: want the primary game object to have the concept of sortedFrames because it's
-  // TODO: kinda shitty I need to do that anyway. It's required because javascript doesn't
-  // TODO: support sorted objects... I could use a Map but that felt pretty heavy for
-  // TODO: little reason.
-  // if (_.has(game, ['external', 'sortedFrames'])) {
-  //   // $FlowFixMe
-  //   return game.external.sortedFrames;
-  // }
-
   const frames = game.getFrames();
-  const sortedFrames = _.orderBy(frames, 'frame');
-  // _.set(game, ['external', 'sortedFrames'], sortedFrames);
+  const sortIndex = game.internal.stats.sortIndex;
 
-  // $FlowFixMe
-  return sortedFrames;
+  // This should only do work when there are new frames to sort
+  for (let i = sortIndex; i <= game.latestFrameIndex; i++) {
+    const frame = frames[i];
+    if (!frame) {
+      break;
+    }
+
+    game.internal.stats.sortedFrames.push(frame);
+    game.internal.stats.sortIndex = i;
+  }
+
+  return game.internal.stats.sortedFrames;
 }
 
 export function iterateFramesInOrder(
   game: SlippiGame,
-  initialize: (indices: PlayerIndexedType) => void,
-  processFrame: (indices: PlayerIndexedType, frame: FrameEntryType) => void
-): void {
+  key: string,
+  initialize: (indices: PlayerIndexedType) => object,
+  processFrame: (indices: PlayerIndexedType, frame: FrameEntryType, state: any, result: object[]) => void
+): object[] {
   const opponentIndices = getSinglesOpponentIndices(game);
   if (opponentIndices.length === 0) {
     return;
@@ -218,12 +218,34 @@ export function iterateFramesInOrder(
 
   const sortedFrames = getSortedFrames(game);
 
+  const processor = game.internal.stats.processors[key];
+  if (!processor) {
+    game.internal.stats.processors[key] = {
+      result: [],
+      states: []
+    };
+  }
+  const result = game.internal.stats.processors[key].result;
+
   // Iterates through both of the player/opponent pairs
-  opponentIndices.forEach(indices => {
-    initialize(indices);
+  opponentIndices.forEach((indices, i) => {
+    const processorState = _.get(game.internal.stats.processors, [key, 'states', i]);
+    if (!processorState) {
+      game.internal.stats.processors[key]['states'][i] = {
+        state: initialize(indices),
+        lastProcessedFrame: null,
+      };
+    }
+
+    const state = game.internal.stats.processors[key]['states'][i].state;
 
     // Iterates through all of the frames for the current player and opponent
     sortedFrames.forEach(frame => {
+      if (frame.frame <= game.internal.stats.processors[key]['states'][i].lastProcessedFrame) {
+        // TODO: Skip frames in a better way than this
+        return;
+      }
+
       const playerPostFrame = _.get(frame, ['players', indices.playerIndex, 'post']);
       const oppPostFrame = _.get(frame, ['players', indices.opponentIndex, 'post']);
       if (!playerPostFrame || !oppPostFrame) {
@@ -231,9 +253,12 @@ export function iterateFramesInOrder(
         return;
       }
 
-      processFrame(indices, frame);
+      processFrame(indices, frame, state, result);
+      game.internal.stats.processors[key]['states'][i].lastProcessedFrame = frame.frame;
     });
   });
+
+  return game.internal.stats.processors[key].result;
 }
 
 export function getLastFrame(game: SlippiGame): number | null {

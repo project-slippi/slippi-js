@@ -41,6 +41,26 @@ export type StatsType = {
   overall: OverallType[];
 };
 
+// This type is used for internal processing memory types
+export type InternalType = {
+  stats: InternalStatsType;
+};
+
+
+export type InternalStatsType = {
+  sortIndex: number;
+  sortedFrames: FrameEntryType[];
+  processors: {
+    [key: string]: {
+      result: object[];
+      states: {
+        lastProcessedFrame: number | null;
+        state: object;
+      }[] ;
+    };
+  };
+}
+
 /**
  * Slippi Game class that wraps a file
  */
@@ -53,6 +73,7 @@ export class SlippiGame {
   stats: StatsType | null;
   metadata: MetadataType | null;
   gameEnd: GameEndType | null;
+  internal: InternalType | null;
 
   latestFrameIndex: number | null;
   frameReadPos: number | null;
@@ -74,6 +95,13 @@ export class SlippiGame {
 
     this.frameReadPos = null;
     this.latestFrameIndex = null;
+    this.internal = {
+      stats: {
+        sortIndex: Frames.FIRST,
+        sortedFrames: [],
+        processors: {},
+      },
+    };
   }
 
   /**
