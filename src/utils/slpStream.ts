@@ -1,7 +1,8 @@
 import EventEmitter from "events";
 
 import { Readable } from "stream";
-import { Command, parseMessage } from "./slpReader";
+import { Command, parseMessage, MetadataType } from "./slpReader";
+import { decode } from "@shelacek/ubjson";
 
 
 export enum SlpEvent {
@@ -11,10 +12,13 @@ export enum SlpEvent {
   GAME_END = "gameEnd",
 }
 
+const METADATA_STRING_LENGTH = 10;
+
 export class SlpStream extends EventEmitter {
   metadataSet = false;
 
   stream: Readable;
+  stopReadingAt: number;
   rawDataPosition: number;
   rawDataLength: number;
   metadataPosition: number;
@@ -22,7 +26,9 @@ export class SlpStream extends EventEmitter {
   messageSizes: null | { [cmd: number]: number };
   totalDataRead: number;
   startPos: number | null = null;
-  rawData: Buffer;
+  rawMetadata: Buffer | null = null;
+  metadata: MetadataType | null = null;
+
 
   constructor(stream: Readable) {
     super();
@@ -34,6 +40,8 @@ export class SlpStream extends EventEmitter {
       if (!this.metadataSet) {
         this.rawDataPosition = this._getRawDataPosition();
         this.rawDataLength = this._getRawDataLength(this.rawDataPosition);
+        this.stopReadingAt = this.rawDataPosition + this.rawDataLength;
+        this.metadataPosition = this.stopReadingAt + METADATA_STRING_LENGTH; // remove metadata string
         this._getMessageSizes();
         console.log(this.rawDataPosition);
         console.log(this.rawDataLength);
@@ -41,9 +49,31 @@ export class SlpStream extends EventEmitter {
         this.metadataSet = true;
       }
 
+      // Process the raw data
       let command: Buffer;
       while (null !== (command = this._readStream(1))) {
         this._handleChunk(command[0]);
+        if (this.totalDataRead >= this.stopReadingAt) {
+          break;
+        }
+      }
+
+      // Store the remaining data as rawMetadata
+      const metadataPadding = this.metadataPosition - this.totalDataRead;
+      if (metadataPadding > 0) {
+        // Clear the "metadata" padding from the buffer
+        this._readStream(this.metadataPosition - this.totalDataRead);
+
+        // Continue reading from the stream until we're done
+        let metadata: Buffer;
+        while (null !== (metadata = this._readStream())) {
+          if (!this.rawMetadata) {
+            this.rawMetadata = metadata;
+          } else {
+            // append the new metadata information to the existing metadata
+            this.rawMetadata = Buffer.concat([this.rawMetadata, metadata]);
+          }
+        }
       }
     });
 
@@ -103,9 +133,23 @@ export class SlpStream extends EventEmitter {
   }
 
   private _setMetadataLength(): void {
-    this.metadataPosition = this.rawDataPosition + this.rawDataLength + 10; // remove metadata string
+    // Return if the metadata already exists
+    if (!this.rawMetadata) {
+      return;
+    }
+
     this.metadataLength = this.totalDataRead - this.metadataPosition - 1;
+    const buffer = new Uint8Array(this.metadataLength);
+    this.rawMetadata.copy(buffer, 0, 0, buffer.length);
+
+    try {
+      this.metadata = decode(buffer);
+    } catch (error) {
+      // Do nothing
+      console.error(error);
+    }
   }
+
   private _getMessageSizes(): void {
     if (this.messageSizes !== null) {
       return;
