@@ -1,5 +1,5 @@
 // eslint-disable-next-line
-export function getDeathDirection(actionStateId) {
+export function getDeathDirection(actionStateId: number) {
   if (actionStateId > 0xa) {
     return null;
   }

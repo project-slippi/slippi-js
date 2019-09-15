@@ -1,17 +1,16 @@
 // @flow
 import _ from 'lodash';
-import SlippiGame from "../index";
+import { SlippiGame } from "../SlippiGame";
 import { iterateFramesInOrder, isDead, didLoseStock } from "./common";
 
-import type { StockType } from "./common";
-import type { PostFrameUpdateType } from "../utils/slpReader";
+import { StockType } from "./common";
 
 export function generateStocks(game: SlippiGame): StockType[] {
-  const stocks = [];
+  const stocks: Array<StockType> = [];
   const frames = game.getFrames();
 
   const initialState: {
-    stock: ?StockType
+    stock: StockType | null | undefined;
   } = {
     stock: null
   };
@@ -23,7 +22,8 @@ export function generateStocks(game: SlippiGame): StockType[] {
     state = { ...initialState };
   }, (indices, frame) => {
     const playerFrame = frame.players[indices.playerIndex].post;
-    const prevPlayerFrame: PostFrameUpdateType = _.get(
+    // FIXME: use PostFrameUpdateType instead of any
+    const prevPlayerFrame: any = _.get(
       frames, [playerFrame.frame - 1, 'players', indices.playerIndex, 'post'], {}
     );
 

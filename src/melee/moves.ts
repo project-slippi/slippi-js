@@ -1,4 +1,16 @@
-const moves = {
+export interface Move {
+  id: number;
+  name: string;
+  shortName: string;
+}
+
+export const UnknownMove: Move = {
+  id: -1,
+  name: "Unknown Move",
+  shortName: "unknown",
+}
+
+const moves: {[id: number]: Move} = {
   1: {
     // This includes all thrown items, zair, luigi's taunt, samus bombs, etc
     id: 1,
@@ -152,16 +164,20 @@ const moves = {
   },
 };
 
-export function getMoveInfo(moveId) {
-  return moves[moveId];
+export function getMoveInfo(moveId: number): Move {
+  const m = moves[moveId];
+  if (!m) {
+    return UnknownMove;
+  }
+  return m;
 }
 
-export function getMoveShortName(moveId) {
-  const move = getMoveInfo(moveId) || {};
-  return move.shortName || "unknown";
+export function getMoveShortName(moveId: number): string {
+  const move = getMoveInfo(moveId);
+  return move.shortName;
 }
 
-export function getMoveName(moveId) {
-  const move = getMoveInfo(moveId) || {};
-  return move.name || "Unknown Move";
+export function getMoveName(moveId: number): string {
+  const move = getMoveInfo(moveId);
+  return move.name;
 }

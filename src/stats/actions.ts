@@ -1,44 +1,46 @@
 // @flow
 import _ from 'lodash';
-import SlippiGame from "../index";
 import {
-  States, iterateFramesInOrder
+  State, iterateFramesInOrder
 } from "./common";
 
-import type { ActionCountsType } from "./common";
+import { ActionCountsType } from "./common";
+import { SlippiGame } from '../SlippiGame';
 
-function isRolling(animation) {
-  const rollAnimations = {
-    [States.ROLL_BACKWARD]: true,
-    [States.ROLL_FORWARD]: true,
-  };
-
-  return rollAnimations[animation];
+function isRolling(animation: State): boolean {
+  switch (animation) {
+  case State.ROLL_BACKWARD:
+    return true;
+  case State.ROLL_FORWARD:
+    return true;
+  default:
+    return false;
+  }
 }
 
-function didStartRoll(currentAnimation, previousAnimation) {
+function didStartRoll(currentAnimation: number, previousAnimation: number): boolean {
   const isCurrentlyRolling = isRolling(currentAnimation);
   const wasPreviouslyRolling = isRolling(previousAnimation);
 
   return isCurrentlyRolling && !wasPreviouslyRolling;
 }
 
-function isSpotDodging(animation) {
-  return animation === States.SPOT_DODGE;
+function isSpotDodging(animation: State): boolean {
+  return animation === State.SPOT_DODGE;
 }
 
-function didStartSpotDodge(currentAnimation, previousAnimation) {
+function didStartSpotDodge(currentAnimation: State, previousAnimation: State): boolean {
   const isCurrentlyDodging = isSpotDodging(currentAnimation);
   const wasPreviouslyDodging = isSpotDodging(previousAnimation);
 
   return isCurrentlyDodging && !wasPreviouslyDodging;
 }
 
-function isAirDodging(animation) {
-  return animation === States.AIR_DODGE;
+function isAirDodging(animation: State): boolean {
+  return animation === State.AIR_DODGE;
 }
 
-function didStartAirDodge(currentAnimation, previousAnimation) {
+function didStartAirDodge(currentAnimation: State, previousAnimation: State): boolean {
   const isCurrentlyDodging = isAirDodging(currentAnimation);
   const wasPreviouslyDodging = isAirDodging(previousAnimation);
 
@@ -46,14 +48,14 @@ function didStartAirDodge(currentAnimation, previousAnimation) {
 }
 
 export function generateActionCounts(game: SlippiGame): ActionCountsType[] {
-  const actionCounts = [];
+  const actionCounts: Array<ActionCountsType> = [];
 
   // Frame pattern that indicates a dash dance turn was executed
-  const dashDanceAnimations = [States.DASH, States.TURN, States.DASH];
+  const dashDanceAnimations = [State.DASH, State.TURN, State.DASH];
 
   const initialState: {
-    animations: number[],
-    playerCounts: ?ActionCountsType
+    animations: number[];
+    playerCounts: ActionCountsType | null | undefined;
   } = {
     animations: [],
     playerCounts: null
@@ -62,12 +64,13 @@ export function generateActionCounts(game: SlippiGame): ActionCountsType[] {
   let state = initialState;
 
   // Helper function for incrementing counts
-  const incrementCount = (field, condition) => {
+  const incrementCount = (field: string, condition: boolean): void => {
     if (!condition) {
       return;
     }
 
-    state.playerCounts[field] += 1;
+    // FIXME: ActionsCountsType should be a map of actions -> number, instead of accessing the field via string
+    (state.playerCounts as any)[field] += 1;
   };
 
   // Iterates the frames in order in order to compute stocks
@@ -114,17 +117,17 @@ export function generateActionCounts(game: SlippiGame): ActionCountsType[] {
     incrementCount('airDodgeCount', didAirDodge);
 
     // Handles wavedash detection (and waveland)
-    handleActionWavedash(state.playerCounts, state.animations, frame.frame);
+    handleActionWavedash(state.playerCounts, state.animations);
   });
 
   return actionCounts;
 }
 
-function handleActionWavedash(counts: ActionCountsType, animations) {
+function handleActionWavedash(counts: ActionCountsType, animations: State[]): void {
   const currentAnimation = _.last(animations);
   const prevAnimation = animations[animations.length - 2];
 
-  const isSpecialLanding = currentAnimation === States.LANDING_FALL_SPECIAL;
+  const isSpecialLanding = currentAnimation === State.LANDING_FALL_SPECIAL;
   const isAcceptablePrevious = isWavedashInitiationAnimation(prevAnimation);
   const isPossibleWavedash = isSpecialLanding && isAcceptablePrevious;
 
@@ -138,19 +141,19 @@ function handleActionWavedash(counts: ActionCountsType, animations) {
   const recentFrames = animations.slice(-8);
   const recentAnimations = _.keyBy(recentFrames, (animation) => animation);
 
-  if (_.size(recentAnimations) === 2 && recentAnimations[States.AIR_DODGE]) {
+  if (_.size(recentAnimations) === 2 && recentAnimations[State.AIR_DODGE]) {
     // If the only other animation is air dodge, this might be really late to the point
     // where it was actually an air dodge. Air dodge animation is really long
     return;
   }
 
-  if (recentAnimations[States.AIR_DODGE]) {
+  if (recentAnimations[State.AIR_DODGE]) {
     // If one of the recent animations was an air dodge, let's remove that from the
     // air dodge counter, we don't want to count air dodges used to wavedash/land
     counts.airDodgeCount -= 1;
   }
 
-  if (recentAnimations[States.ACTION_KNEE_BEND]) {
+  if (recentAnimations[State.ACTION_KNEE_BEND]) {
     // If a jump was started recently, we will consider this a wavedash
     counts.wavedashCount += 1;
   } else {
@@ -159,12 +162,12 @@ function handleActionWavedash(counts: ActionCountsType, animations) {
   }
 }
 
-function isWavedashInitiationAnimation(animation) {
-  if (animation === States.AIR_DODGE) {
+function isWavedashInitiationAnimation(animation: State): boolean {
+  if (animation === State.AIR_DODGE) {
     return true;
   }
 
-  const isAboveMin = animation >= States.CONTROLLED_JUMP_START;
-  const isBelowMax = animation <= States.CONTROLLED_JUMP_END;
+  const isAboveMin = animation >= State.CONTROLLED_JUMP_START;
+  const isBelowMax = animation <= State.CONTROLLED_JUMP_END;
   return isAboveMin && isBelowMax;
 }

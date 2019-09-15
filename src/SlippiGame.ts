@@ -1,6 +1,6 @@
-// @flow
+/* eslint-disable no-param-reassign */
 import _ from 'lodash';
-import { Commands, openSlpFile, closeSlpFile, iterateEvents, getMetadata } from './utils/slpReader';
+import { Command, openSlpFile, closeSlpFile, iterateEvents, getMetadata, GameStartType, SlpInputSource } from './utils/slpReader';
 
 import { getLastFrame, Frames } from "./stats/common";
 import { generateConversions } from "./stats/conversions";
@@ -10,50 +10,44 @@ import { generateActionCounts } from "./stats/actions";
 import { generateOverall as generateOverallStats } from "./stats/overall";
 
 // Type imports
-import type {
-  PlayerType, PreFrameUpdateType, PostFrameUpdateType, SlpFileType, MetadataType, GameEndType,
+import {
+  PreFrameUpdateType, PostFrameUpdateType, SlpFileType, MetadataType, GameEndType,
   SlpReadInput
 } from "./utils/slpReader";
-import type {
+import {
   StockType, ConversionType, ComboType, ActionCountsType, OverallType
 } from "./stats/common";
 
-type GameSettingsType = {
-  stageId: number,
-  isTeams: boolean,
-  players: PlayerType[]
-};
-
 export type FrameEntryType = {
-  frame: number,
+  frame: number;
   players: { [playerIndex: number]: {
-    pre: PreFrameUpdateType,
-    post: PostFrameUpdateType
-  }}
+    pre: PreFrameUpdateType;
+    post: PostFrameUpdateType;
+  };};
 };
 
-type FramesType = {
-  [frameIndex: number]: FrameEntryType
+export type FramesType = {
+  [frameIndex: number]: FrameEntryType;
 };
 
-type StatsType = {
-  gameComplete: boolean,
-  lastFrame: number,
-  playableFrameCount: number,
-  stocks: StockType[],
-  conversions: ConversionType[],
-  combos: ComboType[],
-  actionCounts: ActionCountsType[],
-  overall: OverallType[],
+export type StatsType = {
+  gameComplete: boolean;
+  lastFrame: number;
+  playableFrameCount: number;
+  stocks: StockType[];
+  conversions: ConversionType[];
+  combos: ComboType[];
+  actionCounts: ActionCountsType[];
+  overall: OverallType[];
 };
 
 /**
  * Slippi Game class that wraps a file
  */
-export default class SlippiGame {
+export class SlippiGame {
   input: SlpReadInput;
   file: SlpFileType;
-  settings: GameSettingsType | null;
+  settings: GameStartType | null;
   playerFrames: FramesType | null;
   followerFrames: FramesType | null;
   stats: StatsType | null;
@@ -66,12 +60,12 @@ export default class SlippiGame {
   constructor(input: string | Buffer) {
     if (_.isString(input)) {
       this.input = {
-        source: 'file',
-        filePath: input,
+        source: SlpInputSource.FILE,
+        filePath: input as string,
       };
     } else if (input instanceof Buffer) {
       this.input = {
-        source: 'buffer',
+        source: SlpInputSource.BUFFER,
         buffer: input,
       };
     } else {
@@ -86,7 +80,7 @@ export default class SlippiGame {
    * Gets the game settings, these are the settings that describe the starting state of
    * the game such as characters, stage, etc.
    */
-  getSettings(): GameSettingsType {
+  getSettings(): GameStartType {
     if (this.settings) {
       // If header is already generated, return it
       return this.settings;
@@ -95,7 +89,7 @@ export default class SlippiGame {
     const slpfile = openSlpFile(this.input);
 
     // Prepare default settings
-    let settings: GameSettingsType = null;
+    let settings: GameStartType = null;
 
     // Generate settings from iterating through file
     iterateEvents(slpfile, (command, payload) => {
@@ -106,15 +100,17 @@ export default class SlippiGame {
       }
 
       switch (command) {
-      case Commands.GAME_START:
+      case Command.GAME_START:
+        payload = payload as GameStartType;
         if (!payload.stageId) {
           return true; // Why do I have to do this? Still not sold on Flow
         }
 
         settings = payload;
-        settings.players = _.filter(payload.players, player => player.type !== 3);
+        settings.players = payload.players.filter(player => player.type !== 3);
         break;
-      case Commands.POST_FRAME_UPDATE:
+      case Command.POST_FRAME_UPDATE:
+        payload = payload as PostFrameUpdateType;
         if (payload.frame === null || payload.frame > Frames.FIRST) {
           // Once we are an frame -122 or higher we are done getting match settings
           // Tell the iterator to stop
@@ -181,20 +177,22 @@ export default class SlippiGame {
       }
 
       switch (command) {
-      case Commands.PRE_FRAME_UPDATE:
-      case Commands.POST_FRAME_UPDATE:
+      case Command.PRE_FRAME_UPDATE:
+      case Command.POST_FRAME_UPDATE:
+        payload = payload as PostFrameUpdateType;
         if (!payload.frame && payload.frame !== 0) {
           // If payload is messed up, stop iterating. This shouldn't ever happen
           return true;
         }
 
-        const location = command === Commands.PRE_FRAME_UPDATE ? "pre" : "post";
+        const location = command === Command.PRE_FRAME_UPDATE ? "pre" : "post";
         const frames = payload.isFollower ? followerFrames : playerFrames;
         this.latestFrameIndex = payload.frame;
         _.set(frames, [payload.frame, 'players', payload.playerIndex, location], payload);
         _.set(frames, [payload.frame, 'frame'], payload.frame);
         break;
-      case Commands.GAME_END:
+      case Command.GAME_END:
+        payload = payload as GameEndType;
         this.gameEnd = payload;
         break;
       }
@@ -228,7 +226,8 @@ export default class SlippiGame {
     // The order here kind of matters because things later in the call order might
     // reference things calculated earlier. More specifically, currently the overall
     // calculation uses the others
-    this.stats = {};
+    // FIXME: Use proper typing instead of any
+    this.stats = {} as any;
     this.stats.stocks = generateStocks(this);
     this.stats.conversions = generateConversions(this);
     this.stats.combos = generateCombos(this);
@@ -256,3 +255,5 @@ export default class SlippiGame {
     return this.metadata;
   }
 }
+
+/* eslint-enable no-param-reassign */

@@ -1,22 +1,21 @@
-// @flow
 import _ from 'lodash';
-import SlippiGame from "../index";
-import type { PostFrameUpdateType } from "../utils/slpReader";
-import type { MoveLandedType, ComboType } from "./common";
+import { SlippiGame } from "../SlippiGame";
+import { PostFrameUpdateType } from "../utils/slpReader";
+import { MoveLandedType, ComboType } from "./common";
 import {
   iterateFramesInOrder, isDamaged, isGrabbed, calcDamageTaken, isTeching, didLoseStock,
   Timers, isDown, isDead
 } from "./common";
 
-export function generateCombos(game: SlippiGame): ComboType[] {
-  const combos = [];
+export function generateCombos(game: SlippiGame): Array<ComboType> {
+  const combos: Array<ComboType> = [];
   const frames = game.getFrames();
 
   const initialState: {
-    combo: ComboType | null,
-    move: MoveLandedType | null,
-    resetCounter: number,
-    lastHitAnimation: number | null,
+    combo: ComboType | null;
+    move: MoveLandedType | null;
+    resetCounter: number;
+    lastHitAnimation: number | null;
   } = {
     combo: null,
     move: null,
@@ -32,11 +31,15 @@ export function generateCombos(game: SlippiGame): ComboType[] {
     state = { ...initialState };
   }, (indices, frame) => {
     const playerFrame: PostFrameUpdateType = frame.players[indices.playerIndex].post;
-    const prevPlayerFrame: PostFrameUpdateType = _.get(
+    // FIXME: use type PostFrameUpdateType instead of any
+    // This is because the default value {} should not be casted as a type of PostFrameUpdateType
+    const prevPlayerFrame: any = _.get(
       frames, [playerFrame.frame - 1, 'players', indices.playerIndex, 'post'], {}
     );
     const opponentFrame: PostFrameUpdateType = frame.players[indices.opponentIndex].post;
-    const prevOpponentFrame: PostFrameUpdateType = _.get(
+    // FIXME: use type PostFrameUpdateType instead of any
+    // This is because the default value {} should not be casted as a type of PostFrameUpdateType
+    const prevOpponentFrame: any = _.get(
       frames, [playerFrame.frame - 1, 'players', indices.opponentIndex, 'post'], {}
     );
 

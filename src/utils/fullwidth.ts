@@ -1,10 +1,10 @@
 import _ from 'lodash';
 
-export function toHalfwidth(str) {
+export function toHalfwidth(str: string): string {
   // Code reference from https://github.com/sampathsris/ascii-fullwidth-halfwidth-convert
 
   // Converts a fullwidth character to halfwidth
-  const convertChar = (charCode) => {
+  const convertChar = (charCode: number): number => {
     if (charCode > 0xFF00 && charCode < 0xFF5F) {
       return 0x0020 + (charCode - 0xFF00);
     }
@@ -16,8 +16,8 @@ export function toHalfwidth(str) {
     return charCode;
   };
 
-  const ret = _.map(str, (char) => (
-    convertChar(char.charCodeAt())
+  const ret = _.map(str, char => (
+    convertChar(char.charCodeAt(0))
   ));
 
   return String.fromCharCode(...ret);

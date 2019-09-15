@@ -1,4 +1,9 @@
-const stages = {
+export interface Stage {
+  id: number;
+  name: string;
+}
+
+const stages: { [id: number]: Stage } = {
   2: {
     id: 2,
     name: "Fountain of Dreams",
@@ -128,11 +133,15 @@ export const STAGE_DREAM_LAND = 28;
 export const STAGE_BATTLEFIELD = 31;
 export const STAGE_FD = 32;
 
-export function getStageInfo(stageId) {
-  return stages[stageId];
+export function getStageInfo(stageId: number): Stage {
+  const s = stages[stageId];
+  if (!s) {
+    throw new Error(`Invalid stage with id ${stageId}`)
+  }
+  return s
 }
 
-export function getStageName(stageId) {
-  const stage = getStageInfo(stageId) || {};
+export function getStageName(stageId: number): string {
+  const stage = getStageInfo(stageId);
   return stage.name;
 }
