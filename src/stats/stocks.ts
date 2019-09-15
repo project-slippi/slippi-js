@@ -5,19 +5,19 @@ import { iterateFramesInOrder, isDead, didLoseStock } from "./common";
 
 import { StockType } from "./common";
 
-type State = {
+type StateType = {
   stock: StockType | null | undefined;
 };
 
-type Result = StockType[];
+type ResultType = StockType[];
 
-export function generateStocks(game: SlippiGame): StockType[] {
+export function generateStocks(game: SlippiGame): ResultType {
   // TODO: getFrames calls still do some stupid file operations when sometimes
   // TODO: they probably don't have to. Figure out something to do about this
   const frames = game.getFrames();
 
-  const initialState: State = {
-    stock: null
+  const initialState: StateType = {
+    stock: null,
   };
 
   // Iterates the frames in order in order to compute stocks
@@ -25,8 +25,8 @@ export function generateStocks(game: SlippiGame): StockType[] {
     return initialState;
   }, (indices, frame, state, result) => {
     // TODO: Probably shouldn't do so much direct object mutation?
-    state as State;
-    result as Result;
+    state as StateType;
+    result as ResultType;
 
     const playerFrame = frame.players[indices.playerIndex].post;
     // FIXME: use PostFrameUpdateType instead of any
@@ -65,6 +65,6 @@ export function generateStocks(game: SlippiGame): StockType[] {
     }
   });
 
-  // TODO: TypeScript not happy with this type conversion, figure that out
-  return output;
+  // Cast the PlayerIndexedType to the correct sub-interface
+  return <ResultType>output;
 }

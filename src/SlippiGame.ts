@@ -15,7 +15,7 @@ import {
   SlpReadInput
 } from "./utils/slpReader";
 import {
-  StockType, ConversionType, ComboType, ActionCountsType, OverallType
+  StockType, ConversionType, ComboType, ActionCountsType, OverallType, PlayerIndexedType
 } from "./stats/common";
 
 export type FrameEntryType = {
@@ -52,7 +52,7 @@ export type InternalStatsType = {
   sortedFrames: FrameEntryType[];
   processors: {
     [key: string]: {
-      result: object[];
+      result: PlayerIndexedType[];
       states: {
         lastProcessedFrame: number | null;
         state: object;

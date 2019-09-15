@@ -8,23 +8,23 @@ type RatioType = {
   ratio: number | null;
 };
 
-type PlayerIndexedType = {
+export interface PlayerIndexedType {
   playerIndex: number;
   opponentIndex: number;
 };
 
-export type DurationType = {
+interface DurationType {
   startFrame: number;
   endFrame: number | null | undefined;
 };
 
-export type DamageType = {
+interface DamageType {
   startPercent: number;
   currentPercent: number;
   endPercent: number | null | undefined;
 };
 
-export type StockType = PlayerIndexedType & DurationType & DamageType & {
+export interface StockType extends PlayerIndexedType, DurationType, DamageType {
   count: number;
   deathAnimation: number | null | undefined;
 };
@@ -36,18 +36,18 @@ export type MoveLandedType = {
   damage: number;
 };
 
-export type ConversionType = PlayerIndexedType & DurationType & DamageType & {
+export interface ConversionType extends PlayerIndexedType, DurationType, DamageType {
   moves: MoveLandedType[];
   openingType: string;
   didKill: boolean;
 };
 
-export type ComboType = PlayerIndexedType & DurationType & DamageType & {
+export interface ComboType extends PlayerIndexedType, DurationType, DamageType {
   moves: MoveLandedType[];
   didKill: boolean;
 };
 
-export type ActionCountsType = PlayerIndexedType & {
+export interface ActionCountsType extends PlayerIndexedType {
   wavedashCount: number;
   wavelandCount: number;
   airDodgeCount: number;
@@ -56,7 +56,7 @@ export type ActionCountsType = PlayerIndexedType & {
   rollCount: number;
 };
 
-export type OverallType = PlayerIndexedType & {
+export interface OverallType extends PlayerIndexedType {
   inputCount: number;
   conversionCount: number;
   totalDamage: number;
@@ -209,8 +209,8 @@ export function iterateFramesInOrder(
   game: SlippiGame,
   key: string,
   initialize: (indices: PlayerIndexedType) => object,
-  processFrame: (indices: PlayerIndexedType, frame: FrameEntryType, state: any, result: object[]) => void
-): object[] {
+  processFrame: (indices: PlayerIndexedType, frame: FrameEntryType, state: any, result: PlayerIndexedType[]) => void
+): PlayerIndexedType[] {
   const opponentIndices = getSinglesOpponentIndices(game);
   if (opponentIndices.length === 0) {
     return;
