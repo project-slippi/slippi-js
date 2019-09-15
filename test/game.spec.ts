@@ -35,7 +35,7 @@ test('test stats', () => {
   expect(stats.actionCounts[0].airDodgeCount).toBe(3);
 
   // Test overall
-  expect(stats.overall[0].inputCount).toBe(459);
+  expect(stats.overall[0].inputCount).toBe(494);
 });
 
 test('test metadata', () => {
