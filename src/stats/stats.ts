@@ -3,6 +3,7 @@ import _ from "lodash";
 import { StockType, ConversionType, ComboType, ActionCountsType, OverallType, PlayerIndexedType } from "./common";
 import { FrameEntryType } from "../SlippiGame";
 import { ActionsComputer } from "./actions";
+import { ConversionComputer } from "./conversions";
 
 export type StatsType = {
   gameComplete: boolean;
@@ -25,17 +26,18 @@ export class Stats {
     lastFrame: number;
     playableFrameCount: number;
     stocks: StockType[];
-    conversions: ConversionType[];
     combos: ComboType[];
     actionCounts: ActionCountsType[];
     overall: OverallType[];
 
     opponentIndices: PlayerIndexedType[];
     actionsComputer: ActionsComputer;
+    conversionComputer: ConversionComputer;
 
     constructor(opponentIndices: PlayerIndexedType[]) {
         this.opponentIndices = opponentIndices;
         this.actionsComputer = new ActionsComputer(opponentIndices);
+        this.conversionComputer = new ConversionComputer(opponentIndices);
     }
 
     public getStats(): StatsType {
@@ -44,7 +46,7 @@ export class Stats {
             lastFrame: this.lastFrame,
             playableFrameCount: this.playableFrameCount,
             stocks: this.stocks,
-            conversions: this.conversions,
+            conversions: this.conversionComputer.fetch(),
             combos: this.combos,
             actionCounts: this.actionsComputer.fetch(),
             overall: this.overall,

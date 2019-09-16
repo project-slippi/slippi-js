@@ -29,10 +29,18 @@ sortedFrames.forEach(frame => {
   statCalculator.processFrame(frame);
 });
 
+console.log("actions")
 console.log("new");
 console.log(JSON.stringify(statCalculator.getStats().actionCounts));
 
 console.log("orig");
 console.log(JSON.stringify(game.getStats().actionCounts))
+
+console.log("conversions")
+console.log("new");
+console.log(JSON.stringify(statCalculator.getStats().conversions));
+
+console.log("orig");
+console.log(JSON.stringify(game.getStats().conversions))
 
 export default SlippiGame;
