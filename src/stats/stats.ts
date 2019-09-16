@@ -55,7 +55,6 @@ export class Stats {
         if (this.opponentIndices.length === 0) {
             return;
         }
-        console.log(this.opponentIndices.length);
         this.opponentIndices.forEach(indices => {
             const playerPostFrame = _.get(frame, ['players', indices.playerIndex, 'post']);
             const oppPostFrame = _.get(frame, ['players', indices.opponentIndex, 'post']);
@@ -63,7 +62,8 @@ export class Stats {
                 // Don't attempt to compute stats on frames that have not been fully received
                 return;
             }
-            this.actionsComputer.processFrame(frame);
         });
+
+        this.actionsComputer.processFrame(frame);
     }
 }

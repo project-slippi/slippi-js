@@ -8,32 +8,94 @@ import { ActionCountsType } from "./common";
 import { SlippiGame, FrameEntryType } from '../SlippiGame';
 import { StatComputer } from './stats';
 
+interface PlayerActionState {
+  playerCounts: ActionCountsType;
+  animations: number[];
+}
+
 export class ActionsComputer implements StatComputer<ActionCountsType[]> {
-    actionCounts: ActionCountsType[];
-    opponentIndices: PlayerIndexedType[];
+  opponentIndices: PlayerIndexedType[];
+  state: Map<PlayerIndexedType, PlayerActionState>;
 
-    constructor(opponentIndices: PlayerIndexedType[]) {
-        this.opponentIndices = opponentIndices;
-    }
+  constructor(opponentIndices: PlayerIndexedType[]) {
+    this.opponentIndices = opponentIndices;
+    this.state = new Map<PlayerIndexedType, PlayerActionState>();
+    this.opponentIndices.forEach((indices) => {
+      const playerCounts = {
+        playerIndex: indices.playerIndex,
+        opponentIndex: indices.opponentIndex,
+        wavedashCount: 0,
+        wavelandCount: 0,
+        airDodgeCount: 0,
+        dashDanceCount: 0,
+        spotDodgeCount: 0,
+        rollCount: 0,
+      };
+      const playerState = {
+        playerCounts: playerCounts,
+        animations: new Array<number>(),
+      }
+      this.state.set(indices, playerState);
+    })
+  }
 
-    public processFrame(frame: FrameEntryType): void {
-      return;
-    }
-    public fetch(): ActionCountsType[] {
-      return this.actionCounts;
-    }
+  public processFrame(frame: FrameEntryType): void {
+    this.opponentIndices.forEach((indices) => {
+      const playerFrame = frame.players[indices.playerIndex].post;
+      const state = this.state.get(indices);
+
+      const incrementCount = (field: string, condition: boolean): void => {
+        if (!condition) {
+          return;
+        }
+
+        // FIXME: ActionsCountsType should be a map of actions -> number, instead of accessing the field via string
+        (state.playerCounts as any)[field] += 1;
+      };
+
+      // Manage animation state
+      state.animations.push(playerFrame.actionStateId);
+
+      // Grab last 3 frames
+      const last3Frames = state.animations.slice(-3);
+      const currentAnimation = playerFrame.actionStateId;
+      const prevAnimation = last3Frames[last3Frames.length - 2];
+
+      // Increment counts based on conditions
+      const didDashDance = _.isEqual(last3Frames, dashDanceAnimations);
+      incrementCount('dashDanceCount', didDashDance);
+
+      const didRoll = didStartRoll(currentAnimation, prevAnimation);
+      incrementCount('rollCount', didRoll);
+
+      const didSpotDodge = didStartSpotDodge(currentAnimation, prevAnimation);
+      incrementCount('spotDodgeCount', didSpotDodge);
+
+      const didAirDodge = didStartAirDodge(currentAnimation, prevAnimation);
+      incrementCount('airDodgeCount', didAirDodge);
+
+      // Handles wavedash detection (and waveland)
+      handleActionWavedash(state.playerCounts, state.animations);
+    });
+
+    return;
+  }
+
+  public fetch(): ActionCountsType[] {
+    return Array.from(this.state.keys()).map(key => this.state.get(key).playerCounts);
+  }
 }
 
 
 
 function isRolling(animation: State): boolean {
   switch (animation) {
-  case State.ROLL_BACKWARD:
-    return true;
-  case State.ROLL_FORWARD:
-    return true;
-  default:
-    return false;
+    case State.ROLL_BACKWARD:
+      return true;
+    case State.ROLL_FORWARD:
+      return true;
+    default:
+      return false;
   }
 }
 
@@ -65,6 +127,10 @@ function didStartAirDodge(currentAnimation: State, previousAnimation: State): bo
 
   return isCurrentlyDodging && !wasPreviouslyDodging;
 }
+
+// Frame pattern that indicates a dash dance turn was executed
+const dashDanceAnimations = [State.DASH, State.TURN, State.DASH];
+
 
 export function generateActionCounts(game: SlippiGame): ActionCountsType[] {
   const actionCounts: Array<ActionCountsType> = [];
