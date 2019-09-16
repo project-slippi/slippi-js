@@ -1,4 +1,8 @@
-import { StockType, ConversionType, ComboType, ActionCountsType, OverallType } from "./common";
+import _ from "lodash";
+
+import { StockType, ConversionType, ComboType, ActionCountsType, OverallType, PlayerIndexedType } from "./common";
+import { FrameEntryType } from "../SlippiGame";
+import { ActionsComputer } from "./actions";
 
 export type StatsType = {
   gameComplete: boolean;
@@ -11,6 +15,11 @@ export type StatsType = {
   overall: OverallType[];
 };
 
+export interface StatComputer<T> {
+    processFrame( frame: FrameEntryType): void;
+    fetch(): T;
+}
+
 export class Stats {
     gameComplete: boolean;
     lastFrame: number;
@@ -21,6 +30,14 @@ export class Stats {
     actionCounts: ActionCountsType[];
     overall: OverallType[];
 
+    opponentIndices: PlayerIndexedType[];
+    actionsComputer: ActionsComputer;
+
+    constructor(opponentIndices: PlayerIndexedType[]) {
+        this.opponentIndices = opponentIndices;
+        this.actionsComputer = new ActionsComputer(opponentIndices);
+    }
+
     public getStats(): StatsType {
         return {
             gameComplete: this.gameComplete,
@@ -29,12 +46,24 @@ export class Stats {
             stocks: this.stocks,
             conversions: this.conversions,
             combos: this.combos,
-            actionCounts: this.actionCounts,
+            actionCounts: this.actionsComputer.fetch(),
             overall: this.overall,
         }
     }
 
-    public processFrame(): void {
-        return;
+    public processFrame(frame: FrameEntryType): void {
+        if (this.opponentIndices.length === 0) {
+            return;
+        }
+        console.log(this.opponentIndices.length);
+        this.opponentIndices.forEach(indices => {
+            const playerPostFrame = _.get(frame, ['players', indices.playerIndex, 'post']);
+            const oppPostFrame = _.get(frame, ['players', indices.opponentIndex, 'post']);
+            if (!playerPostFrame || !oppPostFrame) {
+                // Don't attempt to compute stats on frames that have not been fully received
+                return;
+            }
+            this.actionsComputer.processFrame(frame);
+        });
     }
 }

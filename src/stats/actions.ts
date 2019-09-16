@@ -1,11 +1,30 @@
 // @flow
 import _ from 'lodash';
 import {
-  State, iterateFramesInOrder
+  State, iterateFramesInOrder, PlayerIndexedType
 } from "./common";
 
 import { ActionCountsType } from "./common";
-import { SlippiGame } from '../SlippiGame';
+import { SlippiGame, FrameEntryType } from '../SlippiGame';
+import { StatComputer } from './stats';
+
+export class ActionsComputer implements StatComputer<ActionCountsType[]> {
+    actionCounts: ActionCountsType[];
+    opponentIndices: PlayerIndexedType[];
+
+    constructor(opponentIndices: PlayerIndexedType[]) {
+        this.opponentIndices = opponentIndices;
+    }
+
+    public processFrame(frame: FrameEntryType): void {
+      return;
+    }
+    public fetch(): ActionCountsType[] {
+      return this.actionCounts;
+    }
+}
+
+
 
 function isRolling(animation: State): boolean {
   switch (animation) {

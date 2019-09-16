@@ -1,14 +1,14 @@
 import _ from 'lodash';
-import { PostFrameUpdateType } from "../utils/slpReader";
+import { PostFrameUpdateType, GameStartType } from "../utils/slpReader";
 import { SlippiGame, FrameEntryType } from '../SlippiGame';
 
-type RatioType = {
+export type RatioType = {
   count: number;
   total: number;
   ratio: number | null;
 };
 
-type PlayerIndexedType = {
+export type PlayerIndexedType = {
   playerIndex: number;
   opponentIndex: number;
 };
@@ -127,6 +127,10 @@ export const Frames = {
 
 export function getSinglesOpponentIndices(game: SlippiGame): PlayerIndexedType[] {
   const settings = game.getSettings();
+  return getSinglesOpponentIndicesFromSettings(settings);
+}
+
+export function getSinglesOpponentIndicesFromSettings(settings: GameStartType): PlayerIndexedType[] {
   if (!settings || settings.players.length !== 2) {
     // Only return opponent indices for singles
     return [];
