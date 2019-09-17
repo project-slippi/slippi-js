@@ -57,14 +57,19 @@ export class Stats {
         if (this.opponentIndices.length === 0) {
             return;
         }
-        this.opponentIndices.forEach(indices => {
+
+        // Don't attempt to compute stats on frames that have not been fully received
+        const completedFrame = this.opponentIndices.map((indices): boolean => {
             const playerPostFrame = _.get(frame, ['players', indices.playerIndex, 'post']);
             const oppPostFrame = _.get(frame, ['players', indices.opponentIndex, 'post']);
             if (!playerPostFrame || !oppPostFrame) {
-                // Don't attempt to compute stats on frames that have not been fully received
-                return;
+                return false;
             }
-        });
+            return true;
+        }).reduce((accumulator, current) => accumulator && current );
+        if (!completedFrame) {
+            return;
+        }
 
         this.actionsComputer.processFrame(frame);
         this.conversionComputer.processFrame(frame);
