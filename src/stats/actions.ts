@@ -21,7 +21,7 @@ export class ActionsComputer implements StatComputer<ActionCountsType[]> {
     this.opponentIndices = opponentIndices;
     this.state = new Map<PlayerIndexedType, PlayerActionState>();
     this.opponentIndices.forEach((indices) => {
-      const playerCounts = {
+      const playerCounts: ActionCountsType = {
         playerIndex: indices.playerIndex,
         opponentIndex: indices.opponentIndex,
         wavedashCount: 0,
