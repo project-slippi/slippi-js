@@ -71,12 +71,12 @@ export class Stats {
 }
 
 function isCompletedFrame(opponentIndices: PlayerIndexedType[], frame: FrameEntryType): boolean {
-    return opponentIndices.map((indices): boolean => {
+    for (const indices of opponentIndices) {
         const playerPostFrame = _.get(frame, ['players', indices.playerIndex, 'post']);
         const oppPostFrame = _.get(frame, ['players', indices.opponentIndex, 'post']);
         if (!playerPostFrame || !oppPostFrame) {
             return false;
         }
-        return true;
-    }).reduce((accumulator, current) => accumulator && current );
+    }
+    return true;
 }
