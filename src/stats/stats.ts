@@ -35,12 +35,15 @@ export class Stats {
     actionsComputer: ActionsComputer;
     conversionComputer: ConversionComputer;
     comboComputer: ComboComputer;
+    allComputers: Array<StatComputer<unknown>>;
 
     constructor(opponentIndices: PlayerIndexedType[]) {
         this.opponentIndices = opponentIndices;
         this.actionsComputer = new ActionsComputer(opponentIndices);
         this.conversionComputer = new ConversionComputer(opponentIndices);
         this.comboComputer = new ComboComputer(opponentIndices);
+
+        this.allComputers = [this.actionsComputer, this.conversionComputer, this.comboComputer];
     }
 
     public getStats(): StatsType {
@@ -66,9 +69,7 @@ export class Stats {
             return;
         }
 
-        this.actionsComputer.processFrame(frame);
-        this.conversionComputer.processFrame(frame);
-        this.comboComputer.processFrame(frame);
+        this.allComputers.forEach(comp => comp.processFrame(frame));
     }
 }
 
