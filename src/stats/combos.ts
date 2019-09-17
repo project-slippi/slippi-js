@@ -16,13 +16,12 @@ interface ComboState {
 }
 
 export class ComboComputer implements StatComputer<Array<ComboType>> {
-  frameCount = 0;
-  opponentIndices: PlayerIndexedType[];
-  state: Map<PlayerIndexedType, ComboState>;
-  combos: Array<ComboType> = [];
-  frames: FramesType = {};
+  private opponentIndices: PlayerIndexedType[];
+  private state: Map<PlayerIndexedType, ComboState>;
+  private combos: Array<ComboType> = [];
+  private frames: FramesType = {};
 
-  constructor(opponentIndices: PlayerIndexedType[]) {
+  public constructor(opponentIndices: PlayerIndexedType[]) {
     this.opponentIndices = opponentIndices;
     this.state = new Map<PlayerIndexedType, ComboState>();
 
@@ -44,7 +43,6 @@ export class ComboComputer implements StatComputer<Array<ComboType>> {
       const state = this.state.get(indices);
       handleComboCompute(this.frames, state, indices, frame, this.combos);
     });
-    this.frameCount += 1;
   }
 
   public fetch(): Array<ComboType> {

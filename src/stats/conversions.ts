@@ -22,15 +22,14 @@ interface MetadataType {
 }
 
 export class ConversionComputer implements StatComputer<ConversionType[]> {
-  frameCount = 0;
+  private frameCount = 0;
+  private opponentIndices: PlayerIndexedType[];
+  private frames: FramesType = {};
+  private conversions: ConversionType[] = [];
+  private state: Map<PlayerIndexedType, PlayerConversionState>;
+  private metadata: MetadataType;
 
-  opponentIndices: PlayerIndexedType[];
-  frames: FramesType = {};
-  conversions: ConversionType[] = [];
-  state: Map<PlayerIndexedType, PlayerConversionState>;
-  metadata: MetadataType;
-
-  constructor(opponentIndices: PlayerIndexedType[]) {
+  public constructor(opponentIndices: PlayerIndexedType[]) {
     this.opponentIndices = opponentIndices;
     this.state = new Map<PlayerIndexedType, PlayerConversionState>();
     this.metadata = {
