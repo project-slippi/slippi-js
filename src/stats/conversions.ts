@@ -1,46 +1,98 @@
 import _ from 'lodash';
-import { SlippiGame } from "../SlippiGame";
+import { SlippiGame, FrameEntryType, FramesType } from "../SlippiGame";
 import { PostFrameUpdateType } from "../utils/slpReader";
-import { MoveLandedType, ConversionType } from "./common";
+import { 
+  MoveLandedType, ConversionType, Frames, PlayerIndexedType, ProcessorType
+} from "./common";
 import {
-  iterateFramesInOrder, isDamaged, isGrabbed, calcDamageTaken, isInControl, didLoseStock,
+  isDamaged, isGrabbed, calcDamageTaken, isInControl, didLoseStock,
   Timers
 } from "./common";
 
-export function generateConversions(game: SlippiGame): ConversionType[] {
-  const conversions: ConversionType[] = [];
-  const frames = game.getFrames();
+type StateType = {
+  conversion: ConversionType | null;
+  move: MoveLandedType | null;
+  resetCounter: number;
+  lastHitAnimation: number | null;
+};
 
-  const initialState: {
-    conversion: ConversionType | null;
-    move: MoveLandedType | null;
-    resetCounter: number;
-    lastHitAnimation: number | null;
-  } = {
+type ResultType = ConversionType[];
+
+type MetadataType = {
+  lastEndFrameByOppIdx: {
+    [oppIdx: number]: number;
+  },
+};
+
+export function generateConversions(game: SlippiGame, frames: FramesType) {
+  const conversions = <ResultType>game.statCalculators.conversions.run(frames);
+
+  // Post-processing step: set the openingTypes
+  const minFrameIndex = game.statCalculators.conversions.getMinFrameIndex();
+  const conversionsToHandle = _.filter(conversions, (conversion) => {
+    // isFrameFullyProcessed is to avoid setting the openingType for an opening
+    // when we might not yet have received the opponent opening
+    const isFrameFullyProcessed = conversion.startFrame < minFrameIndex;
+    const isUnknown = conversion.openingType === "unknown";
+
+    return isFrameFullyProcessed && isUnknown;
+  });
+
+  const metadata: MetadataType = <MetadataType>game.statCalculators.conversions.metadata || {
+    lastEndFrameByOppIdx: {},
+  };
+
+  // Group new conversions by startTime and sort
+  const sortedConversions: ConversionType[][] = _.chain(conversionsToHandle)
+    .groupBy('startFrame')
+    .orderBy((conversions) => _.get(conversions, [0, 'startFrame']))
+    .value();
+
+  // Set the opening types on the conversions we need to handle
+  sortedConversions.forEach(conversions => {
+    const isTrade = conversions.length >= 2;
+    conversions.forEach(conversion => {
+      // Set end frame for this conversion
+      metadata.lastEndFrameByOppIdx[conversion.playerIndex] = conversion.endFrame;
+
+      if (isTrade) {
+        // If trade, just short-circuit
+        conversion.openingType = "trade";
+        return;
+      }
+
+      // If not trade, check the opponent endFrame
+      const oppEndFrame = metadata.lastEndFrameByOppIdx[conversion.opponentIndex];
+      const isCounterAttack = oppEndFrame && oppEndFrame > conversion.startFrame;
+      conversion.openingType = isCounterAttack ? "counter-attack" : "neutral-win";
+    });
+  });
+
+  return conversions;
+}
+
+export function getConversionsProcessor(indices: PlayerIndexedType): ProcessorType {
+  let frameIndex = Frames.FIRST;
+  const result: ResultType = [];
+  const state: StateType = {
     conversion: null,
     move: null,
     resetCounter: 0,
     lastHitAnimation: null,
   };
 
-  // Only really doing assignment here for flow
-  let state = initialState;
-
-  // Iterates the frames in order in order to compute conversions
-  iterateFramesInOrder(game, () => {
-    state = { ...initialState };
-  }, (indices, frame) => {
+  const processFrame = (frame: FrameEntryType, framesByIndex: FramesType) => {
     const playerFrame: PostFrameUpdateType = frame.players[indices.playerIndex].post;
     // FIXME: use type PostFrameUpdateType instead of any
     // This is because the default value {} should not be casted as a type of PostFrameUpdateType
     const prevPlayerFrame: any = _.get(
-      frames, [playerFrame.frame - 1, 'players', indices.playerIndex, 'post'], {}
+      framesByIndex, [playerFrame.frame - 1, 'players', indices.playerIndex, 'post'], {}
     );
     const opponentFrame: PostFrameUpdateType = frame.players[indices.opponentIndex].post;
     // FIXME: use type PostFrameUpdateType instead of any
     // This is because the default value {} should not be casted as a type of PostFrameUpdateType
     const prevOpponentFrame: any = _.get(
-      frames, [playerFrame.frame - 1, 'players', indices.opponentIndex, 'post'], {}
+      framesByIndex, [playerFrame.frame - 1, 'players', indices.opponentIndex, 'post'], {}
     );
 
     const opntIsDamaged = isDamaged(opponentFrame.actionStateId);
@@ -78,7 +130,7 @@ export function generateConversions(game: SlippiGame): ConversionType[] {
           openingType: "unknown", // Will be updated later
         };
 
-        conversions.push(state.conversion);
+        result.push(state.conversion);
       }
 
       if (opntDamageTaken) {
@@ -155,67 +207,13 @@ export function generateConversions(game: SlippiGame): ConversionType[] {
       state.conversion = null;
       state.move = null;
     }
-  });
-
-  // Adds opening type to the punishes
-  addOpeningTypeToConversions(game, conversions);
-
-  return conversions;
-}
-
-function addOpeningTypeToConversions(game: SlippiGame, conversions: Array<ConversionType>): void {
-  const conversionsByPlayerIndex = _.groupBy(conversions, 'playerIndex');
-  const keyedConversions = _.mapValues(conversionsByPlayerIndex, (playerConversions) => (
-    _.keyBy(playerConversions, 'startFrame')
-  ));
-
-  const initialState: {
-    opponentConversion: ConversionType | null;
-  } = {
-    opponentConversion: null
   };
 
-  // Only really doing assignment here for flow
-  let state = initialState;
-
-  // console.log(punishesByPlayerIndex);
-
-  // Iterates the frames in order in order to compute punishes
-  iterateFramesInOrder(game, () => {
-    state = { ...initialState };
-  }, (indices, frame) => {
-    const frameNum = frame.frame;
-
-    // Clear opponent conversion if it ended this frame
-    if (_.get(state, ['opponentConversion', 'endFrame']) === frameNum) {
-      state.opponentConversion = null;
-    }
-
-    // Get opponent conversion. Add to state if exists for this frame
-    const opponentConversion = _.get(keyedConversions, [indices.opponentIndex, frameNum]);
-    if (opponentConversion) {
-      state.opponentConversion = opponentConversion;
-    }
-
-    const playerConversion = _.get(keyedConversions, [indices.playerIndex, frameNum]);
-    if (!playerConversion) {
-      // Only need to do something if a conversion for this player started on this frame
-      return;
-    }
-
-    // In the case where punishes from both players start on the same frame, set trade
-    if (playerConversion && opponentConversion) {
-      playerConversion.openingType = "trade";
-      return;
-    }
-
-    // TODO: Handle this in a better way. It probably shouldn't be considered a neutral
-    // TODO: win in the case where a player attacks into a crouch cancel and gets
-    // TODO: countered on.
-    // TODO: Also perhaps if a player gets a random hit in the middle of a the other
-    // TODO: player's combo it shouldn't be called a counter-attack
-
-    // If opponent has an active conversion, this is a counter-attack, otherwise a neutral win
-    playerConversion.openingType = state.opponentConversion ? "counter-attack" : "neutral-win";
-  });
+  return {
+    processFrame: processFrame,
+    getFrameIndex: () => frameIndex,
+    incrementFrameIndex: () => frameIndex++,
+    getResult: () => result,
+    getIndices: () => indices,
+  };
 }

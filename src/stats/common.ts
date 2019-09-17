@@ -72,6 +72,8 @@ export interface OverallType extends PlayerIndexedType {
 
 export interface StatCalculatorType {
   run: (frames: FramesType) => PlayerIndexedType[];
+  metadata: object;
+  getMinFrameIndex: () => number;
 };
 
 export interface ProcessorType {
@@ -235,5 +237,13 @@ export function genStatCalculator(
 
   return {
     run: run,
+    metadata: {},
+    getMinFrameIndex: () => {
+      // This will get the lower number frame that has been processed, this
+      // number might not be even in the case that this data is being read
+      // real-time and only partial frame data has come in
+      const frameNums = frameProcessors.map(p => p.getFrameIndex());
+      return Math.min(...frameNums);
+    },
   };
 }

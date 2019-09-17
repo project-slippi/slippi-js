@@ -3,7 +3,7 @@ import _ from 'lodash';
 import { Command, openSlpFile, closeSlpFile, iterateEvents, getMetadata, GameStartType, SlpInputSource } from './utils/slpReader';
 
 import { Frames, StatCalculatorType, genStatCalculator } from "./stats/common";
-import { generateConversions } from "./stats/conversions";
+import { generateConversions, getConversionsProcessor } from "./stats/conversions";
 import { generateCombos } from "./stats/combos";
 import { getStocksProcessor } from "./stats/stocks";
 import { generateActionCounts } from "./stats/actions";
@@ -224,6 +224,7 @@ export class SlippiGame {
       // TODO: Add remaining calculators
       this.statCalculators = {
         stocks: genStatCalculator(this, getStocksProcessor),
+        conversions: genStatCalculator(this, getConversionsProcessor),
       };
     }
 
@@ -246,7 +247,7 @@ export class SlippiGame {
 
     // TODO: Modify remaining types
     this.stats.stocks = <StockType[]>this.statCalculators.stocks.run(frames);
-    this.stats.conversions = generateConversions(this);
+    this.stats.conversions = generateConversions(this, frames);
     this.stats.combos = generateCombos(this);
     this.stats.actionCounts = generateActionCounts(this);
     this.stats.lastFrame = lastFrame;
