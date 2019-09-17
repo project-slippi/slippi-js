@@ -23,21 +23,18 @@ export interface StatComputer<T> {
 }
 
 export class Stats {
-    gameComplete: boolean;
-    lastFrame: number;
-    playableFrameCount: number;
-    stocks: StockType[];
-    combos: ComboType[];
-    actionCounts: ActionCountsType[];
-    overall: OverallType[];
+    private gameComplete: boolean;
+    private lastFrame: number;
+    private playableFrameCount: number;
+    private stocks: StockType[];
+    private overall: OverallType[];
+    private opponentIndices: PlayerIndexedType[];
+    private actionsComputer: ActionsComputer;
+    private conversionComputer: ConversionComputer;
+    private comboComputer: ComboComputer;
+    private allComputers: Array<StatComputer<unknown>>;
 
-    opponentIndices: PlayerIndexedType[];
-    actionsComputer: ActionsComputer;
-    conversionComputer: ConversionComputer;
-    comboComputer: ComboComputer;
-    allComputers: Array<StatComputer<unknown>>;
-
-    constructor(opponentIndices: PlayerIndexedType[]) {
+    public constructor(opponentIndices: PlayerIndexedType[]) {
         this.opponentIndices = opponentIndices;
         this.actionsComputer = new ActionsComputer(opponentIndices);
         this.conversionComputer = new ConversionComputer(opponentIndices);
