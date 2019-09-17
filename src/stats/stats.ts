@@ -67,5 +67,6 @@ export class Stats {
         });
 
         this.actionsComputer.processFrame(frame);
+        this.conversionComputer.processFrame(frame);
     }
 }

@@ -17,7 +17,7 @@ interface PlayerConversionState {
 
 export class ConversionComputer implements StatComputer<ConversionType[]> {
   opponentIndices: PlayerIndexedType[];
-  frames: FramesType;
+  frames: FramesType = {};
   conversions: ConversionType[] = [];
   state: Map<PlayerIndexedType, PlayerConversionState>;
 
@@ -36,11 +36,11 @@ export class ConversionComputer implements StatComputer<ConversionType[]> {
   }
 
   public processFrame(frame: FrameEntryType): void {
+    this.frames[frame.frame] = frame;
     this.opponentIndices.forEach((indices) => {
       const state = this.state.get(indices);
       handleConversionCompute(this.frames, state, indices, frame, this.conversions);
     });
-    this.frames[frame.frame] = frame;
   }
 
   public fetch(): ConversionType[] {
