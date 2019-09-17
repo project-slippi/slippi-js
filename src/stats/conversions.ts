@@ -58,11 +58,14 @@ export class ConversionComputer implements StatComputer<ConversionType[]> {
   }
 
   public fetch(): ConversionType[] {
-    const conversions = this.conversions;
+    this._populateConversionTypes();
+    return this.conversions;
+  }
 
+  private _populateConversionTypes(): void {
     // Post-processing step: set the openingTypes
     const minFrameIndex = this.frameCount - Frames.FIRST;
-    const conversionsToHandle = _.filter(conversions, (conversion) => {
+    const conversionsToHandle = _.filter(this.conversions, (conversion) => {
       // isFrameFullyProcessed is to avoid setting the openingType for an opening
       // when we might not yet have received the opponent opening
       const isFrameFullyProcessed = conversion.startFrame < minFrameIndex;
@@ -96,8 +99,6 @@ export class ConversionComputer implements StatComputer<ConversionType[]> {
         conversion.openingType = isCounterAttack ? "counter-attack" : "neutral-win";
       });
     });
-
-    return conversions;
   }
 }
 
