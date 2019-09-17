@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { SlippiGame, FrameEntryType, FramesType } from "../SlippiGame";
 import { PostFrameUpdateType } from "../utils/slpReader";
-import { MoveLandedType, ConversionType, PlayerIndexedType } from "./common";
+import { MoveLandedType, ConversionType, PlayerIndexedType, Frames } from "./common";
 import {
   iterateFramesInOrder, isDamaged, isGrabbed, calcDamageTaken, isInControl, didLoseStock,
   Timers
@@ -15,15 +15,28 @@ interface PlayerConversionState {
   lastHitAnimation: number | null;
 }
 
+interface MetadataType {
+  lastEndFrameByOppIdx: {
+    [oppIdx: number]: number;
+  };
+}
+
 export class ConversionComputer implements StatComputer<ConversionType[]> {
+  frameCount = 0;
+
   opponentIndices: PlayerIndexedType[];
   frames: FramesType = {};
   conversions: ConversionType[] = [];
   state: Map<PlayerIndexedType, PlayerConversionState>;
+  metadata: MetadataType;
 
   constructor(opponentIndices: PlayerIndexedType[]) {
     this.opponentIndices = opponentIndices;
     this.state = new Map<PlayerIndexedType, PlayerConversionState>();
+    this.metadata = {
+      lastEndFrameByOppIdx: {},
+    };
+
     this.opponentIndices.forEach((indices) => {
       const playerState: PlayerConversionState = {
         conversion: null,
@@ -41,10 +54,50 @@ export class ConversionComputer implements StatComputer<ConversionType[]> {
       const state = this.state.get(indices);
       handleConversionCompute(this.frames, state, indices, frame, this.conversions);
     });
+    this.frameCount += 1;
   }
 
   public fetch(): ConversionType[] {
-    return this.conversions;
+    const conversions = this.conversions;
+
+    // Post-processing step: set the openingTypes
+    const minFrameIndex = this.frameCount - Frames.FIRST;
+    const conversionsToHandle = _.filter(conversions, (conversion) => {
+      // isFrameFullyProcessed is to avoid setting the openingType for an opening
+      // when we might not yet have received the opponent opening
+      const isFrameFullyProcessed = conversion.startFrame < minFrameIndex;
+      const isUnknown = conversion.openingType === "unknown";
+
+      return isFrameFullyProcessed && isUnknown;
+    });
+
+    // Group new conversions by startTime and sort
+    const sortedConversions: ConversionType[][] = _.chain(conversionsToHandle)
+      .groupBy('startFrame')
+      .orderBy((conversions) => _.get(conversions, [0, 'startFrame']))
+      .value();
+
+    // Set the opening types on the conversions we need to handle
+    sortedConversions.forEach(conversions => {
+      const isTrade = conversions.length >= 2;
+      conversions.forEach(conversion => {
+        // Set end frame for this conversion
+        this.metadata.lastEndFrameByOppIdx[conversion.playerIndex] = conversion.endFrame;
+
+        if (isTrade) {
+          // If trade, just short-circuit
+          conversion.openingType = "trade";
+          return;
+        }
+
+        // If not trade, check the opponent endFrame
+        const oppEndFrame = this.metadata.lastEndFrameByOppIdx[conversion.opponentIndex];
+        const isCounterAttack = oppEndFrame && oppEndFrame > conversion.startFrame;
+        conversion.openingType = isCounterAttack ? "counter-attack" : "neutral-win";
+      });
+    });
+
+    return conversions;
   }
 }
 
