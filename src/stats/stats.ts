@@ -62,15 +62,7 @@ export class Stats {
         }
 
         // Don't attempt to compute stats on frames that have not been fully received
-        const completedFrame = this.opponentIndices.map((indices): boolean => {
-            const playerPostFrame = _.get(frame, ['players', indices.playerIndex, 'post']);
-            const oppPostFrame = _.get(frame, ['players', indices.opponentIndex, 'post']);
-            if (!playerPostFrame || !oppPostFrame) {
-                return false;
-            }
-            return true;
-        }).reduce((accumulator, current) => accumulator && current );
-        if (!completedFrame) {
+        if (!isCompletedFrame(this.opponentIndices, frame)) {
             return;
         }
 
@@ -78,4 +70,15 @@ export class Stats {
         this.conversionComputer.processFrame(frame);
         this.comboComputer.processFrame(frame);
     }
+}
+
+function isCompletedFrame(opponentIndices: PlayerIndexedType[], frame: FrameEntryType): boolean {
+    return opponentIndices.map((indices): boolean => {
+        const playerPostFrame = _.get(frame, ['players', indices.playerIndex, 'post']);
+        const oppPostFrame = _.get(frame, ['players', indices.opponentIndex, 'post']);
+        if (!playerPostFrame || !oppPostFrame) {
+            return false;
+        }
+        return true;
+    }).reduce((accumulator, current) => accumulator && current );
 }
