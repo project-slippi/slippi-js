@@ -79,6 +79,7 @@ export class SlpStream extends EventEmitter {
 
     stream.on('end', () => {
       this._setMetadataLength();
+      this.emit("end");
       console.log(this.metadataPosition);
       console.log(this.metadataLength);
     });
