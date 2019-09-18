@@ -1,6 +1,6 @@
 // @flow
 import _ from 'lodash';
-import { SlippiGame, FrameEntryType } from "../SlippiGame";
+import { SlippiGame, FrameEntryType, FramesType } from "../SlippiGame";
 import { iterateFramesInOrder, isDead, didLoseStock, PlayerIndexedType } from "./common";
 
 import { StockType } from "./common";
@@ -16,6 +16,7 @@ export class StockComputer implements StatComputer<Array<StockType>> {
   private opponentIndices: PlayerIndexedType[];
   private state: Map<PlayerIndexedType, StockState>;
   private stocks: Array<StockType> = [];
+  private frames: FramesType = {};
 
   public constructor(opponentIndices: PlayerIndexedType[]) {
     this.opponentIndices = opponentIndices;
@@ -31,9 +32,10 @@ export class StockComputer implements StatComputer<Array<StockType>> {
   }
 
   public processFrame(frame: FrameEntryType): void {
+    this.frames[frame.frame] = frame;
     this.opponentIndices.forEach((indices) => {
       const state = this.state.get(indices);
-      handleStockCompute(state, indices, frame, this.stocks);
+      handleStockCompute(this.frames, state, indices, frame, this.stocks);
     });
   }
 
@@ -43,7 +45,7 @@ export class StockComputer implements StatComputer<Array<StockType>> {
 
 }
 
-function handleStockCompute(state: StockState, indices: PlayerIndexedType, frame: FrameEntryType, stocks: Array<StockType>): void {
+function handleStockCompute(frames: FramesType, state: StockState, indices: PlayerIndexedType, frame: FrameEntryType, stocks: Array<StockType>): void {
     const playerFrame = frame.players[indices.playerIndex].post;
     // FIXME: use PostFrameUpdateType instead of any
     const prevPlayerFrame: any = _.get(
@@ -83,6 +85,7 @@ function handleStockCompute(state: StockState, indices: PlayerIndexedType, frame
 
 export function generateStocks(game: SlippiGame): StockType[] {
   const stocks: Array<StockType> = [];
+  const frames = game.getFrames();
   const initialState: {
     stock: StockType | null | undefined;
   } = {
@@ -95,7 +98,7 @@ export function generateStocks(game: SlippiGame): StockType[] {
   iterateFramesInOrder(game, () => {
     state = { ...initialState };
   }, (indices, frame) => {
-    handleStockCompute(state, indices, frame, stocks);
+    handleStockCompute(frames, state, indices, frame, stocks);
   });
 
   return stocks;
