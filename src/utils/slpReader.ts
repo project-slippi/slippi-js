@@ -168,6 +168,7 @@ function getLenRef(ref: SlpRefType): number {
  * Opens a file at path
  */
 export function openSlpFile(input: SlpReadInput): SlpFileType {
+  console.log("opening slp file");
   const ref = getRef(input);
 
   const rawDataPosition = getRawDataPosition(ref);

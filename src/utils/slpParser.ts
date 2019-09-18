@@ -1,17 +1,20 @@
 import _ from "lodash";
 
 import { PostFrameUpdateType, GameStartType, GameEndType, Command, PreFrameUpdateType } from "./slpReader";
-import { Frames, PlayerIndexedType } from "../stats/common";
-import { FramesType, FrameEntryType } from "../SlippiGame";
+import { Frames, PlayerIndexedType, getSinglesOpponentIndicesFromSettings } from "../stats/common";
+import { FramesType, FrameEntryType, StatsType } from "../SlippiGame";
+import { Stats } from "../stats/stats";
 
 export class SlpParser {
-    settings: GameStartType | null = null;
-    playerFrames: FramesType | null = null;
-    followerFrames: FramesType | null = null;
-    gameEnd: GameEndType | null = null;
-    latestFrameIndex: number | null = null;
+    private settings: GameStartType | null = null;
+    private playerFrames: FramesType | null = null;
+    private followerFrames: FramesType | null = null;
+    private gameEnd: GameEndType | null = null;
+    private latestFrameIndex: number | null = null;
+    private statsComputer: Stats | null = null;
+    private playerIndices: PlayerIndexedType[] = [];
 
-    constructor() {
+    public constructor() {
         this.playerFrames = {};
         this.followerFrames = {};
     }
@@ -34,6 +37,13 @@ export class SlpParser {
         this.gameEnd = payload;
     }
 
+    public getStats(): StatsType {
+        return {
+            ...this.statsComputer.getStats(),
+            gameComplete: this.gameEnd !== null,
+        };
+    }
+
     public handleGameStart(payload: GameStartType): void {
         if (!payload.stageId) {
             return;
@@ -42,6 +52,8 @@ export class SlpParser {
         this.settings = payload;
         const players = payload.players;
         this.settings.players = players.filter(player => player.type !== 3);
+        this.playerIndices = getSinglesOpponentIndicesFromSettings(this.settings);
+        this.statsComputer = new Stats(this.playerIndices);
     }
 
     public handlePostFrameUpdate(payload: PostFrameUpdateType): void {
@@ -66,6 +78,10 @@ export class SlpParser {
         }
     }
 
+    public getLatestFrame(): FrameEntryType | null {
+        return this.playerFrames[this.latestFrameIndex];
+    }
+
     public handleFrameUpdate(command: Command, payload: PreFrameUpdateType | PostFrameUpdateType): FrameEntryType {
         payload = payload as PostFrameUpdateType;
         if (!payload.frame && payload.frame !== 0) {
@@ -79,7 +95,9 @@ export class SlpParser {
         _.set(frames, [payload.frame, 'players', payload.playerIndex, location], payload);
         _.set(frames, [payload.frame, 'frame'], payload.frame);
 
-        return frames[payload.frame];
+        const frame = frames[payload.frame];
+        this.statsComputer.processFrame(frame);
+        return frame;
     }
 
 }

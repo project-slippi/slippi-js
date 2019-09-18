@@ -7,7 +7,7 @@ import { generateInputs, PlayerInput } from './inputs';
 export function generateOverall(game: SlippiGame): OverallType[] {
   const playerIndices = getSinglesOpponentIndices(game);
   const inputs = generateInputs(game);
-  return generateOverallStats(playerIndices, inputs, game.stats.stocks, game.stats.conversions, game.stats.playableFrameCount);
+  return [];// generateOverallStats(playerIndices, inputs, game.stats.stocks, game.stats.conversions, game.stats.playableFrameCount);
 }
 
 export function generateOverallStats(
