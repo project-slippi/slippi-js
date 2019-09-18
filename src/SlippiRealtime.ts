@@ -80,7 +80,7 @@ export class SlippiRealtime extends EventEmitter implements SlippiGameInterface 
 
     this.stream.on("end", (metadata: MetadataType) => {
       this.metadata = metadata;
-      console.log(JSON.stringify(this.getStats()));
+      // console.log(JSON.stringify(this.getStats()));
       this.emit("end");
     });
   }
