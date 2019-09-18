@@ -55,14 +55,7 @@ export class ActionsComputer implements StatComputer<ActionCountsType[]> {
 }
 
 function isRolling(animation: State): boolean {
-  switch (animation) {
-    case State.ROLL_BACKWARD:
-      return true;
-    case State.ROLL_FORWARD:
-      return true;
-    default:
-      return false;
-  }
+  return animation === State.ROLL_BACKWARD || animation === State.ROLL_FORWARD;
 }
 
 function didStartRoll(currentAnimation: number, previousAnimation: number): boolean {
