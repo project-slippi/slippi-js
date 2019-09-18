@@ -45,7 +45,7 @@ export class Stats {
         this.stockComputer = new StockComputer(opponentIndices);
         this.inputComputer = new InputComputer(opponentIndices);
 
-        this.allComputers = [this.actionsComputer, this.conversionComputer, this.comboComputer, this.stockComputer];
+        this.allComputers = [this.actionsComputer, this.conversionComputer, this.comboComputer, this.stockComputer, this.inputComputer];
     }
 
     public getStats(): StatsType {
