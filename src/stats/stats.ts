@@ -28,7 +28,6 @@ export interface StatComputer<T> {
 export class Stats {
     private gameComplete: boolean;
     private lastFrame: number;
-    private playableFrameCount: number;
     private opponentIndices: PlayerIndexedType[];
     private actionsComputer: ActionsComputer;
     private conversionComputer: ConversionComputer;
@@ -56,7 +55,7 @@ export class Stats {
         return {
             gameComplete: this.gameComplete,
             lastFrame: this.lastFrame,
-            playableFrameCount: this.playableFrameCount,
+            playableFrameCount: this._playableFrameCount(),
             stocks: stocks,
             conversions: conversions,
             combos: this.comboComputer.fetch(),
