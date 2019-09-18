@@ -53,6 +53,10 @@ export class SlippiRealtime extends EventEmitter {
       this.parser.handleGameEnd(payload);
       this.emit("gameEnd");
     });
+
+    this.stream.on("end", () => {
+      this.emit("end");
+    });
   }
 
   private _onFrameUpdate(command: Command, payload: PostFrameUpdateType | PreFrameUpdateType): void {

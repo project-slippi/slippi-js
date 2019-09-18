@@ -22,14 +22,17 @@ const fileToTest = "slp/sheik_vs_ics_yoshis.slp";
 
 const stream = fs.createReadStream(fileToTest);
 const slp = new SlippiRealtime(stream);
-let gameEnded = false;
+let done = false;
 slp.on("gameStart", () => {
   console.log("game started");
 });
 
 slp.on("gameEnd", () => {
   console.log("game ended");
-  gameEnded = true;
+});
+
+slp.on("end", () => {
+  done = true;
 });
 
 slp.on("newFrame", (frame: any) => {
@@ -37,7 +40,7 @@ slp.on("newFrame", (frame: any) => {
 });
 slp.start();
 
-while (!gameEnded);
+while (!done);
 
 const game = new SlippiGame(fileToTest);
 const frames = game.getFrames();
