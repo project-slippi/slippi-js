@@ -1,11 +1,13 @@
 import _ from "lodash";
 
-import { StockType, ConversionType, ComboType, ActionCountsType, OverallType, PlayerIndexedType } from "./common";
+import { StockType, ConversionType, ComboType, ActionCountsType, OverallType, PlayerIndexedType, Frames } from "./common";
 import { FrameEntryType } from "../SlippiGame";
 import { ActionsComputer } from "./actions";
 import { ConversionComputer } from "./conversions";
 import { ComboComputer } from "./combos";
 import { StockComputer } from "./stocks";
+import { InputComputer } from "./inputs";
+import { generateOverallStats } from "./overall";
 
 export type StatsType = {
   gameComplete: boolean;
@@ -27,12 +29,12 @@ export class Stats {
     private gameComplete: boolean;
     private lastFrame: number;
     private playableFrameCount: number;
-    private overall: OverallType[];
     private opponentIndices: PlayerIndexedType[];
     private actionsComputer: ActionsComputer;
     private conversionComputer: ConversionComputer;
     private comboComputer: ComboComputer;
     private stockComputer: StockComputer;
+    private inputComputer: InputComputer;
     private allComputers: Array<StatComputer<unknown>>;
 
     public constructor(opponentIndices: PlayerIndexedType[]) {
@@ -41,24 +43,31 @@ export class Stats {
         this.conversionComputer = new ConversionComputer(opponentIndices);
         this.comboComputer = new ComboComputer(opponentIndices);
         this.stockComputer = new StockComputer(opponentIndices);
+        this.inputComputer = new InputComputer(opponentIndices);
 
         this.allComputers = [this.actionsComputer, this.conversionComputer, this.comboComputer, this.stockComputer];
     }
 
     public getStats(): StatsType {
+        const inputs = this.inputComputer.fetch();
+        const stocks = this.stockComputer.fetch();
+        const conversions = this.conversionComputer.fetch();
+        const overall = generateOverallStats(this.opponentIndices, inputs, stocks, conversions, this._playableFrameCount());
         return {
             gameComplete: this.gameComplete,
             lastFrame: this.lastFrame,
             playableFrameCount: this.playableFrameCount,
-            stocks: this.stockComputer.fetch(),
-            conversions: this.conversionComputer.fetch(),
+            stocks: stocks,
+            conversions: conversions,
             combos: this.comboComputer.fetch(),
             actionCounts: this.actionsComputer.fetch(),
-            overall: this.overall,
+            overall: overall,
         }
     }
 
     public processFrame(frame: FrameEntryType): void {
+        this.lastFrame = frame.frame;
+
         if (this.opponentIndices.length === 0) {
             return;
         }
@@ -69,6 +78,10 @@ export class Stats {
         }
 
         this.allComputers.forEach(comp => comp.processFrame(frame));
+    }
+
+    private _playableFrameCount(): number {
+        return this.lastFrame < Frames.FIRST_PLAYABLE ? 0 : this.lastFrame - Frames.FIRST_PLAYABLE;
     }
 }
 
