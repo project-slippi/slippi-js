@@ -147,23 +147,6 @@ export function getSinglesOpponentIndicesFromSettings(settings: GameStartType): 
   ];
 }
 
-export function getSinglesOpponentIndicesFromSettings(settings: GameStartType): PlayerIndexedType[] {
-  if (!settings || settings.players.length !== 2) {
-    // Only return opponent indices for singles
-    return [];
-  }
-
-  return [
-    {
-      playerIndex: settings.players[0].playerIndex,
-      opponentIndex: settings.players[1].playerIndex
-    }, {
-      playerIndex: settings.players[1].playerIndex,
-      opponentIndex: settings.players[0].playerIndex
-    }
-  ];
-}
-
 export function didLoseStock(frame: PostFrameUpdateType, prevFrame: PostFrameUpdateType): boolean {
   if (!frame || !prevFrame) {
     return false;
