@@ -7,25 +7,26 @@ import { SlpParser } from './utils/slpParser';
 import { FramesType, StatsType, FrameEntryType } from './SlippiGame';
 import { GameStartType, MetadataType, GameEndType, Command, PostFrameUpdateType, PreFrameUpdateType } from './utils/slpReader';
 import { getSinglesOpponentIndicesFromSettings, PlayerIndexedType } from "./stats/common";
+import { Stats } from "./stats/stats";
 
 /**
  * Slippi Game class that wraps a read stream
  */
 export class SlippiRealtime extends EventEmitter {
-  stream: SlpStream;
-  parser: SlpParser;
-  settings: GameStartType | null;
-  playerFrames: FramesType | null;
-  followerFrames: FramesType | null;
-  stats: StatsType | null;
-  metadata: MetadataType | null;
-  gameEnd: GameEndType | null;
+  private stream: SlpStream;
+  private parser: SlpParser;
+  private settings: GameStartType | null;
+  private playerFrames: FramesType | null;
+  private followerFrames: FramesType | null;
+  private stats: StatsType | null;
+  private metadata: MetadataType | null;
+  private gameEnd: GameEndType | null;
+  private latestFrameIndex: number | null;
+  private frameReadPos: number | null;
+  private playerIndices: PlayerIndexedType[] = [];
+  private statsComputer: Stats | null = null;
 
-  latestFrameIndex: number | null;
-  frameReadPos: number | null;
-  playerIndices: PlayerIndexedType[] = [];
-
-  constructor(stream: Readable) {
+  public constructor(stream: Readable) {
     super();
     this.frameReadPos = null;
     this.latestFrameIndex = null;
@@ -37,6 +38,7 @@ export class SlippiRealtime extends EventEmitter {
     this.stream.on(SlpEvent.GAME_START, (command: Command, payload: GameStartType) => {
       this.parser.handleGameStart(payload);
       this.playerIndices = getSinglesOpponentIndicesFromSettings(this.parser.getSettings());
+      this.statsComputer = new Stats(this.playerIndices);
       this.emit("gameStart");
     });
 
@@ -62,6 +64,7 @@ export class SlippiRealtime extends EventEmitter {
   private _onFrameUpdate(command: Command, payload: PostFrameUpdateType | PreFrameUpdateType): void {
     const frame = this.parser.handleFrameUpdate(command, payload)
     if (isCompletedFrame(this.playerIndices, frame)) {
+      this.statsComputer.processFrame(frame);
       this.emit("newFrame", frame);
     };
   }
