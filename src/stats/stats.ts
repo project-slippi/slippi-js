@@ -5,6 +5,7 @@ import { FrameEntryType } from "../SlippiGame";
 import { ActionsComputer } from "./actions";
 import { ConversionComputer } from "./conversions";
 import { ComboComputer } from "./combos";
+import { StockComputer } from "./stocks";
 
 export type StatsType = {
   gameComplete: boolean;
@@ -26,12 +27,12 @@ export class Stats {
     private gameComplete: boolean;
     private lastFrame: number;
     private playableFrameCount: number;
-    private stocks: StockType[];
     private overall: OverallType[];
     private opponentIndices: PlayerIndexedType[];
     private actionsComputer: ActionsComputer;
     private conversionComputer: ConversionComputer;
     private comboComputer: ComboComputer;
+    private stockComputer: StockComputer;
     private allComputers: Array<StatComputer<unknown>>;
 
     public constructor(opponentIndices: PlayerIndexedType[]) {
@@ -39,8 +40,9 @@ export class Stats {
         this.actionsComputer = new ActionsComputer(opponentIndices);
         this.conversionComputer = new ConversionComputer(opponentIndices);
         this.comboComputer = new ComboComputer(opponentIndices);
+        this.stockComputer = new StockComputer(opponentIndices);
 
-        this.allComputers = [this.actionsComputer, this.conversionComputer, this.comboComputer];
+        this.allComputers = [this.actionsComputer, this.conversionComputer, this.comboComputer, this.stockComputer];
     }
 
     public getStats(): StatsType {
@@ -48,7 +50,7 @@ export class Stats {
             gameComplete: this.gameComplete,
             lastFrame: this.lastFrame,
             playableFrameCount: this.playableFrameCount,
-            stocks: this.stocks,
+            stocks: this.stockComputer.fetch(),
             conversions: this.conversionComputer.fetch(),
             combos: this.comboComputer.fetch(),
             actionCounts: this.actionsComputer.fetch(),

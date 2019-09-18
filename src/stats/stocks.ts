@@ -12,7 +12,7 @@ interface StockState {
   stock: StockType | null | undefined;
 }
 
-export class ComboComputer implements StatComputer<Array<StockType>> {
+export class StockComputer implements StatComputer<Array<StockType>> {
   private opponentIndices: PlayerIndexedType[];
   private state: Map<PlayerIndexedType, StockState>;
   private stocks: Array<StockType> = [];
