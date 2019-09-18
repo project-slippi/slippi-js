@@ -42,23 +42,24 @@ export class SlippiRealtime extends EventEmitter {
 
     this.stream.on(SlpEvent.POST_FRAME_UPDATE, (command: Command, payload: PostFrameUpdateType) => {
       this.parser.handlePostFrameUpdate(payload);
-      const frame = this.parser.handleFrameUpdate(command, payload)
-      if (isCompletedFrame(this.playerIndices, frame)) {
-        this.emit("newFrame", frame);
-      };
+      this._onFrameUpdate(command, payload);
     });
 
     this.stream.on(SlpEvent.PRE_FRAME_UPDATE, (command: Command, payload: PreFrameUpdateType) => {
-      const frame = this.parser.handleFrameUpdate(command, payload)
-      if (isCompletedFrame(this.playerIndices, frame)) {
-        this.emit("newFrame", frame);
-      };
+      this._onFrameUpdate(command, payload);
     });
 
     this.stream.on(SlpEvent.GAME_END, (command: Command, payload: GameEndType) => {
       this.parser.handleGameEnd(payload);
       this.emit("gameEnd");
     });
+  }
+
+  private _onFrameUpdate(command: Command, payload: PostFrameUpdateType | PreFrameUpdateType): void {
+    const frame = this.parser.handleFrameUpdate(command, payload)
+    if (isCompletedFrame(this.playerIndices, frame)) {
+      this.emit("newFrame", frame);
+    };
   }
 
 }
