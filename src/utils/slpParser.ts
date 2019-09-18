@@ -1,8 +1,8 @@
 import _ from "lodash";
 
 import { PostFrameUpdateType, GameStartType, GameEndType, Command, PreFrameUpdateType } from "./slpReader";
-import { Frames } from "../stats/common";
-import { FramesType } from "../SlippiGame";
+import { Frames, PlayerIndexedType } from "../stats/common";
+import { FramesType, FrameEntryType } from "../SlippiGame";
 
 export class SlpParser {
     settings: GameStartType | null = null;
@@ -66,7 +66,7 @@ export class SlpParser {
         }
     }
 
-    public handleFrameUpdate(command: Command, payload: PreFrameUpdateType | PostFrameUpdateType): void {
+    public handleFrameUpdate(command: Command, payload: PreFrameUpdateType | PostFrameUpdateType): FrameEntryType {
         payload = payload as PostFrameUpdateType;
         if (!payload.frame && payload.frame !== 0) {
             // If payload is messed up, stop iterating. This shouldn't ever happen
@@ -78,5 +78,8 @@ export class SlpParser {
         this.latestFrameIndex = payload.frame;
         _.set(frames, [payload.frame, 'players', payload.playerIndex, location], payload);
         _.set(frames, [payload.frame, 'frame'], payload.frame);
+
+        return frames[payload.frame];
     }
+
 }

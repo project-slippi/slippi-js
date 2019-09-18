@@ -6,9 +6,7 @@ import * as moves from './melee/moves';
 import * as stages from './melee/stages';
 
 import fs from "fs";
-import { SlpParser } from './utils/slpParser';
-import { SlpStream, SlpEvent } from './utils/slpStream';
-import { GameStartType, PostFrameUpdateType, PreFrameUpdateType, Command, GameEndType } from './utils/slpReader';
+import { SlippiRealtime } from './SlippiRealtime';
 
 export {
   animations,
@@ -23,27 +21,23 @@ const fileToTest = "slp/sheik_vs_ics_yoshis.slp";
 
 
 const stream = fs.createReadStream(fileToTest);
-const parser = new SlpParser();
-const slp = new SlpStream(stream);
-slp.on(SlpEvent.GAME_START, (command: Command, payload: GameStartType) => {
-  parser.handleGameStart(payload);
+const slp = new SlippiRealtime(stream);
+let gameEnded = false;
+slp.on("gameStart", () => {
+  console.log("game started");
 });
 
-slp.on(SlpEvent.POST_FRAME_UPDATE, (command: Command, payload: PostFrameUpdateType) => {
-  parser.handlePostFrameUpdate(payload);
-  parser.handleFrameUpdate(command, payload);
+slp.on("gameEnd", () => {
+  console.log("game ended");
+  gameEnded = true;
 });
 
-slp.on(SlpEvent.PRE_FRAME_UPDATE, (command: Command, payload: PreFrameUpdateType) => {
-  parser.handleFrameUpdate(command, payload);
+slp.on("newFrame", (frame: any) => {
+  console.log(`new frame: ${frame.frame}`);
 });
+slp.start();
 
-slp.on(SlpEvent.GAME_END, (command: Command, payload: GameEndType) => {
-  parser.handleGameEnd(payload);
-  console.log(parser.getSettings());
-  const frames = parser.getFrames();
-  console.log(JSON.stringify(frames[frameToTest]));
-});
+while (!gameEnded);
 
 const game = new SlippiGame(fileToTest);
 const frames = game.getFrames();
