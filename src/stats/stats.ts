@@ -9,8 +9,7 @@ import { StockComputer } from "./stocks";
 import { InputComputer } from "./inputs";
 import { generateOverallStats } from "./overall";
 
-export type StatsType = {
-  gameComplete: boolean;
+export type ComputedStatsType = {
   lastFrame: number;
   playableFrameCount: number;
   stocks: StockType[];
@@ -26,7 +25,6 @@ export interface StatComputer<T> {
 }
 
 export class Stats {
-    private gameComplete: boolean;
     private lastFrame: number;
     private opponentIndices: PlayerIndexedType[];
     private actionsComputer: ActionsComputer;
@@ -47,13 +45,12 @@ export class Stats {
         this.allComputers = [this.actionsComputer, this.conversionComputer, this.comboComputer, this.stockComputer, this.inputComputer];
     }
 
-    public getStats(): StatsType {
+    public getStats(): ComputedStatsType {
         const inputs = this.inputComputer.fetch();
         const stocks = this.stockComputer.fetch();
         const conversions = this.conversionComputer.fetch();
         const overall = generateOverallStats(this.opponentIndices, inputs, stocks, conversions, this._playableFrameCount());
         return {
-            gameComplete: this.gameComplete,
             lastFrame: this.lastFrame,
             playableFrameCount: this._playableFrameCount(),
             stocks: stocks,
