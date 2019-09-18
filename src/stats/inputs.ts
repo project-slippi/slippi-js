@@ -24,7 +24,7 @@ export interface PlayerInput {
 
 export class InputComputer implements StatComputer<Array<PlayerInput>> {
   private opponentIndices: PlayerIndexedType[];
-  private frames: FramesType;
+  private frames: FramesType = {};
   private state: Map<PlayerIndexedType, PlayerInput>;
 
   public constructor(opponentIndices: PlayerIndexedType[]) {
