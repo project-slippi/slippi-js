@@ -57,7 +57,7 @@ export class SlippiGame {
   latestFrameIndex: number | null;
   frameReadPos: number | null;
 
-  constructor(input: string | Buffer) {
+  public constructor(input: string | Buffer) {
     if (_.isString(input)) {
       this.input = {
         source: SlpInputSource.FILE,
@@ -80,7 +80,7 @@ export class SlippiGame {
    * Gets the game settings, these are the settings that describe the starting state of
    * the game such as characters, stage, etc.
    */
-  getSettings(): GameStartType {
+  public getSettings(): GameStartType {
     if (this.settings) {
       // If header is already generated, return it
       return this.settings;
@@ -139,7 +139,7 @@ export class SlippiGame {
     return settings;
   }
 
-  getLatestFrame(): FrameEntryType | null {
+  public getLatestFrame(): FrameEntryType | null {
     // TODO: Modify this to check if we actually have all the latest frame data and return that
     // TODO: If we do. For now I'm just going to take a shortcut
     const allFrames = this.getFrames();
@@ -148,7 +148,7 @@ export class SlippiGame {
     return _.get(allFrames, indexToUse) || null;
   }
 
-  getGameEnd(): GameEndType | null {
+  public getGameEnd(): GameEndType | null {
     if (this.gameEnd) {
       return this.gameEnd;
     }
@@ -158,7 +158,7 @@ export class SlippiGame {
     return this.gameEnd || null;
   }
 
-  getFrames(): FramesType {
+  public getFrames(): FramesType {
     if (this.playerFrames && this.gameEnd) {
       // If game end has been detected, we can returned cached version of frames
       return this.playerFrames;
@@ -206,7 +206,7 @@ export class SlippiGame {
     return playerFrames;
   }
 
-  getStats(): StatsType {
+  public getStats(): StatsType {
     if (this.stats && this.stats.gameComplete) {
       // If game end has been detected, we can returned cached version stats since they wont change
       return this.stats;
@@ -242,7 +242,7 @@ export class SlippiGame {
     return this.stats;
   }
 
-  getMetadata(): MetadataType {
+  public getMetadata(): MetadataType {
     if (this.metadata) {
       return this.metadata;
     }

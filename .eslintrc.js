@@ -8,6 +8,7 @@ module.exports =  {
     sourceType:  'module',  // Allows for the use of imports
   },
   rules: {
-    "@typescript-eslint/no-use-before-define": "off"
+    "@typescript-eslint/no-use-before-define": "off",
+    "@typescript-eslint/explicit-member-accessibility": "warn"
   }
 };

@@ -1,3 +1,5 @@
+import _ from "lodash";
+
 import { SlippiGame } from './SlippiGame';
 
 import * as animations from './melee/animations';
@@ -18,7 +20,6 @@ export {
 
 const frameToTest = 1337;
 const fileToTest = "slp/sheik_vs_ics_yoshis.slp";
-
 
 const stream = fs.createReadStream(fileToTest);
 const slp = new SlippiRealtime(stream);
