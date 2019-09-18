@@ -4,7 +4,7 @@ import EventEmitter from "events";
 import { Readable } from 'stream';
 import { SlpStream, SlpEvent } from './utils/slpStream';
 import { SlpParser } from './utils/slpParser';
-import { FramesType, StatsType, FrameEntryType } from './SlippiGame';
+import { FramesType, StatsType, FrameEntryType, SlippiGameInterface } from './SlippiGame';
 import { GameStartType, MetadataType, GameEndType, Command, PostFrameUpdateType, PreFrameUpdateType } from './utils/slpReader';
 import { getSinglesOpponentIndicesFromSettings, PlayerIndexedType } from "./stats/common";
 import { Stats } from "./stats/stats";
@@ -12,12 +12,14 @@ import { Stats } from "./stats/stats";
 /**
  * Slippi Game class that wraps a read stream
  */
-export class SlippiRealtime extends EventEmitter {
+export class SlippiRealtime extends EventEmitter implements SlippiGameInterface {
   private stream: SlpStream;
   private parser: SlpParser;
   private playerIndices: PlayerIndexedType[] = [];
   private statsComputer: Stats | null = null;
   private gameComplete = false;
+  private latestFrame: FrameEntryType | null = null;
+  private metadata: MetadataType | null = null;
 
   public constructor(stream: Readable) {
     super();
@@ -31,6 +33,26 @@ export class SlippiRealtime extends EventEmitter {
       ...computedStats,
       gameComplete: this.gameComplete,
     };
+  }
+
+  public getFrames(): FramesType | null {
+      return this.parser.getFrames();
+  }
+
+  public getSettings(): GameStartType {
+    return this.parser.getSettings();
+  }
+
+  public getLatestFrame(): FrameEntryType | null {
+    return this.latestFrame;
+  }
+
+  public getGameEnd(): GameEndType | null {
+    return this.parser.getGameEnd();
+  }
+
+  public getMetadata(): MetadataType {
+    return this.metadata;
   }
 
   public start(): void {
@@ -56,7 +78,8 @@ export class SlippiRealtime extends EventEmitter {
       this.emit("gameEnd");
     });
 
-    this.stream.on("end", () => {
+    this.stream.on("end", (metadata: MetadataType) => {
+      this.metadata = metadata;
       console.log(JSON.stringify(this.getStats()));
       this.emit("end");
     });
@@ -65,6 +88,7 @@ export class SlippiRealtime extends EventEmitter {
   private _onFrameUpdate(command: Command, payload: PostFrameUpdateType | PreFrameUpdateType): void {
     const frame = this.parser.handleFrameUpdate(command, payload)
     if (isCompletedFrame(this.playerIndices, frame)) {
+      this.latestFrame = frame;
       this.statsComputer.processFrame(frame);
       this.emit("newFrame", frame);
     };

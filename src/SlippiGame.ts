@@ -41,10 +41,20 @@ export type StatsType = {
   overall: OverallType[];
 };
 
+export interface SlippiGameInterface {
+  getSettings(): GameStartType;
+  getLatestFrame(): FrameEntryType | null;
+  getGameEnd(): GameEndType | null;
+  getFrames(): FramesType;
+  getStats(): StatsType;
+  getMetadata(): MetadataType;
+}
+
+
 /**
  * Slippi Game class that wraps a file
  */
-export class SlippiGame {
+export class SlippiGame implements SlippiGameInterface {
   input: SlpReadInput;
   file: SlpFileType;
   settings: GameStartType | null;

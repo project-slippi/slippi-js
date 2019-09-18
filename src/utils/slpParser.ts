@@ -26,11 +26,7 @@ export class SlpParser {
     }
 
     public getFrames(): FramesType | null {
-        if (this.playerFrames && this.gameEnd) {
-            // If game end has been detected, we can returned cached version of frames
-            return this.playerFrames;
-        }
-        return null;
+        return this.playerFrames;
     }
 
     public handleGameEnd(payload: GameEndType): void {
