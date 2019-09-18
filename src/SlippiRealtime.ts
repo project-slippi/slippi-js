@@ -15,23 +15,22 @@ import { Stats } from "./stats/stats";
 export class SlippiRealtime extends EventEmitter {
   private stream: SlpStream;
   private parser: SlpParser;
-  private settings: GameStartType | null;
-  private playerFrames: FramesType | null;
-  private followerFrames: FramesType | null;
-  private stats: StatsType | null;
-  private metadata: MetadataType | null;
-  private gameEnd: GameEndType | null;
-  private latestFrameIndex: number | null;
-  private frameReadPos: number | null;
   private playerIndices: PlayerIndexedType[] = [];
   private statsComputer: Stats | null = null;
+  private gameComplete = false;
 
   public constructor(stream: Readable) {
     super();
-    this.frameReadPos = null;
-    this.latestFrameIndex = null;
     this.parser = new SlpParser();
     this.stream = new SlpStream(stream);
+  }
+
+  public getStats(): StatsType {
+    const computedStats = this.statsComputer.getStats()
+    return {
+      ...computedStats,
+      gameComplete: this.gameComplete,
+    };
   }
 
   public start(): void {
@@ -53,10 +52,12 @@ export class SlippiRealtime extends EventEmitter {
 
     this.stream.on(SlpEvent.GAME_END, (command: Command, payload: GameEndType) => {
       this.parser.handleGameEnd(payload);
+      this.gameComplete = true;
       this.emit("gameEnd");
     });
 
     this.stream.on("end", () => {
+      console.log(JSON.stringify(this.getStats()));
       this.emit("end");
     });
   }
