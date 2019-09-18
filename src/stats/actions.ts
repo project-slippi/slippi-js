@@ -8,6 +8,9 @@ import { ActionCountsType } from "./common";
 import { SlippiGame, FrameEntryType } from '../SlippiGame';
 import { StatComputer } from './stats';
 
+// Frame pattern that indicates a dash dance turn was executed
+const dashDanceAnimations = [State.DASH, State.TURN, State.DASH];
+
 interface PlayerActionState {
   playerCounts: ActionCountsType;
   animations: number[];
@@ -41,52 +44,15 @@ export class ActionsComputer implements StatComputer<ActionCountsType[]> {
 
   public processFrame(frame: FrameEntryType): void {
     this.opponentIndices.forEach((indices) => {
-      const playerFrame = frame.players[indices.playerIndex].post;
       const state = this.state.get(indices);
-
-      const incrementCount = (field: string, condition: boolean): void => {
-        if (!condition) {
-          return;
-        }
-
-        // FIXME: ActionsCountsType should be a map of actions -> number, instead of accessing the field via string
-        (state.playerCounts as any)[field] += 1;
-      };
-
-      // Manage animation state
-      state.animations.push(playerFrame.actionStateId);
-
-      // Grab last 3 frames
-      const last3Frames = state.animations.slice(-3);
-      const currentAnimation = playerFrame.actionStateId;
-      const prevAnimation = last3Frames[last3Frames.length - 2];
-
-      // Increment counts based on conditions
-      const didDashDance = _.isEqual(last3Frames, dashDanceAnimations);
-      incrementCount('dashDanceCount', didDashDance);
-
-      const didRoll = didStartRoll(currentAnimation, prevAnimation);
-      incrementCount('rollCount', didRoll);
-
-      const didSpotDodge = didStartSpotDodge(currentAnimation, prevAnimation);
-      incrementCount('spotDodgeCount', didSpotDodge);
-
-      const didAirDodge = didStartAirDodge(currentAnimation, prevAnimation);
-      incrementCount('airDodgeCount', didAirDodge);
-
-      // Handles wavedash detection (and waveland)
-      handleActionWavedash(state.playerCounts, state.animations);
+      handleActionCompute(state, indices, frame);
     });
-
-    return;
   }
 
   public fetch(): ActionCountsType[] {
     return Array.from(this.state.keys()).map(key => this.state.get(key).playerCounts);
   }
 }
-
-
 
 function isRolling(animation: State): boolean {
   switch (animation) {
@@ -128,15 +94,45 @@ function didStartAirDodge(currentAnimation: State, previousAnimation: State): bo
   return isCurrentlyDodging && !wasPreviouslyDodging;
 }
 
-// Frame pattern that indicates a dash dance turn was executed
-const dashDanceAnimations = [State.DASH, State.TURN, State.DASH];
+function handleActionCompute(state: PlayerActionState, indices: PlayerIndexedType, frame: FrameEntryType): void {
+  const playerFrame = frame.players[indices.playerIndex].post;
+  const incrementCount = (field: string, condition: boolean): void => {
+    if (!condition) {
+      return;
+    }
+
+    // FIXME: ActionsCountsType should be a map of actions -> number, instead of accessing the field via string
+    (state.playerCounts as any)[field] += 1;
+  };
+
+  // Manage animation state
+  state.animations.push(playerFrame.actionStateId);
+
+  // Grab last 3 frames
+  const last3Frames = state.animations.slice(-3);
+  const currentAnimation = playerFrame.actionStateId;
+  const prevAnimation = last3Frames[last3Frames.length - 2];
+
+  // Increment counts based on conditions
+  const didDashDance = _.isEqual(last3Frames, dashDanceAnimations);
+  incrementCount('dashDanceCount', didDashDance);
+
+  const didRoll = didStartRoll(currentAnimation, prevAnimation);
+  incrementCount('rollCount', didRoll);
+
+  const didSpotDodge = didStartSpotDodge(currentAnimation, prevAnimation);
+  incrementCount('spotDodgeCount', didSpotDodge);
+
+  const didAirDodge = didStartAirDodge(currentAnimation, prevAnimation);
+  incrementCount('airDodgeCount', didAirDodge);
+
+  // Handles wavedash detection (and waveland)
+  handleActionWavedash(state.playerCounts, state.animations);
+}
 
 
 export function generateActionCounts(game: SlippiGame): ActionCountsType[] {
   const actionCounts: Array<ActionCountsType> = [];
-
-  // Frame pattern that indicates a dash dance turn was executed
-  const dashDanceAnimations = [State.DASH, State.TURN, State.DASH];
 
   const initialState: {
     animations: number[];
@@ -147,17 +143,6 @@ export function generateActionCounts(game: SlippiGame): ActionCountsType[] {
   };
 
   let state = initialState;
-
-  // Helper function for incrementing counts
-  const incrementCount = (field: string, condition: boolean): void => {
-    if (!condition) {
-      return;
-    }
-
-    // FIXME: ActionsCountsType should be a map of actions -> number, instead of accessing the field via string
-    (state.playerCounts as any)[field] += 1;
-  };
-
   // Iterates the frames in order in order to compute stocks
   iterateFramesInOrder(game, (indices) => {
     const playerCounts = {
@@ -178,31 +163,7 @@ export function generateActionCounts(game: SlippiGame): ActionCountsType[] {
 
     actionCounts.push(playerCounts);
   }, (indices, frame) => {
-    const playerFrame = frame.players[indices.playerIndex].post;
-
-    // Manage animation state
-    state.animations.push(playerFrame.actionStateId);
-
-    // Grab last 3 frames
-    const last3Frames = state.animations.slice(-3);
-    const currentAnimation = playerFrame.actionStateId;
-    const prevAnimation = last3Frames[last3Frames.length - 2];
-
-    // Increment counts based on conditions
-    const didDashDance = _.isEqual(last3Frames, dashDanceAnimations);
-    incrementCount('dashDanceCount', didDashDance);
-
-    const didRoll = didStartRoll(currentAnimation, prevAnimation);
-    incrementCount('rollCount', didRoll);
-
-    const didSpotDodge = didStartSpotDodge(currentAnimation, prevAnimation);
-    incrementCount('spotDodgeCount', didSpotDodge);
-
-    const didAirDodge = didStartAirDodge(currentAnimation, prevAnimation);
-    incrementCount('airDodgeCount', didAirDodge);
-
-    // Handles wavedash detection (and waveland)
-    handleActionWavedash(state.playerCounts, state.animations);
+    handleActionCompute(state, indices, frame);
   });
 
   return actionCounts;
