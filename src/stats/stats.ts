@@ -83,12 +83,13 @@ export class Stats {
 }
 
 function isCompletedFrame(opponentIndices: PlayerIndexedType[], frame: FrameEntryType): boolean {
-    for (const indices of opponentIndices) {
-        const playerPostFrame = _.get(frame, ['players', indices.playerIndex, 'post']);
-        const oppPostFrame = _.get(frame, ['players', indices.opponentIndex, 'post']);
-        if (!playerPostFrame || !oppPostFrame) {
-            return false;
-        }
-    }
-    return true;
+    // This function checks whether we have successfully received an entire frame.
+    // It is not perfect because it does not wait for follower frames. Fortunately,
+    // follower frames are not used for any stat calculations so this doesn't matter
+    // for our purposes.
+    const indices = _.first(opponentIndices);
+    const playerPostFrame = _.get(frame, ['players', indices.playerIndex, 'post']);
+    const oppPostFrame = _.get(frame, ['players', indices.opponentIndex, 'post']);
+    
+    return Boolean(playerPostFrame && oppPostFrame);
 }
