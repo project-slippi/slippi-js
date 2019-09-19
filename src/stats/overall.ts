@@ -1,14 +1,7 @@
 // @flow
 import _ from 'lodash';
-import { SlippiGame } from "../SlippiGame";
-import { getSinglesOpponentIndices, ConversionType, PlayerIndexedType, StockType, OverallType } from "./common";
-import { generateInputs, PlayerInput } from './inputs';
-
-export function generateOverall(game: SlippiGame): OverallType[] {
-  const playerIndices = getSinglesOpponentIndices(game);
-  const inputs = generateInputs(game);
-  return [];// generateOverallStats(playerIndices, inputs, game.stats.stocks, game.stats.conversions, game.stats.playableFrameCount);
-}
+import { ConversionType, PlayerIndexedType, StockType, OverallType } from "./common";
+import { PlayerInput } from './inputs';
 
 export function generateOverallStats(
   playerIndices: Array<PlayerIndexedType>,

@@ -2,16 +2,9 @@
 import _ from 'lodash';
 import { Command, openSlpFile, closeSlpFile, iterateEvents, getMetadata, GameStartType, SlpInputSource } from './utils/slpReader';
 
-import { getLastFrame, Frames } from "./stats/common";
-import { generateConversions } from "./stats/conversions";
-import { generateCombos } from "./stats/combos";
-import { generateStocks } from "./stats/stocks";
-import { generateActionCounts } from "./stats/actions";
-import { generateOverall as generateOverallStats } from "./stats/overall";
-
 // Type imports
 import {
-  PreFrameUpdateType, PostFrameUpdateType, SlpFileType, MetadataType, GameEndType,
+  PreFrameUpdateType, PostFrameUpdateType, MetadataType, GameEndType,
   SlpReadInput
 } from "./utils/slpReader";
 import {

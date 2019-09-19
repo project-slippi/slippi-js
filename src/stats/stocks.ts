@@ -1,7 +1,7 @@
 // @flow
 import _ from 'lodash';
-import { SlippiGame, FrameEntryType, FramesType } from "../SlippiGame";
-import { iterateFramesInOrder, isDead, didLoseStock, PlayerIndexedType } from "./common";
+import { FrameEntryType, FramesType } from "../SlippiGame";
+import { isDead, didLoseStock, PlayerIndexedType } from "./common";
 
 import { StockType } from "./common";
 
@@ -81,25 +81,4 @@ function handleStockCompute(frames: FramesType, state: StockState, indices: Play
     } else {
       state.stock.currentPercent = playerFrame.percent || 0;
     }
-}
-
-export function generateStocks(game: SlippiGame): StockType[] {
-  const stocks: Array<StockType> = [];
-  const frames = game.getFrames();
-  const initialState: {
-    stock: StockType | null | undefined;
-  } = {
-    stock: null
-  };
-
-  let state = initialState;
-
-  // Iterates the frames in order in order to compute stocks
-  iterateFramesInOrder(game, () => {
-    state = { ...initialState };
-  }, (indices, frame) => {
-    handleStockCompute(frames, state, indices, frame, stocks);
-  });
-
-  return stocks;
 }

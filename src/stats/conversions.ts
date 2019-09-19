@@ -1,11 +1,8 @@
 import _ from 'lodash';
-import { SlippiGame, FrameEntryType, FramesType } from "../SlippiGame";
+import { FrameEntryType, FramesType } from "../SlippiGame";
 import { PostFrameUpdateType } from "../utils/slpReader";
 import { MoveLandedType, ConversionType, PlayerIndexedType, Frames } from "./common";
-import {
-  iterateFramesInOrder, isDamaged, isGrabbed, calcDamageTaken, isInControl, didLoseStock,
-  Timers
-} from "./common";
+import { isDamaged, isGrabbed, calcDamageTaken, isInControl, didLoseStock, Timers } from "./common";
 import { StatComputer } from './stats';
 
 interface PlayerConversionState {
@@ -99,38 +96,6 @@ export class ConversionComputer implements StatComputer<ConversionType[]> {
       });
     });
   }
-}
-
-export function generateConversions(game: SlippiGame): ConversionType[] {
-  const conversions: ConversionType[] = [];
-  const frames = game.getFrames();
-
-  const initialState: {
-    conversion: ConversionType | null;
-    move: MoveLandedType | null;
-    resetCounter: number;
-    lastHitAnimation: number | null;
-  } = {
-    conversion: null,
-    move: null,
-    resetCounter: 0,
-    lastHitAnimation: null,
-  };
-
-  // Only really doing assignment here for flow
-  let state = initialState;
-
-  // Iterates the frames in order in order to compute conversions
-  iterateFramesInOrder(game, () => {
-    state = { ...initialState };
-  }, (indices, frame) => {
-    handleConversionCompute(frames, state, indices, frame, conversions);
-  });
-
-  // Adds opening type to the punishes
-  addOpeningTypeToConversions(game, conversions);
-
-  return conversions;
 }
 
 function handleConversionCompute(frames: FramesType, state: PlayerConversionState, indices: PlayerIndexedType, frame: FrameEntryType, conversions: ConversionType[]): void {
@@ -259,62 +224,4 @@ function handleConversionCompute(frames: FramesType, state: PlayerConversionStat
     state.conversion = null;
     state.move = null;
   }
-}
-
-
-function addOpeningTypeToConversions(game: SlippiGame, conversions: Array<ConversionType>): void {
-  const conversionsByPlayerIndex = _.groupBy(conversions, 'playerIndex');
-  const keyedConversions = _.mapValues(conversionsByPlayerIndex, (playerConversions) => (
-    _.keyBy(playerConversions, 'startFrame')
-  ));
-
-  const initialState: {
-    opponentConversion: ConversionType | null;
-  } = {
-    opponentConversion: null
-  };
-
-  // Only really doing assignment here for flow
-  let state = initialState;
-
-  // console.log(punishesByPlayerIndex);
-
-  // Iterates the frames in order in order to compute punishes
-  iterateFramesInOrder(game, () => {
-    state = { ...initialState };
-  }, (indices, frame) => {
-    const frameNum = frame.frame;
-
-    // Clear opponent conversion if it ended this frame
-    if (_.get(state, ['opponentConversion', 'endFrame']) === frameNum) {
-      state.opponentConversion = null;
-    }
-
-    // Get opponent conversion. Add to state if exists for this frame
-    const opponentConversion = _.get(keyedConversions, [indices.opponentIndex, frameNum]);
-    if (opponentConversion) {
-      state.opponentConversion = opponentConversion;
-    }
-
-    const playerConversion = _.get(keyedConversions, [indices.playerIndex, frameNum]);
-    if (!playerConversion) {
-      // Only need to do something if a conversion for this player started on this frame
-      return;
-    }
-
-    // In the case where punishes from both players start on the same frame, set trade
-    if (playerConversion && opponentConversion) {
-      playerConversion.openingType = "trade";
-      return;
-    }
-
-    // TODO: Handle this in a better way. It probably shouldn't be considered a neutral
-    // TODO: win in the case where a player attacks into a crouch cancel and gets
-    // TODO: countered on.
-    // TODO: Also perhaps if a player gets a random hit in the middle of a the other
-    // TODO: player's combo it shouldn't be called a counter-attack
-
-    // If opponent has an active conversion, this is a counter-attack, otherwise a neutral win
-    playerConversion.openingType = state.opponentConversion ? "counter-attack" : "neutral-win";
-  });
 }

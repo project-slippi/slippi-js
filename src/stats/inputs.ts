@@ -1,6 +1,6 @@
 import _ from 'lodash';
-import { FramesType, FrameEntryType, SlippiGame } from "../SlippiGame";
-import { Frames, PlayerIndexedType, iterateFramesInOrder } from "./common";
+import { FramesType, FrameEntryType } from "../SlippiGame";
+import { Frames, PlayerIndexedType } from "./common";
 
 import { StatComputer } from './stats';
 
@@ -53,30 +53,6 @@ export class InputComputer implements StatComputer<Array<PlayerInput>> {
   public fetch(): Array<PlayerInput> {
     return Array.from(this.state.keys()).map(key => this.state.get(key));
   }
-}
-
-export function generateInputs(game: SlippiGame): Array<PlayerInput> {
-  const inputs: Array<PlayerInput> = [];
-  const frames = game.getFrames();
-
-  let state: PlayerInput;
-
-  // Iterates the frames in order in order to compute stocks
-  iterateFramesInOrder(game, (indices) => {
-    const playerInputs: PlayerInput = {
-      playerIndex: indices.playerIndex,
-      opponentIndex: indices.opponentIndex,
-      inputCount: 0,
-    };
-
-    state = playerInputs;
-
-    inputs.push(playerInputs);
-  }, (indices, frame) => {
-    handleInputCompute(frames, state, indices, frame);
-  });
-
-  return inputs;
 }
 
 function handleInputCompute(frames: FramesType, state: PlayerInput, indices: PlayerIndexedType, frame: FrameEntryType): void {

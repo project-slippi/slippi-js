@@ -1,11 +1,9 @@
 // @flow
 import _ from 'lodash';
-import {
-  State, iterateFramesInOrder, PlayerIndexedType
-} from "./common";
+import { State, PlayerIndexedType } from "./common";
 
 import { ActionCountsType } from "./common";
-import { SlippiGame, FrameEntryType } from '../SlippiGame';
+import { FrameEntryType } from '../SlippiGame';
 import { StatComputer } from './stats';
 
 // Frame pattern that indicates a dash dance turn was executed
@@ -121,45 +119,6 @@ function handleActionCompute(state: PlayerActionState, indices: PlayerIndexedTyp
 
   // Handles wavedash detection (and waveland)
   handleActionWavedash(state.playerCounts, state.animations);
-}
-
-
-export function generateActionCounts(game: SlippiGame): ActionCountsType[] {
-  const actionCounts: Array<ActionCountsType> = [];
-
-  const initialState: {
-    animations: number[];
-    playerCounts: ActionCountsType | null | undefined;
-  } = {
-    animations: [],
-    playerCounts: null
-  };
-
-  let state = initialState;
-  // Iterates the frames in order in order to compute stocks
-  iterateFramesInOrder(game, (indices) => {
-    const playerCounts = {
-      playerIndex: indices.playerIndex,
-      opponentIndex: indices.opponentIndex,
-      wavedashCount: 0,
-      wavelandCount: 0,
-      airDodgeCount: 0,
-      dashDanceCount: 0,
-      spotDodgeCount: 0,
-      rollCount: 0,
-    };
-
-    state = {
-      ...initialState,
-      playerCounts: playerCounts
-    };
-
-    actionCounts.push(playerCounts);
-  }, (indices, frame) => {
-    handleActionCompute(state, indices, frame);
-  });
-
-  return actionCounts;
 }
 
 function handleActionWavedash(counts: ActionCountsType, animations: State[]): void {

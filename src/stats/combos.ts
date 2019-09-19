@@ -1,9 +1,9 @@
 import _ from 'lodash';
-import { SlippiGame, FrameEntryType, FramesType } from "../SlippiGame";
+import { FrameEntryType, FramesType } from "../SlippiGame";
 import { PostFrameUpdateType } from "../utils/slpReader";
 import { MoveLandedType, ComboType, PlayerIndexedType } from "./common";
 import {
-  iterateFramesInOrder, isDamaged, isGrabbed, calcDamageTaken, isTeching, didLoseStock,
+  isDamaged, isGrabbed, calcDamageTaken, isTeching, didLoseStock,
   Timers, isDown, isDead
 } from "./common";
 import { StatComputer } from './stats';
@@ -49,35 +49,6 @@ export class ComboComputer implements StatComputer<Array<ComboType>> {
     return this.combos;
   }
 
-}
-
-export function generateCombos(game: SlippiGame): Array<ComboType> {
-  const combos: Array<ComboType> = [];
-  const frames = game.getFrames();
-
-  const initialState: {
-    combo: ComboType | null;
-    move: MoveLandedType | null;
-    resetCounter: number;
-    lastHitAnimation: number | null;
-  } = {
-    combo: null,
-    move: null,
-    resetCounter: 0,
-    lastHitAnimation: null,
-  };
-
-  // Only really doing assignment here for flow
-  let state = initialState;
-
-  // Iterates the frames in order in order to compute combos
-  iterateFramesInOrder(game, () => {
-    state = { ...initialState };
-  }, (indices, frame) => {
-    handleComboCompute(frames, state, indices, frame, combos);
-  });
-
-  return combos;
 }
 
 function handleComboCompute(frames: FramesType, state: ComboState, indices: PlayerIndexedType, frame: FrameEntryType, combos: Array<ComboType>): void {
