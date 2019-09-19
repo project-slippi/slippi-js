@@ -18,7 +18,6 @@ interface MetadataType {
 }
 
 export class ConversionComputer implements StatComputer<ConversionType[]> {
-  private frameCount = 0;
   private opponentIndices: PlayerIndexedType[];
   private conversions: ConversionType[] = [];
   private state: Map<PlayerIndexedType, PlayerConversionState>;
@@ -47,7 +46,6 @@ export class ConversionComputer implements StatComputer<ConversionType[]> {
       const state = this.state.get(indices);
       handleConversionCompute(allFrames, state, indices, frame, this.conversions);
     });
-    this.frameCount += 1;
   }
 
   public fetch(): ConversionType[] {
@@ -57,14 +55,8 @@ export class ConversionComputer implements StatComputer<ConversionType[]> {
 
   private _populateConversionTypes(): void {
     // Post-processing step: set the openingTypes
-    const minFrameIndex = this.frameCount - Frames.FIRST;
     const conversionsToHandle = _.filter(this.conversions, (conversion) => {
-      // isFrameFullyProcessed is to avoid setting the openingType for an opening
-      // when we might not yet have received the opponent opening
-      const isFrameFullyProcessed = conversion.startFrame < minFrameIndex;
-      const isUnknown = conversion.openingType === "unknown";
-
-      return isFrameFullyProcessed && isUnknown;
+      return conversion.openingType === "unknown";
     });
 
     // Group new conversions by startTime and sort
