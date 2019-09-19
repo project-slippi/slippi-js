@@ -146,7 +146,6 @@ export class SlippiGame implements SlippiGameInterface {
   }
 
   public getMetadata(): MetadataType {
-    this._process();
     if (this.metadata) {
       return this.metadata;
     }
