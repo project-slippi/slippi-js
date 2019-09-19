@@ -36,7 +36,7 @@ export class SlippiGame {
     }
   }
 
-  private _process(): void {
+  private _process(endCommand?: Command): void {
     if (this.parser.getGameEnd() !== null) {
       return;
     }
@@ -69,7 +69,8 @@ export class SlippiGame {
         break;
       }
 
-      return false; // Tell the iterator to keep iterating
+      // Short-circuit if we've been asked to
+      return endCommand === command;
     }, this.readPosition);
     closeSlpFile(slpfile);
   }
@@ -79,7 +80,8 @@ export class SlippiGame {
    * the game such as characters, stage, etc.
    */
   public getSettings(): GameStartType {
-    this._process();
+    // Settings is only complete after post-frame update
+    this._process(Command.POST_FRAME_UPDATE);
     return this.parser.getSettings();
   }
 
