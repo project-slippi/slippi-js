@@ -11,10 +11,10 @@ interface StockState {
   stock: StockType | null | undefined;
 }
 
-export class StockComputer implements StatComputer<Array<StockType>> {
+export class StockComputer implements StatComputer<StockType[]> {
   private opponentIndices: PlayerIndexedType[];
   private state: Map<PlayerIndexedType, StockState>;
-  private stocks: Array<StockType> = [];
+  private stocks: StockType[] = [];
 
   public constructor(opponentIndices: PlayerIndexedType[]) {
     this.opponentIndices = opponentIndices;
@@ -36,13 +36,13 @@ export class StockComputer implements StatComputer<Array<StockType>> {
     });
   }
 
-  public fetch(): Array<StockType> {
+  public fetch(): StockType[] {
     return this.stocks;
   }
 
 }
 
-function handleStockCompute(frames: FramesType, state: StockState, indices: PlayerIndexedType, frame: FrameEntryType, stocks: Array<StockType>): void {
+function handleStockCompute(frames: FramesType, state: StockState, indices: PlayerIndexedType, frame: FrameEntryType, stocks: StockType[]): void {
     const playerFrame = frame.players[indices.playerIndex].post;
     // FIXME: use PostFrameUpdateType instead of any
     const prevPlayerFrame: any = _.get(

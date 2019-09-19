@@ -14,10 +14,10 @@ interface ComboState {
   lastHitAnimation: number | null;
 }
 
-export class ComboComputer implements StatComputer<Array<ComboType>> {
+export class ComboComputer implements StatComputer<ComboType[]> {
   private opponentIndices: PlayerIndexedType[];
   private state: Map<PlayerIndexedType, ComboState>;
-  private combos: Array<ComboType> = [];
+  private combos: ComboType[] = [];
 
   public constructor(opponentIndices: PlayerIndexedType[]) {
     this.opponentIndices = opponentIndices;
@@ -42,13 +42,13 @@ export class ComboComputer implements StatComputer<Array<ComboType>> {
     });
   }
 
-  public fetch(): Array<ComboType> {
+  public fetch(): ComboType[] {
     return this.combos;
   }
 
 }
 
-function handleComboCompute(frames: FramesType, state: ComboState, indices: PlayerIndexedType, frame: FrameEntryType, combos: Array<ComboType>): void {
+function handleComboCompute(frames: FramesType, state: ComboState, indices: PlayerIndexedType, frame: FrameEntryType, combos: ComboType[]): void {
   const playerFrame: PostFrameUpdateType = frame.players[indices.playerIndex].post;
   // FIXME: use type PostFrameUpdateType instead of any
   // This is because the default value {} should not be casted as a type of PostFrameUpdateType

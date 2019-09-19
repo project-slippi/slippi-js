@@ -4,10 +4,10 @@ export interface CharacterInfo {
   id: number;
   name: string;
   shortName: string;
-  colors: Array<CharacterColor>;
+  colors: CharacterColor[];
 }
 
-const externalCharacters: Array<CharacterInfo> = [{
+const externalCharacters: CharacterInfo[] = [{
   id: 0,
   name: "Captain Falcon",
   shortName: "Falcon",
@@ -139,7 +139,7 @@ const externalCharacters: Array<CharacterInfo> = [{
   colors: ["Default", "Red", "Blue", "Green", "Purple"],
 }];
 
-export function getAllCharacters(): Array<CharacterInfo> {
+export function getAllCharacters(): CharacterInfo[] {
   return externalCharacters;
 }
 

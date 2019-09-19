@@ -29,9 +29,9 @@ export class ActionsComputer implements StatComputer<ActionCountsType[]> {
         spotDodgeCount: 0,
         rollCount: 0,
       };
-      const playerState = {
+      const playerState: PlayerActionState = {
         playerCounts: playerCounts,
-        animations: new Array<number>(),
+        animations: [],
       }
       this.state.set(indices, playerState);
     })

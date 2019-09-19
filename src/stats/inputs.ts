@@ -21,7 +21,7 @@ export interface PlayerInput {
   inputCount: number;
 }
 
-export class InputComputer implements StatComputer<Array<PlayerInput>> {
+export class InputComputer implements StatComputer<PlayerInput[]> {
   private opponentIndices: PlayerIndexedType[];
   private state: Map<PlayerIndexedType, PlayerInput>;
 
@@ -47,7 +47,7 @@ export class InputComputer implements StatComputer<Array<PlayerInput>> {
     });
   }
 
-  public fetch(): Array<PlayerInput> {
+  public fetch(): PlayerInput[] {
     return Array.from(this.state.keys()).map(key => this.state.get(key));
   }
 }

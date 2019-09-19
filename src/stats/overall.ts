@@ -3,10 +3,10 @@ import { ConversionType, PlayerIndexedType, StockType, OverallType, RatioType } 
 import { PlayerInput } from './inputs';
 
 export function generateOverallStats(
-  playerIndices: Array<PlayerIndexedType>,
-  inputs: Array<PlayerInput>,
-  stocks: Array<StockType>,
-  conversions: Array<ConversionType>,
+  playerIndices: PlayerIndexedType[],
+  inputs: PlayerInput[],
+  stocks: StockType[],
+  conversions: ConversionType[],
   playableFrameCount: number,
 ): OverallType[] {
   const inputsByPlayer = _.keyBy(inputs, 'playerIndex');

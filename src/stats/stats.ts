@@ -32,7 +32,7 @@ export class Stats {
     private comboComputer: ComboComputer;
     private stockComputer: StockComputer;
     private inputComputer: InputComputer;
-    private allComputers: Array<StatComputer<unknown>>;
+    private allComputers: StatComputer<unknown>[];
 
     public constructor(opponentIndices: PlayerIndexedType[]) {
         this.opponentIndices = opponentIndices;
