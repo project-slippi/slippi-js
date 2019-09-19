@@ -9,6 +9,7 @@ test('read settings', () => {
   expect(settings.stageId).toBe(8);
   expect(_.first(settings.players).characterId).toBe(0x13);
   expect(_.last(settings.players).characterId).toBe(0xE);
+  expect(settings.slpVersion).toBe("0.1.0");
 });
 
 test('test stats', () => {
