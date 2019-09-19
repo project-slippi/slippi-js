@@ -1,7 +1,6 @@
 import _ from 'lodash';
-import { FrameEntryType, FramesType } from "../SlippiGame";
 import { PostFrameUpdateType } from "../utils/slpReader";
-import { MoveLandedType, ConversionType, PlayerIndexedType, Frames } from "./common";
+import { FrameEntryType, FramesType, MoveLandedType, ConversionType, PlayerIndexedType, Frames } from "./common";
 import { isDamaged, isGrabbed, calcDamageTaken, isInControl, didLoseStock, Timers } from "./common";
 import { StatComputer } from './stats';
 

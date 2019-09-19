@@ -1,7 +1,6 @@
 import _ from "lodash";
 
-import { StockType, ConversionType, ComboType, ActionCountsType, OverallType, PlayerIndexedType, Frames } from "./common";
-import { FrameEntryType } from "../SlippiGame";
+import { FrameEntryType, StockType, ConversionType, ComboType, ActionCountsType, OverallType, PlayerIndexedType, Frames } from "./common";
 import { ActionsComputer } from "./actions";
 import { ConversionComputer } from "./conversions";
 import { ComboComputer } from "./combos";

@@ -1,6 +1,5 @@
 import _ from 'lodash';
-import { FramesType, FrameEntryType } from "../SlippiGame";
-import { Frames, PlayerIndexedType } from "./common";
+import { FramesType, FrameEntryType, Frames, PlayerIndexedType } from "./common";
 
 import { StatComputer } from './stats';
 

@@ -7,48 +7,13 @@ import {
   PreFrameUpdateType, PostFrameUpdateType, MetadataType, GameEndType,
   SlpReadInput
 } from "./utils/slpReader";
-import {
-  StockType, ConversionType, ComboType, ActionCountsType, OverallType
-} from "./stats/common";
 import { SlpParser } from './utils/slpParser';
-
-export type FrameEntryType = {
-  frame: number;
-  players: { [playerIndex: number]: {
-    pre: PreFrameUpdateType;
-    post: PostFrameUpdateType;
-  };};
-};
-
-export type FramesType = {
-  [frameIndex: number]: FrameEntryType;
-};
-
-export type StatsType = {
-  gameComplete: boolean;
-  lastFrame: number;
-  playableFrameCount: number;
-  stocks: StockType[];
-  conversions: ConversionType[];
-  combos: ComboType[];
-  actionCounts: ActionCountsType[];
-  overall: OverallType[];
-};
-
-export interface SlippiGameInterface {
-  getSettings(): GameStartType;
-  getLatestFrame(): FrameEntryType | null;
-  getGameEnd(): GameEndType | null;
-  getFrames(): FramesType;
-  getStats(): StatsType;
-  getMetadata(): MetadataType;
-}
-
+import { FrameEntryType, FramesType, StatsType } from './stats/common';
 
 /**
  * Slippi Game class that wraps a file
  */
-export class SlippiGame implements SlippiGameInterface {
+export class SlippiGame {
   private input: SlpReadInput;
   private metadata: MetadataType | null;
   private parser: SlpParser;

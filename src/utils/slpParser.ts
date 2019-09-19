@@ -1,8 +1,7 @@
 import _ from "lodash";
 
 import { PostFrameUpdateType, GameStartType, GameEndType, Command, PreFrameUpdateType } from "./slpReader";
-import { Frames, PlayerIndexedType, getSinglesOpponentIndicesFromSettings } from "../stats/common";
-import { FramesType, FrameEntryType, StatsType } from "../SlippiGame";
+import { FramesType, FrameEntryType, StatsType, Frames, PlayerIndexedType, getSinglesOpponentIndicesFromSettings } from "../stats/common";
 import { Stats } from "../stats/stats";
 
 export class SlpParser {

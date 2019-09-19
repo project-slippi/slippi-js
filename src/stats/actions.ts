@@ -2,8 +2,7 @@
 import _ from 'lodash';
 import { State, PlayerIndexedType } from "./common";
 
-import { ActionCountsType } from "./common";
-import { FrameEntryType } from '../SlippiGame';
+import { FrameEntryType, ActionCountsType } from "./common";
 import { StatComputer } from './stats';
 
 // Frame pattern that indicates a dash dance turn was executed

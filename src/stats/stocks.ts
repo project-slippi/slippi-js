@@ -1,7 +1,6 @@
 // @flow
 import _ from 'lodash';
-import { FrameEntryType, FramesType } from "../SlippiGame";
-import { isDead, didLoseStock, PlayerIndexedType } from "./common";
+import { FrameEntryType, FramesType, isDead, didLoseStock, PlayerIndexedType } from "./common";
 
 import { StockType } from "./common";
 

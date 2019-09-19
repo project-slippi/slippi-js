@@ -1,6 +1,28 @@
 import _ from 'lodash';
-import { PostFrameUpdateType, GameStartType } from "../utils/slpReader";
-import { SlippiGame, FrameEntryType } from '../SlippiGame';
+import { PostFrameUpdateType, GameStartType, PreFrameUpdateType } from "../utils/slpReader";
+
+export type FrameEntryType = {
+  frame: number;
+  players: { [playerIndex: number]: {
+    pre: PreFrameUpdateType;
+    post: PostFrameUpdateType;
+  };};
+};
+
+export type FramesType = {
+  [frameIndex: number]: FrameEntryType;
+};
+
+export type StatsType = {
+  gameComplete: boolean;
+  lastFrame: number;
+  playableFrameCount: number;
+  stocks: StockType[];
+  conversions: ConversionType[];
+  combos: ComboType[];
+  actionCounts: ActionCountsType[];
+  overall: OverallType[];
+};
 
 export type RatioType = {
   count: number;
@@ -124,11 +146,6 @@ export const Frames = {
   FIRST: -123,
   FIRST_PLAYABLE: -39,
 };
-
-export function getSinglesOpponentIndices(game: SlippiGame): PlayerIndexedType[] {
-  const settings = game.getSettings();
-  return getSinglesOpponentIndicesFromSettings(settings);
-}
 
 export function getSinglesOpponentIndicesFromSettings(settings: GameStartType): PlayerIndexedType[] {
   if (!settings || settings.players.length !== 2) {
