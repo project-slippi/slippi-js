@@ -1,6 +1,6 @@
 import _ from "lodash";
 
-import { FrameEntryType, StockType, ConversionType, ComboType, ActionCountsType, OverallType, PlayerIndexedType, Frames } from "./common";
+import { FrameEntryType, StockType, ConversionType, ComboType, ActionCountsType, OverallType, PlayerIndexedType, Frames, FramesType } from "./common";
 import { ActionsComputer } from "./actions";
 import { ConversionComputer } from "./conversions";
 import { ComboComputer } from "./combos";
@@ -19,12 +19,13 @@ export type ComputedStatsType = {
 };
 
 export interface StatComputer<T> {
-    processFrame( frame: FrameEntryType): void;
+    processFrame(newFrame: FrameEntryType, allFrames: FramesType): void;
     fetch(): T;
 }
 
 export class Stats {
     private lastFrame: number;
+    private frames: FramesType = {};
     private opponentIndices: PlayerIndexedType[];
     private actionsComputer: ActionsComputer;
     private conversionComputer: ConversionComputer;
@@ -61,6 +62,7 @@ export class Stats {
     }
 
     public processFrame(frame: FrameEntryType): void {
+        this.frames[frame.frame] = frame;
         this.lastFrame = frame.frame;
 
         if (this.opponentIndices.length === 0) {
@@ -72,7 +74,7 @@ export class Stats {
             return;
         }
 
-        this.allComputers.forEach(comp => comp.processFrame(frame));
+        this.allComputers.forEach(comp => comp.processFrame(frame, this.frames));
     }
 
     private _playableFrameCount(): number {

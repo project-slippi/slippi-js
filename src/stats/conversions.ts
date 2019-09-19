@@ -20,7 +20,6 @@ interface MetadataType {
 export class ConversionComputer implements StatComputer<ConversionType[]> {
   private frameCount = 0;
   private opponentIndices: PlayerIndexedType[];
-  private frames: FramesType = {};
   private conversions: ConversionType[] = [];
   private state: Map<PlayerIndexedType, PlayerConversionState>;
   private metadata: MetadataType;
@@ -43,11 +42,10 @@ export class ConversionComputer implements StatComputer<ConversionType[]> {
     })
   }
 
-  public processFrame(frame: FrameEntryType): void {
-    this.frames[frame.frame] = frame;
+  public processFrame(frame: FrameEntryType, allFrames: FramesType): void {
     this.opponentIndices.forEach((indices) => {
       const state = this.state.get(indices);
-      handleConversionCompute(this.frames, state, indices, frame, this.conversions);
+      handleConversionCompute(allFrames, state, indices, frame, this.conversions);
     });
     this.frameCount += 1;
   }

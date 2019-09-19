@@ -23,7 +23,6 @@ export interface PlayerInput {
 
 export class InputComputer implements StatComputer<Array<PlayerInput>> {
   private opponentIndices: PlayerIndexedType[];
-  private frames: FramesType = {};
   private state: Map<PlayerIndexedType, PlayerInput>;
 
   public constructor(opponentIndices: PlayerIndexedType[]) {
@@ -41,11 +40,10 @@ export class InputComputer implements StatComputer<Array<PlayerInput>> {
     })
   }
 
-  public processFrame(frame: FrameEntryType): void {
-    this.frames[frame.frame] = frame;
+  public processFrame(frame: FrameEntryType, allFrames: FramesType): void {
     this.opponentIndices.forEach((indices) => {
       const state = this.state.get(indices);
-      handleInputCompute(this.frames, state, indices, frame);
+      handleInputCompute(allFrames, state, indices, frame);
     });
   }
 

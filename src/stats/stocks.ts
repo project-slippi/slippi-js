@@ -15,7 +15,6 @@ export class StockComputer implements StatComputer<Array<StockType>> {
   private opponentIndices: PlayerIndexedType[];
   private state: Map<PlayerIndexedType, StockState>;
   private stocks: Array<StockType> = [];
-  private frames: FramesType = {};
 
   public constructor(opponentIndices: PlayerIndexedType[]) {
     this.opponentIndices = opponentIndices;
@@ -30,11 +29,10 @@ export class StockComputer implements StatComputer<Array<StockType>> {
     })
   }
 
-  public processFrame(frame: FrameEntryType): void {
-    this.frames[frame.frame] = frame;
+  public processFrame(frame: FrameEntryType, allFrames: FramesType): void {
     this.opponentIndices.forEach((indices) => {
       const state = this.state.get(indices);
-      handleStockCompute(this.frames, state, indices, frame, this.stocks);
+      handleStockCompute(allFrames, state, indices, frame, this.stocks);
     });
   }
 
