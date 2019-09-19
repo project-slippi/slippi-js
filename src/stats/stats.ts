@@ -25,6 +25,7 @@ export interface StatComputer<T> {
 
 export class Stats {
     private lastFrame: number;
+    private lastProcessedFrame: number | null;
     private frames: FramesType = {};
     private opponentIndices: PlayerIndexedType[];
     private actionsComputer: ActionsComputer;
@@ -43,6 +44,8 @@ export class Stats {
         this.inputComputer = new InputComputer(opponentIndices);
 
         this.allComputers = [this.actionsComputer, this.conversionComputer, this.comboComputer, this.stockComputer, this.inputComputer];
+    
+        this.lastProcessedFrame = null;
     }
 
     public getStats(): ComputedStatsType {
@@ -61,6 +64,15 @@ export class Stats {
         }
     }
 
+    public processNewFrames(frames: FramesType): void {
+        let frameIndex = this.lastProcessedFrame === null ? Frames.FIRST : this.lastProcessedFrame + 1;
+
+        while (frames[frameIndex]) {
+            this.processFrame(frames[frameIndex]);
+            frameIndex += 1;
+        }
+    }
+
     public processFrame(frame: FrameEntryType): void {
         this.frames[frame.frame] = frame;
         this.lastFrame = frame.frame;
@@ -75,6 +87,7 @@ export class Stats {
         }
 
         this.allComputers.forEach(comp => comp.processFrame(frame, this.frames));
+        this.lastProcessedFrame = frame.frame;
     }
 
     private _playableFrameCount(): number {
