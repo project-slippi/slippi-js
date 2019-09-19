@@ -62,7 +62,6 @@ export class SlippiGame implements SlippiGameInterface {
   private processed = false;
 
   public constructor(input: string | Buffer) {
-    console.log("constructor called");
     this.parser = new SlpParser();
     if (_.isString(input)) {
       this.input = {

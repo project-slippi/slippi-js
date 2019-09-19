@@ -4,11 +4,8 @@ import fs from 'fs';
 import { SlippiGame } from '../src';
 
 test('read settings', () => {
-  console.log("starting test");
   const game = new SlippiGame("slp/sheik_vs_ics_yoshis.slp");
-  console.log("created game");
   const settings = game.getSettings();
-  console.log("getting settings");
   expect(settings.stageId).toBe(8);
   expect(_.first(settings.players).characterId).toBe(0x13);
   expect(_.last(settings.players).characterId).toBe(0xE);
