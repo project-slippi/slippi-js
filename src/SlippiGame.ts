@@ -63,6 +63,7 @@ export class SlippiGame implements SlippiGameInterface {
 
   public constructor(input: string | Buffer) {
     console.log("constructor called");
+    this.parser = new SlpParser();
     if (_.isString(input)) {
       this.input = {
         source: SlpInputSource.FILE,
@@ -79,13 +80,12 @@ export class SlippiGame implements SlippiGameInterface {
   }
 
   private _process(): void {
-    if (this.processed) {
+    if (this.parser.getGameEnd() !== null) {
       return;
     }
     const slpfile = openSlpFile(this.input);
     // Generate settings from iterating through file
     iterateEvents(slpfile, (command, payload) => {
-      console.log("iterating...");
       if (!payload) {
         // If payload is falsy, keep iterating. The parser probably just doesn't know
         // about this command yet

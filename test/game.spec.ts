@@ -3,7 +3,7 @@ import _ from 'lodash';
 import fs from 'fs';
 import { SlippiGame } from '../src';
 
-test.only('read settings', () => {
+test('read settings', () => {
   console.log("starting test");
   const game = new SlippiGame("slp/sheik_vs_ics_yoshis.slp");
   console.log("created game");

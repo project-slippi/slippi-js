@@ -7,8 +7,8 @@ import * as characters from './melee/characters';
 import * as moves from './melee/moves';
 import * as stages from './melee/stages';
 
-import fs from "fs";
-import { SlippiRealtime } from './SlippiRealtime';
+// import fs from "fs";
+// import { SlippiRealtime } from './SlippiRealtime';
 
 export {
   animations,
@@ -18,33 +18,33 @@ export {
   SlippiGame, // Support both named and default exports
 };
 
-const frameToTest = 1337;
-const fileToTest = "slp/sheik_vs_ics_yoshis.slp";
+// const frameToTest = 1337;
+// const fileToTest = "slp/sheik_vs_ics_yoshis.slp";
 
-const stream = fs.createReadStream(fileToTest);
-const slp = new SlippiRealtime(stream);
-let done = false;
-slp.on("gameStart", () => {
-  console.log("game started");
-});
+// const stream = fs.createReadStream(fileToTest);
+// const slp = new SlippiRealtime(stream);
+// let done = false;
+// slp.on("gameStart", () => {
+//   console.log("game started");
+// });
 
-slp.on("gameEnd", () => {
-  console.log("game ended");
-});
+// slp.on("gameEnd", () => {
+//   console.log("game ended");
+// });
 
-slp.on("end", () => {
-  done = true;
-});
+// slp.on("end", () => {
+//   done = true;
+// });
 
-slp.on("newFrame", (frame: any) => {
-  console.log(`new frame: ${frame.frame}`);
-});
-slp.start();
+// slp.on("newFrame", (frame: any) => {
+//   console.log(`new frame: ${frame.frame}`);
+// });
+// slp.start();
 
-while (!done);
+// while (!done);
 
-const game = new SlippiGame(fileToTest);
-const frames = game.getFrames();
-console.log(JSON.stringify(frames[frameToTest]));
+// const game = new SlippiGame(fileToTest);
+// const frames = game.getFrames();
+// console.log(JSON.stringify(frames[frameToTest]));
 
 export default SlippiGame;

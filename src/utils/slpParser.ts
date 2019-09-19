@@ -17,6 +17,7 @@ export class SlpParser {
     public constructor() {
         this.playerFrames = {};
         this.followerFrames = {};
+        this.statsComputer = new Stats([]);
     }
 
 
@@ -79,7 +80,14 @@ export class SlpParser {
     }
 
     public getLatestFrame(): FrameEntryType | null {
-        return this.playerFrames[this.latestFrameIndex];
+        // return this.playerFrames[this.latestFrameIndex];
+
+        // TODO: Modify this to check if we actually have all the latest frame data and return that
+        // TODO: If we do. For now I'm just going to take a shortcut
+        const allFrames = this.getFrames();
+        const frameIndex = this.latestFrameIndex || Frames.FIRST;
+        const indexToUse = this.gameEnd ? frameIndex : frameIndex - 1;
+        return _.get(allFrames, indexToUse) || null;
     }
 
     public handleFrameUpdate(command: Command, payload: PreFrameUpdateType | PostFrameUpdateType): FrameEntryType {
