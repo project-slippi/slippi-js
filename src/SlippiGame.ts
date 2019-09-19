@@ -59,7 +59,7 @@ export class SlippiGame implements SlippiGameInterface {
   private input: SlpReadInput;
   private metadata: MetadataType | null;
   private parser: SlpParser;
-  private processed = false;
+  private readPosition: number | null = null;
 
   public constructor(input: string | Buffer) {
     this.parser = new SlpParser();
@@ -84,7 +84,7 @@ export class SlippiGame implements SlippiGameInterface {
     }
     const slpfile = openSlpFile(this.input);
     // Generate settings from iterating through file
-    iterateEvents(slpfile, (command, payload) => {
+    this.readPosition = iterateEvents(slpfile, (command, payload) => {
       if (!payload) {
         // If payload is falsy, keep iterating. The parser probably just doesn't know
         // about this command yet
@@ -112,9 +112,8 @@ export class SlippiGame implements SlippiGameInterface {
       }
 
       return false; // Tell the iterator to keep iterating
-    });
+    }, this.readPosition);
     closeSlpFile(slpfile);
-    this.processed = true;
   }
 
   /**
