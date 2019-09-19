@@ -86,8 +86,7 @@ function handleInputCompute(frames: FramesType, state: PlayerInput, indices: Pla
 
   // Do the same for c-stick
   const prevCstickRegion = getJoystickRegion(prevPlayerFrame.cStickX, prevPlayerFrame.cStickY);
-  // FIXME: stop using any. it is not clear what type this is. cstickX does not exist on the type PreFrameUpdateType
-  const currentCstickRegion = getJoystickRegion((playerFrame as any).cStickX, (playerFrame as any).cStickY);
+  const currentCstickRegion = getJoystickRegion(playerFrame.cStickX, playerFrame.cStickY);
   if ((prevCstickRegion !== currentCstickRegion) && (currentCstickRegion !== 0)) {
     state.inputCount += 1;
   }
