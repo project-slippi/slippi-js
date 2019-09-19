@@ -32,6 +32,10 @@ export class SlpParser {
         return this.playerFrames;
     }
 
+    public getFollowerFrames(): FramesType | null {
+        return this.followerFrames;
+    }
+
     public handleGameEnd(payload: GameEndType): void {
         payload = payload as GameEndType;
         this.gameEnd = payload;

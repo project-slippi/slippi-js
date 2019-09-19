@@ -98,6 +98,11 @@ export class SlippiGame {
     return this.parser.getFrames();
   }
 
+  public getFollowerFrames(): FramesType {
+    this._process();
+    return this.parser.getFollowerFrames();
+  }
+
   public getStats(): StatsType {
     this._process();
     return this.parser.getStats();
