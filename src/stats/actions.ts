@@ -39,7 +39,7 @@ export class ActionsComputer implements StatComputer<ActionCountsType[]> {
     })
   }
 
-  public processFrame(frame: FrameEntryType): void {
+  public processFrame(frame: FrameEntryType, allFrames: FramesType): void {
     this.opponentIndices.forEach((indices) => {
       const state = this.state.get(indices);
       handleActionCompute(state, indices, frame);
