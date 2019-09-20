@@ -25,13 +25,14 @@ export class InputComputer implements StatComputer<PlayerInput[]> {
   private opponentIndices: PlayerIndexedType[];
   private state: Map<PlayerIndexedType, PlayerInput>;
 
-  public constructor(opponentIndices: PlayerIndexedType[]) {
-    this.opponentIndices = opponentIndices;
+  public constructor() {
     this.state = new Map<PlayerIndexedType, PlayerInput>();
+  }
 
+  public setPlayerIndices(playerIndices: PlayerIndexedType[]): void {
+    this.opponentIndices = playerIndices;
     this.opponentIndices.forEach((indices) => {
       const playerState: PlayerInput = {
-
         playerIndex: indices.playerIndex,
         opponentIndex: indices.opponentIndex,
         inputCount: 0,

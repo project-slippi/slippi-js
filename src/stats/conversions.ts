@@ -23,13 +23,15 @@ export class ConversionComputer implements StatComputer<ConversionType[]> {
   private state: Map<PlayerIndexedType, PlayerConversionState>;
   private metadata: MetadataType;
 
-  public constructor(opponentIndices: PlayerIndexedType[]) {
-    this.opponentIndices = opponentIndices;
+  public constructor() {
     this.state = new Map<PlayerIndexedType, PlayerConversionState>();
     this.metadata = {
       lastEndFrameByOppIdx: {},
     };
+  }
 
+  public setPlayerIndices(playerIndices: PlayerIndexedType[]): void {
+    this.opponentIndices = playerIndices;
     this.opponentIndices.forEach((indices) => {
       const playerState: PlayerConversionState = {
         conversion: null,

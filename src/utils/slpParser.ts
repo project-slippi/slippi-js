@@ -1,31 +1,21 @@
 import _ from "lodash";
 
 import { PostFrameUpdateType, GameStartType, GameEndType, Command, PreFrameUpdateType } from "./slpReader";
-import { FramesType, FrameEntryType, StatsType, Frames, PlayerIndexedType, getSinglesOpponentIndicesFromSettings } from "../stats/common";
+import { FramesType, FrameEntryType, Frames, PlayerIndexedType, getSinglesOpponentIndicesFromSettings } from "../stats/common";
 import { Stats } from "../stats/stats";
 
-export interface ParserOptions {
-    processStatsOnTheFly: boolean;
-}
-
-const defaultParserOptions: ParserOptions = {
-    processStatsOnTheFly: false,
-}
-
 export class SlpParser {
-    private options: ParserOptions;
+    private statsComputer: Stats;
     private playerFrames: FramesType = {};
     private followerFrames: FramesType = {};
     private settings: GameStartType | null = null;
     private gameEnd: GameEndType | null = null;
     private latestFrameIndex: number | null = null;
-    private statsComputer: Stats = new Stats();
     private playerIndices: PlayerIndexedType[] = [];
 
-    public constructor(options?: ParserOptions) {
-        this.options = options || defaultParserOptions;
+    public constructor(statsComputer: Stats) {
+        this.statsComputer = statsComputer;
     }
-
 
     public getSettings(): GameStartType | null {
         return this.settings;
@@ -48,25 +38,15 @@ export class SlpParser {
         this.gameEnd = payload;
     }
 
-    public getStats(): StatsType {
-        return {
-            ...this.statsComputer.getStats(),
-            gameComplete: this.gameEnd !== null,
-        };
-    }
-
     public handleGameStart(payload: GameStartType): void {
         if (!payload.stageId) {
             return;
         }
-
         this.settings = payload;
         const players = payload.players;
         this.settings.players = players.filter(player => player.type !== 3);
         this.playerIndices = getSinglesOpponentIndicesFromSettings(this.settings);
-        this.statsComputer = new Stats(this.playerIndices, {
-            processOnTheFly: this.options.processStatsOnTheFly,
-        });
+        this.statsComputer.setPlayerIndices(this.playerIndices);
     }
 
     public handlePostFrameUpdate(payload: PostFrameUpdateType): void {
@@ -89,6 +69,14 @@ export class SlpParser {
                     break;
             }
         }
+    }
+
+    public playableFrameCount(): number {
+        return this.latestFrameIndex < Frames.FIRST_PLAYABLE ? 0 : this.latestFrameIndex - Frames.FIRST_PLAYABLE;
+    }
+
+    public getLatestFrameNumber(): number {
+        return this.latestFrameIndex;
     }
 
     public getLatestFrame(): FrameEntryType | null {

@@ -9,7 +9,14 @@ import {
   SlpReadInput
 } from "./utils/slpReader";
 import { SlpParser } from './utils/slpParser';
-import { FrameEntryType, FramesType, StatsType, Frames } from './stats/common';
+import { FrameEntryType, FramesType, StatsType, Frames, getSinglesOpponentIndicesFromSettings } from './stats/common';
+import { ActionsComputer } from './stats/actions';
+import { ConversionComputer } from './stats/conversions';
+import { ComboComputer } from './stats/combos';
+import { StockComputer } from './stats/stocks';
+import { InputComputer } from './stats/inputs';
+import { Stats } from './stats/stats';
+import { generateOverallStats } from './stats/overall';
 
 /**
  * Slippi Game class that wraps a file
@@ -19,9 +26,14 @@ export class SlippiGame {
   private metadata: MetadataType | null;
   private parser: SlpParser;
   private readPosition: number | null = null;
+  private actionsComputer: ActionsComputer = new ActionsComputer();
+  private conversionComputer: ConversionComputer = new ConversionComputer();
+  private comboComputer: ComboComputer = new ComboComputer();
+  private stockComputer: StockComputer = new StockComputer();
+  private inputComputer: InputComputer = new InputComputer();
+  private statsComputer: Stats = new Stats();
 
   public constructor(input: string | Buffer) {
-    this.parser = new SlpParser();
     if (_.isString(input)) {
       this.input = {
         source: SlpInputSource.FILE,
@@ -35,6 +47,16 @@ export class SlippiGame {
     } else {
       throw new Error("Cannot create SlippiGame with input of that type");
     }
+
+    // Set up stats calculation
+    this.statsComputer.registerAll([
+      this.actionsComputer,
+      this.conversionComputer,
+      this.comboComputer,
+      this.stockComputer,
+      this.inputComputer,
+    ]);
+    this.parser = new SlpParser(this.statsComputer);
   }
 
   private _process(settingsOnly = false): void {
@@ -51,41 +73,40 @@ export class SlippiGame {
       }
 
       switch (command) {
-      case Command.GAME_START:
-        payload = payload as GameStartType;
-        this.parser.handleGameStart(payload);
+        case Command.GAME_START:
+          payload = payload as GameStartType;
+          this.parser.handleGameStart(payload);
 
-        // If we only want to fetch settings, check to see if
-        // the file was created after the sheik fix so we know
-        // we don't have to process the first frame of the game
-        if (settingsOnly && semver.gte(payload.slpVersion, "1.6.0")) {
-          return true;
-        }
+          // If we only want to fetch settings, check to see if
+          // the file was created after the sheik fix so we know
+          // we don't have to process the first frame of the game
+          if (settingsOnly && semver.gte(payload.slpVersion, "1.6.0")) {
+            return true;
+          }
 
-        break;
-      case Command.POST_FRAME_UPDATE:
-        payload = payload as PostFrameUpdateType;
-        this.parser.handlePostFrameUpdate(payload);
-        this.parser.handleFrameUpdate(command, payload);
+          break;
+        case Command.POST_FRAME_UPDATE:
+          payload = payload as PostFrameUpdateType;
+          this.parser.handlePostFrameUpdate(payload);
+          this.parser.handleFrameUpdate(command, payload);
 
-        // Once we've reached frame -122, we know we've loaded
-        // the first post frame result for all characters, so sheik
-        // will have been set properly
-        if (settingsOnly && payload.frame > Frames.FIRST) {
-          return true;
-        }
+          // Once we've reached frame -122, we know we've loaded
+          // the first post frame result for all characters, so sheik
+          // will have been set properly
+          if (settingsOnly && payload.frame > Frames.FIRST) {
+            return true;
+          }
 
-        break;
-      case Command.PRE_FRAME_UPDATE:
-        payload = payload as PreFrameUpdateType;
-        this.parser.handleFrameUpdate(command, payload);
-        break;
-      case Command.GAME_END:
-        payload = payload as GameEndType;
-        this.parser.handleGameEnd(payload);
-        break;
+          break;
+        case Command.PRE_FRAME_UPDATE:
+          payload = payload as PreFrameUpdateType;
+          this.parser.handleFrameUpdate(command, payload);
+          break;
+        case Command.GAME_END:
+          payload = payload as GameEndType;
+          this.parser.handleGameEnd(payload);
+          break;
       }
-
       return false;
     }, this.readPosition);
     closeSlpFile(slpfile);
@@ -123,7 +144,24 @@ export class SlippiGame {
 
   public getStats(): StatsType {
     this._process();
-    return this.parser.getStats();
+    // Finish processing if we're not up to date
+    this.statsComputer.process();
+    const inputs = this.inputComputer.fetch();
+    const stocks = this.stockComputer.fetch();
+    const conversions = this.conversionComputer.fetch();
+    const indices = getSinglesOpponentIndicesFromSettings(this.parser.getSettings());
+    const playableFrames = this.parser.playableFrameCount();
+    const overall = generateOverallStats(indices, inputs, stocks, conversions, playableFrames);
+    return {
+      lastFrame: this.parser.getLatestFrameNumber(),
+      playableFrameCount: playableFrames,
+      stocks: stocks,
+      conversions: conversions,
+      combos: this.comboComputer.fetch(),
+      actionCounts: this.actionsComputer.fetch(),
+      overall: overall,
+      gameComplete: this.parser.getGameEnd() !== null,
+    }
   }
 
   public getMetadata(): MetadataType {
