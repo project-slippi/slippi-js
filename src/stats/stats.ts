@@ -50,7 +50,7 @@ export class Stats {
             return;
         }
         let i = this.lastProcessedFrame ? this.lastProcessedFrame + 1 : Frames.FIRST;
-        while (Boolean(this.frames[i])) {
+        while (this.frames[i]) {
             const frame = this.frames[i];
             // Don't attempt to compute stats on frames that have not been fully received
             if (!isCompletedFrame(this.opponentIndices, frame)) {
