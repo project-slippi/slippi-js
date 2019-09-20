@@ -102,7 +102,7 @@ export class SlpParser {
         return _.get(allFrames, indexToUse) || null;
     }
 
-    public handleFrameUpdate(command: Command, payload: PreFrameUpdateType | PostFrameUpdateType): FrameEntryType {
+    public handleFrameUpdate(command: Command, payload: PreFrameUpdateType | PostFrameUpdateType): void {
         payload = payload as PostFrameUpdateType;
         if (!payload.frame && payload.frame !== 0) {
             // If payload is messed up, stop iterating. This shouldn't ever happen
@@ -115,9 +115,7 @@ export class SlpParser {
         _.set(frames, [payload.frame, 'players', payload.playerIndex, location], payload);
         _.set(frames, [payload.frame, 'frame'], payload.frame);
 
-        const frame = frames[payload.frame];
-        this.statsComputer.addFrame(frame);
-        return frame;
+        this.statsComputer.addFrame(frames[payload.frame]);
     }
 
 }
