@@ -130,11 +130,8 @@ export class SlippiGame {
     if (this.metadata) {
       return this.metadata;
     }
-
     const slpfile = openSlpFile(this.input);
-
     this.metadata = getMetadata(slpfile);
-
     closeSlpFile(slpfile);
     return this.metadata;
   }
