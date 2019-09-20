@@ -27,12 +27,12 @@ const defaultOptions: StatOptions = {
 }
 
 export class Stats {
+    private options: StatOptions;
     private lastProcessedFrame: number = Frames.FIRST;
     private lastFrame: number;
     private frames: FramesType = {};
-    private opponentIndices: PlayerIndexedType[] = [];
-    private allComputers: StatComputer<unknown>[] = [];
-    private options: StatOptions;
+    private opponentIndices = new Array<PlayerIndexedType>();
+    private allComputers = new Array<StatComputer<unknown>>();
 
     public constructor(options?: StatOptions) {
         this.options = options || defaultOptions;

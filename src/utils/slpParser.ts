@@ -11,10 +11,29 @@ export class SlpParser {
     private settings: GameStartType | null = null;
     private gameEnd: GameEndType | null = null;
     private latestFrameIndex: number | null = null;
-    private playerIndices: PlayerIndexedType[] = [];
+    private playerIndices = new Array<PlayerIndexedType>();
 
     public constructor(statsComputer: Stats) {
         this.statsComputer = statsComputer;
+    }
+
+    public getLatestFrameNumber(): number {
+        return this.latestFrameIndex;
+    }
+
+    public getPlayableFrameCount(): number {
+        return this.latestFrameIndex < Frames.FIRST_PLAYABLE ? 0 : this.latestFrameIndex - Frames.FIRST_PLAYABLE;
+    }
+
+    public getLatestFrame(): FrameEntryType | null {
+        // return this.playerFrames[this.latestFrameIndex];
+
+        // TODO: Modify this to check if we actually have all the latest frame data and return that
+        // TODO: If we do. For now I'm just going to take a shortcut
+        const allFrames = this.getFrames();
+        const frameIndex = this.latestFrameIndex || Frames.FIRST;
+        const indexToUse = this.gameEnd ? frameIndex : frameIndex - 1;
+        return _.get(allFrames, indexToUse) || null;
     }
 
     public getSettings(): GameStartType | null {
@@ -71,25 +90,6 @@ export class SlpParser {
         }
     }
 
-    public playableFrameCount(): number {
-        return this.latestFrameIndex < Frames.FIRST_PLAYABLE ? 0 : this.latestFrameIndex - Frames.FIRST_PLAYABLE;
-    }
-
-    public getLatestFrameNumber(): number {
-        return this.latestFrameIndex;
-    }
-
-    public getLatestFrame(): FrameEntryType | null {
-        // return this.playerFrames[this.latestFrameIndex];
-
-        // TODO: Modify this to check if we actually have all the latest frame data and return that
-        // TODO: If we do. For now I'm just going to take a shortcut
-        const allFrames = this.getFrames();
-        const frameIndex = this.latestFrameIndex || Frames.FIRST;
-        const indexToUse = this.gameEnd ? frameIndex : frameIndex - 1;
-        return _.get(allFrames, indexToUse) || null;
-    }
-
     public handleFrameUpdate(command: Command, payload: PreFrameUpdateType | PostFrameUpdateType): void {
         payload = payload as PostFrameUpdateType;
         if (!payload.frame && payload.frame !== 0) {
@@ -105,5 +105,4 @@ export class SlpParser {
 
         this.statsComputer.addFrame(frames[payload.frame]);
     }
-
 }

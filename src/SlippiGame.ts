@@ -51,10 +51,10 @@ export class SlippiGame {
     // Set up stats calculation
     this.statsComputer.registerAll([
       this.actionsComputer,
-      this.conversionComputer,
       this.comboComputer,
-      this.stockComputer,
+      this.conversionComputer,
       this.inputComputer,
+      this.stockComputer,
     ]);
     this.parser = new SlpParser(this.statsComputer);
   }
@@ -150,7 +150,7 @@ export class SlippiGame {
     const stocks = this.stockComputer.fetch();
     const conversions = this.conversionComputer.fetch();
     const indices = getSinglesOpponentIndicesFromSettings(this.parser.getSettings());
-    const playableFrames = this.parser.playableFrameCount();
+    const playableFrames = this.parser.getPlayableFrameCount();
     const overall = generateOverallStats(indices, inputs, stocks, conversions, playableFrames);
     return {
       lastFrame: this.parser.getLatestFrameNumber(),
