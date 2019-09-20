@@ -10,7 +10,6 @@ export interface StatComputer<T> {
 
 export class Stats {
     private lastProcessedFrame: number | null = null;
-    private lastFrame: number;
     private frames: FramesType = {};
     private opponentIndices = new Array<PlayerIndexedType>();
     private allComputers = new Array<StatComputer<unknown>>();
@@ -29,10 +28,6 @@ export class Stats {
     }
 
     public process(): void {
-        // Finish processing if we're not up to date
-        if (this.lastFrame === this.lastProcessedFrame) {
-            return;
-        }
         if (this.opponentIndices.length === 0) {
             return;
         }
@@ -51,7 +46,6 @@ export class Stats {
 
     public addFrame(frame: FrameEntryType): void {
         this.frames[frame.frame] = frame;
-        this.lastFrame = frame.frame;
     }
 }
 
