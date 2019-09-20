@@ -50,6 +50,7 @@ export type PlayerType = {
 };
 
 export type GameStartType = {
+  slpVersion: string | null;
   isTeams: boolean | null;
   isPAL: boolean | null;
   stageId: number | null;
@@ -325,6 +326,7 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
   switch (command) {
   case Command.GAME_START:
     return {
+      slpVersion: `${readUint8(view, 0x1)}.${readUint8(view, 0x2)}.${readUint8(view, 0x3)}`,
       isTeams: readBool(view, 0xD),
       isPAL: readBool(view, 0x1A1),
       stageId: readUint16(view, 0x13),

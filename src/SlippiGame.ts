@@ -1,5 +1,6 @@
 /* eslint-disable no-param-reassign */
 import _ from 'lodash';
+import semver from 'semver';
 import { Command, openSlpFile, closeSlpFile, iterateEvents, getMetadata, GameStartType, SlpInputSource } from './utils/slpReader';
 
 // Type imports
@@ -8,7 +9,7 @@ import {
   SlpReadInput
 } from "./utils/slpReader";
 import { SlpParser } from './utils/slpParser';
-import { FrameEntryType, FramesType, StatsType } from './stats/common';
+import { FrameEntryType, FramesType, StatsType, Frames } from './stats/common';
 
 /**
  * Slippi Game class that wraps a file
@@ -36,7 +37,7 @@ export class SlippiGame {
     }
   }
 
-  private _process(endCommand?: Command): void {
+  private _process(settingsOnly: boolean = false): void {
     if (this.parser.getGameEnd() !== null) {
       return;
     }
@@ -53,11 +54,27 @@ export class SlippiGame {
       case Command.GAME_START:
         payload = payload as GameStartType;
         this.parser.handleGameStart(payload);
+
+        // If we only want to fetch settings, check to see if
+        // the file was created after the sheik fix so we know
+        // we don't have to process the first frame of the game
+        if (settingsOnly && semver.gte(payload.slpVersion, "1.6.0")) {
+          return true;
+        }
+
         break;
       case Command.POST_FRAME_UPDATE:
         payload = payload as PostFrameUpdateType;
         this.parser.handlePostFrameUpdate(payload);
         this.parser.handleFrameUpdate(command, payload);
+
+        // Once we've reached frame -122, we know we've loaded
+        // the first post frame result for all characters, so sheik
+        // will have been set properly
+        if (settingsOnly && payload.frame > Frames.FIRST) {
+          return true;
+        }
+
         break;
       case Command.PRE_FRAME_UPDATE:
         payload = payload as PreFrameUpdateType;
@@ -69,8 +86,7 @@ export class SlippiGame {
         break;
       }
 
-      // Short-circuit if we've been asked to
-      return endCommand === command;
+      return false;
     }, this.readPosition);
     closeSlpFile(slpfile);
   }
@@ -81,7 +97,7 @@ export class SlippiGame {
    */
   public getSettings(): GameStartType {
     // Settings is only complete after post-frame update
-    this._process(Command.POST_FRAME_UPDATE);
+    this._process(true);
     return this.parser.getSettings();
   }
 
