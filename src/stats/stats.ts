@@ -23,6 +23,14 @@ export interface StatComputer<T> {
     fetch(): T;
 }
 
+export interface StatOptions {
+    processOnTheFly: boolean;
+}
+
+const defaultOptions: StatOptions = {
+    processOnTheFly: false,
+}
+
 export class Stats {
     private lastProcessedFrame: number = Frames.FIRST;
     private lastFrame: number;
@@ -34,8 +42,10 @@ export class Stats {
     private stockComputer: StockComputer;
     private inputComputer: InputComputer;
     private allComputers: StatComputer<unknown>[];
+    private options: StatOptions;
 
-    public constructor(opponentIndices: PlayerIndexedType[]) {
+    public constructor(opponentIndices: PlayerIndexedType[], options?: StatOptions) {
+        this.options = options || defaultOptions;
         this.opponentIndices = opponentIndices;
         this.actionsComputer = new ActionsComputer(opponentIndices);
         this.conversionComputer = new ConversionComputer(opponentIndices);
@@ -84,6 +94,10 @@ export class Stats {
     public addFrame(frame: FrameEntryType): void {
         this.frames[frame.frame] = frame;
         this.lastFrame = frame.frame;
+
+        if (this.options.processOnTheFly) {
+            this._process();
+        }
     }
 
     private _playableFrameCount(): number {

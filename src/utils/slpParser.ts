@@ -4,19 +4,29 @@ import { PostFrameUpdateType, GameStartType, GameEndType, Command, PreFrameUpdat
 import { FramesType, FrameEntryType, StatsType, Frames, PlayerIndexedType, getSinglesOpponentIndicesFromSettings } from "../stats/common";
 import { Stats } from "../stats/stats";
 
+export interface ParserOptions {
+    processStatsOnTheFly: boolean;
+}
+
+const defaultParserOptions: ParserOptions = {
+    processStatsOnTheFly: false,
+}
+
 export class SlpParser {
+    private options: ParserOptions;
+    private playerFrames: FramesType = {};
+    private followerFrames: FramesType = {};
     private settings: GameStartType | null = null;
-    private playerFrames: FramesType | null = null;
-    private followerFrames: FramesType | null = null;
     private gameEnd: GameEndType | null = null;
     private latestFrameIndex: number | null = null;
     private statsComputer: Stats | null = null;
     private playerIndices: PlayerIndexedType[] = [];
 
-    public constructor() {
-        this.playerFrames = {};
-        this.followerFrames = {};
-        this.statsComputer = new Stats([]);
+    public constructor(options?: ParserOptions) {
+        this.options = options || defaultParserOptions;
+        this.statsComputer = new Stats([], {
+            processOnTheFly: this.options.processStatsOnTheFly,
+        });
     }
 
 
@@ -57,7 +67,9 @@ export class SlpParser {
         const players = payload.players;
         this.settings.players = players.filter(player => player.type !== 3);
         this.playerIndices = getSinglesOpponentIndicesFromSettings(this.settings);
-        this.statsComputer = new Stats(this.playerIndices);
+        this.statsComputer = new Stats(this.playerIndices, {
+            processOnTheFly: this.options.processStatsOnTheFly,
+        });
     }
 
     public handlePostFrameUpdate(payload: PostFrameUpdateType): void {
