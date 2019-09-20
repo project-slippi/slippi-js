@@ -107,7 +107,7 @@ export class SlpParser {
         _.set(frames, [payload.frame, 'frame'], payload.frame);
 
         const frame = frames[payload.frame];
-        this.statsComputer.processFrame(frame);
+        this.statsComputer.addFrame(frame);
         return frame;
     }
 

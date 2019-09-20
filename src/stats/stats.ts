@@ -24,6 +24,7 @@ export interface StatComputer<T> {
 }
 
 export class Stats {
+    private lastProcessedFrame: number = Frames.FIRST;
     private lastFrame: number;
     private frames: FramesType = {};
     private opponentIndices: PlayerIndexedType[];
@@ -45,7 +46,26 @@ export class Stats {
         this.allComputers = [this.actionsComputer, this.conversionComputer, this.comboComputer, this.stockComputer, this.inputComputer];
     }
 
+    private _process(): void {
+        if (this.opponentIndices.length === 0) {
+            return;
+        }
+        for (let i = this.lastProcessedFrame + 1; Boolean(this.frames[i]); i++) {
+            const frame = this.frames[i];
+            // Don't attempt to compute stats on frames that have not been fully received
+            if (!isCompletedFrame(this.opponentIndices, frame)) {
+                return;
+            }
+            this.allComputers.forEach(comp => comp.processFrame(frame, this.frames));
+            this.lastProcessedFrame = i;
+        }
+    }
+
     public getStats(): ComputedStatsType {
+        // Finish processing if we're not up to date
+        if (this.lastFrame !== this.lastProcessedFrame) {
+            this._process();
+        }
         const inputs = this.inputComputer.fetch();
         const stocks = this.stockComputer.fetch();
         const conversions = this.conversionComputer.fetch();
@@ -61,20 +81,9 @@ export class Stats {
         }
     }
 
-    public processFrame(frame: FrameEntryType): void {
+    public addFrame(frame: FrameEntryType): void {
         this.frames[frame.frame] = frame;
         this.lastFrame = frame.frame;
-
-        if (this.opponentIndices.length === 0) {
-            return;
-        }
-
-        // Don't attempt to compute stats on frames that have not been fully received
-        if (!isCompletedFrame(this.opponentIndices, frame)) {
-            return;
-        }
-
-        this.allComputers.forEach(comp => comp.processFrame(frame, this.frames));
     }
 
     private _playableFrameCount(): number {
