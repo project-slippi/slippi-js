@@ -19,8 +19,8 @@ export class ComboComputer implements StatComputer<ComboType[]> {
   private state = new Map<PlayerIndexedType, ComboState>();
   private combos = new Array<ComboType>();
 
-  public setPlayerIndices(playerIndices: PlayerIndexedType[]): void {
-    this.opponentIndices = playerIndices;
+  public setOpponentIndices(opponentIndices: PlayerIndexedType[]): void {
+    this.opponentIndices = opponentIndices;
     this.opponentIndices.forEach((indices) => {
       const playerState: ComboState = {
         combo: null,

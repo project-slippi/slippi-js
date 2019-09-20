@@ -29,8 +29,8 @@ export class ConversionComputer implements StatComputer<ConversionType[]> {
     };
   }
 
-  public setPlayerIndices(playerIndices: PlayerIndexedType[]): void {
-    this.opponentIndices = playerIndices;
+  public setOpponentIndices(opponentIndices: PlayerIndexedType[]): void {
+    this.opponentIndices = opponentIndices;
     this.opponentIndices.forEach((indices) => {
       const playerState: PlayerConversionState = {
         conversion: null,

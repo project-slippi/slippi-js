@@ -13,8 +13,8 @@ export class StockComputer implements StatComputer<StockType[]> {
   private opponentIndices = new Array<PlayerIndexedType>();
   private stocks = new Array<StockType>();
 
-  public setPlayerIndices(playerIndices: PlayerIndexedType[]): void {
-    this.opponentIndices = playerIndices;
+  public setOpponentIndices(opponentIndices: PlayerIndexedType[]): void {
+    this.opponentIndices = opponentIndices;
     this.opponentIndices.forEach((indices) => {
       const playerState: StockState = {
         stock: null,

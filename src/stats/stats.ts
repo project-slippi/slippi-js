@@ -3,7 +3,7 @@ import _ from "lodash";
 import { FrameEntryType, PlayerIndexedType, Frames, FramesType } from "./common";
 
 export interface StatComputer<T> {
-    setPlayerIndices(indices: PlayerIndexedType[]): void;
+    setOpponentIndices(indices: PlayerIndexedType[]): void;
     processFrame(newFrame: FrameEntryType, allFrames: FramesType): void;
     fetch(): T;
 }
@@ -14,9 +14,9 @@ export class Stats {
     private opponentIndices = new Array<PlayerIndexedType>();
     private allComputers = new Array<StatComputer<unknown>>();
 
-    public setPlayerIndices(indices: PlayerIndexedType[]): void {
+    public setOpponentIndices(indices: PlayerIndexedType[]): void {
         this.opponentIndices = indices;
-        this.allComputers.forEach(comp => comp.setPlayerIndices(indices));
+        this.allComputers.forEach(comp => comp.setOpponentIndices(indices));
     }
 
     public register(computer: StatComputer<unknown>): void {

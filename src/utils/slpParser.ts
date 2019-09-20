@@ -11,7 +11,7 @@ export class SlpParser {
     private settings: GameStartType | null = null;
     private gameEnd: GameEndType | null = null;
     private latestFrameIndex: number | null = null;
-    private playerIndices = new Array<PlayerIndexedType>();
+    private opponentIndices = new Array<PlayerIndexedType>();
 
     public constructor(statsComputer: Stats) {
         this.statsComputer = statsComputer;
@@ -64,8 +64,8 @@ export class SlpParser {
         this.settings = payload;
         const players = payload.players;
         this.settings.players = players.filter(player => player.type !== 3);
-        this.playerIndices = getSinglesOpponentIndicesFromSettings(this.settings);
-        this.statsComputer.setPlayerIndices(this.playerIndices);
+        this.opponentIndices = getSinglesOpponentIndicesFromSettings(this.settings);
+        this.statsComputer.setOpponentIndices(this.opponentIndices);
     }
 
     public handlePostFrameUpdate(payload: PostFrameUpdateType): void {
