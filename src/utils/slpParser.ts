@@ -19,12 +19,11 @@ export class SlpParser {
     private settings: GameStartType | null = null;
     private gameEnd: GameEndType | null = null;
     private latestFrameIndex: number | null = null;
-    private statsComputer: Stats | null = null;
+    private statsComputer: Stats = new Stats();
     private playerIndices: PlayerIndexedType[] = [];
 
     public constructor(options?: ParserOptions) {
         this.options = options || defaultParserOptions;
-        this.statsComputer = new Stats();
     }
 
 
