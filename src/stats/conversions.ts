@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { PostFrameUpdateType } from "../utils/slpReader";
-import { FrameEntryType, FramesType, MoveLandedType, ConversionType, PlayerIndexedType, Frames } from "./common";
+import { FrameEntryType, FramesType, MoveLandedType, ConversionType, PlayerIndexedType } from "./common";
 import { isDamaged, isGrabbed, calcDamageTaken, isInControl, didLoseStock, Timers } from "./common";
 import { StatComputer } from './stats';
 
@@ -18,13 +18,12 @@ interface MetadataType {
 }
 
 export class ConversionComputer implements StatComputer<ConversionType[]> {
-  private opponentIndices: PlayerIndexedType[];
-  private conversions: ConversionType[] = [];
-  private state: Map<PlayerIndexedType, PlayerConversionState>;
+  private opponentIndices = new Array<PlayerIndexedType>();
+  private conversions = new Array<ConversionType>();
+  private state = new Map<PlayerIndexedType, PlayerConversionState>();
   private metadata: MetadataType;
 
   public constructor() {
-    this.state = new Map<PlayerIndexedType, PlayerConversionState>();
     this.metadata = {
       lastEndFrameByOppIdx: {},
     };

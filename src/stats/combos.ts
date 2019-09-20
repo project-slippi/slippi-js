@@ -15,13 +15,9 @@ interface ComboState {
 }
 
 export class ComboComputer implements StatComputer<ComboType[]> {
-  private opponentIndices: PlayerIndexedType[];
-  private state: Map<PlayerIndexedType, ComboState>;
-  private combos: ComboType[] = [];
-
-  public constructor() {
-    this.state = new Map<PlayerIndexedType, ComboState>();
-  }
+  private opponentIndices = new Array<PlayerIndexedType>();
+  private state = new Map<PlayerIndexedType, ComboState>();
+  private combos = new Array<ComboType>();
 
   public setPlayerIndices(playerIndices: PlayerIndexedType[]): void {
     this.opponentIndices = playerIndices;

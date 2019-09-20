@@ -22,12 +22,8 @@ export interface PlayerInput {
 }
 
 export class InputComputer implements StatComputer<PlayerInput[]> {
-  private opponentIndices: PlayerIndexedType[];
-  private state: Map<PlayerIndexedType, PlayerInput>;
-
-  public constructor() {
-    this.state = new Map<PlayerIndexedType, PlayerInput>();
-  }
+  private opponentIndices = new Array<PlayerIndexedType>();
+  private state = new Map<PlayerIndexedType, PlayerInput>();
 
   public setPlayerIndices(playerIndices: PlayerIndexedType[]): void {
     this.opponentIndices = playerIndices;

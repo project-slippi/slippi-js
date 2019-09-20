@@ -9,13 +9,9 @@ interface StockState {
 }
 
 export class StockComputer implements StatComputer<StockType[]> {
-  private state: Map<PlayerIndexedType, StockState>;
-  private opponentIndices: PlayerIndexedType[] = [];
-  private stocks: StockType[] = [];
-
-  public constructor() {
-    this.state = new Map<PlayerIndexedType, StockState>();
-  }
+  private state = new Map<PlayerIndexedType, StockState>();
+  private opponentIndices = new Array<PlayerIndexedType>();
+  private stocks = new Array<StockType>();
 
   public setPlayerIndices(playerIndices: PlayerIndexedType[]): void {
     this.opponentIndices = playerIndices;

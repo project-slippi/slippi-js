@@ -12,12 +12,8 @@ interface PlayerActionState {
 }
 
 export class ActionsComputer implements StatComputer<ActionCountsType[]> {
-  private opponentIndices: PlayerIndexedType[];
-  private state: Map<PlayerIndexedType, PlayerActionState>;
-
-  public constructor() {
-    this.state = new Map<PlayerIndexedType, PlayerActionState>();
-  }
+  private opponentIndices = new Array<PlayerIndexedType>();
+  private state = new Map<PlayerIndexedType, PlayerActionState>();
 
   public setPlayerIndices(playerIndices: PlayerIndexedType[]): void {
     this.opponentIndices = playerIndices;
