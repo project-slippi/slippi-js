@@ -28,7 +28,7 @@ const defaultOptions: StatOptions = {
 
 export class Stats {
     private options: StatOptions;
-    private lastProcessedFrame: number = Frames.FIRST;
+    private lastProcessedFrame: number | null = null;
     private lastFrame: number;
     private frames: FramesType = {};
     private opponentIndices = new Array<PlayerIndexedType>();
@@ -59,7 +59,8 @@ export class Stats {
         if (this.opponentIndices.length === 0) {
             return;
         }
-        for (let i = this.lastProcessedFrame + 1; Boolean(this.frames[i]); i++) {
+        let i = this.lastProcessedFrame ? this.lastProcessedFrame + 1 : Frames.FIRST;
+        while (Boolean(this.frames[i])) {
             const frame = this.frames[i];
             // Don't attempt to compute stats on frames that have not been fully received
             if (!isCompletedFrame(this.opponentIndices, frame)) {
@@ -67,6 +68,7 @@ export class Stats {
             }
             this.allComputers.forEach(comp => comp.processFrame(frame, this.frames));
             this.lastProcessedFrame = i;
+            i++;
         }
     }
 
