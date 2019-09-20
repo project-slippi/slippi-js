@@ -1,16 +1,6 @@
 import _ from "lodash";
 
-import { FrameEntryType, StockType, ConversionType, ComboType, ActionCountsType, OverallType, PlayerIndexedType, Frames, FramesType } from "./common";
-
-export type ComputedStatsType = {
-  lastFrame: number;
-  playableFrameCount: number;
-  stocks: StockType[];
-  conversions: ConversionType[];
-  combos: ComboType[];
-  actionCounts: ActionCountsType[];
-  overall: OverallType[];
-};
+import { FrameEntryType, PlayerIndexedType, Frames, FramesType } from "./common";
 
 export interface StatComputer<T> {
     setPlayerIndices(indices: PlayerIndexedType[]): void;
