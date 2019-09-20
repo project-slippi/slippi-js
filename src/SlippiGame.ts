@@ -37,7 +37,7 @@ export class SlippiGame {
     }
   }
 
-  private _process(settingsOnly: boolean = false): void {
+  private _process(settingsOnly = false): void {
     if (this.parser.getGameEnd() !== null) {
       return;
     }
