@@ -24,9 +24,7 @@ export class SlpParser {
 
     public constructor(options?: ParserOptions) {
         this.options = options || defaultParserOptions;
-        this.statsComputer = new Stats([], {
-            processOnTheFly: this.options.processStatsOnTheFly,
-        });
+        this.statsComputer = new Stats();
     }
 
 

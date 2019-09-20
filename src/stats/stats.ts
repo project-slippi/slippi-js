@@ -44,7 +44,7 @@ export class Stats {
     private allComputers: StatComputer<unknown>[];
     private options: StatOptions;
 
-    public constructor(opponentIndices: PlayerIndexedType[], options?: StatOptions) {
+    public constructor(opponentIndices: PlayerIndexedType[] = [], options?: StatOptions) {
         this.options = options || defaultOptions;
         this.opponentIndices = opponentIndices;
         this.actionsComputer = new ActionsComputer(opponentIndices);
