@@ -1,4 +1,5 @@
 import _ from "lodash";
+import semver from 'semver';
 
 import { PostFrameUpdateType, GameStartType, GameEndType, Command, PreFrameUpdateType } from "./slpReader";
 import { FramesType, FrameEntryType, Frames, PlayerIndexedType, getSinglesOpponentIndicesFromSettings } from "../stats/common";
@@ -12,6 +13,7 @@ export class SlpParser {
   private gameEnd: GameEndType | null = null;
   private latestFrameIndex: number | null = null;
   private opponentIndices = new Array<PlayerIndexedType>();
+  private settingsComplete = false;
 
   public constructor(statsComputer: Stats) {
     this.statsComputer = statsComputer;
@@ -37,7 +39,7 @@ export class SlpParser {
   }
 
   public getSettings(): GameStartType | null {
-    return this.settings;
+    return this.settingsComplete ? this.settings : null;
   }
 
   public getGameEnd(): GameEndType | null {
@@ -66,6 +68,12 @@ export class SlpParser {
     this.settings.players = players.filter(player => player.type !== 3);
     this.opponentIndices = getSinglesOpponentIndicesFromSettings(this.settings);
     this.statsComputer.setOpponentIndices(this.opponentIndices);
+
+    // Check to see if the file was created after the sheik fix so we know
+    // we don't have to process the first frame of the game for the full settings
+    if (semver.gte(payload.slpVersion, "1.6.0")) {
+      this.settingsComplete = true;
+    }
   }
 
   public handlePostFrameUpdate(payload: PostFrameUpdateType): void {
@@ -74,8 +82,8 @@ export class SlpParser {
       // Tell the iterator to stop
       return;
     }
-    // handle settings calculation
-    if (payload.frame <= Frames.FIRST) {
+    // Finish calculating settings
+    if (!this.settingsComplete && payload.frame <= Frames.FIRST) {
       const playerIndex = payload.playerIndex;
       const playersByIndex = _.keyBy(this.settings.players, 'playerIndex');
 
@@ -87,6 +95,7 @@ export class SlpParser {
         playersByIndex[playerIndex].characterId = 0x12; // Zelda
         break;
       }
+      this.settingsComplete = true;
     }
   }
 
