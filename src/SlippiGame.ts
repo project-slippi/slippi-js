@@ -73,39 +73,39 @@ export class SlippiGame {
       }
 
       switch (command) {
-        case Command.GAME_START:
-          payload = payload as GameStartType;
-          this.parser.handleGameStart(payload);
+      case Command.GAME_START:
+        payload = payload as GameStartType;
+        this.parser.handleGameStart(payload);
 
-          // If we only want to fetch settings, check to see if
-          // the file was created after the sheik fix so we know
-          // we don't have to process the first frame of the game
-          if (settingsOnly && semver.gte(payload.slpVersion, "1.6.0")) {
-            return true;
-          }
+        // If we only want to fetch settings, check to see if
+        // the file was created after the sheik fix so we know
+        // we don't have to process the first frame of the game
+        if (settingsOnly && semver.gte(payload.slpVersion, "1.6.0")) {
+          return true;
+        }
 
-          break;
-        case Command.POST_FRAME_UPDATE:
-          payload = payload as PostFrameUpdateType;
-          this.parser.handlePostFrameUpdate(payload);
-          this.parser.handleFrameUpdate(command, payload);
+        break;
+      case Command.POST_FRAME_UPDATE:
+        payload = payload as PostFrameUpdateType;
+        this.parser.handlePostFrameUpdate(payload);
+        this.parser.handleFrameUpdate(command, payload);
 
-          // Once we've reached frame -122, we know we've loaded
-          // the first post frame result for all characters, so sheik
-          // will have been set properly
-          if (settingsOnly && payload.frame > Frames.FIRST) {
-            return true;
-          }
+        // Once we've reached frame -122, we know we've loaded
+        // the first post frame result for all characters, so sheik
+        // will have been set properly
+        if (settingsOnly && payload.frame > Frames.FIRST) {
+          return true;
+        }
 
-          break;
-        case Command.PRE_FRAME_UPDATE:
-          payload = payload as PreFrameUpdateType;
-          this.parser.handleFrameUpdate(command, payload);
-          break;
-        case Command.GAME_END:
-          payload = payload as GameEndType;
-          this.parser.handleGameEnd(payload);
-          break;
+        break;
+      case Command.PRE_FRAME_UPDATE:
+        payload = payload as PreFrameUpdateType;
+        this.parser.handleFrameUpdate(command, payload);
+        break;
+      case Command.GAME_END:
+        payload = payload as GameEndType;
+        this.parser.handleGameEnd(payload);
+        break;
       }
       return false;
     }, this.readPosition);

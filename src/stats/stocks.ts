@@ -37,39 +37,39 @@ export class StockComputer implements StatComputer<StockType[]> {
 }
 
 function handleStockCompute(frames: FramesType, state: StockState, indices: PlayerIndexedType, frame: FrameEntryType, stocks: StockType[]): void {
-    const playerFrame = frame.players[indices.playerIndex].post;
-    // FIXME: use PostFrameUpdateType instead of any
-    const prevPlayerFrame: any = _.get(
-      frames, [playerFrame.frame - 1, 'players', indices.playerIndex, 'post'], {}
-    );
+  const playerFrame = frame.players[indices.playerIndex].post;
+  // FIXME: use PostFrameUpdateType instead of any
+  const prevPlayerFrame: any = _.get(
+    frames, [playerFrame.frame - 1, 'players', indices.playerIndex, 'post'], {}
+  );
 
-    // If there is currently no active stock, wait until the player is no longer spawning.
-    // Once the player is no longer spawning, start the stock
-    if (!state.stock) {
-      const isPlayerDead = isDead(playerFrame.actionStateId);
-      if (isPlayerDead) {
-        return;
-      }
-
-      state.stock = {
-        playerIndex: indices.playerIndex,
-        opponentIndex: indices.opponentIndex,
-        startFrame: playerFrame.frame,
-        endFrame: null,
-        startPercent: 0,
-        endPercent: null,
-        currentPercent: 0,
-        count: playerFrame.stocksRemaining,
-        deathAnimation: null,
-      };
-
-      stocks.push(state.stock);
-    } else if (didLoseStock(playerFrame, prevPlayerFrame)) {
-      state.stock.endFrame = playerFrame.frame;
-      state.stock.endPercent = prevPlayerFrame.percent || 0;
-      state.stock.deathAnimation = playerFrame.actionStateId;
-      state.stock = null;
-    } else {
-      state.stock.currentPercent = playerFrame.percent || 0;
+  // If there is currently no active stock, wait until the player is no longer spawning.
+  // Once the player is no longer spawning, start the stock
+  if (!state.stock) {
+    const isPlayerDead = isDead(playerFrame.actionStateId);
+    if (isPlayerDead) {
+      return;
     }
+
+    state.stock = {
+      playerIndex: indices.playerIndex,
+      opponentIndex: indices.opponentIndex,
+      startFrame: playerFrame.frame,
+      endFrame: null,
+      startPercent: 0,
+      endPercent: null,
+      currentPercent: 0,
+      count: playerFrame.stocksRemaining,
+      deathAnimation: null,
+    };
+
+    stocks.push(state.stock);
+  } else if (didLoseStock(playerFrame, prevPlayerFrame)) {
+    state.stock.endFrame = playerFrame.frame;
+    state.stock.endPercent = prevPlayerFrame.percent || 0;
+    state.stock.deathAnimation = playerFrame.actionStateId;
+    state.stock = null;
+  } else {
+    state.stock.currentPercent = playerFrame.percent || 0;
+  }
 }
