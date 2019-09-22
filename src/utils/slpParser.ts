@@ -60,9 +60,6 @@ export class SlpParser {
   }
 
   public handleGameStart(payload: GameStartType): void {
-    if (!payload.stageId) {
-      return;
-    }
     this.settings = payload;
     const players = payload.players;
     this.settings.players = players.filter(player => player.type !== 3);
@@ -77,11 +74,6 @@ export class SlpParser {
   }
 
   public handlePostFrameUpdate(payload: PostFrameUpdateType): void {
-    if (payload.frame === null) {
-      // Once we are an frame -122 or higher we are done getting match settings
-      // Tell the iterator to stop
-      return;
-    }
     // Finish calculating settings
     if (!this.settingsComplete && payload.frame <= Frames.FIRST) {
       const playerIndex = payload.playerIndex;
@@ -101,11 +93,6 @@ export class SlpParser {
 
   public handleFrameUpdate(command: Command, payload: PreFrameUpdateType | PostFrameUpdateType): void {
     payload = payload as PostFrameUpdateType;
-    if (!payload.frame && payload.frame !== 0) {
-      // If payload is messed up, stop iterating. This shouldn't ever happen
-      return;
-    }
-
     const location = command === Command.PRE_FRAME_UPDATE ? "pre" : "post";
     const frames = payload.isFollower ? this.followerFrames : this.playerFrames;
     this.latestFrameIndex = payload.frame;
