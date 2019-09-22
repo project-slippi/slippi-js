@@ -19,7 +19,7 @@
   "module": "dist/index.es.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "test": "jest",
+    "test": "jest --verbose",
     "coverage": "yarn run test -- --coverage",
     "postcoverage": "open-cli coverage/lcov-report/index.html",
     "lint": "eslint \"src/**/*.ts\" \"test/**/*.ts\"",
