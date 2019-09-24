@@ -74,8 +74,12 @@ export class SlpParser {
   }
 
   public handlePostFrameUpdate(payload: PostFrameUpdateType): void {
+    if (this.settingsComplete) {
+      return;
+    }
+
     // Finish calculating settings
-    if (!this.settingsComplete && payload.frame <= Frames.FIRST) {
+    if (payload.frame <= Frames.FIRST) {
       const playerIndex = payload.playerIndex;
       const playersByIndex = _.keyBy(this.settings.players, 'playerIndex');
 
@@ -87,8 +91,8 @@ export class SlpParser {
         playersByIndex[playerIndex].characterId = 0x12; // Zelda
         break;
       }
-      this.settingsComplete = true;
     }
+    this.settingsComplete = payload.frame > Frames.FIRST;
   }
 
   public handleFrameUpdate(command: Command, payload: PreFrameUpdateType | PostFrameUpdateType): void {
