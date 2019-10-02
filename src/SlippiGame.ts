@@ -8,14 +8,7 @@ import {
   SlpReadInput
 } from "./utils/slpReader";
 import { SlpParser } from './utils/slpParser';
-import { FrameEntryType, FramesType, StatsType, getSinglesOpponentIndicesFromSettings } from './stats/common';
-import { ActionsComputer } from './stats/actions';
-import { ConversionComputer } from './stats/conversions';
-import { ComboComputer } from './stats/combos';
-import { StockComputer } from './stats/stocks';
-import { InputComputer } from './stats/inputs';
-import { Stats } from './stats/stats';
-import { generateOverallStats } from './stats/overall';
+import { StockComputer, ComboComputer, ActionsComputer, ConversionComputer, InputComputer, Stats, FrameEntryType, FramesType, StatsType, getSinglesOpponentIndicesFromSettings, generateOverallStats } from './stats';
 
 /**
  * Slippi Game class that wraps a file

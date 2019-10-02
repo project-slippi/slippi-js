@@ -2,8 +2,7 @@ import _ from "lodash";
 import semver from 'semver';
 
 import { PostFrameUpdateType, GameStartType, GameEndType, Command, PreFrameUpdateType } from "./slpReader";
-import { FramesType, FrameEntryType, Frames, PlayerIndexedType, getSinglesOpponentIndicesFromSettings } from "../stats/common";
-import { Stats } from "../stats/stats";
+import { Stats, FramesType, FrameEntryType, Frames, PlayerIndexedType, getSinglesOpponentIndicesFromSettings } from "../stats";
 
 export class SlpParser {
   private statsComputer: Stats;
