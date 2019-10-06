@@ -226,8 +226,7 @@ export class SlippiGame {
     // The order here kind of matters because things later in the call order might
     // reference things calculated earlier. More specifically, currently the overall
     // calculation uses the others
-    // FIXME: Use proper typing instead of any
-    this.stats = {} as any;
+    this.stats = {} as StatsType;
     this.stats.stocks = generateStocks(this);
     this.stats.conversions = generateConversions(this);
     this.stats.combos = generateCombos(this);

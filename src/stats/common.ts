@@ -70,6 +70,12 @@ export type OverallType = PlayerIndexedType & {
   beneficialTradeRatio: RatioType;
 };
 
+export type ConversionsByPlayerByOpening = {
+  [playerIndex: string]: {
+    [openingType: string]: ConversionType[]
+  }
+}
+
 export enum State {
   // Animation ID ranges
   DAMAGE_START = 0x4B,
