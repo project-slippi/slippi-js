@@ -18,7 +18,7 @@ interface MetadataType {
 }
 
 export class ConversionComputer implements StatComputer<ConversionType[]> {
-  private opponentIndices = new Array<PlayerIndexedType>();
+  private playerPermutations = new Array<PlayerIndexedType>();
   private conversions = new Array<ConversionType>();
   private state = new Map<PlayerIndexedType, PlayerConversionState>();
   private metadata: MetadataType;
@@ -29,9 +29,9 @@ export class ConversionComputer implements StatComputer<ConversionType[]> {
     };
   }
 
-  public setOpponentIndices(opponentIndices: PlayerIndexedType[]): void {
-    this.opponentIndices = opponentIndices;
-    this.opponentIndices.forEach((indices) => {
+  public setPlayerPermutations(playerPermutations: PlayerIndexedType[]): void {
+    this.playerPermutations = playerPermutations;
+    this.playerPermutations.forEach((indices) => {
       const playerState: PlayerConversionState = {
         conversion: null,
         move: null,
@@ -43,7 +43,7 @@ export class ConversionComputer implements StatComputer<ConversionType[]> {
   }
 
   public processFrame(frame: FrameEntryType, allFrames: FramesType): void {
-    this.opponentIndices.forEach((indices) => {
+    this.playerPermutations.forEach((indices) => {
       const state = this.state.get(indices);
       handleConversionCompute(allFrames, state, indices, frame, this.conversions);
     });

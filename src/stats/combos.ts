@@ -15,13 +15,13 @@ interface ComboState {
 }
 
 export class ComboComputer implements StatComputer<ComboType[]> {
-  private opponentIndices = new Array<PlayerIndexedType>();
+  private playerPermutations = new Array<PlayerIndexedType>();
   private state = new Map<PlayerIndexedType, ComboState>();
   private combos = new Array<ComboType>();
 
-  public setOpponentIndices(opponentIndices: PlayerIndexedType[]): void {
-    this.opponentIndices = opponentIndices;
-    this.opponentIndices.forEach((indices) => {
+  public setPlayerPermutations(playerPermutations: PlayerIndexedType[]): void {
+    this.playerPermutations = playerPermutations;
+    this.playerPermutations.forEach((indices) => {
       const playerState: ComboState = {
         combo: null,
         move: null,
@@ -33,7 +33,7 @@ export class ComboComputer implements StatComputer<ComboType[]> {
   }
 
   public processFrame(frame: FrameEntryType, allFrames: FramesType): void {
-    this.opponentIndices.forEach((indices) => {
+    this.playerPermutations.forEach((indices) => {
       const state = this.state.get(indices);
       handleComboCompute(allFrames, state, indices, frame, this.combos);
     });

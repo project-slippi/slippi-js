@@ -8,7 +8,7 @@ import {
   SlpReadInput
 } from "./utils/slpReader";
 import { SlpParser } from './utils/slpParser';
-import { StockComputer, ComboComputer, ActionsComputer, ConversionComputer, InputComputer, Stats, FrameEntryType, FramesType, StatsType, getSinglesOpponentIndicesFromSettings, generateOverallStats } from './stats';
+import { StockComputer, ComboComputer, ActionsComputer, ConversionComputer, InputComputer, Stats, FrameEntryType, FramesType, StatsType, getSinglesPlayerPermutationsFromSettings, generateOverallStats } from './stats';
 
 /**
  * Slippi Game class that wraps a file
@@ -131,7 +131,7 @@ export class SlippiGame {
     const inputs = this.inputComputer.fetch();
     const stocks = this.stockComputer.fetch();
     const conversions = this.conversionComputer.fetch();
-    const indices = getSinglesOpponentIndicesFromSettings(this.parser.getSettings());
+    const indices = getSinglesPlayerPermutationsFromSettings(this.parser.getSettings());
     const playableFrames = this.parser.getPlayableFrameCount();
     const overall = generateOverallStats(indices, inputs, stocks, conversions, playableFrames);
 

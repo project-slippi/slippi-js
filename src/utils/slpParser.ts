@@ -2,7 +2,7 @@ import _ from "lodash";
 import semver from 'semver';
 
 import { PostFrameUpdateType, GameStartType, GameEndType, Command, PreFrameUpdateType } from "./slpReader";
-import { Stats, FramesType, FrameEntryType, Frames, PlayerIndexedType, getSinglesOpponentIndicesFromSettings } from "../stats";
+import { Stats, FramesType, FrameEntryType, Frames, PlayerIndexedType, getSinglesPlayerPermutationsFromSettings } from "../stats";
 
 export class SlpParser {
   private statsComputer: Stats;
@@ -11,7 +11,7 @@ export class SlpParser {
   private settings: GameStartType | null = null;
   private gameEnd: GameEndType | null = null;
   private latestFrameIndex: number | null = null;
-  private opponentIndices = new Array<PlayerIndexedType>();
+  private playerPermutations = new Array<PlayerIndexedType>();
   private settingsComplete = false;
 
   public constructor(statsComputer: Stats) {
@@ -62,8 +62,8 @@ export class SlpParser {
     this.settings = payload;
     const players = payload.players;
     this.settings.players = players.filter(player => player.type !== 3);
-    this.opponentIndices = getSinglesOpponentIndicesFromSettings(this.settings);
-    this.statsComputer.setOpponentIndices(this.opponentIndices);
+    this.playerPermutations = getSinglesPlayerPermutationsFromSettings(this.settings);
+    this.statsComputer.setPlayerPermutations(this.playerPermutations);
 
     // Check to see if the file was created after the sheik fix so we know
     // we don't have to process the first frame of the game for the full settings

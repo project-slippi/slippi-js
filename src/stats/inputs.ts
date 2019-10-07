@@ -22,12 +22,12 @@ export interface PlayerInput {
 }
 
 export class InputComputer implements StatComputer<PlayerInput[]> {
-  private opponentIndices = new Array<PlayerIndexedType>();
+  private playerPermutations = new Array<PlayerIndexedType>();
   private state = new Map<PlayerIndexedType, PlayerInput>();
 
-  public setOpponentIndices(opponentIndices: PlayerIndexedType[]): void {
-    this.opponentIndices = opponentIndices;
-    this.opponentIndices.forEach((indices) => {
+  public setPlayerPermutations(playerPermutations: PlayerIndexedType[]): void {
+    this.playerPermutations = playerPermutations;
+    this.playerPermutations.forEach((indices) => {
       const playerState: PlayerInput = {
         playerIndex: indices.playerIndex,
         opponentIndex: indices.opponentIndex,
@@ -38,7 +38,7 @@ export class InputComputer implements StatComputer<PlayerInput[]> {
   }
 
   public processFrame(frame: FrameEntryType, allFrames: FramesType): void {
-    this.opponentIndices.forEach((indices) => {
+    this.playerPermutations.forEach((indices) => {
       const state = this.state.get(indices);
       handleInputCompute(allFrames, state, indices, frame);
     });

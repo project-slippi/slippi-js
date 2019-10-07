@@ -3,7 +3,7 @@ import _ from "lodash";
 import { FrameEntryType, PlayerIndexedType, Frames, FramesType } from "./common";
 
 export interface StatComputer<T> {
-  setOpponentIndices(indices: PlayerIndexedType[]): void;
+  setPlayerPermutations(indices: PlayerIndexedType[]): void;
   processFrame(newFrame: FrameEntryType, allFrames: FramesType): void;
   fetch(): T;
 }
@@ -20,16 +20,16 @@ export class Stats {
   private options: StatOptions;
   private lastProcessedFrame: number | null = null;
   private frames: FramesType = {};
-  private opponentIndices = new Array<PlayerIndexedType>();
+  private playerPermutations = new Array<PlayerIndexedType>();
   private allComputers = new Array<StatComputer<unknown>>();
 
   public constructor(options?: StatOptions) {
     this.options = options || defaultOptions;
   }
 
-  public setOpponentIndices(indices: PlayerIndexedType[]): void {
-    this.opponentIndices = indices;
-    this.allComputers.forEach(comp => comp.setOpponentIndices(indices));
+  public setPlayerPermutations(indices: PlayerIndexedType[]): void {
+    this.playerPermutations = indices;
+    this.allComputers.forEach(comp => comp.setPlayerPermutations(indices));
   }
 
   public register(computer: StatComputer<unknown>): void {
@@ -41,14 +41,14 @@ export class Stats {
   }
 
   public process(): void {
-    if (this.opponentIndices.length === 0) {
+    if (this.playerPermutations.length === 0) {
       return;
     }
     let i = this.lastProcessedFrame ? this.lastProcessedFrame + 1 : Frames.FIRST;
     while (this.frames[i]) {
       const frame = this.frames[i];
       // Don't attempt to compute stats on frames that have not been fully received
-      if (!isCompletedFrame(this.opponentIndices, frame)) {
+      if (!isCompletedFrame(this.playerPermutations, frame)) {
         return;
       }
       this.allComputers.forEach(comp => comp.processFrame(frame, this.frames));
@@ -66,12 +66,12 @@ export class Stats {
   }
 }
 
-function isCompletedFrame(opponentIndices: PlayerIndexedType[], frame: FrameEntryType): boolean {
+function isCompletedFrame(playerPermutations: PlayerIndexedType[], frame: FrameEntryType): boolean {
   // This function checks whether we have successfully received an entire frame.
   // It is not perfect because it does not wait for follower frames. Fortunately,
   // follower frames are not used for any stat calculations so this doesn't matter
   // for our purposes.
-  const indices = _.first(opponentIndices);
+  const indices = _.first(playerPermutations);
   const playerPostFrame = _.get(frame, ['players', indices.playerIndex, 'post']);
   const oppPostFrame = _.get(frame, ['players', indices.opponentIndex, 'post']);
 

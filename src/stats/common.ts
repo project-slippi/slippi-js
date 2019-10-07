@@ -147,7 +147,7 @@ export const Frames = {
   FIRST_PLAYABLE: -39,
 };
 
-export function getSinglesOpponentIndicesFromSettings(settings: GameStartType): PlayerIndexedType[] {
+export function getSinglesPlayerPermutationsFromSettings(settings: GameStartType): PlayerIndexedType[] {
   if (!settings || settings.players.length !== 2) {
     // Only return opponent indices for singles
     return [];
