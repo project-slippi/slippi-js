@@ -16,6 +16,7 @@ import { StockComputer, ComboComputer, ActionsComputer, ConversionComputer, Inpu
 export class SlippiGame {
   private input: SlpReadInput;
   private metadata: MetadataType | null;
+  private finalStats: StatsType | null;
   private parser: SlpParser;
   private readPosition: number | null = null;
   private actionsComputer: ActionsComputer = new ActionsComputer();
@@ -119,7 +120,12 @@ export class SlippiGame {
   }
 
   public getStats(): StatsType {
+    if (this.finalStats) {
+      return this.finalStats;
+    }
+
     this._process();
+
     // Finish processing if we're not up to date
     this.statsComputer.process();
     const inputs = this.inputComputer.fetch();
@@ -128,7 +134,8 @@ export class SlippiGame {
     const indices = getSinglesOpponentIndicesFromSettings(this.parser.getSettings());
     const playableFrames = this.parser.getPlayableFrameCount();
     const overall = generateOverallStats(indices, inputs, stocks, conversions, playableFrames);
-    return {
+
+    const stats = {
       lastFrame: this.parser.getLatestFrameNumber(),
       playableFrameCount: playableFrames,
       stocks: stocks,
@@ -137,7 +144,17 @@ export class SlippiGame {
       actionCounts: this.actionsComputer.fetch(),
       overall: overall,
       gameComplete: this.parser.getGameEnd() !== null,
+    };
+
+    if (this.parser.getGameEnd() !== null) {
+      // If the game is complete, store a cached version of stats because it should not
+      // change anymore. Ideally the statsCompuer.process and fetch functions would simply do no
+      // work in this case instead but currently the conversions fetch function,
+      // generateOverallStats, and maybe more are doing work on every call.
+      this.finalStats = stats;
     }
+
+    return stats;
   }
 
   public getMetadata(): MetadataType {
