@@ -1,6 +1,6 @@
 {
   "name": "slp-parser-js",
-  "version": "3.0.0",
+  "version": "4.0.0",
   "description": "Official javascript slp file parser",
   "license": "MIT",
   "repository": "JLaferri/slp-parser-js",
