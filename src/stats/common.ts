@@ -1,14 +1,36 @@
 import _ from 'lodash';
-import { PostFrameUpdateType } from "../utils/slpReader";
-import { SlippiGame, FrameEntryType } from '../SlippiGame';
+import { PostFrameUpdateType, GameStartType, PreFrameUpdateType } from "../utils/slpReader";
 
-type RatioType = {
+export type FrameEntryType = {
+  frame: number;
+  players: { [playerIndex: number]: {
+    pre: PreFrameUpdateType;
+    post: PostFrameUpdateType;
+  };};
+};
+
+export type FramesType = {
+  [frameIndex: number]: FrameEntryType;
+};
+
+export type StatsType = {
+  gameComplete: boolean;
+  lastFrame: number;
+  playableFrameCount: number;
+  stocks: StockType[];
+  conversions: ConversionType[];
+  combos: ComboType[];
+  actionCounts: ActionCountsType[];
+  overall: OverallType[];
+};
+
+export type RatioType = {
   count: number;
   total: number;
   ratio: number | null;
 };
 
-type PlayerIndexedType = {
+export type PlayerIndexedType = {
   playerIndex: number;
   opponentIndex: number;
 };
@@ -125,8 +147,7 @@ export const Frames = {
   FIRST_PLAYABLE: -39,
 };
 
-export function getSinglesOpponentIndices(game: SlippiGame): PlayerIndexedType[] {
-  const settings = game.getSettings();
+export function getSinglesPlayerPermutationsFromSettings(settings: GameStartType): PlayerIndexedType[] {
   if (!settings || settings.players.length !== 2) {
     // Only return opponent indices for singles
     return [];
@@ -185,62 +206,4 @@ export function calcDamageTaken(frame: PostFrameUpdateType, prevFrame: PostFrame
   const prevPercent = _.get(prevFrame, 'percent', 0);
 
   return percent - prevPercent;
-}
-
-function getSortedFrames(game: SlippiGame): Array<FrameEntryType> {
-  // TODO: This is obviously jank and probably shouldn't be done this way. I just didn't
-  // TODO: want the primary game object to have the concept of sortedFrames because it's
-  // TODO: kinda shitty I need to do that anyway. It's required because javascript doesn't
-  // TODO: support sorted objects... I could use a Map but that felt pretty heavy for
-  // TODO: little reason.
-  // if (_.has(game, ['external', 'sortedFrames'])) {
-  //   // $FlowFixMe
-  //   return game.external.sortedFrames;
-  // }
-
-  const frames = game.getFrames();
-  const sortedFrames = _.orderBy(frames, 'frame');
-  // _.set(game, ['external', 'sortedFrames'], sortedFrames);
-
-  // $FlowFixMe
-  return sortedFrames;
-}
-
-export function iterateFramesInOrder(
-  game: SlippiGame,
-  initialize: (indices: PlayerIndexedType) => void,
-  processFrame: (indices: PlayerIndexedType, frame: FrameEntryType) => void
-): void {
-  const opponentIndices = getSinglesOpponentIndices(game);
-  if (opponentIndices.length === 0) {
-    return;
-  }
-
-  const sortedFrames = getSortedFrames(game);
-
-  // Iterates through both of the player/opponent pairs
-  opponentIndices.forEach(indices => {
-    initialize(indices);
-
-    // Iterates through all of the frames for the current player and opponent
-    sortedFrames.forEach(frame => {
-      const playerPostFrame = _.get(frame, ['players', indices.playerIndex, 'post']);
-      const oppPostFrame = _.get(frame, ['players', indices.opponentIndex, 'post']);
-      if (!playerPostFrame || !oppPostFrame) {
-        // Don't attempt to compute stats on frames that have not been fully received
-        return;
-      }
-
-      processFrame(indices, frame);
-    });
-  });
-}
-
-export function getLastFrame(game: SlippiGame): number | null {
-  const sortedFrames = getSortedFrames(game);
-  if (sortedFrames.length > 0) {
-    const lastFrame = _.last(sortedFrames);
-    return lastFrame.frame;
-  }
-  return null;
 }

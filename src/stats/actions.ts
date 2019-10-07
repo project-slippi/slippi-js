@@ -1,21 +1,55 @@
 // @flow
 import _ from 'lodash';
-import {
-  State, iterateFramesInOrder
-} from "./common";
+import { State, PlayerIndexedType, FramesType, FrameEntryType, ActionCountsType } from "./common";
+import { StatComputer } from './stats';
 
-import { ActionCountsType } from "./common";
-import { SlippiGame } from '../SlippiGame';
+// Frame pattern that indicates a dash dance turn was executed
+const dashDanceAnimations = [State.DASH, State.TURN, State.DASH];
+
+interface PlayerActionState {
+  playerCounts: ActionCountsType;
+  animations: number[];
+}
+
+export class ActionsComputer implements StatComputer<ActionCountsType[]> {
+  private playerPermutations = new Array<PlayerIndexedType>();
+  private state = new Map<PlayerIndexedType, PlayerActionState>();
+
+  public setPlayerPermutations(playerPermutations: PlayerIndexedType[]): void {
+    this.playerPermutations = playerPermutations;
+    this.playerPermutations.forEach((indices) => {
+      const playerCounts: ActionCountsType = {
+        playerIndex: indices.playerIndex,
+        opponentIndex: indices.opponentIndex,
+        wavedashCount: 0,
+        wavelandCount: 0,
+        airDodgeCount: 0,
+        dashDanceCount: 0,
+        spotDodgeCount: 0,
+        rollCount: 0,
+      };
+      const playerState: PlayerActionState = {
+        playerCounts: playerCounts,
+        animations: [],
+      }
+      this.state.set(indices, playerState);
+    })
+  }
+
+  public processFrame(frame: FrameEntryType, allFrames: FramesType): void {
+    this.playerPermutations.forEach((indices) => {
+      const state = this.state.get(indices);
+      handleActionCompute(state, indices, frame);
+    });
+  }
+
+  public fetch(): ActionCountsType[] {
+    return Array.from(this.state.keys()).map(key => this.state.get(key).playerCounts);
+  }
+}
 
 function isRolling(animation: State): boolean {
-  switch (animation) {
-  case State.ROLL_BACKWARD:
-    return true;
-  case State.ROLL_FORWARD:
-    return true;
-  default:
-    return false;
-  }
+  return animation === State.ROLL_BACKWARD || animation === State.ROLL_FORWARD;
 }
 
 function didStartRoll(currentAnimation: number, previousAnimation: number): boolean {
@@ -47,23 +81,8 @@ function didStartAirDodge(currentAnimation: State, previousAnimation: State): bo
   return isCurrentlyDodging && !wasPreviouslyDodging;
 }
 
-export function generateActionCounts(game: SlippiGame): ActionCountsType[] {
-  const actionCounts: Array<ActionCountsType> = [];
-
-  // Frame pattern that indicates a dash dance turn was executed
-  const dashDanceAnimations = [State.DASH, State.TURN, State.DASH];
-
-  const initialState: {
-    animations: number[];
-    playerCounts: ActionCountsType | null | undefined;
-  } = {
-    animations: [],
-    playerCounts: null
-  };
-
-  let state = initialState;
-
-  // Helper function for incrementing counts
+function handleActionCompute(state: PlayerActionState, indices: PlayerIndexedType, frame: FrameEntryType): void {
+  const playerFrame = frame.players[indices.playerIndex].post;
   const incrementCount = (field: string, condition: boolean): void => {
     if (!condition) {
       return;
@@ -73,54 +92,29 @@ export function generateActionCounts(game: SlippiGame): ActionCountsType[] {
     (state.playerCounts as any)[field] += 1;
   };
 
-  // Iterates the frames in order in order to compute stocks
-  iterateFramesInOrder(game, (indices) => {
-    const playerCounts = {
-      playerIndex: indices.playerIndex,
-      opponentIndex: indices.opponentIndex,
-      wavedashCount: 0,
-      wavelandCount: 0,
-      airDodgeCount: 0,
-      dashDanceCount: 0,
-      spotDodgeCount: 0,
-      rollCount: 0,
-    };
+  // Manage animation state
+  state.animations.push(playerFrame.actionStateId);
 
-    state = {
-      ...initialState,
-      playerCounts: playerCounts
-    };
+  // Grab last 3 frames
+  const last3Frames = state.animations.slice(-3);
+  const currentAnimation = playerFrame.actionStateId;
+  const prevAnimation = last3Frames[last3Frames.length - 2];
 
-    actionCounts.push(playerCounts);
-  }, (indices, frame) => {
-    const playerFrame = frame.players[indices.playerIndex].post;
+  // Increment counts based on conditions
+  const didDashDance = _.isEqual(last3Frames, dashDanceAnimations);
+  incrementCount('dashDanceCount', didDashDance);
 
-    // Manage animation state
-    state.animations.push(playerFrame.actionStateId);
+  const didRoll = didStartRoll(currentAnimation, prevAnimation);
+  incrementCount('rollCount', didRoll);
 
-    // Grab last 3 frames
-    const last3Frames = state.animations.slice(-3);
-    const currentAnimation = playerFrame.actionStateId;
-    const prevAnimation = last3Frames[last3Frames.length - 2];
+  const didSpotDodge = didStartSpotDodge(currentAnimation, prevAnimation);
+  incrementCount('spotDodgeCount', didSpotDodge);
 
-    // Increment counts based on conditions
-    const didDashDance = _.isEqual(last3Frames, dashDanceAnimations);
-    incrementCount('dashDanceCount', didDashDance);
+  const didAirDodge = didStartAirDodge(currentAnimation, prevAnimation);
+  incrementCount('airDodgeCount', didAirDodge);
 
-    const didRoll = didStartRoll(currentAnimation, prevAnimation);
-    incrementCount('rollCount', didRoll);
-
-    const didSpotDodge = didStartSpotDodge(currentAnimation, prevAnimation);
-    incrementCount('spotDodgeCount', didSpotDodge);
-
-    const didAirDodge = didStartAirDodge(currentAnimation, prevAnimation);
-    incrementCount('airDodgeCount', didAirDodge);
-
-    // Handles wavedash detection (and waveland)
-    handleActionWavedash(state.playerCounts, state.animations);
-  });
-
-  return actionCounts;
+  // Handles wavedash detection (and waveland)
+  handleActionWavedash(state.playerCounts, state.animations);
 }
 
 function handleActionWavedash(counts: ActionCountsType, animations: State[]): void {

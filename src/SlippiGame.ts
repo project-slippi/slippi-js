@@ -2,62 +2,31 @@
 import _ from 'lodash';
 import { Command, openSlpFile, closeSlpFile, iterateEvents, getMetadata, GameStartType, SlpInputSource } from './utils/slpReader';
 
-import { getLastFrame, Frames } from "./stats/common";
-import { generateConversions } from "./stats/conversions";
-import { generateCombos } from "./stats/combos";
-import { generateStocks } from "./stats/stocks";
-import { generateActionCounts } from "./stats/actions";
-import { generateOverall as generateOverallStats } from "./stats/overall";
-
 // Type imports
 import {
-  PreFrameUpdateType, PostFrameUpdateType, SlpFileType, MetadataType, GameEndType,
+  PreFrameUpdateType, PostFrameUpdateType, MetadataType, GameEndType,
   SlpReadInput
 } from "./utils/slpReader";
-import {
-  StockType, ConversionType, ComboType, ActionCountsType, OverallType
-} from "./stats/common";
-
-export type FrameEntryType = {
-  frame: number;
-  players: { [playerIndex: number]: {
-    pre: PreFrameUpdateType;
-    post: PostFrameUpdateType;
-  };};
-};
-
-export type FramesType = {
-  [frameIndex: number]: FrameEntryType;
-};
-
-export type StatsType = {
-  gameComplete: boolean;
-  lastFrame: number;
-  playableFrameCount: number;
-  stocks: StockType[];
-  conversions: ConversionType[];
-  combos: ComboType[];
-  actionCounts: ActionCountsType[];
-  overall: OverallType[];
-};
+import { SlpParser } from './utils/slpParser';
+import { StockComputer, ComboComputer, ActionsComputer, ConversionComputer, InputComputer, Stats, FrameEntryType, FramesType, StatsType, getSinglesPlayerPermutationsFromSettings, generateOverallStats } from './stats';
 
 /**
  * Slippi Game class that wraps a file
  */
 export class SlippiGame {
-  input: SlpReadInput;
-  file: SlpFileType;
-  settings: GameStartType | null;
-  playerFrames: FramesType | null;
-  followerFrames: FramesType | null;
-  stats: StatsType | null;
-  metadata: MetadataType | null;
-  gameEnd: GameEndType | null;
+  private input: SlpReadInput;
+  private metadata: MetadataType | null;
+  private finalStats: StatsType | null;
+  private parser: SlpParser;
+  private readPosition: number | null = null;
+  private actionsComputer: ActionsComputer = new ActionsComputer();
+  private conversionComputer: ConversionComputer = new ConversionComputer();
+  private comboComputer: ComboComputer = new ComboComputer();
+  private stockComputer: StockComputer = new StockComputer();
+  private inputComputer: InputComputer = new InputComputer();
+  private statsComputer: Stats = new Stats();
 
-  latestFrameIndex: number | null;
-  frameReadPos: number | null;
-
-  constructor(input: string | Buffer) {
+  public constructor(input: string | Buffer) {
     if (_.isString(input)) {
       this.input = {
         source: SlpInputSource.FILE,
@@ -72,27 +41,24 @@ export class SlippiGame {
       throw new Error("Cannot create SlippiGame with input of that type");
     }
 
-    this.frameReadPos = null;
-    this.latestFrameIndex = null;
+    // Set up stats calculation
+    this.statsComputer.registerAll([
+      this.actionsComputer,
+      this.comboComputer,
+      this.conversionComputer,
+      this.inputComputer,
+      this.stockComputer,
+    ]);
+    this.parser = new SlpParser(this.statsComputer);
   }
 
-  /**
-   * Gets the game settings, these are the settings that describe the starting state of
-   * the game such as characters, stage, etc.
-   */
-  getSettings(): GameStartType {
-    if (this.settings) {
-      // If header is already generated, return it
-      return this.settings;
+  private _process(settingsOnly = false): void {
+    if (this.parser.getGameEnd() !== null) {
+      return;
     }
-
     const slpfile = openSlpFile(this.input);
-
-    // Prepare default settings
-    let settings: GameStartType = null;
-
     // Generate settings from iterating through file
-    iterateEvents(slpfile, (command, payload) => {
+    this.readPosition = iterateEvents(slpfile, (command, payload) => {
       if (!payload) {
         // If payload is falsy, keep iterating. The parser probably just doesn't know
         // about this command yet
@@ -102,155 +68,101 @@ export class SlippiGame {
       switch (command) {
       case Command.GAME_START:
         payload = payload as GameStartType;
-        if (!payload.stageId) {
-          return true; // Why do I have to do this? Still not sold on Flow
-        }
-
-        settings = payload;
-        settings.players = payload.players.filter(player => player.type !== 3);
+        this.parser.handleGameStart(payload);
         break;
       case Command.POST_FRAME_UPDATE:
         payload = payload as PostFrameUpdateType;
-        if (payload.frame === null || payload.frame > Frames.FIRST) {
-          // Once we are an frame -122 or higher we are done getting match settings
-          // Tell the iterator to stop
-          return true;
-        }
-
-        const playerIndex = payload.playerIndex;
-        const playersByIndex = _.keyBy(settings.players, 'playerIndex');
-
-        switch (payload.internalCharacterId) {
-        case 0x7:
-          playersByIndex[playerIndex].characterId = 0x13; // Sheik
-          break;
-        case 0x13:
-          playersByIndex[playerIndex].characterId = 0x12; // Zelda
-          break;
-        }
+        this.parser.handlePostFrameUpdate(payload);
+        this.parser.handleFrameUpdate(command, payload);
         break;
-      }
-
-      return false; // Tell the iterator to keep iterating
-    });
-
-    this.settings = settings;
-    closeSlpFile(slpfile);
-    return settings;
-  }
-
-  getLatestFrame(): FrameEntryType | null {
-    // TODO: Modify this to check if we actually have all the latest frame data and return that
-    // TODO: If we do. For now I'm just going to take a shortcut
-    const allFrames = this.getFrames();
-    const frameIndex = this.latestFrameIndex || Frames.FIRST;
-    const indexToUse = this.gameEnd ? frameIndex : frameIndex - 1;
-    return _.get(allFrames, indexToUse) || null;
-  }
-
-  getGameEnd(): GameEndType | null {
-    if (this.gameEnd) {
-      return this.gameEnd;
-    }
-
-    // Trigger getFrames because that is where the flag is set
-    this.getFrames();
-    return this.gameEnd || null;
-  }
-
-  getFrames(): FramesType {
-    if (this.playerFrames && this.gameEnd) {
-      // If game end has been detected, we can returned cached version of frames
-      return this.playerFrames;
-    }
-
-    const slpfile = openSlpFile(this.input);
-
-    const playerFrames: FramesType = this.playerFrames || {};
-    const followerFrames: FramesType = this.followerFrames || {};
-
-    this.frameReadPos = iterateEvents(slpfile, (command, payload) => {
-      if (!payload) {
-        // If payload is falsy, keep iterating. The parser probably just doesn't know
-        // about this command yet
-        return false;
-      }
-
-      switch (command) {
       case Command.PRE_FRAME_UPDATE:
-      case Command.POST_FRAME_UPDATE:
-        payload = payload as PostFrameUpdateType;
-        if (!payload.frame && payload.frame !== 0) {
-          // If payload is messed up, stop iterating. This shouldn't ever happen
-          return true;
-        }
-
-        const location = command === Command.PRE_FRAME_UPDATE ? "pre" : "post";
-        const frames = payload.isFollower ? followerFrames : playerFrames;
-        this.latestFrameIndex = payload.frame;
-        _.set(frames, [payload.frame, 'players', payload.playerIndex, location], payload);
-        _.set(frames, [payload.frame, 'frame'], payload.frame);
+        payload = payload as PreFrameUpdateType;
+        this.parser.handleFrameUpdate(command, payload);
         break;
       case Command.GAME_END:
         payload = payload as GameEndType;
-        this.gameEnd = payload;
+        this.parser.handleGameEnd(payload);
         break;
       }
-
-      return false; // Tell the iterator to keep iterating
-    }, this.frameReadPos);
-
-    this.playerFrames = playerFrames;
-    this.followerFrames = followerFrames;
+      return settingsOnly && this.parser.getSettings() !== null;
+    }, this.readPosition);
     closeSlpFile(slpfile);
-    return playerFrames;
   }
 
-  getStats(): StatsType {
-    if (this.stats && this.stats.gameComplete) {
-      // If game end has been detected, we can returned cached version stats since they wont change
-      return this.stats;
-    }
-
-    const slpfile = openSlpFile(this.input);
-
-    const lastFrame = getLastFrame(this);
-
-    // Get playable frame count
-    let playableFrameCount = null;
-    if (lastFrame !== null) {
-      const firstPlayabable = Frames.FIRST_PLAYABLE;
-      playableFrameCount = lastFrame < firstPlayabable ? 0 : lastFrame - firstPlayabable;
-    }
-
-    // The order here kind of matters because things later in the call order might
-    // reference things calculated earlier. More specifically, currently the overall
-    // calculation uses the others
-    // FIXME: Use proper typing instead of any
-    this.stats = {} as any;
-    this.stats.stocks = generateStocks(this);
-    this.stats.conversions = generateConversions(this);
-    this.stats.combos = generateCombos(this);
-    this.stats.actionCounts = generateActionCounts(this);
-    this.stats.lastFrame = lastFrame;
-    this.stats.playableFrameCount = playableFrameCount;
-    this.stats.overall = generateOverallStats(this);
-    this.stats.gameComplete = !!this.gameEnd;
-
-    closeSlpFile(slpfile);
-
-    return this.stats;
+  /**
+   * Gets the game settings, these are the settings that describe the starting state of
+   * the game such as characters, stage, etc.
+   */
+  public getSettings(): GameStartType {
+    // Settings is only complete after post-frame update
+    this._process(true);
+    return this.parser.getSettings();
   }
 
-  getMetadata(): MetadataType {
+  public getLatestFrame(): FrameEntryType | null {
+    this._process();
+    return this.parser.getLatestFrame();
+  }
+
+  public getGameEnd(): GameEndType | null {
+    this._process();
+    return this.parser.getGameEnd();
+  }
+
+  public getFrames(): FramesType {
+    this._process();
+    return this.parser.getFrames();
+  }
+
+  public getFollowerFrames(): FramesType {
+    this._process();
+    return this.parser.getFollowerFrames();
+  }
+
+  public getStats(): StatsType {
+    if (this.finalStats) {
+      return this.finalStats;
+    }
+
+    this._process();
+
+    // Finish processing if we're not up to date
+    this.statsComputer.process();
+    const inputs = this.inputComputer.fetch();
+    const stocks = this.stockComputer.fetch();
+    const conversions = this.conversionComputer.fetch();
+    const indices = getSinglesPlayerPermutationsFromSettings(this.parser.getSettings());
+    const playableFrames = this.parser.getPlayableFrameCount();
+    const overall = generateOverallStats(indices, inputs, stocks, conversions, playableFrames);
+
+    const stats = {
+      lastFrame: this.parser.getLatestFrameNumber(),
+      playableFrameCount: playableFrames,
+      stocks: stocks,
+      conversions: conversions,
+      combos: this.comboComputer.fetch(),
+      actionCounts: this.actionsComputer.fetch(),
+      overall: overall,
+      gameComplete: this.parser.getGameEnd() !== null,
+    };
+
+    if (this.parser.getGameEnd() !== null) {
+      // If the game is complete, store a cached version of stats because it should not
+      // change anymore. Ideally the statsCompuer.process and fetch functions would simply do no
+      // work in this case instead but currently the conversions fetch function,
+      // generateOverallStats, and maybe more are doing work on every call.
+      this.finalStats = stats;
+    }
+
+    return stats;
+  }
+
+  public getMetadata(): MetadataType {
     if (this.metadata) {
       return this.metadata;
     }
-
     const slpfile = openSlpFile(this.input);
-
     this.metadata = getMetadata(slpfile);
-
     closeSlpFile(slpfile);
     return this.metadata;
   }

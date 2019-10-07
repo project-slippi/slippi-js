@@ -19,7 +19,7 @@
   "module": "dist/index.es.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "test": "jest",
+    "test": "jest --verbose",
     "coverage": "yarn run test -- --coverage",
     "postcoverage": "open-cli coverage/lcov-report/index.html",
     "lint": "eslint \"src/**/*.ts\" \"test/**/*.ts\"",
@@ -43,14 +43,16 @@
   "dependencies": {
     "@shelacek/ubjson": "^1.0.1",
     "iconv-lite": "^0.5.0",
-    "lodash": "^4.17.11"
+    "lodash": "^4.17.11",
+    "semver": "^6.3.0"
   },
   "devDependencies": {
     "@types/jest": "^24.0.18",
     "@types/lodash": "^4.14.138",
     "@types/node": "^12.7.3",
-    "@typescript-eslint/eslint-plugin": "^2.0.0",
-    "@typescript-eslint/parser": "^2.0.0",
+    "@types/semver": "^6.0.2",
+    "@typescript-eslint/eslint-plugin": "^2.3.0",
+    "@typescript-eslint/parser": "^2.3.0",
     "eslint": "^6.3.0",
     "jest": "^24.9.0",
     "open-cli": "^5.0.0",
