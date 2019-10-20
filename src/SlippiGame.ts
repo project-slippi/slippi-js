@@ -166,6 +166,14 @@ export class SlippiGame {
     closeSlpFile(slpfile);
     return this.metadata;
   }
+
+  public getFilePath(): string | null {
+    if (this.input.source !== SlpInputSource.FILE) {
+      return null;
+    }
+
+    return this.input.filePath || null;
+  }
 }
 
 /* eslint-enable no-param-reassign */

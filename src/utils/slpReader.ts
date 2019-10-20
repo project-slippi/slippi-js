@@ -94,6 +94,7 @@ export type PostFrameUpdateType = {
   lastHitBy: number | null;
   stocksRemaining: number | null;
   actionStateCounter: number | null;
+  lCancelStatus: number | null;
 };
 
 export type GameEndType = {
@@ -402,6 +403,7 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
       lastHitBy: readUint8(view, 0x20),
       stocksRemaining: readUint8(view, 0x21),
       actionStateCounter: readFloat(view, 0x22),
+      lCancelStatus: readUint8(view, 0x33),
     };
   case Command.GAME_END:
     return {
