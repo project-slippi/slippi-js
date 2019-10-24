@@ -1,7 +1,7 @@
 import _ from "lodash";
 import semver from 'semver';
 
-import { PostFrameUpdateType, GameStartType, GameEndType, Command, PreFrameUpdateType, ItemUpdateType } from "./slpReader";
+import { PostFrameUpdateType, GameStartType, GameEndType, Command, PreFrameUpdateType, ItemUpdateType, FrameBookendType } from "./slpReader";
 import { Stats, FramesType, FrameEntryType, Frames, PlayerIndexedType, getSinglesPlayerPermutationsFromSettings } from "../stats";
 
 export class SlpParser {
@@ -97,15 +97,27 @@ export class SlpParser {
     _.set(this.frames, [payload.frame, field, payload.playerIndex, location], payload);
     _.set(this.frames, [payload.frame, 'frame'], payload.frame);
 
-    // TODO: Should this run for every frame update? Or only once the frame is done being processed?
-    this.statsComputer.addFrame(this.frames[payload.frame]);
+    // If file is from before frame bookending, add frame to stats computer here. Does a little
+    // more processing than necessary, but it works
+    const settings = this.getSettings();
+    if (semver.lte(settings.slpVersion, "2.2.0")) {
+      _.set(this.frames, [payload.frame, 'isTransferComplete'], false);
+      this.statsComputer.addFrame(this.frames[payload.frame]);
+    }
   }
 
   public handleItemUpdate(command: Command, payload: ItemUpdateType): void {
     const items = _.get(this.frames, [payload.frame, 'items'], []);
     items.push(payload);
 
-    // Set items with newest
+    // Set items with newest added
     _.set(this.frames, [payload.frame, 'items'], items);
+  }
+
+  public handleFrameBookend(command: Command, payload: FrameBookendType): void {
+    _.set(this.frames, [payload.frame, 'isTransferComplete'], true);
+
+    // Add frame to stats computer once we know full frame has been transferred
+    this.statsComputer.addFrame(this.frames[payload.frame]);
   }
 }

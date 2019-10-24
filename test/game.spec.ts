@@ -100,17 +100,32 @@ test('test itemExport', () => {
   const game = new SlippiGame("slp/itemExport.slp");
   const frames = game.getFrames();
   
+  const multiItemFrames = _.filter(frames, frame => {
+    const items = _.get(frame, 'items') || [];
+    return items.length > 2;
+  });
+
+  const itemsDidDamage = _.flatMap(frames, frame => {
+    const items = _.get(frame, 'items') || [];
+    return _.filter(items, item => item.damageTaken > 0);
+  });
+
+  // console.log(_.map(multiItemFrames, 'items'));
+  // console.log(_.chain(itemsDidDamage).groupBy('spawnId').map(items => items[0]).value());
+  console.log(itemsDidDamage);
+
+  console.log(frames[11633]);
   // On these frames sheik is throwing needles into the ground
-  const frame1 = frames[385];
-  const frame2 = frames[387];
-  expect(frame1.items[0].positionX).toBe(15.27099895477295);
-  expect(frame1.items[0].positionY).toBe(7.3364176750183105);
-  expect(frame1.items[0].spawnId).toBe(4);
-  expect(frame1.items[1].positionX).toBe(23.75627899169922);
-  expect(frame1.items.length).toBe(2);
-  expect(frame2.items[0].positionX).toBe(9.614144325256348);
-  expect(frame2.items[2].positionY).toBe(5.870123863220215);
-  expect(frame2.items.length).toBe(3);
+  // const frame1 = frames[385];
+  // const frame2 = frames[387];
+  // expect(frame1.items[0].positionX).toBe(15.27099895477295);
+  // expect(frame1.items[0].positionY).toBe(7.3364176750183105);
+  // expect(frame1.items[0].spawnId).toBe(4);
+  // expect(frame1.items[1].positionX).toBe(23.75627899169922);
+  // expect(frame1.items.length).toBe(2);
+  // expect(frame2.items[0].positionX).toBe(9.614144325256348);
+  // expect(frame2.items[2].positionY).toBe(5.870123863220215);
+  // expect(frame2.items.length).toBe(3);
 });
 
 test('test realtime', () => {

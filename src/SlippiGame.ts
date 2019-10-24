@@ -1,6 +1,6 @@
 /* eslint-disable no-param-reassign */
 import _ from 'lodash';
-import { Command, openSlpFile, closeSlpFile, iterateEvents, getMetadata, GameStartType, SlpInputSource, ItemUpdateType } from './utils/slpReader';
+import { Command, openSlpFile, closeSlpFile, iterateEvents, getMetadata, GameStartType, SlpInputSource, ItemUpdateType, FrameBookendType } from './utils/slpReader';
 
 // Type imports
 import {
@@ -67,25 +67,23 @@ export class SlippiGame {
 
       switch (command) {
       case Command.GAME_START:
-        payload = payload as GameStartType;
-        this.parser.handleGameStart(payload);
+        this.parser.handleGameStart(<GameStartType>payload);
         break;
       case Command.POST_FRAME_UPDATE:
-        payload = payload as PostFrameUpdateType;
-        this.parser.handlePostFrameUpdate(payload);
-        this.parser.handleFrameUpdate(command, payload);
+        this.parser.handlePostFrameUpdate(<PostFrameUpdateType>payload);
+        this.parser.handleFrameUpdate(command, <PostFrameUpdateType>payload);
         break;
       case Command.PRE_FRAME_UPDATE:
-        payload = payload as PreFrameUpdateType;
-        this.parser.handleFrameUpdate(command, payload);
+        this.parser.handleFrameUpdate(command, <PreFrameUpdateType>payload);
         break;
       case Command.ITEM_UPDATE:
-        payload = payload as ItemUpdateType;
-        this.parser.handleItemUpdate(command, payload);
+        this.parser.handleItemUpdate(command, <ItemUpdateType>payload);
+        break;
+      case Command.FRAME_BOOKEND:
+        this.parser.handleFrameBookend(command, <FrameBookendType>payload);
         break;
       case Command.GAME_END:
-        payload = payload as GameEndType;
-        this.parser.handleGameEnd(payload);
+        this.parser.handleGameEnd(<GameEndType>payload);
         break;
       }
       return settingsOnly && this.parser.getSettings() !== null;
@@ -116,11 +114,6 @@ export class SlippiGame {
   public getFrames(): FramesType {
     this._process();
     return this.parser.getFrames();
-  }
-
-  public getFollowerFrames(): FramesType {
-    this._process();
-    return this.parser.getFollowerFrames();
   }
 
   public getStats(): StatsType {

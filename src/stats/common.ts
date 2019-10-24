@@ -3,6 +3,7 @@ import { PostFrameUpdateType, GameStartType, PreFrameUpdateType, ItemUpdateType 
 
 export type FrameEntryType = {
   frame: number;
+  isTransferComplete?: boolean;
   players: { [playerIndex: number]: {
     pre: PreFrameUpdateType;
     post: PostFrameUpdateType;

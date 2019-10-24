@@ -67,6 +67,8 @@ export class Stats {
 }
 
 function isCompletedFrame(playerPermutations: PlayerIndexedType[], frame: FrameEntryType): boolean {
+  // TODO: Maybe use isTransferComplete here but it would need to also support legacy files
+  
   // This function checks whether we have successfully received an entire frame.
   // It is not perfect because it does not wait for follower frames. Fortunately,
   // follower frames are not used for any stat calculations so this doesn't matter
