@@ -96,6 +96,23 @@ test('test bufferInput', () => {
   expect(_.last(settings.players).characterId).toBe(0xE);
 });
 
+test('test itemExport', () => {
+  const game = new SlippiGame("slp/itemExport.slp");
+  const frames = game.getFrames();
+  
+  // On these frames sheik is throwing needles into the ground
+  const frame1 = frames[385];
+  const frame2 = frames[387];
+  expect(frame1.items[0].positionX).toBe(15.27099895477295);
+  expect(frame1.items[0].positionY).toBe(7.3364176750183105);
+  expect(frame1.items[0].spawnId).toBe(4);
+  expect(frame1.items[1].positionX).toBe(23.75627899169922);
+  expect(frame1.items.length).toBe(2);
+  expect(frame2.items[0].positionX).toBe(9.614144325256348);
+  expect(frame2.items[2].positionY).toBe(5.870123863220215);
+  expect(frame2.items.length).toBe(3);
+});
+
 test('test realtime', () => {
   const fullData = fs.readFileSync("slp/realtimeTest.slp");
   const buf = Buffer.alloc(100e6); // Allocate 100 MB of space

@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { PostFrameUpdateType, GameStartType, PreFrameUpdateType } from "../utils/slpReader";
+import { PostFrameUpdateType, GameStartType, PreFrameUpdateType, ItemUpdateType } from "../utils/slpReader";
 
 export type FrameEntryType = {
   frame: number;
@@ -7,6 +7,11 @@ export type FrameEntryType = {
     pre: PreFrameUpdateType;
     post: PostFrameUpdateType;
   };};
+  followers: { [playerIndex: number]: {
+    pre: PreFrameUpdateType;
+    post: PostFrameUpdateType;
+  };};
+  items: ItemUpdateType[];
 };
 
 export type FramesType = {

@@ -10,7 +10,8 @@ export enum Command {
   GAME_START = 0x36,
   PRE_FRAME_UPDATE = 0x37,
   POST_FRAME_UPDATE = 0x38,
-  GAME_END = 0x39
+  GAME_END = 0x39,
+  ITEM_UPDATE = 0x3B,
 };
 
 export enum SlpInputSource {
@@ -96,6 +97,24 @@ export type PostFrameUpdateType = {
   actionStateCounter: number | null;
   lCancelStatus: number | null;
 };
+
+export type ItemUpdateType = {
+  frame: number | null;
+  typeId: number | null;
+  state: number | null;
+  facingDirection: number | null;
+  velocityX: number | null;
+  velocityY: number | null;
+  positionX: number | null;
+  positionY: number | null;
+  damageTaken: number | null;
+  expirationTimer: number | null;
+  spawnId: number | null;
+}
+
+export type FrameBookendType = {
+  frame: number | null;
+}
 
 export type GameEndType = {
   gameEndMethod: number | null;
@@ -274,7 +293,7 @@ function getMessageSizes(ref: SlpRefType, position: number): {
   return messageSizes;
 }
 
-type EventPayloadTypes = GameStartType | PreFrameUpdateType | PostFrameUpdateType | GameEndType;
+type EventPayloadTypes = GameStartType | PreFrameUpdateType | PostFrameUpdateType | ItemUpdateType | GameEndType;
 type EventCallbackFunc = (command: Command, payload: EventPayloadTypes | null | undefined) => boolean;
 
 /**
@@ -405,6 +424,24 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
       actionStateCounter: readFloat(view, 0x22),
       lCancelStatus: readUint8(view, 0x33),
     };
+  case Command.ITEM_UPDATE:
+    const result = {
+      frame: readInt32(view, 0x1),
+      typeId: readUint16(view, 0x5),
+      state: readUint8(view, 0x7),
+      facingDirection: readFloat(view, 0x8),
+      velocityX: readFloat(view, 0xC),
+      velocityY: readFloat(view, 0x10),
+      positionX: readFloat(view, 0x14),
+      positionY: readFloat(view, 0x18),
+      damageTaken: readUint16(view, 0x1C),
+      expirationTimer: readUint16(view, 0x1E),
+      spawnId: readUint32(view, 0x20),
+    };
+
+    // console.log(result);
+
+    return result;
   case Command.GAME_END:
     return {
       gameEndMethod: readUint8(view, 0x1),

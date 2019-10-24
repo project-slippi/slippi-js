@@ -1,13 +1,12 @@
 import _ from "lodash";
 import semver from 'semver';
 
-import { PostFrameUpdateType, GameStartType, GameEndType, Command, PreFrameUpdateType } from "./slpReader";
+import { PostFrameUpdateType, GameStartType, GameEndType, Command, PreFrameUpdateType, ItemUpdateType } from "./slpReader";
 import { Stats, FramesType, FrameEntryType, Frames, PlayerIndexedType, getSinglesPlayerPermutationsFromSettings } from "../stats";
 
 export class SlpParser {
   private statsComputer: Stats;
-  private playerFrames: FramesType = {};
-  private followerFrames: FramesType = {};
+  private frames: FramesType = {};
   private settings: GameStartType | null = null;
   private gameEnd: GameEndType | null = null;
   private latestFrameIndex: number | null = null;
@@ -46,11 +45,7 @@ export class SlpParser {
   }
 
   public getFrames(): FramesType | null {
-    return this.playerFrames;
-  }
-
-  public getFollowerFrames(): FramesType | null {
-    return this.followerFrames;
+    return this.frames;
   }
 
   public handleGameEnd(payload: GameEndType): void {
@@ -97,11 +92,20 @@ export class SlpParser {
   public handleFrameUpdate(command: Command, payload: PreFrameUpdateType | PostFrameUpdateType): void {
     payload = payload as PostFrameUpdateType;
     const location = command === Command.PRE_FRAME_UPDATE ? "pre" : "post";
-    const frames = payload.isFollower ? this.followerFrames : this.playerFrames;
+    const field = payload.isFollower ? 'followers' : 'players';
     this.latestFrameIndex = payload.frame;
-    _.set(frames, [payload.frame, 'players', payload.playerIndex, location], payload);
-    _.set(frames, [payload.frame, 'frame'], payload.frame);
+    _.set(this.frames, [payload.frame, field, payload.playerIndex, location], payload);
+    _.set(this.frames, [payload.frame, 'frame'], payload.frame);
 
-    this.statsComputer.addFrame(frames[payload.frame]);
+    // TODO: Should this run for every frame update? Or only once the frame is done being processed?
+    this.statsComputer.addFrame(this.frames[payload.frame]);
+  }
+
+  public handleItemUpdate(command: Command, payload: ItemUpdateType): void {
+    const items = _.get(this.frames, [payload.frame, 'items'], []);
+    items.push(payload);
+
+    // Set items with newest
+    _.set(this.frames, [payload.frame, 'items'], items);
   }
 }
