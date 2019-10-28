@@ -67,25 +67,23 @@ export class SlippiGame {
 
       switch (command) {
       case Command.GAME_START:
-        payload = payload as GameStartType;
-        this.parser.handleGameStart(payload);
+        this.parser.handleGameStart(payload as GameStartType);
         break;
       case Command.POST_FRAME_UPDATE:
-        payload = payload as PostFrameUpdateType;
-        this.parser.handlePostFrameUpdate(payload);
-        this.parser.handleFrameUpdate(command, payload);
+        this.parser.handlePostFrameUpdate(payload as PostFrameUpdateType);
+        this.parser.handleFrameUpdate(command, payload as PostFrameUpdateType);
         break;
       case Command.PRE_FRAME_UPDATE:
-        payload = payload as PreFrameUpdateType;
-        this.parser.handleFrameUpdate(command, payload);
+        this.parser.handleFrameUpdate(command, payload as PreFrameUpdateType);
         break;
       case Command.ITEM_UPDATE:
-        payload = payload as ItemUpdateType;
-        this.parser.handleItemUpdate(command, payload);
+        this.parser.handleItemUpdate(command, payload as ItemUpdateType);
+        break;
+      case Command.FRAME_BOOKEND:
+        this.parser.handleFrameBookend(command, payload as FrameBookendType);
         break;
       case Command.GAME_END:
-        payload = payload as GameEndType;
-        this.parser.handleGameEnd(payload);
+        this.parser.handleGameEnd(payload as GameEndType);
         break;
       }
       return settingsOnly && this.parser.getSettings() !== null;

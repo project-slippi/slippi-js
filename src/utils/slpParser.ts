@@ -97,8 +97,14 @@ export class SlpParser {
     _.set(this.frames, [payload.frame, field, payload.playerIndex, location], payload);
     _.set(this.frames, [payload.frame, 'frame'], payload.frame);
 
-    // TODO: Should this run for every frame update? Or only once the frame is done being processed?
-    this.statsComputer.addFrame(this.frames[payload.frame]);
+    // If file is from before frame bookending, add frame to stats computer here. Does a little
+    // more processing than necessary, but it works
+    const settings = this.getSettings();
+    if (!settings || semver.lte(settings.slpVersion, "2.2.0")) {
+      this.statsComputer.addFrame(this.frames[payload.frame]);
+    } else {
+      _.set(this.frames, [payload.frame, 'isTransferComplete'], false);
+    }
   }
 
   public handleItemUpdate(command: Command, payload: ItemUpdateType): void {
