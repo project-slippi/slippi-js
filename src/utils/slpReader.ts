@@ -12,6 +12,7 @@ export enum Command {
   POST_FRAME_UPDATE = 0x38,
   GAME_END = 0x39,
   ITEM_UPDATE = 0x3B,
+  FRAME_BOOKEND = 0x3C,
 };
 
 export enum SlpInputSource {
@@ -293,7 +294,7 @@ function getMessageSizes(ref: SlpRefType, position: number): {
   return messageSizes;
 }
 
-type EventPayloadTypes = GameStartType | PreFrameUpdateType | PostFrameUpdateType | ItemUpdateType | GameEndType;
+type EventPayloadTypes = GameStartType | PreFrameUpdateType | PostFrameUpdateType | ItemUpdateType | FrameBookendType | GameEndType;
 type EventCallbackFunc = (command: Command, payload: EventPayloadTypes | null | undefined) => boolean;
 
 /**
@@ -425,7 +426,7 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
       lCancelStatus: readUint8(view, 0x33),
     };
   case Command.ITEM_UPDATE:
-    const result = {
+    return {
       frame: readInt32(view, 0x1),
       typeId: readUint16(view, 0x5),
       state: readUint8(view, 0x7),
@@ -438,10 +439,10 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
       expirationTimer: readUint16(view, 0x1E),
       spawnId: readUint32(view, 0x20),
     };
-
-    // console.log(result);
-
-    return result;
+  case Command.FRAME_BOOKEND:
+    return {
+      frame: readInt32(view, 0x1),
+    };
   case Command.GAME_END:
     return {
       gameEndMethod: readUint8(view, 0x1),

@@ -1,14 +1,20 @@
 /* eslint-disable no-param-reassign */
 import _ from 'lodash';
-import { Command, openSlpFile, closeSlpFile, iterateEvents, getMetadata, GameStartType, SlpInputSource, ItemUpdateType } from './utils/slpReader';
+import { 
+  Command, openSlpFile, closeSlpFile, iterateEvents, getMetadata, GameStartType, SlpInputSource, SlpReadInput
+} from './utils/slpReader';
 
 // Type imports
 import {
   PreFrameUpdateType, PostFrameUpdateType, MetadataType, GameEndType,
-  SlpReadInput
+  FrameBookendType, ItemUpdateType
 } from "./utils/slpReader";
 import { SlpParser } from './utils/slpParser';
-import { StockComputer, ComboComputer, ActionsComputer, ConversionComputer, InputComputer, Stats, FrameEntryType, FramesType, StatsType, getSinglesPlayerPermutationsFromSettings, generateOverallStats } from './stats';
+import {
+  StockComputer, ComboComputer, ActionsComputer, ConversionComputer, InputComputer, Stats,
+  FrameEntryType, FramesType, StatsType, getSinglesPlayerPermutationsFromSettings,
+  generateOverallStats
+} from './stats';
 
 /**
  * Slippi Game class that wraps a file
@@ -114,11 +120,6 @@ export class SlippiGame {
   public getFrames(): FramesType {
     this._process();
     return this.parser.getFrames();
-  }
-
-  public getFollowerFrames(): FramesType {
-    this._process();
-    return this.parser.getFollowerFrames();
   }
 
   public getStats(): StatsType {

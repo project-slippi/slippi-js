@@ -116,13 +116,14 @@ test('test itemExport', () => {
   });
 
   // console.log(multiItemFrames);
+  // console.log(multiItemFrames);
   // console.log(_.keyBy(negativeExpTimeItems, 'spawnId'));
 
   // // console.log(_.map(multiItemFrames, 'items'));
   // console.log(_.chain(itemsDidDamage).groupBy('spawnId').map(items => items[0]).value());
   // console.log(itemsDidDamage);
 
-  console.log(frames[5647].items);
+  console.log(frames[429].items);
 });
 
 test('test realtime', () => {

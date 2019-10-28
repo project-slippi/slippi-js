@@ -1,7 +1,7 @@
 import _ from "lodash";
 import semver from 'semver';
 
-import { PostFrameUpdateType, GameStartType, GameEndType, Command, PreFrameUpdateType, ItemUpdateType } from "./slpReader";
+import { PostFrameUpdateType, GameStartType, GameEndType, Command, PreFrameUpdateType, ItemUpdateType, FrameBookendType } from "./slpReader";
 import { Stats, FramesType, FrameEntryType, Frames, PlayerIndexedType, getSinglesPlayerPermutationsFromSettings } from "../stats";
 
 export class SlpParser {
@@ -113,5 +113,10 @@ export class SlpParser {
 
     // Set items with newest
     _.set(this.frames, [payload.frame, 'items'], items);
+  }
+
+  public handleFrameBookend(command: Command, payload: FrameBookendType): void {
+    _.set(this.frames, [payload.frame, 'isTransferComplete'], true);
+    this.statsComputer.addFrame(this.frames[payload.frame]);
   }
 }
