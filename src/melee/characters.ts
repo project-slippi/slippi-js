@@ -144,7 +144,7 @@ export function getAllCharacters(): CharacterInfo[] {
 }
 
 export function getCharacterInfo(externalCharacterId: number): CharacterInfo {
-  if (externalCharacterId < 0 || externalCharacterId > externalCharacters.length) {
+  if (externalCharacterId < 0 || externalCharacterId >= externalCharacters.length) {
     throw new Error(`Invalid character id: ${externalCharacterId}`);
   }
   return externalCharacters[externalCharacterId];
