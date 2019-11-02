@@ -4,8 +4,8 @@ import { PlayerInput } from './inputs';
 
 type ConversionsByPlayerByOpening = {
   [playerIndex: string]: {
-    [openingType: string]: ConversionType[]
-  }
+    [openingType: string]: ConversionType[];
+  };
 }
 
 export function generateOverallStats(

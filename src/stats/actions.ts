@@ -1,6 +1,6 @@
 // @flow
 import _ from 'lodash';
-import { State, PlayerIndexedType, FramesType, FrameEntryType, ActionCountsType } from "./common";
+import { State, PlayerIndexedType, FrameEntryType, ActionCountsType } from "./common";
 import { StatComputer } from './stats';
 
 // Frame pattern that indicates a dash dance turn was executed
@@ -36,7 +36,7 @@ export class ActionsComputer implements StatComputer<ActionCountsType[]> {
     })
   }
 
-  public processFrame(frame: FrameEntryType, allFrames: FramesType): void {
+  public processFrame(frame: FrameEntryType): void {
     this.playerPermutations.forEach((indices) => {
       const state = this.state.get(indices);
       handleActionCompute(state, indices, frame);

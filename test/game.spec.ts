@@ -97,33 +97,35 @@ test('test bufferInput', () => {
 });
 
 test('test itemExport', () => {
-  const game = new SlippiGame("slp/itemExport.slp");
-  const frames = game.getFrames();
+  // const game = new SlippiGame("slp/itemExport.slp");
+  // const frames = game.getFrames();
   
-  const multiItemFrames = _.filter(frames, frame => {
-    const items = _.get(frame, 'items') || [];
-    return items.length > 3;
-  });
+  // TODO: Add test
 
-  const itemsDidDamage = _.flatMap(frames, frame => {
-    const items = _.get(frame, 'items') || [];
-    return _.filter(items, item => item.damageTaken > 0);
-  });
+  // const multiItemFrames = _.filter(frames, frame => {
+  //   const items = _.get(frame, 'items') || [];
+  //   return items.length > 3;
+  // });
 
-  const negativeExpTimeItems = _.flatMap(frames, frame => {
-    const items = _.get(frame, 'items') || [];
-    return _.filter(items, item => item.expirationTimer < 0);
-  });
+  // const itemsDidDamage = _.flatMap(frames, frame => {
+  //   const items = _.get(frame, 'items') || [];
+  //   return _.filter(items, item => item.damageTaken > 0);
+  // });
 
-  // console.log(multiItemFrames);
-  // console.log(multiItemFrames);
-  // console.log(_.keyBy(negativeExpTimeItems, 'spawnId'));
+  // const negativeExpTimeItems = _.flatMap(frames, frame => {
+  //   const items = _.get(frame, 'items') || [];
+  //   return _.filter(items, item => item.expirationTimer < 0);
+  // });
 
-  // // console.log(_.map(multiItemFrames, 'items'));
-  // console.log(_.chain(itemsDidDamage).groupBy('spawnId').map(items => items[0]).value());
-  // console.log(itemsDidDamage);
+  // // console.log(multiItemFrames);
+  // // console.log(multiItemFrames);
+  // // console.log(_.keyBy(negativeExpTimeItems, 'spawnId'));
 
-  console.log(frames[429].items);
+  // // // console.log(_.map(multiItemFrames, 'items'));
+  // // console.log(_.chain(itemsDidDamage).groupBy('spawnId').map(items => items[0]).value());
+  // // console.log(itemsDidDamage);
+
+  // console.log(frames[429].items);
 });
 
 test('test realtime', () => {
