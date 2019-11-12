@@ -26,6 +26,7 @@ export class ActionsComputer implements StatComputer<ActionCountsType[]> {
         airDodgeCount: 0,
         dashDanceCount: 0,
         spotDodgeCount: 0,
+        ledgegrabCount: 0,
         rollCount: 0,
       };
       const playerState: PlayerActionState = {
@@ -81,6 +82,17 @@ function didStartAirDodge(currentAnimation: State, previousAnimation: State): bo
   return isCurrentlyDodging && !wasPreviouslyDodging;
 }
 
+function isGrabbingLedge(animation: State): boolean {
+  return animation === State.CLIFF_WAIT;
+}
+
+function didStartLedgegrab(currentAnimation: State, previousAnimation: State): boolean {
+  const isCurrentlyGrabbingLedge = isGrabbingLedge(currentAnimation);
+  const wasPreviouslyGrabbingLedge = isGrabbingLedge(previousAnimation);
+
+  return isCurrentlyGrabbingLedge && !wasPreviouslyGrabbingLedge;
+}
+
 function handleActionCompute(state: PlayerActionState, indices: PlayerIndexedType, frame: FrameEntryType): void {
   const playerFrame = frame.players[indices.playerIndex].post;
   const incrementCount = (field: string, condition: boolean): void => {
@@ -112,6 +124,9 @@ function handleActionCompute(state: PlayerActionState, indices: PlayerIndexedTyp
 
   const didAirDodge = didStartAirDodge(currentAnimation, prevAnimation);
   incrementCount('airDodgeCount', didAirDodge);
+
+  const didGrabLedge = didStartLedgegrab(currentAnimation, prevAnimation);
+  incrementCount('ledgegrabCount', didGrabLedge);
 
   // Handles wavedash detection (and waveland)
   handleActionWavedash(state.playerCounts, state.animations);
