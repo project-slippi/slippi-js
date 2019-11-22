@@ -80,6 +80,7 @@ export type ActionCountsType = PlayerIndexedType & {
   airDodgeCount: number;
   dashDanceCount: number;
   spotDodgeCount: number;
+  ledgegrabCount: number;
   rollCount: number;
 };
 
@@ -139,6 +140,7 @@ export enum State {
   FALL_FORWARD = 0x1E,
   FALL_BACKWARD = 0x1F,
   GRAB = 0xD4,
+  CLIFF_CATCH = 0xFC,
 };
 
 export const Timers = {
