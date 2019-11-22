@@ -140,7 +140,7 @@ export enum State {
   FALL_FORWARD = 0x1E,
   FALL_BACKWARD = 0x1F,
   GRAB = 0xD4,
-  CLIFF_WAIT = 0xFD,
+  CLIFF_CATCH = 0xFC,
 };
 
 export const Timers = {

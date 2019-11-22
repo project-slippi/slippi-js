@@ -83,7 +83,7 @@ function didStartAirDodge(currentAnimation: State, previousAnimation: State): bo
 }
 
 function isGrabbingLedge(animation: State): boolean {
-  return animation === State.CLIFF_WAIT;
+  return animation === State.CLIFF_CATCH;
 }
 
 function didStartLedgegrab(currentAnimation: State, previousAnimation: State): boolean {
