@@ -32,7 +32,7 @@ export function generateOverallStats(
     const conversions = _.get(conversionsByPlayer, playerIndex) || [];
     const successfulConversions = conversions.filter(conversion => conversion.moves.length > 1);
     const opponentStocks = _.get(stocksByPlayer, opponentIndex) || [];
-    const playerStocks = _.get(stocksByPlayer, playerIndex);
+    const playerStocks = _.get(stocksByPlayer, playerIndex) || [];
     const opponentEndedStocks = _.filter(opponentStocks, 'endFrame');
 
     const conversionCount = conversions.length;
@@ -48,6 +48,7 @@ export function generateOverallStats(
       conversionCount: conversionCount,
       totalDamage: totalDamage,
       killCount: killCount,
+      winnerIndex: determineWinner(playerStocks, opponentStocks),
 
       successfulConversions: getRatio(successfulConversionCount, conversionCount),
       inputsPerMinute: getRatio(inputCount, gameMinutes),
@@ -66,6 +67,23 @@ export function generateOverallStats(
   });
 
   return overall;
+}
+
+function determineWinner(playerStocks: StockType[], opponentStocks: StockType[]) : number {
+
+  if (playerStocks.length == 0 && opponentStocks.length == 0) return -1; //unknown winner;
+
+  if (playerStocks.length === opponentStocks.length) {
+    var playerLastStock = playerStocks[playerStocks.length - 1]
+    var opponentLastStock = opponentStocks[opponentStocks.length - 1];
+
+    if (playerLastStock.endPercent > opponentLastStock.endPercent) return opponentLastStock.playerIndex;
+    if (playerLastStock.endPercent < opponentLastStock.endPercent) return playerLastStock.playerIndex;
+  }
+
+  // More stock events, means more deaths.
+  if (playerStocks.length > opponentStocks.length) return playerStocks[0].opponentIndex;
+  if (playerStocks.length < opponentStocks.length) return opponentStocks[0].playerIndex; 
 }
 
 function getRatio(count: number, total: number): RatioType {
