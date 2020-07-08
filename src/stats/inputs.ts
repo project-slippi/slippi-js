@@ -1,7 +1,7 @@
-import _ from 'lodash';
+import _ from "lodash";
 import { FramesType, FrameEntryType, Frames, PlayerIndexedType } from "./common";
 
-import { StatComputer } from './stats';
+import { StatComputer } from "./stats";
 
 enum JoystickRegion {
   DZ = 0,
@@ -13,7 +13,7 @@ enum JoystickRegion {
   E = 6,
   S = 7,
   W = 8,
-};
+}
 
 export interface PlayerInput {
   playerIndex: number;
@@ -32,9 +32,9 @@ export class InputComputer implements StatComputer<PlayerInput[]> {
         playerIndex: indices.playerIndex,
         opponentIndex: indices.opponentIndex,
         inputCount: 0,
-      }
+      };
       this.state.set(indices, playerState);
-    })
+    });
   }
 
   public processFrame(frame: FrameEntryType, allFrames: FramesType): void {
@@ -45,17 +45,20 @@ export class InputComputer implements StatComputer<PlayerInput[]> {
   }
 
   public fetch(): PlayerInput[] {
-    return Array.from(this.state.keys()).map(key => this.state.get(key));
+    return Array.from(this.state.keys()).map((key) => this.state.get(key));
   }
 }
 
-function handleInputCompute(frames: FramesType, state: PlayerInput, indices: PlayerIndexedType, frame: FrameEntryType): void {
+function handleInputCompute(
+  frames: FramesType,
+  state: PlayerInput,
+  indices: PlayerIndexedType,
+  frame: FrameEntryType,
+): void {
   const playerFrame = frame.players[indices.playerIndex].pre;
   // FIXME: use PreFrameUpdateType instead of any
   // This is because the default value {} should not be casted as a type of PreFrameUpdateType
-  const prevPlayerFrame: any = _.get(
-    frames, [playerFrame.frame - 1, 'players', indices.playerIndex, 'pre'], {}
-  );
+  const prevPlayerFrame: any = _.get(frames, [playerFrame.frame - 1, "players", indices.playerIndex, "pre"], {});
 
   if (playerFrame.frame < Frames.FIRST_PLAYABLE) {
     // Don't count inputs until the game actually starts
@@ -66,25 +69,21 @@ function handleInputCompute(frames: FramesType, state: PlayerInput, indices: Pla
   // Increment action count by amount of button presses
   const invertedPreviousButtons = ~prevPlayerFrame.physicalButtons;
   const currentButtons = playerFrame.physicalButtons;
-  const buttonChanges = (invertedPreviousButtons & currentButtons) & 0xFFF;
+  const buttonChanges = invertedPreviousButtons & currentButtons & 0xfff;
   state.inputCount += countSetBits(buttonChanges);
 
   // Increment action count when sticks change from one region to another.
   // Don't increment when stick returns to deadzone
-  const prevAnalogRegion = getJoystickRegion(
-    prevPlayerFrame.joystickX, prevPlayerFrame.joystickY
-  );
-  const currentAnalogRegion = getJoystickRegion(
-    playerFrame.joystickX, playerFrame.joystickY
-  );
-  if ((prevAnalogRegion !== currentAnalogRegion) && (currentAnalogRegion !== 0)) {
+  const prevAnalogRegion = getJoystickRegion(prevPlayerFrame.joystickX, prevPlayerFrame.joystickY);
+  const currentAnalogRegion = getJoystickRegion(playerFrame.joystickX, playerFrame.joystickY);
+  if (prevAnalogRegion !== currentAnalogRegion && currentAnalogRegion !== 0) {
     state.inputCount += 1;
   }
 
   // Do the same for c-stick
   const prevCstickRegion = getJoystickRegion(prevPlayerFrame.cStickX, prevPlayerFrame.cStickY);
   const currentCstickRegion = getJoystickRegion(playerFrame.cStickX, playerFrame.cStickY);
-  if ((prevCstickRegion !== currentCstickRegion) && (currentCstickRegion !== 0)) {
+  if (prevCstickRegion !== currentCstickRegion && currentCstickRegion !== 0) {
     state.inputCount += 1;
   }
 

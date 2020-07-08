@@ -1,20 +1,39 @@
 /* eslint-disable no-param-reassign */
-import _ from 'lodash';
-import { 
-  Command, openSlpFile, closeSlpFile, iterateEvents, getMetadata, GameStartType, SlpInputSource, SlpReadInput
-} from './utils/slpReader';
+import _ from "lodash";
+import {
+  Command,
+  openSlpFile,
+  closeSlpFile,
+  iterateEvents,
+  getMetadata,
+  GameStartType,
+  SlpInputSource,
+  SlpReadInput,
+} from "./utils/slpReader";
 
 // Type imports
 import {
-  PreFrameUpdateType, PostFrameUpdateType, MetadataType, GameEndType,
-  FrameBookendType, ItemUpdateType
+  PreFrameUpdateType,
+  PostFrameUpdateType,
+  MetadataType,
+  GameEndType,
+  FrameBookendType,
+  ItemUpdateType,
 } from "./utils/slpReader";
-import { SlpParser } from './utils/slpParser';
+import { SlpParser } from "./utils/slpParser";
 import {
-  StockComputer, ComboComputer, ActionsComputer, ConversionComputer, InputComputer, Stats,
-  FrameEntryType, FramesType, StatsType, getSinglesPlayerPermutationsFromSettings,
-  generateOverallStats
-} from './stats';
+  StockComputer,
+  ComboComputer,
+  ActionsComputer,
+  ConversionComputer,
+  InputComputer,
+  Stats,
+  FrameEntryType,
+  FramesType,
+  StatsType,
+  getSinglesPlayerPermutationsFromSettings,
+  generateOverallStats,
+} from "./stats";
 
 /**
  * Slippi Game class that wraps a file
@@ -64,36 +83,40 @@ export class SlippiGame {
     }
     const slpfile = openSlpFile(this.input);
     // Generate settings from iterating through file
-    this.readPosition = iterateEvents(slpfile, (command, payload) => {
-      if (!payload) {
-        // If payload is falsy, keep iterating. The parser probably just doesn't know
-        // about this command yet
-        return false;
-      }
+    this.readPosition = iterateEvents(
+      slpfile,
+      (command, payload) => {
+        if (!payload) {
+          // If payload is falsy, keep iterating. The parser probably just doesn't know
+          // about this command yet
+          return false;
+        }
 
-      switch (command) {
-      case Command.GAME_START:
-        this.parser.handleGameStart(payload as GameStartType);
-        break;
-      case Command.POST_FRAME_UPDATE:
-        this.parser.handlePostFrameUpdate(payload as PostFrameUpdateType);
-        this.parser.handleFrameUpdate(command, payload as PostFrameUpdateType);
-        break;
-      case Command.PRE_FRAME_UPDATE:
-        this.parser.handleFrameUpdate(command, payload as PreFrameUpdateType);
-        break;
-      case Command.ITEM_UPDATE:
-        this.parser.handleItemUpdate(command, payload as ItemUpdateType);
-        break;
-      case Command.FRAME_BOOKEND:
-        this.parser.handleFrameBookend(command, payload as FrameBookendType);
-        break;
-      case Command.GAME_END:
-        this.parser.handleGameEnd(payload as GameEndType);
-        break;
-      }
-      return settingsOnly && this.parser.getSettings() !== null;
-    }, this.readPosition);
+        switch (command) {
+          case Command.GAME_START:
+            this.parser.handleGameStart(payload as GameStartType);
+            break;
+          case Command.POST_FRAME_UPDATE:
+            this.parser.handlePostFrameUpdate(payload as PostFrameUpdateType);
+            this.parser.handleFrameUpdate(command, payload as PostFrameUpdateType);
+            break;
+          case Command.PRE_FRAME_UPDATE:
+            this.parser.handleFrameUpdate(command, payload as PreFrameUpdateType);
+            break;
+          case Command.ITEM_UPDATE:
+            this.parser.handleItemUpdate(command, payload as ItemUpdateType);
+            break;
+          case Command.FRAME_BOOKEND:
+            this.parser.handleFrameBookend(command, payload as FrameBookendType);
+            break;
+          case Command.GAME_END:
+            this.parser.handleGameEnd(payload as GameEndType);
+            break;
+        }
+        return settingsOnly && this.parser.getSettings() !== null;
+      },
+      this.readPosition,
+    );
     closeSlpFile(slpfile);
   }
 

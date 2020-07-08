@@ -23,6 +23,7 @@
     "coverage": "yarn run test -- --coverage",
     "postcoverage": "open-cli coverage/lcov-report/index.html",
     "lint": "eslint \"src/**/*.ts\" \"test/**/*.ts\"",
+    "lint:fix": "yarn run lint --fix",
     "clean": "rimraf dist",
     "prebuild": "yarn run clean",
     "build": "rollup -c",
@@ -55,12 +56,22 @@
     "@typescript-eslint/eslint-plugin": "^2.3.0",
     "@typescript-eslint/parser": "^2.3.0",
     "eslint": "^6.3.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-prettier": "^3.1.4",
+    "husky": "^4.2.5",
     "jest": "^24.9.0",
     "open-cli": "^5.0.0",
+    "prettier": "^2.0.5",
+    "pretty-quick": "^2.0.1",
     "rimraf": "^3.0.0",
     "rollup": "^1.20.3",
     "rollup-plugin-typescript2": "^0.24.0",
     "ts-jest": "^24.0.2",
     "typescript": "^3.6.2"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "pretty-quick --staged"
+    }
   }
 }

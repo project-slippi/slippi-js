@@ -136,9 +136,9 @@ export const STAGE_FD = 32;
 export function getStageInfo(stageId: number): Stage {
   const s = stages[stageId];
   if (!s) {
-    throw new Error(`Invalid stage with id ${stageId}`)
+    throw new Error(`Invalid stage with id ${stageId}`);
   }
-  return s
+  return s;
 }
 
 export function getStageName(stageId: number): string {

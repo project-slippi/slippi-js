@@ -1,9 +1,9 @@
-import { SlippiGame } from './SlippiGame';
+import { SlippiGame } from "./SlippiGame";
 
-import * as animations from './melee/animations';
-import * as characters from './melee/characters';
-import * as moves from './melee/moves';
-import * as stages from './melee/stages';
+import * as animations from "./melee/animations";
+import * as characters from "./melee/characters";
+import * as moves from "./melee/moves";
+import * as stages from "./melee/stages";
 
 export * from "./stats";
 export * from "./utils";

@@ -1,11 +1,8 @@
-import _ from 'lodash';
+import _ from "lodash";
 import { PostFrameUpdateType } from "../utils/slpReader";
 import { FrameEntryType, FramesType, MoveLandedType, ComboType, PlayerIndexedType } from "./common";
-import {
-  isDamaged, isGrabbed, calcDamageTaken, isTeching, didLoseStock,
-  Timers, isDown, isDead
-} from "./common";
-import { StatComputer } from './stats';
+import { isDamaged, isGrabbed, calcDamageTaken, isTeching, didLoseStock, Timers, isDown, isDead } from "./common";
+import { StatComputer } from "./stats";
 
 interface ComboState {
   combo: ComboType | null;
@@ -29,7 +26,7 @@ export class ComboComputer implements StatComputer<ComboType[]> {
         lastHitAnimation: null,
       };
       this.state.set(indices, playerState);
-    })
+    });
   }
 
   public processFrame(frame: FrameEntryType, allFrames: FramesType): void {
@@ -42,22 +39,23 @@ export class ComboComputer implements StatComputer<ComboType[]> {
   public fetch(): ComboType[] {
     return this.combos;
   }
-
 }
 
-function handleComboCompute(frames: FramesType, state: ComboState, indices: PlayerIndexedType, frame: FrameEntryType, combos: ComboType[]): void {
+function handleComboCompute(
+  frames: FramesType,
+  state: ComboState,
+  indices: PlayerIndexedType,
+  frame: FrameEntryType,
+  combos: ComboType[],
+): void {
   const playerFrame: PostFrameUpdateType = frame.players[indices.playerIndex].post;
   // FIXME: use type PostFrameUpdateType instead of any
   // This is because the default value {} should not be casted as a type of PostFrameUpdateType
-  const prevPlayerFrame: any = _.get(
-    frames, [playerFrame.frame - 1, 'players', indices.playerIndex, 'post'], {}
-  );
+  const prevPlayerFrame: any = _.get(frames, [playerFrame.frame - 1, "players", indices.playerIndex, "post"], {});
   const opponentFrame: PostFrameUpdateType = frame.players[indices.opponentIndex].post;
   // FIXME: use type PostFrameUpdateType instead of any
   // This is because the default value {} should not be casted as a type of PostFrameUpdateType
-  const prevOpponentFrame: any = _.get(
-    frames, [playerFrame.frame - 1, 'players', indices.opponentIndex, 'post'], {}
-  );
+  const prevOpponentFrame: any = _.get(frames, [playerFrame.frame - 1, "players", indices.opponentIndex, "post"], {});
 
   const opntIsDamaged = isDamaged(opponentFrame.actionStateId);
   const opntIsGrabbed = isGrabbed(opponentFrame.actionStateId);

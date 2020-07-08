@@ -1,8 +1,8 @@
-import _ from 'lodash';
+import _ from "lodash";
 import { PostFrameUpdateType } from "../utils/slpReader";
 import { FrameEntryType, FramesType, MoveLandedType, ConversionType, PlayerIndexedType } from "./common";
 import { isDamaged, isGrabbed, calcDamageTaken, isInControl, didLoseStock, Timers } from "./common";
-import { StatComputer } from './stats';
+import { StatComputer } from "./stats";
 
 interface PlayerConversionState {
   conversion: ConversionType | null;
@@ -37,9 +37,9 @@ export class ConversionComputer implements StatComputer<ConversionType[]> {
         move: null,
         resetCounter: 0,
         lastHitAnimation: null,
-      }
+      };
       this.state.set(indices, playerState);
-    })
+    });
   }
 
   public processFrame(frame: FrameEntryType, allFrames: FramesType): void {
@@ -62,14 +62,14 @@ export class ConversionComputer implements StatComputer<ConversionType[]> {
 
     // Group new conversions by startTime and sort
     const sortedConversions: ConversionType[][] = _.chain(conversionsToHandle)
-      .groupBy('startFrame')
-      .orderBy((conversions) => _.get(conversions, [0, 'startFrame']))
+      .groupBy("startFrame")
+      .orderBy((conversions) => _.get(conversions, [0, "startFrame"]))
       .value();
 
     // Set the opening types on the conversions we need to handle
-    sortedConversions.forEach(conversions => {
+    sortedConversions.forEach((conversions) => {
       const isTrade = conversions.length >= 2;
-      conversions.forEach(conversion => {
+      conversions.forEach((conversion) => {
         // Set end frame for this conversion
         this.metadata.lastEndFrameByOppIdx[conversion.playerIndex] = conversion.endFrame;
 
@@ -88,19 +88,21 @@ export class ConversionComputer implements StatComputer<ConversionType[]> {
   }
 }
 
-function handleConversionCompute(frames: FramesType, state: PlayerConversionState, indices: PlayerIndexedType, frame: FrameEntryType, conversions: ConversionType[]): void {
+function handleConversionCompute(
+  frames: FramesType,
+  state: PlayerConversionState,
+  indices: PlayerIndexedType,
+  frame: FrameEntryType,
+  conversions: ConversionType[],
+): void {
   const playerFrame: PostFrameUpdateType = frame.players[indices.playerIndex].post;
   // FIXME: use type PostFrameUpdateType instead of any
   // This is because the default value {} should not be casted as a type of PostFrameUpdateType
-  const prevPlayerFrame: any = _.get(
-    frames, [playerFrame.frame - 1, 'players', indices.playerIndex, 'post'], {}
-  );
+  const prevPlayerFrame: any = _.get(frames, [playerFrame.frame - 1, "players", indices.playerIndex, "post"], {});
   const opponentFrame: PostFrameUpdateType = frame.players[indices.opponentIndex].post;
   // FIXME: use type PostFrameUpdateType instead of any
   // This is because the default value {} should not be casted as a type of PostFrameUpdateType
-  const prevOpponentFrame: any = _.get(
-    frames, [playerFrame.frame - 1, 'players', indices.opponentIndex, 'post'], {}
-  );
+  const prevOpponentFrame: any = _.get(frames, [playerFrame.frame - 1, "players", indices.opponentIndex, "post"], {});
 
   const opntIsDamaged = isDamaged(opponentFrame.actionStateId);
   const opntIsGrabbed = isGrabbed(opponentFrame.actionStateId);

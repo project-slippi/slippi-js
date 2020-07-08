@@ -1,8 +1,23 @@
 import _ from "lodash";
-import semver from 'semver';
+import semver from "semver";
 
-import { PostFrameUpdateType, GameStartType, GameEndType, Command, PreFrameUpdateType, ItemUpdateType, FrameBookendType } from "./slpReader";
-import { Stats, FramesType, FrameEntryType, Frames, PlayerIndexedType, getSinglesPlayerPermutationsFromSettings } from "../stats";
+import {
+  PostFrameUpdateType,
+  GameStartType,
+  GameEndType,
+  Command,
+  PreFrameUpdateType,
+  ItemUpdateType,
+  FrameBookendType,
+} from "./slpReader";
+import {
+  Stats,
+  FramesType,
+  FrameEntryType,
+  Frames,
+  PlayerIndexedType,
+  getSinglesPlayerPermutationsFromSettings,
+} from "../stats";
 
 export class SlpParser {
   private statsComputer: Stats;
@@ -56,7 +71,7 @@ export class SlpParser {
   public handleGameStart(payload: GameStartType): void {
     this.settings = payload;
     const players = payload.players;
-    this.settings.players = players.filter(player => player.type !== 3);
+    this.settings.players = players.filter((player) => player.type !== 3);
     this.playerPermutations = getSinglesPlayerPermutationsFromSettings(this.settings);
     this.statsComputer.setPlayerPermutations(this.playerPermutations);
 
@@ -75,15 +90,15 @@ export class SlpParser {
     // Finish calculating settings
     if (payload.frame <= Frames.FIRST) {
       const playerIndex = payload.playerIndex;
-      const playersByIndex = _.keyBy(this.settings.players, 'playerIndex');
+      const playersByIndex = _.keyBy(this.settings.players, "playerIndex");
 
       switch (payload.internalCharacterId) {
-      case 0x7:
-        playersByIndex[playerIndex].characterId = 0x13; // Sheik
-        break;
-      case 0x13:
-        playersByIndex[playerIndex].characterId = 0x12; // Zelda
-        break;
+        case 0x7:
+          playersByIndex[playerIndex].characterId = 0x13; // Sheik
+          break;
+        case 0x13:
+          playersByIndex[playerIndex].characterId = 0x12; // Zelda
+          break;
       }
     }
     this.settingsComplete = payload.frame > Frames.FIRST;
@@ -92,10 +107,10 @@ export class SlpParser {
   public handleFrameUpdate(command: Command, payload: PreFrameUpdateType | PostFrameUpdateType): void {
     payload = payload as PostFrameUpdateType;
     const location = command === Command.PRE_FRAME_UPDATE ? "pre" : "post";
-    const field = payload.isFollower ? 'followers' : 'players';
+    const field = payload.isFollower ? "followers" : "players";
     this.latestFrameIndex = payload.frame;
     _.set(this.frames, [payload.frame, field, payload.playerIndex, location], payload);
-    _.set(this.frames, [payload.frame, 'frame'], payload.frame);
+    _.set(this.frames, [payload.frame, "frame"], payload.frame);
 
     // If file is from before frame bookending, add frame to stats computer here. Does a little
     // more processing than necessary, but it works
@@ -103,20 +118,20 @@ export class SlpParser {
     if (!settings || semver.lte(settings.slpVersion, "2.2.0")) {
       this.statsComputer.addFrame(this.frames[payload.frame]);
     } else {
-      _.set(this.frames, [payload.frame, 'isTransferComplete'], false);
+      _.set(this.frames, [payload.frame, "isTransferComplete"], false);
     }
   }
 
   public handleItemUpdate(command: Command, payload: ItemUpdateType): void {
-    const items = _.get(this.frames, [payload.frame, 'items'], []);
+    const items = _.get(this.frames, [payload.frame, "items"], []);
     items.push(payload);
 
     // Set items with newest
-    _.set(this.frames, [payload.frame, 'items'], items);
+    _.set(this.frames, [payload.frame, "items"], items);
   }
 
   public handleFrameBookend(command: Command, payload: FrameBookendType): void {
-    _.set(this.frames, [payload.frame, 'isTransferComplete'], true);
+    _.set(this.frames, [payload.frame, "isTransferComplete"], true);
     this.statsComputer.addFrame(this.frames[payload.frame]);
   }
 }
