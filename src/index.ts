@@ -6,8 +6,7 @@ import * as moves from './melee/moves';
 import * as stages from './melee/stages';
 
 export * from "./stats";
-export { PostFrameUpdateType, GameStartType, GameEndType, Command, PreFrameUpdateType, parseMessage } from "./utils/slpReader";
-export { SlpParser } from "./utils/slpParser";
+export * from "./utils";
 
 export {
   animations,
