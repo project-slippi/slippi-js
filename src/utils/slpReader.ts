@@ -20,15 +20,15 @@ export enum SlpInputSource {
   FILE = "file",
 }
 
-export type SlpReadInput = {
+export interface SlpReadInput {
   source: SlpInputSource;
   filePath?: string;
   buffer?: Buffer;
-};
+}
 
 export type SlpRefType = SlpFileSourceRef | SlpBufferSourceRef;
 
-export type SlpFileType = {
+export interface SlpFileType {
   ref: SlpRefType;
   rawDataPosition: number;
   rawDataLength: number;
@@ -37,9 +37,9 @@ export type SlpFileType = {
   messageSizes: {
     [command: number]: number;
   };
-};
+}
 
-export type PlayerType = {
+export interface PlayerType {
   playerIndex: number;
   port: number;
   characterId: number | null;
@@ -49,17 +49,17 @@ export type PlayerType = {
   teamId: number | null;
   controllerFix: string | null;
   nametag: string | null;
-};
+}
 
-export type GameStartType = {
+export interface GameStartType {
   slpVersion: string | null;
   isTeams: boolean | null;
   isPAL: boolean | null;
   stageId: number | null;
   players: PlayerType[];
-};
+}
 
-export type PreFrameUpdateType = {
+export interface PreFrameUpdateType {
   frame: number | null;
   playerIndex: number | null;
   isFollower: boolean | null;
@@ -78,9 +78,9 @@ export type PreFrameUpdateType = {
   physicalLTrigger: number | null;
   physicalRTrigger: number | null;
   percent: number | null;
-};
+}
 
-export type PostFrameUpdateType = {
+export interface PostFrameUpdateType {
   frame: number | null;
   playerIndex: number | null;
   isFollower: boolean | null;
@@ -97,9 +97,9 @@ export type PostFrameUpdateType = {
   stocksRemaining: number | null;
   actionStateCounter: number | null;
   lCancelStatus: number | null;
-};
+}
 
-export type ItemUpdateType = {
+export interface ItemUpdateType {
   frame: number | null;
   typeId: number | null;
   state: number | null;
@@ -111,32 +111,29 @@ export type ItemUpdateType = {
   damageTaken: number | null;
   expirationTimer: number | null;
   spawnId: number | null;
-};
+}
 
-export type FrameBookendType = {
+export interface FrameBookendType {
   frame: number | null;
-};
+}
 
-export type GameEndType = {
+export interface GameEndType {
   gameEndMethod: number | null;
   lrasInitiatorIndex: number | null;
-};
+}
 
-export type MetadataType = {
-  startAt: string | null | undefined;
-  playedOn: string | null | undefined;
-  lastFrame: number | null | undefined;
-  players:
-    | {
-        [playerIndex: number]: {
-          characters: {
-            [internalCharacterId: number]: number;
-          };
-        };
-      }
-    | null
-    | undefined;
-};
+export interface MetadataType {
+  startAt?: string | null;
+  playedOn?: string | null;
+  lastFrame?: number | null;
+  players?: {
+    [playerIndex: number]: {
+      characters: {
+        [internalCharacterId: number]: number;
+      };
+    };
+  } | null;
+}
 
 export interface SlpFileSourceRef {
   source: SlpInputSource;
@@ -307,7 +304,7 @@ type EventPayloadTypes =
   | ItemUpdateType
   | FrameBookendType
   | GameEndType;
-type EventCallbackFunc = (command: Command, payload: EventPayloadTypes | null | undefined) => boolean;
+type EventCallbackFunc = (command: Command, payload?: EventPayloadTypes | null) => boolean;
 
 /**
  * Iterates through slp events and parses payloads
@@ -352,7 +349,7 @@ export function iterateEvents(
   return readPosition;
 }
 
-export function parseMessage(command: Command, payload: Uint8Array): EventPayloadTypes | null | undefined {
+export function parseMessage(command: Command, payload: Uint8Array): EventPayloadTypes | null {
   const view = new DataView(payload.buffer);
   switch (command) {
     case Command.GAME_START:

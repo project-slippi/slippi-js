@@ -1,7 +1,7 @@
 import _ from "lodash";
 import { PostFrameUpdateType, GameStartType, PreFrameUpdateType, ItemUpdateType } from "../utils/slpReader";
 
-export type FrameEntryType = {
+export interface FrameEntryType {
   frame: number;
   players: {
     [playerIndex: number]: {
@@ -16,13 +16,13 @@ export type FrameEntryType = {
     };
   };
   items: ItemUpdateType[];
-};
+}
 
-export type FramesType = {
+export interface FramesType {
   [frameIndex: number]: FrameEntryType;
-};
+}
 
-export type StatsType = {
+export interface StatsType {
   gameComplete: boolean;
   lastFrame: number;
   playableFrameCount: number;
@@ -31,60 +31,54 @@ export type StatsType = {
   combos: ComboType[];
   actionCounts: ActionCountsType[];
   overall: OverallType[];
-};
+}
 
-export type RatioType = {
+export interface RatioType {
   count: number;
   total: number;
   ratio: number | null;
-};
+}
 
-export type PlayerIndexedType = {
+export interface PlayerIndexedType {
   playerIndex: number;
   opponentIndex: number;
-};
+}
 
-export type DurationType = {
+export interface DurationType {
   startFrame: number;
-  endFrame: number | null | undefined;
-};
+  endFrame?: number | null;
+}
 
-export type DamageType = {
+export interface DamageType {
   startPercent: number;
   currentPercent: number;
-  endPercent: number | null | undefined;
-};
+  endPercent?: number | null;
+}
 
-export type StockType = PlayerIndexedType &
-  DurationType &
-  DamageType & {
-    count: number;
-    deathAnimation: number | null | undefined;
-  };
+export interface StockType extends PlayerIndexedType, DurationType, DamageType {
+  count: number;
+  deathAnimation?: number | null;
+}
 
-export type MoveLandedType = {
+export interface MoveLandedType {
   frame: number;
   moveId: number;
   hitCount: number;
   damage: number;
-};
+}
 
-export type ConversionType = PlayerIndexedType &
-  DurationType &
-  DamageType & {
-    moves: MoveLandedType[];
-    openingType: string;
-    didKill: boolean;
-  };
+export interface ConversionType extends PlayerIndexedType, DurationType, DamageType {
+  moves: MoveLandedType[];
+  openingType: string;
+  didKill: boolean;
+}
 
-export type ComboType = PlayerIndexedType &
-  DurationType &
-  DamageType & {
-    moves: MoveLandedType[];
-    didKill: boolean;
-  };
+export interface ComboType extends PlayerIndexedType, DurationType, DamageType {
+  moves: MoveLandedType[];
+  didKill: boolean;
+}
 
-export type ActionCountsType = PlayerIndexedType & {
+export interface ActionCountsType extends PlayerIndexedType {
   wavedashCount: number;
   wavelandCount: number;
   airDodgeCount: number;
@@ -92,9 +86,9 @@ export type ActionCountsType = PlayerIndexedType & {
   spotDodgeCount: number;
   ledgegrabCount: number;
   rollCount: number;
-};
+}
 
-export type OverallType = PlayerIndexedType & {
+export interface OverallType extends PlayerIndexedType {
   inputCount: number;
   conversionCount: number;
   totalDamage: number;
@@ -106,7 +100,7 @@ export type OverallType = PlayerIndexedType & {
   neutralWinRatio: RatioType;
   counterHitRatio: RatioType;
   beneficialTradeRatio: RatioType;
-};
+}
 
 export enum State {
   // Animation ID ranges

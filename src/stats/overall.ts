@@ -2,11 +2,11 @@ import _ from "lodash";
 import { ConversionType, PlayerIndexedType, StockType, OverallType, RatioType } from "./common";
 import { PlayerInput } from "./inputs";
 
-type ConversionsByPlayerByOpening = {
+interface ConversionsByPlayerByOpening {
   [playerIndex: string]: {
     [openingType: string]: ConversionType[];
   };
-};
+}
 
 export function generateOverallStats(
   playerIndices: PlayerIndexedType[],

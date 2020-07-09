@@ -5,7 +5,7 @@ import { FrameEntryType, FramesType, isDead, didLoseStock, PlayerIndexedType, St
 import { StatComputer } from "./stats";
 
 interface StockState {
-  stock: StockType | null | undefined;
+  stock?: StockType | null;
 }
 
 export class StockComputer implements StatComputer<StockType[]> {
