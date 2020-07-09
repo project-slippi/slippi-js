@@ -1,16 +1,16 @@
 {
   "name": "@slippi/sdk",
-  "version": "4.1.0",
+  "version": "1.0.0",
   "description": "Official Project Slippi Javascript SDK",
   "license": "LGPL-3.0-or-later",
-  "repository": "JLaferri/slp-parser-js",
+  "repository": "project-slippi/slippi-js",
   "author": {
     "name": "Jas Laferriere",
     "email": "jas.laferriere@gmail.com",
     "url": "https://github.com/JLaferri"
   },
   "engines": {
-    "node": ">=6"
+    "node": ">=10"
   },
   "files": [
     "dist"
@@ -39,7 +39,10 @@
     "testEnvironment": "node"
   },
   "keywords": [
-    "slp-parser-js"
+    "slp",
+    "slippi",
+    "melee",
+    "ssbm"
   ],
   "dependencies": {
     "@shelacek/ubjson": "^1.0.1",
