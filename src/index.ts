@@ -7,6 +7,7 @@ import * as stages from "./melee/stages";
 
 export * from "./stats";
 export * from "./utils";
+export * from "./console";
 
 export {
   animations,
