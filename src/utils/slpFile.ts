@@ -6,9 +6,10 @@ import { Writable, WritableOptions } from "stream";
 const DEFAULT_NICKNAME = "unknown";
 
 export interface SlpFileMetadata {
-  consoleNickname?: string;
+  startTime: Moment;
   lastFrame: number;
   players: any;
+  consoleNickname?: string;
 }
 
 /**
@@ -23,7 +24,6 @@ export class SlpFile extends Writable {
   private metadata: SlpFileMetadata;
   private fileStream: WriteStream;
   private rawDataLength = 0;
-  private startTime: Moment;
 
   /**
    * Creates an instance of SlpFile.
@@ -34,9 +34,9 @@ export class SlpFile extends Writable {
   public constructor(filePath: string, opts?: WritableOptions) {
     super(opts);
     this.filePath = filePath;
-    this.startTime = moment();
     this.metadata = {
       consoleNickname: DEFAULT_NICKNAME,
+      startTime: moment(),
       lastFrame: -124,
       players: {},
     };
@@ -97,7 +97,7 @@ export class SlpFile extends Writable {
     let footer = Buffer.concat([Buffer.from("U"), Buffer.from([8]), Buffer.from("metadata{")]);
 
     // Write game start time
-    const startTimeStr = this.startTime.toISOString();
+    const startTimeStr = this.metadata.startTime.toISOString();
     footer = Buffer.concat([
       footer,
       Buffer.from("U"),
