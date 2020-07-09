@@ -1,7 +1,7 @@
 {
-  "name": "slp-parser-js",
+  "name": "@slippi/sdk",
   "version": "4.1.0",
-  "description": "Official javascript slp file parser",
+  "description": "Official Project Slippi Javascript SDK",
   "license": "LGPL-3.0-or-later",
   "repository": "JLaferri/slp-parser-js",
   "author": {
