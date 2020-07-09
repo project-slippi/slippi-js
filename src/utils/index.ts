@@ -5,6 +5,7 @@ export {
   GameEndType,
   Command,
   PreFrameUpdateType,
+  PlayerType,
   parseMessage,
 } from "./slpReader";
 export { SlpParser } from "./slpParser";
