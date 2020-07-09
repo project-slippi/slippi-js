@@ -1,5 +1,2 @@
 # Auto detect text files and perform LF normalization
-* text=auto
-
-# Force js files to use unix line endings
-*.js text eol=lf
+* text eol=lf
