@@ -39,6 +39,7 @@
     "testEnvironment": "node"
   },
   "keywords": [
+    "slp-parser-js",
     "slp",
     "slippi",
     "melee",
