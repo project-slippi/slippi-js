@@ -40,13 +40,12 @@ export function generateOverallStats(
     const killCount = opponentEndedStocks.length;
 
     return {
-      playerIndex: playerIndex,
-      opponentIndex: opponentIndex,
-
-      inputCount: inputCount,
-      conversionCount: conversionCount,
-      totalDamage: totalDamage,
-      killCount: killCount,
+      playerIndex,
+      opponentIndex,
+      inputCount,
+      conversionCount,
+      totalDamage,
+      killCount,
 
       successfulConversions: getRatio(successfulConversionCount, conversionCount),
       inputsPerMinute: getRatio(inputCount, gameMinutes),
@@ -63,8 +62,8 @@ export function generateOverallStats(
 
 function getRatio(count: number, total: number): RatioType {
   return {
-    count: count,
-    total: total,
+    count,
+    total,
     ratio: total ? count / total : null,
   };
 }

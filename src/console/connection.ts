@@ -142,8 +142,8 @@ export class ConsoleConnection extends EventEmitter {
     const reconnect = inject(() =>
       net.connect({
         host: this.ipAddress,
-        port: port,
-        timeout: timeout,
+        port,
+        timeout,
       }),
     );
 

@@ -64,9 +64,9 @@ export class ConsoleCommunication {
     const message = {
       type: CommunicationType.HANDSHAKE,
       payload: {
-        cursor: cursor,
+        cursor,
         clientToken: Uint8Array.from(clientTokenBuf), // TODO: Use real instance token
-        isRealtime: isRealtime,
+        isRealtime,
       },
     };
 

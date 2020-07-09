@@ -30,7 +30,7 @@ export class ActionsComputer implements StatComputer<ActionCountsType[]> {
         rollCount: 0,
       };
       const playerState: PlayerActionState = {
-        playerCounts: playerCounts,
+        playerCounts,
         animations: [],
       };
       this.state.set(indices, playerState);

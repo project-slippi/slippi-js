@@ -164,11 +164,11 @@ export class SlippiGame {
     const stats = {
       lastFrame: this.parser.getLatestFrameNumber(),
       playableFrameCount: playableFrames,
-      stocks: stocks,
-      conversions: conversions,
+      stocks,
+      conversions,
       combos: this.comboComputer.fetch(),
       actionCounts: this.actionsComputer.fetch(),
-      overall: overall,
+      overall,
       gameComplete: this.parser.getGameEnd() !== null,
     };
 

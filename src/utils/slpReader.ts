@@ -202,12 +202,12 @@ export function openSlpFile(input: SlpReadInput): SlpFileType {
   const messageSizes = getMessageSizes(ref, rawDataPosition);
 
   return {
-    ref: ref,
-    rawDataPosition: rawDataPosition,
-    rawDataLength: rawDataLength,
-    metadataPosition: metadataPosition,
-    metadataLength: metadataLength,
-    messageSizes: messageSizes,
+    ref,
+    rawDataPosition,
+    rawDataLength,
+    metadataPosition,
+    metadataLength,
+    messageSizes,
   };
 }
 
@@ -388,7 +388,7 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
 
           const offset = playerIndex * 0x24;
           return {
-            playerIndex: playerIndex,
+            playerIndex,
             port: playerIndex + 1,
             characterId: readUint8(view, 0x65 + offset),
             characterColor: readUint8(view, 0x68 + offset),
@@ -396,7 +396,7 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
             type: readUint8(view, 0x66 + offset),
             teamId: readUint8(view, 0x6e + offset),
             controllerFix: cfOption,
-            nametag: nametag,
+            nametag,
           };
         }),
       };
