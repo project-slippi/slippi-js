@@ -15,6 +15,7 @@ import { EventEmitter } from 'events';
 
 export enum SlpParserEvent {
   SETTINGS = 'settings',
+  END = 'end',
   FRAME = 'frame', // Emitted for every frame
   FINALIZED_FRAME = 'finalized-frame', // Emitted for only finalized frames
 }
@@ -103,6 +104,7 @@ export class SlpParser extends EventEmitter {
   private _handleGameEnd(payload: GameEndType): void {
     payload = payload as GameEndType;
     this.gameEnd = payload;
+    this.emit(SlpParserEvent.END, this.gameEnd);
   }
 
   private _handleGameStart(payload: GameStartType): void {
