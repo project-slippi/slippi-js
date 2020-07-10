@@ -10,7 +10,7 @@ module.exports = {
     sourceType: 'module', // Allows for the use of imports
   },
   rules: {
-    // Sorry Jaz but switch-case indentation messes with prettier :c
+    // Sorry Jas but switch-case indentation messes with prettier :c
     // and I think having prettier is worth it so disabling this for now.
     // '@typescript-eslint/indent': ['error', 2, { SwitchCase: 0 }],
     '@typescript-eslint/no-use-before-define': 'off',
