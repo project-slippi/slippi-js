@@ -3,16 +3,7 @@ import _ from 'lodash';
 import { openSlpFile, closeSlpFile, iterateEvents, getMetadata, SlpInputSource, SlpReadInput } from './utils/slpReader';
 
 // Type imports
-import {
-  Command,
-  PreFrameUpdateType,
-  PostFrameUpdateType,
-  MetadataType,
-  GameStartType,
-  GameEndType,
-  FrameBookendType,
-  ItemUpdateType,
-} from './types';
+import { MetadataType, GameStartType, GameEndType } from './types';
 import { SlpParser, SlpParserEvent } from './utils/slpParser';
 import {
   StockComputer,
