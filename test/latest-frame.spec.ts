@@ -26,6 +26,8 @@ describe('when reading last finalised frame', () => {
       switch (data.command) {
         case Command.FRAME_BOOKEND:
           const payload = data.payload as FrameBookendType;
+          // We should never have the latest finalized frame be less than the first frame
+          expect(payload.latestFinalizedFrame).not.toEqual(Frames.FIRST - 1);
           expect(payload.latestFinalizedFrame).toBeGreaterThanOrEqual(lastFinalizedFrame);
           // We also expect it to be within 7 frames of the current frame
           expect(payload.latestFinalizedFrame).toBeGreaterThanOrEqual(payload.frame - MAX_ROLLBACK_FRAMES);

@@ -15,7 +15,8 @@ import { EventEmitter } from 'events';
 
 export enum SlpParserEvent {
   SETTINGS = 'SETTINGS',
-  FRAME = 'FRAME',
+  FRAME = 'FRAME', // Emitted for every frame
+  FINALIZED_FRAME = 'FINALIZED_FRAME', // Emitted for only finalized frames
 }
 
 export class SlpParser extends EventEmitter {
@@ -24,6 +25,8 @@ export class SlpParser extends EventEmitter {
   private gameEnd: GameEndType | null = null;
   private latestFrameIndex: number | null = null;
   private settingsComplete = false;
+  private shouldFinalizeFrames: boolean | null = null;
+  private lastFinalizedFrame = Frames.FIRST - 1;
 
   public getLatestFrameNumber(): number {
     return this.latestFrameIndex;
@@ -108,6 +111,21 @@ export class SlpParser extends EventEmitter {
     }
   }
 
+  private _sendFrame(frame: FrameEntryType) {
+    this.emit(SlpParserEvent.FRAME, frame);
+    if (!this.shouldFinalizeFrames) {
+      // If we're not waiting to finalize frames then fire off the final one too
+      this.emit(SlpParserEvent.FINALIZED_FRAME, frame);
+    }
+  }
+
+  private _setFinalizationMode(option: boolean) {
+    // Only ever set this once
+    if (this.shouldFinalizeFrames === null) {
+      this.shouldFinalizeFrames = option;
+    }
+  }
+
   public handleFrameUpdate(command: Command, payload: PreFrameUpdateType | PostFrameUpdateType): void {
     payload = payload as PostFrameUpdateType;
     const location = command === Command.PRE_FRAME_UPDATE ? 'pre' : 'post';
@@ -120,7 +138,9 @@ export class SlpParser extends EventEmitter {
     // more processing than necessary, but it works
     const settings = this.getSettings();
     if (!settings || semver.lte(settings.slpVersion, '2.2.0')) {
-      this.emit(SlpParserEvent.FRAME, this.frames[payload.frame]);
+      // We won't need to finalize frames
+      this._setFinalizationMode(false);
+      this._sendFrame(this.frames[payload.frame]);
     } else {
       _.set(this.frames, [payload.frame, 'isTransferComplete'], false);
     }
@@ -135,7 +155,28 @@ export class SlpParser extends EventEmitter {
   }
 
   public handleFrameBookend(command: Command, payload: FrameBookendType): void {
-    _.set(this.frames, [payload.frame, 'isTransferComplete'], true);
-    this.emit(SlpParserEvent.FRAME, this.frames[payload.frame]);
+    const { frame, latestFinalizedFrame } = payload;
+    // Frame 0 is falsey so check against null and undefined
+    const validLatestFrame = latestFinalizedFrame !== null && latestFinalizedFrame !== undefined;
+    this._setFinalizationMode(validLatestFrame && latestFinalizedFrame >= Frames.FIRST);
+    _.set(this.frames, [frame, 'isTransferComplete'], true);
+    // Fire off a normal frame event
+    this._sendFrame(this.frames[frame]);
+    // Finalize frames if necessary
+    this._finalizeFrames(latestFinalizedFrame);
+  }
+
+  /**
+   * Fires off the FINALIZED_FRAME event for frames up until a certain number
+   * @param num The frame to finalize until
+   */
+  private _finalizeFrames(num: number) {
+    // Only fire events if we're in finalization mode
+    if (this.shouldFinalizeFrames) {
+      while (this.lastFinalizedFrame < num) {
+        this.lastFinalizedFrame++;
+        this.emit(SlpParserEvent.FINALIZED_FRAME, this.getFrame(this.lastFinalizedFrame));
+      }
+    }
   }
 }
