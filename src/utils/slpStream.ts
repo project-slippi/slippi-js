@@ -1,12 +1,12 @@
-import { Writable, WritableOptions } from "stream";
-import { Command, EventPayloadTypes } from "../types";
-import { parseMessage } from "./slpReader";
+import { Writable, WritableOptions } from 'stream';
+import { Command, EventPayloadTypes } from '../types';
+import { parseMessage } from './slpReader';
 
-const NETWORK_MESSAGE = "HELO\0";
+const NETWORK_MESSAGE = 'HELO\0';
 
 export enum SlpStreamMode {
-  AUTO = "AUTO", // Always reading data, but errors on invalid command
-  MANUAL = "MANUAL", // Stops parsing inputs after a valid game end command, requires manual restarting
+  AUTO = 'AUTO', // Always reading data, but errors on invalid command
+  MANUAL = 'MANUAL', // Stops parsing inputs after a valid game end command, requires manual restarting
 }
 
 const defaultSettings = {
@@ -29,8 +29,8 @@ export interface SlpRawEventPayload {
 }
 
 export enum SlpStreamEvent {
-  RAW = "slp-raw",
-  COMMAND = "slp-command",
+  RAW = 'slp-raw',
+  COMMAND = 'slp-command',
 }
 
 /**
@@ -68,7 +68,7 @@ export class SlpStream extends Writable {
   }
 
   public _write(newData: Buffer, encoding: string, callback: (error?: Error | null, data?: any) => void): void {
-    if (encoding !== "buffer") {
+    if (encoding !== 'buffer') {
       throw new Error(`Unsupported stream encoding. Expected 'buffer' got '${encoding}'.`);
     }
 

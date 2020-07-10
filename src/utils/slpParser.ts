@@ -1,5 +1,5 @@
-import _ from "lodash";
-import semver from "semver";
+import _ from 'lodash';
+import semver from 'semver';
 
 import {
   PostFrameUpdateType,
@@ -9,7 +9,7 @@ import {
   PreFrameUpdateType,
   ItemUpdateType,
   FrameBookendType,
-} from "../types";
+} from '../types';
 import {
   Stats,
   FramesType,
@@ -17,7 +17,7 @@ import {
   Frames,
   PlayerIndexedType,
   getSinglesPlayerPermutationsFromSettings,
-} from "../stats";
+} from '../stats';
 
 export class SlpParser {
   private statsComputer: Stats;
@@ -77,7 +77,7 @@ export class SlpParser {
 
     // Check to see if the file was created after the sheik fix so we know
     // we don't have to process the first frame of the game for the full settings
-    if (semver.gte(payload.slpVersion, "1.6.0")) {
+    if (semver.gte(payload.slpVersion, '1.6.0')) {
       this.settingsComplete = true;
     }
   }
@@ -90,7 +90,7 @@ export class SlpParser {
     // Finish calculating settings
     if (payload.frame <= Frames.FIRST) {
       const playerIndex = payload.playerIndex;
-      const playersByIndex = _.keyBy(this.settings.players, "playerIndex");
+      const playersByIndex = _.keyBy(this.settings.players, 'playerIndex');
 
       switch (payload.internalCharacterId) {
         case 0x7:
@@ -106,32 +106,32 @@ export class SlpParser {
 
   public handleFrameUpdate(command: Command, payload: PreFrameUpdateType | PostFrameUpdateType): void {
     payload = payload as PostFrameUpdateType;
-    const location = command === Command.PRE_FRAME_UPDATE ? "pre" : "post";
-    const field = payload.isFollower ? "followers" : "players";
+    const location = command === Command.PRE_FRAME_UPDATE ? 'pre' : 'post';
+    const field = payload.isFollower ? 'followers' : 'players';
     this.latestFrameIndex = payload.frame;
     _.set(this.frames, [payload.frame, field, payload.playerIndex, location], payload);
-    _.set(this.frames, [payload.frame, "frame"], payload.frame);
+    _.set(this.frames, [payload.frame, 'frame'], payload.frame);
 
     // If file is from before frame bookending, add frame to stats computer here. Does a little
     // more processing than necessary, but it works
     const settings = this.getSettings();
-    if (!settings || semver.lte(settings.slpVersion, "2.2.0")) {
+    if (!settings || semver.lte(settings.slpVersion, '2.2.0')) {
       this.statsComputer.addFrame(this.frames[payload.frame]);
     } else {
-      _.set(this.frames, [payload.frame, "isTransferComplete"], false);
+      _.set(this.frames, [payload.frame, 'isTransferComplete'], false);
     }
   }
 
   public handleItemUpdate(command: Command, payload: ItemUpdateType): void {
-    const items = _.get(this.frames, [payload.frame, "items"], []);
+    const items = _.get(this.frames, [payload.frame, 'items'], []);
     items.push(payload);
 
     // Set items with newest
-    _.set(this.frames, [payload.frame, "items"], items);
+    _.set(this.frames, [payload.frame, 'items'], items);
   }
 
   public handleFrameBookend(command: Command, payload: FrameBookendType): void {
-    _.set(this.frames, [payload.frame, "isTransferComplete"], true);
+    _.set(this.frames, [payload.frame, 'isTransferComplete'], true);
     this.statsComputer.addFrame(this.frames[payload.frame]);
   }
 }

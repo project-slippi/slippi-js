@@ -1,9 +1,9 @@
-import { forEach } from "lodash";
-import fs, { WriteStream } from "fs";
-import moment, { Moment } from "moment";
-import { Writable, WritableOptions } from "stream";
+import { forEach } from 'lodash';
+import fs, { WriteStream } from 'fs';
+import moment, { Moment } from 'moment';
+import { Writable, WritableOptions } from 'stream';
 
-const DEFAULT_NICKNAME = "unknown";
+const DEFAULT_NICKNAME = 'unknown';
 
 export interface SlpFileMetadata {
   startTime: Moment;
@@ -42,10 +42,10 @@ export class SlpFile extends Writable {
     };
 
     this._initializeNewGame(this.filePath);
-    this.on("finish", () => {
+    this.on('finish', () => {
       // Write bytes written
-      const fd = fs.openSync(this.filePath, "r+");
-      (fs as any).writeSync(fd, createUInt32Buffer(this.rawDataLength), 0, "binary", 11);
+      const fd = fs.openSync(this.filePath, 'r+');
+      (fs as any).writeSync(fd, createUInt32Buffer(this.rawDataLength), 0, 'binary', 11);
       fs.closeSync(fd);
     });
   }
@@ -71,7 +71,7 @@ export class SlpFile extends Writable {
   }
 
   public _write(chunk: Uint8Array, encoding: string, callback: (error?: Error | null) => void): void {
-    if (encoding !== "buffer") {
+    if (encoding !== 'buffer') {
       throw new Error(`Unsupported stream encoding. Expected 'buffer' got '${encoding}'.`);
     }
     this.fileStream.write(chunk);
@@ -81,28 +81,28 @@ export class SlpFile extends Writable {
 
   private _initializeNewGame(filePath: string): void {
     this.fileStream = fs.createWriteStream(filePath, {
-      encoding: "binary",
+      encoding: 'binary',
     });
 
     const header = Buffer.concat([
-      Buffer.from("{U"),
+      Buffer.from('{U'),
       Buffer.from([3]),
-      Buffer.from("raw[$U#l"),
+      Buffer.from('raw[$U#l'),
       Buffer.from([0, 0, 0, 0]),
     ]);
     this.fileStream.write(header);
   }
 
   public _final(callback: (error?: Error | null) => void): void {
-    let footer = Buffer.concat([Buffer.from("U"), Buffer.from([8]), Buffer.from("metadata{")]);
+    let footer = Buffer.concat([Buffer.from('U'), Buffer.from([8]), Buffer.from('metadata{')]);
 
     // Write game start time
     const startTimeStr = this.metadata.startTime.toISOString();
     footer = Buffer.concat([
       footer,
-      Buffer.from("U"),
+      Buffer.from('U'),
       Buffer.from([7]),
-      Buffer.from("startAtSU"),
+      Buffer.from('startAtSU'),
       Buffer.from([startTimeStr.length]),
       Buffer.from(startTimeStr),
     ]);
@@ -112,9 +112,9 @@ export class SlpFile extends Writable {
     const lastFrame = this.metadata.lastFrame;
     footer = Buffer.concat([
       footer,
-      Buffer.from("U"),
+      Buffer.from('U'),
       Buffer.from([9]),
-      Buffer.from("lastFramel"),
+      Buffer.from('lastFramel'),
       createInt32Buffer(lastFrame),
     ]);
 
@@ -122,29 +122,29 @@ export class SlpFile extends Writable {
     const consoleNick = this.metadata.consoleNickname || DEFAULT_NICKNAME;
     footer = Buffer.concat([
       footer,
-      Buffer.from("U"),
+      Buffer.from('U'),
       Buffer.from([11]),
-      Buffer.from("consoleNickSU"),
+      Buffer.from('consoleNickSU'),
       Buffer.from([consoleNick.length]),
       Buffer.from(consoleNick),
     ]);
 
     // Start writting player specific data
-    footer = Buffer.concat([footer, Buffer.from("U"), Buffer.from([7]), Buffer.from("players{")]);
+    footer = Buffer.concat([footer, Buffer.from('U'), Buffer.from([7]), Buffer.from('players{')]);
     const players = this.metadata.players;
     forEach(players, (player, index) => {
       // Start player obj with index being the player index
-      footer = Buffer.concat([footer, Buffer.from("U"), Buffer.from([index.length]), Buffer.from(`${index}{`)]);
+      footer = Buffer.concat([footer, Buffer.from('U'), Buffer.from([index.length]), Buffer.from(`${index}{`)]);
 
       // Start characters key for this player
-      footer = Buffer.concat([footer, Buffer.from("U"), Buffer.from([10]), Buffer.from("characters{")]);
+      footer = Buffer.concat([footer, Buffer.from('U'), Buffer.from([10]), Buffer.from('characters{')]);
 
       // Write character usage
       forEach(player.characterUsage, (usage, internalId) => {
         // Write this character
         footer = Buffer.concat([
           footer,
-          Buffer.from("U"),
+          Buffer.from('U'),
           Buffer.from([internalId.length]),
           Buffer.from(`${internalId}l`),
           createUInt32Buffer(usage),
@@ -152,24 +152,24 @@ export class SlpFile extends Writable {
       });
 
       // Close characters and player
-      footer = Buffer.concat([footer, Buffer.from("}}")]);
+      footer = Buffer.concat([footer, Buffer.from('}}')]);
     });
 
     // Close players
-    footer = Buffer.concat([footer, Buffer.from("}")]);
+    footer = Buffer.concat([footer, Buffer.from('}')]);
 
     // Write played on
     footer = Buffer.concat([
       footer,
-      Buffer.from("U"),
+      Buffer.from('U'),
       Buffer.from([8]),
-      Buffer.from("playedOnSU"),
+      Buffer.from('playedOnSU'),
       Buffer.from([7]),
-      Buffer.from("network"),
+      Buffer.from('network'),
     ]);
 
     // Close metadata and file
-    footer = Buffer.concat([footer, Buffer.from("}}")]);
+    footer = Buffer.concat([footer, Buffer.from('}}')]);
 
     // End the stream
     this.fileStream.write(footer, callback);

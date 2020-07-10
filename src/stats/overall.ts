@@ -1,6 +1,6 @@
-import _ from "lodash";
-import { ConversionType, PlayerIndexedType, StockType, OverallType, RatioType } from "./common";
-import { PlayerInput } from "./inputs";
+import _ from 'lodash';
+import { ConversionType, PlayerIndexedType, StockType, OverallType, RatioType } from './common';
+import { PlayerInput } from './inputs';
 
 interface ConversionsByPlayerByOpening {
   [playerIndex: string]: {
@@ -15,11 +15,11 @@ export function generateOverallStats(
   conversions: ConversionType[],
   playableFrameCount: number,
 ): OverallType[] {
-  const inputsByPlayer = _.keyBy(inputs, "playerIndex");
-  const stocksByPlayer = _.groupBy(stocks, "playerIndex");
-  const conversionsByPlayer = _.groupBy(conversions, "playerIndex");
+  const inputsByPlayer = _.keyBy(inputs, 'playerIndex');
+  const stocksByPlayer = _.groupBy(stocks, 'playerIndex');
+  const conversionsByPlayer = _.groupBy(conversions, 'playerIndex');
   const conversionsByPlayerByOpening: ConversionsByPlayerByOpening = _.mapValues(conversionsByPlayer, (conversions) =>
-    _.groupBy(conversions, "openingType"),
+    _.groupBy(conversions, 'openingType'),
   );
 
   const gameMinutes = playableFrameCount / 3600;
@@ -28,15 +28,15 @@ export function generateOverallStats(
     const playerIndex = indices.playerIndex;
     const opponentIndex = indices.opponentIndex;
 
-    const inputCount = _.get(inputsByPlayer, [playerIndex, "inputCount"]) || 0;
+    const inputCount = _.get(inputsByPlayer, [playerIndex, 'inputCount']) || 0;
     const conversions = _.get(conversionsByPlayer, playerIndex) || [];
     const successfulConversions = conversions.filter((conversion) => conversion.moves.length > 1);
     const opponentStocks = _.get(stocksByPlayer, opponentIndex) || [];
-    const opponentEndedStocks = _.filter(opponentStocks, "endFrame");
+    const opponentEndedStocks = _.filter(opponentStocks, 'endFrame');
 
     const conversionCount = conversions.length;
     const successfulConversionCount = successfulConversions.length;
-    const totalDamage = _.sumBy(opponentStocks, "currentPercent") || 0;
+    const totalDamage = _.sumBy(opponentStocks, 'currentPercent') || 0;
     const killCount = opponentEndedStocks.length;
 
     return {
@@ -51,8 +51,8 @@ export function generateOverallStats(
       inputsPerMinute: getRatio(inputCount, gameMinutes),
       openingsPerKill: getRatio(conversionCount, killCount),
       damagePerOpening: getRatio(totalDamage, conversionCount),
-      neutralWinRatio: getOpeningRatio(conversionsByPlayerByOpening, playerIndex, opponentIndex, "neutral-win"),
-      counterHitRatio: getOpeningRatio(conversionsByPlayerByOpening, playerIndex, opponentIndex, "counter-attack"),
+      neutralWinRatio: getOpeningRatio(conversionsByPlayerByOpening, playerIndex, opponentIndex, 'neutral-win'),
+      counterHitRatio: getOpeningRatio(conversionsByPlayerByOpening, playerIndex, opponentIndex, 'counter-attack'),
       beneficialTradeRatio: getBeneficialTradeRatio(conversionsByPlayerByOpening, playerIndex, opponentIndex),
     };
   });
@@ -86,8 +86,8 @@ function getBeneficialTradeRatio(
   playerIndex: number,
   opponentIndex: number,
 ): RatioType {
-  const playerTrades = _.get(conversionsByPlayerByOpening, [playerIndex, "trade"]) || [];
-  const opponentTrades = _.get(conversionsByPlayerByOpening, [opponentIndex, "trade"]) || [];
+  const playerTrades = _.get(conversionsByPlayerByOpening, [playerIndex, 'trade']) || [];
+  const opponentTrades = _.get(conversionsByPlayerByOpening, [opponentIndex, 'trade']) || [];
 
   const benefitsPlayer = [];
 

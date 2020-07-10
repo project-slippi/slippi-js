@@ -1,14 +1,14 @@
-import _ from "lodash";
-import fs from "fs";
-import iconv from "iconv-lite";
-import { decode } from "@shelacek/ubjson";
+import _ from 'lodash';
+import fs from 'fs';
+import iconv from 'iconv-lite';
+import { decode } from '@shelacek/ubjson';
 
-import { toHalfwidth } from "./fullwidth";
-import { Command, EventCallbackFunc, EventPayloadTypes, MetadataType } from "../types";
+import { toHalfwidth } from './fullwidth';
+import { Command, EventCallbackFunc, EventPayloadTypes, MetadataType } from '../types';
 
 export enum SlpInputSource {
-  BUFFER = "buffer",
-  FILE = "file",
+  BUFFER = 'buffer',
+  FILE = 'file',
 }
 
 export interface SlpReadInput {
@@ -43,7 +43,7 @@ export interface SlpBufferSourceRef {
 function getRef(input: SlpReadInput): SlpRefType {
   switch (input.source) {
     case SlpInputSource.FILE:
-      const fd = fs.openSync(input.filePath, "r");
+      const fd = fs.openSync(input.filePath, 'r');
       return {
         source: input.source,
         fileDescriptor: fd,
@@ -54,7 +54,7 @@ function getRef(input: SlpReadInput): SlpRefType {
         buffer: input.buffer,
       } as SlpBufferSourceRef;
     default:
-      throw new Error("Source type not supported");
+      throw new Error('Source type not supported');
   }
 }
 
@@ -65,7 +65,7 @@ function readRef(ref: SlpRefType, buffer: Uint8Array, offset: number, length: nu
     case SlpInputSource.BUFFER:
       return (ref as SlpBufferSourceRef).buffer.copy(buffer, offset, position, position + length);
     default:
-      throw new Error("Source type not supported");
+      throw new Error('Source type not supported');
   }
 }
 
@@ -77,7 +77,7 @@ function getLenRef(ref: SlpRefType): number {
     case SlpInputSource.BUFFER:
       return (ref as SlpBufferSourceRef).buffer.length;
     default:
-      throw new Error("Source type not supported");
+      throw new Error('Source type not supported');
   }
 }
 
@@ -120,7 +120,7 @@ function getRawDataPosition(ref: SlpRefType): number {
     return 0;
   }
 
-  if (buffer[0] !== "{".charCodeAt(0)) {
+  if (buffer[0] !== '{'.charCodeAt(0)) {
     return 0; // return error?
   }
 
@@ -249,13 +249,13 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
           const cfOffset = playerIndex * 0x8;
           const dashback = readUint32(view, 0x141 + cfOffset);
           const shieldDrop = readUint32(view, 0x145 + cfOffset);
-          let cfOption = "None";
+          let cfOption = 'None';
           if (dashback !== shieldDrop) {
-            cfOption = "Mixed";
+            cfOption = 'Mixed';
           } else if (dashback === 1) {
-            cfOption = "UCF";
+            cfOption = 'UCF';
           } else if (dashback === 2) {
-            cfOption = "Dween";
+            cfOption = 'Dween';
           }
 
           // Nametag stuff
@@ -264,8 +264,8 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
           const nametagBuf = payload.slice(nametagStart, nametagStart + 16);
           const nametag = toHalfwidth(
             iconv
-              .decode(nametagBuf as Buffer, "Shift_JIS")
-              .split("\0")
+              .decode(nametagBuf as Buffer, 'Shift_JIS')
+              .split('\0')
               .shift(),
           );
 
