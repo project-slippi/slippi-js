@@ -24,6 +24,10 @@ export interface SlpStreamEvent {
  * SlpStream is a writable stream of Slippi data. It passes the data being written in
  * and emits an event based on what kind of Slippi messages were processed.
  *
+ * SlpStream emits two events: "slp-raw" and "slp-command". The "slp-raw" event emits the raw buffer
+ * bytes whenever it processes each command. You can manually parse this or write it to a
+ * file. The "slp-command" event returns the parsed payload which you can access the attributes.
+ *
  * @class SlpStream
  * @extends {Writable}
  */
@@ -113,11 +117,8 @@ export class SlpStream extends Writable {
   private _writeCommand(command: Command, entirePayload: Uint8Array, payloadSize: number): Uint8Array {
     const payloadBuf = entirePayload.slice(0, payloadSize);
     const bufToWrite = Buffer.concat([Buffer.from([command]), payloadBuf]);
-    // Forward the data onwards
-    this.emit("command", {
-      command,
-      payload: bufToWrite,
-    });
+    // Forward the raw buffer onwards
+    this.emit("slp-raw", bufToWrite);
     return new Uint8Array(bufToWrite);
   }
 
@@ -155,6 +156,11 @@ export class SlpStream extends Writable {
         }
         break;
     }
+
+    this.emit("slp-command", {
+      command,
+      payload: parsedPayload,
+    });
     return payloadSize;
   }
 }
