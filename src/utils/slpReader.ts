@@ -297,14 +297,14 @@ function getMessageSizes(
   return messageSizes;
 }
 
-type EventPayloadTypes =
+export type EventPayloadTypes =
   | GameStartType
   | PreFrameUpdateType
   | PostFrameUpdateType
   | ItemUpdateType
   | FrameBookendType
   | GameEndType;
-type EventCallbackFunc = (command: Command, payload?: EventPayloadTypes | null) => boolean;
+export type EventCallbackFunc = (command: Command, payload?: EventPayloadTypes | null) => boolean;
 
 /**
  * Iterates through slp events and parses payloads
