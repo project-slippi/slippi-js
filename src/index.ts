@@ -10,7 +10,6 @@ export * from './types';
 export * from './stats';
 
 // Utils
-export * from './utils/pipeFileContents';
 export * from './utils/slpFile';
 export * from './utils/slpStream';
 export * from './utils/slpParser';

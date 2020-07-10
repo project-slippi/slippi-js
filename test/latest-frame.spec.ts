@@ -1,5 +1,7 @@
+import fs from 'fs';
+import { Writable } from 'stream';
+
 import SlippiGame, {
-  pipeFileContents,
   Command,
   SlpStreamMode,
   SlpStream,
@@ -38,3 +40,15 @@ describe('when reading last finalised frame', () => {
     expect(metadata.lastFrame).toEqual(lastFinalizedFrame);
   });
 });
+
+const pipeFileContents = async (filename: string, destination: Writable, options?: any): Promise<void> => {
+  return new Promise((resolve): void => {
+    const readStream = fs.createReadStream(filename);
+    readStream.on('open', () => {
+      readStream.pipe(destination, options);
+    });
+    readStream.on('close', () => {
+      resolve();
+    });
+  });
+};
