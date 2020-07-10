@@ -1,27 +1,27 @@
-import resolve from "@rollup/plugin-node-resolve";
+import resolve from '@rollup/plugin-node-resolve';
 
-import autoExternal from "rollup-plugin-auto-external";
-import typescript from "rollup-plugin-typescript2";
-import { terser } from "rollup-plugin-terser";
+import autoExternal from 'rollup-plugin-auto-external';
+import typescript from 'rollup-plugin-typescript2';
+import { terser } from 'rollup-plugin-terser';
 
-import pkg from "./package.json";
+import pkg from './package.json';
 
-const minifyExtension = (pathToFile) => pathToFile.replace(/\.js$/, ".min.js");
+const minifyExtension = (pathToFile) => pathToFile.replace(/\.js$/, '.min.js');
 
 export default {
-  input: "src/index.ts",
+  input: 'src/index.ts',
   output: [
     {
       file: pkg.main,
-      format: "cjs",
+      format: 'cjs',
     },
     {
       file: minifyExtension(pkg.main),
-      format: "cjs",
+      format: 'cjs',
     },
     {
       file: pkg.module,
-      format: "es",
+      format: 'es',
     },
   ],
   plugins: [
@@ -31,7 +31,7 @@ export default {
     autoExternal(),
     resolve(),
     typescript({
-      typescript: require("typescript"),
+      typescript: require('typescript'),
     }),
   ],
 };
