@@ -18,8 +18,10 @@ export type SlpStreamSettings = typeof defaultSettings;
 
 export interface SlpStreamEvent {
   command: Command;
-  payload: EventPayloadTypes;
+  payload: EventPayloadTypes | MessageSizes;
 }
+
+export type MessageSizes = Map<Command, number>;
 
 /**
  * SlpStream is a writable stream of Slippi data. It passes the data being written in
@@ -35,7 +37,7 @@ export interface SlpStreamEvent {
 export class SlpStream extends Writable {
   private gameEnded = false;
   private settings: SlpStreamSettings;
-  private payloadSizes: Map<Command, number> | null = null;
+  private payloadSizes: MessageSizes | null = null;
   private previousBuffer: Uint8Array = Buffer.from([]);
 
   /**
@@ -131,6 +133,10 @@ export class SlpStream extends Writable {
       this.payloadSizes = processReceiveCommands(dataView);
       // Emit the raw command event
       this._writeCommand(command, entirePayload, payloadSize);
+      this.emit("slp-command", {
+        command,
+        payload: this.payloadSizes,
+      });
       return payloadSize;
     }
 
@@ -166,7 +172,7 @@ export class SlpStream extends Writable {
   }
 }
 
-const processReceiveCommands = (dataView: DataView): Map<Command, number> => {
+const processReceiveCommands = (dataView: DataView): MessageSizes => {
   const payloadSizes = new Map<Command, number>();
   const payloadLen = dataView.getUint8(0);
   for (let i = 1; i < payloadLen; i += 3) {
