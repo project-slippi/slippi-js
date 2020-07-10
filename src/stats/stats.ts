@@ -32,12 +32,8 @@ export class Stats {
     this.allComputers.forEach((comp) => comp.setPlayerPermutations(indices));
   }
 
-  public register(computer: StatComputer<unknown>): void {
-    this.allComputers.push(computer);
-  }
-
-  public registerAll(computers: StatComputer<unknown>[]): void {
-    this.allComputers = this.allComputers.concat(computers);
+  public register(...computer: StatComputer<unknown>[]): void {
+    this.allComputers.push(...computer);
   }
 
   public process(): void {

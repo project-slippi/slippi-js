@@ -60,13 +60,13 @@ export class SlippiGame {
     }
 
     // Set up stats calculation
-    this.statsComputer.registerAll([
+    this.statsComputer.register(
       this.actionsComputer,
       this.comboComputer,
       this.conversionComputer,
       this.inputComputer,
       this.stockComputer,
-    ]);
+    );
     this.parser = new SlpParser();
     this.parser.on(SlpParserEvent.SETTINGS, (settings) => {
       const playerPermutations = getSinglesPlayerPermutationsFromSettings(settings);
