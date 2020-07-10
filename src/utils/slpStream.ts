@@ -132,7 +132,7 @@ export class SlpStream extends Writable {
     const bufToWrite = Buffer.concat([Buffer.from([command]), payloadBuf]);
     // Forward the raw buffer onwards
     this.emit(SlpStreamEvent.RAW, {
-      command,
+      command: command,
       payload: bufToWrite,
     } as SlpRawEventPayload);
     return new Uint8Array(bufToWrite);
@@ -147,7 +147,7 @@ export class SlpStream extends Writable {
       // Emit the raw command event
       this._writeCommand(command, entirePayload, payloadSize);
       this.emit(SlpStreamEvent.COMMAND, {
-        command,
+        command: command,
         payload: this.payloadSizes,
       } as SlpCommandEventPayload);
       return payloadSize;
@@ -178,7 +178,7 @@ export class SlpStream extends Writable {
     }
 
     this.emit(SlpStreamEvent.COMMAND, {
-      command,
+      command: command,
       payload: parsedPayload,
     } as SlpCommandEventPayload);
     return payloadSize;
