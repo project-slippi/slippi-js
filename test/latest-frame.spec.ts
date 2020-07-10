@@ -9,11 +9,14 @@ import SlippiGame, {
   SlpCommandEventPayload,
   SlpStreamEvent,
   FrameBookendType,
+  SlpParser,
+  SlpParserEvent,
+  FrameEntryType,
 } from '../src';
 
 const MAX_ROLLBACK_FRAMES = 7;
 
-describe('when reading last finalised frame', () => {
+describe('when reading last finalised frame from SlpStream', () => {
   it('should never decrease', async () => {
     const testFile = 'slp/finalizedFrame.slp';
     const stream = new SlpStream({
@@ -34,6 +37,40 @@ describe('when reading last finalised frame', () => {
           lastFinalizedFrame = payload.latestFinalizedFrame;
       }
     });
+    await pipeFileContents(testFile, stream);
+
+    // The last finalized frame should be the same as what's recorded in the metadata
+    const game = new SlippiGame(testFile);
+    const metadata = game.getMetadata();
+    expect(metadata.lastFrame).toEqual(lastFinalizedFrame);
+  });
+});
+
+describe('when reading finalised frames from SlpParser', () => {
+  it('should only increase', async () => {
+    const testFile = 'slp/finalizedFrame.slp';
+    const stream = new SlpStream({
+      mode: SlpStreamMode.MANUAL,
+    });
+    const parser = new SlpParser();
+
+    let lastFinalizedFrame = Frames.FIRST - 1;
+
+    // Check the finalized frames to ensure they're increasing
+    parser.on(SlpParserEvent.FINALIZED_FRAME, (frameEntry: FrameEntryType) => {
+      const { frame } = frameEntry;
+      // We should never receive the same frame twice
+      expect(frame).not.toEqual(lastFinalizedFrame);
+      // The frame should monotonically increase
+      expect(frame).toEqual(lastFinalizedFrame + 1);
+      lastFinalizedFrame = frame;
+    });
+
+    // Forward all the commands to the parser
+    stream.on(SlpStreamEvent.COMMAND, (data: SlpCommandEventPayload) => {
+      parser.handleCommand(data.command, data.payload);
+    });
+
     await pipeFileContents(testFile, stream);
 
     // The last finalized frame should be the same as what's recorded in the metadata
