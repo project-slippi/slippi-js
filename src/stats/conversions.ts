@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { PostFrameUpdateType } from "../utils/slpReader";
+import { PostFrameUpdateType } from "../types";
 import { FrameEntryType, FramesType, MoveLandedType, ConversionType, PlayerIndexedType } from "./common";
 import { isDamaged, isGrabbed, calcDamageTaken, isInControl, didLoseStock, Timers } from "./common";
 import { StatComputer } from "./stats";

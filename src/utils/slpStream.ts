@@ -1,5 +1,6 @@
 import { Writable, WritableOptions } from "stream";
-import { Command, parseMessage, EventPayloadTypes } from "./slpReader";
+import { Command, EventPayloadTypes } from "../types";
+import { parseMessage } from "./slpReader";
 
 const NETWORK_MESSAGE = "HELO\0";
 

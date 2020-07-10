@@ -1,25 +1,18 @@
 /* eslint-disable no-param-reassign */
 import _ from "lodash";
-import {
-  Command,
-  openSlpFile,
-  closeSlpFile,
-  iterateEvents,
-  getMetadata,
-  GameStartType,
-  SlpInputSource,
-  SlpReadInput,
-} from "./utils/slpReader";
+import { openSlpFile, closeSlpFile, iterateEvents, getMetadata, SlpInputSource, SlpReadInput } from "./utils/slpReader";
 
 // Type imports
 import {
+  Command,
   PreFrameUpdateType,
   PostFrameUpdateType,
   MetadataType,
+  GameStartType,
   GameEndType,
   FrameBookendType,
   ItemUpdateType,
-} from "./utils/slpReader";
+} from "./types";
 import { SlpParser } from "./utils/slpParser";
 import {
   StockComputer,

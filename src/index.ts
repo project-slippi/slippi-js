@@ -5,8 +5,17 @@ import * as characters from "./melee/characters";
 import * as moves from "./melee/moves";
 import * as stages from "./melee/stages";
 
+// Export types
+export * from "./types";
 export * from "./stats";
-export * from "./utils";
+
+// Utils
+export * from "./utils/slpFile";
+export * from "./utils/slpStream";
+export * from "./utils/slpParser";
+export { parseMessage } from "./utils/slpReader";
+
+// Console networking
 export * from "./console";
 
 export {

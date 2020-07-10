@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { PostFrameUpdateType, GameStartType, PreFrameUpdateType, ItemUpdateType } from "../utils/slpReader";
+import { PostFrameUpdateType, GameStartType, PreFrameUpdateType, ItemUpdateType } from "../types";
 
 export interface FrameEntryType {
   frame: number;

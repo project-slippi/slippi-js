@@ -9,7 +9,7 @@ import {
   PreFrameUpdateType,
   ItemUpdateType,
   FrameBookendType,
-} from "./slpReader";
+} from "../types";
 import {
   Stats,
   FramesType,
