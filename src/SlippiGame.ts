@@ -91,28 +91,7 @@ export class SlippiGame {
           // about this command yet
           return false;
         }
-
-        switch (command) {
-          case Command.GAME_START:
-            this.parser.handleGameStart(payload as GameStartType);
-            break;
-          case Command.POST_FRAME_UPDATE:
-            this.parser.handlePostFrameUpdate(payload as PostFrameUpdateType);
-            this.parser.handleFrameUpdate(command, payload as PostFrameUpdateType);
-            break;
-          case Command.PRE_FRAME_UPDATE:
-            this.parser.handleFrameUpdate(command, payload as PreFrameUpdateType);
-            break;
-          case Command.ITEM_UPDATE:
-            this.parser.handleItemUpdate(command, payload as ItemUpdateType);
-            break;
-          case Command.FRAME_BOOKEND:
-            this.parser.handleFrameBookend(command, payload as FrameBookendType);
-            break;
-          case Command.GAME_END:
-            this.parser.handleGameEnd(payload as GameEndType);
-            break;
-        }
+        this.parser.handleCommand(command, payload);
         return settingsOnly && this.parser.getSettings() !== null;
       },
       this.readPosition,

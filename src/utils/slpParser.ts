@@ -28,6 +28,30 @@ export class SlpParser extends EventEmitter {
   private shouldFinalizeFrames: boolean | null = null;
   private lastFinalizedFrame = Frames.FIRST - 1;
 
+  public handleCommand(command: Command, payload: any) {
+    switch (command) {
+      case Command.GAME_START:
+        this._handleGameStart(payload as GameStartType);
+        break;
+      case Command.POST_FRAME_UPDATE:
+        this._handlePostFrameUpdate(payload as PostFrameUpdateType);
+        this._handleFrameUpdate(command, payload as PostFrameUpdateType);
+        break;
+      case Command.PRE_FRAME_UPDATE:
+        this._handleFrameUpdate(command, payload as PreFrameUpdateType);
+        break;
+      case Command.ITEM_UPDATE:
+        this._handleItemUpdate(payload as ItemUpdateType);
+        break;
+      case Command.FRAME_BOOKEND:
+        this._handleFrameBookend(payload as FrameBookendType);
+        break;
+      case Command.GAME_END:
+        this._handleGameEnd(payload as GameEndType);
+        break;
+    }
+  }
+
   public getLatestFrameNumber(): number {
     return this.latestFrameIndex;
   }
@@ -63,12 +87,12 @@ export class SlpParser extends EventEmitter {
     return this.frames[num] || null;
   }
 
-  public handleGameEnd(payload: GameEndType): void {
+  private _handleGameEnd(payload: GameEndType): void {
     payload = payload as GameEndType;
     this.gameEnd = payload;
   }
 
-  public handleGameStart(payload: GameStartType): void {
+  private _handleGameStart(payload: GameStartType): void {
     this.settings = payload;
     const players = payload.players;
     this.settings.players = players.filter((player) => player.type !== 3);
@@ -80,14 +104,7 @@ export class SlpParser extends EventEmitter {
     }
   }
 
-  private _completeSettings() {
-    if (!this.settingsComplete) {
-      this.settingsComplete = true;
-      this.emit(SlpParserEvent.SETTINGS, this.settings);
-    }
-  }
-
-  public handlePostFrameUpdate(payload: PostFrameUpdateType): void {
+  private _handlePostFrameUpdate(payload: PostFrameUpdateType): void {
     if (this.settingsComplete) {
       return;
     }
@@ -111,22 +128,7 @@ export class SlpParser extends EventEmitter {
     }
   }
 
-  private _sendFrame(frame: FrameEntryType) {
-    this.emit(SlpParserEvent.FRAME, frame);
-    if (!this.shouldFinalizeFrames) {
-      // If we're not waiting to finalize frames then fire off the final one too
-      this.emit(SlpParserEvent.FINALIZED_FRAME, frame);
-    }
-  }
-
-  private _setFinalizationMode(option: boolean) {
-    // Only ever set this once
-    if (this.shouldFinalizeFrames === null) {
-      this.shouldFinalizeFrames = option;
-    }
-  }
-
-  public handleFrameUpdate(command: Command, payload: PreFrameUpdateType | PostFrameUpdateType): void {
+  private _handleFrameUpdate(command: Command, payload: PreFrameUpdateType | PostFrameUpdateType): void {
     payload = payload as PostFrameUpdateType;
     const location = command === Command.PRE_FRAME_UPDATE ? 'pre' : 'post';
     const field = payload.isFollower ? 'followers' : 'players';
@@ -146,7 +148,7 @@ export class SlpParser extends EventEmitter {
     }
   }
 
-  public handleItemUpdate(command: Command, payload: ItemUpdateType): void {
+  private _handleItemUpdate(payload: ItemUpdateType): void {
     const items = _.get(this.frames, [payload.frame, 'items'], []);
     items.push(payload);
 
@@ -154,7 +156,7 @@ export class SlpParser extends EventEmitter {
     _.set(this.frames, [payload.frame, 'items'], items);
   }
 
-  public handleFrameBookend(command: Command, payload: FrameBookendType): void {
+  private _handleFrameBookend(payload: FrameBookendType): void {
     const { frame, latestFinalizedFrame } = payload;
     // Frame 0 is falsey so check against null and undefined
     const validLatestFrame = latestFinalizedFrame !== null && latestFinalizedFrame !== undefined;
@@ -177,6 +179,28 @@ export class SlpParser extends EventEmitter {
         this.lastFinalizedFrame++;
         this.emit(SlpParserEvent.FINALIZED_FRAME, this.getFrame(this.lastFinalizedFrame));
       }
+    }
+  }
+
+  private _sendFrame(frame: FrameEntryType) {
+    this.emit(SlpParserEvent.FRAME, frame);
+    if (!this.shouldFinalizeFrames) {
+      // If we're not waiting to finalize frames then fire off the final one too
+      this.emit(SlpParserEvent.FINALIZED_FRAME, frame);
+    }
+  }
+
+  private _setFinalizationMode(option: boolean) {
+    // Only ever set this once
+    if (this.shouldFinalizeFrames === null) {
+      this.shouldFinalizeFrames = option;
+    }
+  }
+
+  private _completeSettings() {
+    if (!this.settingsComplete) {
+      this.settingsComplete = true;
+      this.emit(SlpParserEvent.SETTINGS, this.settings);
     }
   }
 }
