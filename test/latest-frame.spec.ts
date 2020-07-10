@@ -4,6 +4,7 @@ import SlippiGame, {
   SlpStreamMode,
   SlpStream,
   Frames,
+  SlpCommandEventPayload,
   SlpStreamEvent,
   FrameBookendType,
 } from "../src";
@@ -19,7 +20,7 @@ describe("when reading last finalised frame", () => {
 
     let lastFinalizedFrame = Frames.FIRST - 1;
 
-    stream.on("slp-command", (data: SlpStreamEvent) => {
+    stream.on(SlpStreamEvent.COMMAND, (data: SlpCommandEventPayload) => {
       switch (data.command) {
         case Command.FRAME_BOOKEND:
           const payload = data.payload as FrameBookendType;
