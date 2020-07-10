@@ -52,6 +52,19 @@ export class SlpParser extends EventEmitter {
     }
   }
 
+  /**
+   * Resets the parser state to their default values.
+   */
+  public reset(): void {
+    this.frames = {};
+    this.settings = null;
+    this.gameEnd = null;
+    this.latestFrameIndex = null;
+    this.settingsComplete = false;
+    this.shouldFinalizeFrames = null;
+    this.lastFinalizedFrame = Frames.FIRST - 1;
+  }
+
   public getLatestFrameNumber(): number {
     return this.latestFrameIndex;
   }
