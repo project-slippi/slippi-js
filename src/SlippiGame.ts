@@ -63,7 +63,8 @@ export class SlippiGame {
       const playerPermutations = getSinglesPlayerPermutationsFromSettings(settings);
       this.statsComputer.setPlayerPermutations(playerPermutations);
     });
-    this.parser.on(SlpParserEvent.FRAME, (frame: FrameEntryType) => {
+    // Use finalized frames for stats computation
+    this.parser.on(SlpParserEvent.FINALIZED_FRAME, (frame: FrameEntryType) => {
       this.statsComputer.addFrame(frame);
     });
   }
