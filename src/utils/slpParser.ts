@@ -14,9 +14,9 @@ import { FramesType, FrameEntryType, Frames } from '../stats';
 import { EventEmitter } from 'events';
 
 export enum SlpParserEvent {
-  SETTINGS = 'SETTINGS',
-  FRAME = 'FRAME', // Emitted for every frame
-  FINALIZED_FRAME = 'FINALIZED_FRAME', // Emitted for only finalized frames
+  SETTINGS = 'settings',
+  FRAME = 'frame', // Emitted for every frame
+  FINALIZED_FRAME = 'finalized-frame', // Emitted for only finalized frames
 }
 
 export class SlpParser extends EventEmitter {
