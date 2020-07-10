@@ -16,12 +16,17 @@ const defaultSettings = {
 
 export type SlpStreamSettings = typeof defaultSettings;
 
-export interface SlpStreamEvent {
+export type MessageSizes = Map<Command, number>;
+
+export interface SlpCommandEventPayload {
   command: Command;
   payload: EventPayloadTypes | MessageSizes;
 }
 
-export type MessageSizes = Map<Command, number>;
+export interface SlpRawEventPayload {
+  command: Command;
+  payload: Buffer;
+}
 
 /**
  * SlpStream is a writable stream of Slippi data. It passes the data being written in
@@ -121,7 +126,10 @@ export class SlpStream extends Writable {
     const payloadBuf = entirePayload.slice(0, payloadSize);
     const bufToWrite = Buffer.concat([Buffer.from([command]), payloadBuf]);
     // Forward the raw buffer onwards
-    this.emit("slp-raw", bufToWrite);
+    this.emit("slp-raw", {
+      command,
+      payload: bufToWrite,
+    } as SlpRawEventPayload);
     return new Uint8Array(bufToWrite);
   }
 
@@ -136,7 +144,7 @@ export class SlpStream extends Writable {
       this.emit("slp-command", {
         command,
         payload: this.payloadSizes,
-      });
+      } as SlpCommandEventPayload);
       return payloadSize;
     }
 
@@ -167,7 +175,7 @@ export class SlpStream extends Writable {
     this.emit("slp-command", {
       command,
       payload: parsedPayload,
-    });
+    } as SlpCommandEventPayload);
     return payloadSize;
   }
 }
