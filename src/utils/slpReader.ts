@@ -340,6 +340,7 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
     case Command.FRAME_BOOKEND:
       return {
         frame: readInt32(view, 0x1),
+        latestFinalizedFrame: readInt32(view, 0x5),
       };
     case Command.GAME_END:
       return {

@@ -84,6 +84,7 @@ export interface ItemUpdateType {
 
 export interface FrameBookendType {
   frame: number | null;
+  latestFinalizedFrame: number | null;
 }
 
 export interface GameEndType {
