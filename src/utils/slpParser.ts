@@ -10,27 +10,20 @@ import {
   ItemUpdateType,
   FrameBookendType,
 } from '../types';
-import {
-  Stats,
-  FramesType,
-  FrameEntryType,
-  Frames,
-  PlayerIndexedType,
-  getSinglesPlayerPermutationsFromSettings,
-} from '../stats';
+import { FramesType, FrameEntryType, Frames } from '../stats';
+import { EventEmitter } from 'events';
 
-export class SlpParser {
-  private statsComputer: Stats;
+export enum SlpParserEvent {
+  SETTINGS = 'SETTINGS',
+  FRAME = 'FRAME',
+}
+
+export class SlpParser extends EventEmitter {
   private frames: FramesType = {};
   private settings: GameStartType | null = null;
   private gameEnd: GameEndType | null = null;
   private latestFrameIndex: number | null = null;
-  private playerPermutations = new Array<PlayerIndexedType>();
   private settingsComplete = false;
-
-  public constructor(statsComputer: Stats) {
-    this.statsComputer = statsComputer;
-  }
 
   public getLatestFrameNumber(): number {
     return this.latestFrameIndex;
@@ -63,6 +56,10 @@ export class SlpParser {
     return this.frames;
   }
 
+  public getFrame(num: number): FrameEntryType | null {
+    return this.frames[num] || null;
+  }
+
   public handleGameEnd(payload: GameEndType): void {
     payload = payload as GameEndType;
     this.gameEnd = payload;
@@ -72,13 +69,18 @@ export class SlpParser {
     this.settings = payload;
     const players = payload.players;
     this.settings.players = players.filter((player) => player.type !== 3);
-    this.playerPermutations = getSinglesPlayerPermutationsFromSettings(this.settings);
-    this.statsComputer.setPlayerPermutations(this.playerPermutations);
 
     // Check to see if the file was created after the sheik fix so we know
     // we don't have to process the first frame of the game for the full settings
     if (semver.gte(payload.slpVersion, '1.6.0')) {
+      this._completeSettings();
+    }
+  }
+
+  private _completeSettings() {
+    if (!this.settingsComplete) {
       this.settingsComplete = true;
+      this.emit(SlpParserEvent.SETTINGS, this.settings);
     }
   }
 
@@ -101,7 +103,9 @@ export class SlpParser {
           break;
       }
     }
-    this.settingsComplete = payload.frame > Frames.FIRST;
+    if (payload.frame > Frames.FIRST) {
+      this._completeSettings();
+    }
   }
 
   public handleFrameUpdate(command: Command, payload: PreFrameUpdateType | PostFrameUpdateType): void {
@@ -116,7 +120,7 @@ export class SlpParser {
     // more processing than necessary, but it works
     const settings = this.getSettings();
     if (!settings || semver.lte(settings.slpVersion, '2.2.0')) {
-      this.statsComputer.addFrame(this.frames[payload.frame]);
+      this.emit(SlpParserEvent.FRAME, this.frames[payload.frame]);
     } else {
       _.set(this.frames, [payload.frame, 'isTransferComplete'], false);
     }
@@ -132,6 +136,6 @@ export class SlpParser {
 
   public handleFrameBookend(command: Command, payload: FrameBookendType): void {
     _.set(this.frames, [payload.frame, 'isTransferComplete'], true);
-    this.statsComputer.addFrame(this.frames[payload.frame]);
+    this.emit(SlpParserEvent.FRAME, this.frames[payload.frame]);
   }
 }

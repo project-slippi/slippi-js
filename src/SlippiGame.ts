@@ -13,7 +13,7 @@ import {
   FrameBookendType,
   ItemUpdateType,
 } from './types';
-import { SlpParser } from './utils/slpParser';
+import { SlpParser, SlpParserEvent } from './utils/slpParser';
 import {
   StockComputer,
   ComboComputer,
@@ -67,7 +67,14 @@ export class SlippiGame {
       this.inputComputer,
       this.stockComputer,
     ]);
-    this.parser = new SlpParser(this.statsComputer);
+    this.parser = new SlpParser();
+    this.parser.on(SlpParserEvent.SETTINGS, (settings) => {
+      const playerPermutations = getSinglesPlayerPermutationsFromSettings(settings);
+      this.statsComputer.setPlayerPermutations(playerPermutations);
+    });
+    this.parser.on(SlpParserEvent.FRAME, (frame: FrameEntryType) => {
+      this.statsComputer.addFrame(frame);
+    });
   }
 
   private _process(settingsOnly = false): void {
