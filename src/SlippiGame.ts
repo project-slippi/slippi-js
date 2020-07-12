@@ -17,6 +17,7 @@ import {
   StatsType,
   getSinglesPlayerPermutationsFromSettings,
   generateOverallStats,
+  StatOptions,
 } from './stats';
 
 /**
@@ -33,9 +34,9 @@ export class SlippiGame {
   private comboComputer: ComboComputer = new ComboComputer();
   private stockComputer: StockComputer = new StockComputer();
   private inputComputer: InputComputer = new InputComputer();
-  private statsComputer: Stats = new Stats();
+  private statsComputer: Stats;
 
-  public constructor(input: string | Buffer) {
+  public constructor(input: string | Buffer, opts?: StatOptions) {
     if (_.isString(input)) {
       this.input = {
         source: SlpInputSource.FILE,
@@ -51,6 +52,7 @@ export class SlippiGame {
     }
 
     // Set up stats calculation
+    this.statsComputer = new Stats(opts);
     this.statsComputer.register(
       this.actionsComputer,
       this.comboComputer,

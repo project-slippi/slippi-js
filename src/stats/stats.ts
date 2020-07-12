@@ -24,7 +24,7 @@ export class Stats {
   private allComputers = new Array<StatComputer<unknown>>();
 
   public constructor(options?: StatOptions) {
-    this.options = options || defaultOptions;
+    this.options = Object.assign({}, defaultOptions, options);
   }
 
   public setPlayerPermutations(indices: PlayerIndexedType[]): void {
