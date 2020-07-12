@@ -1,9 +1,7 @@
 import { SlippiGame } from './SlippiGame';
 
-import * as animations from './melee/animations';
-import * as characters from './melee/characters';
-import * as moves from './melee/moves';
-import * as stages from './melee/stages';
+// Export melee util types
+export * from './melee';
 
 // Export types
 export * from './types';
@@ -17,12 +15,7 @@ export * from './utils/slpParser';
 // Console networking
 export * from './console';
 
-export {
-  animations,
-  characters,
-  moves,
-  stages,
-  SlippiGame, // Support both named and default exports
-};
+// Support both named and default exports
+export * from './SlippiGame';
 
 export default SlippiGame;
