@@ -22,6 +22,7 @@ watcher.on('change', (path) => {
     let game = _.get(gameByPath, [path, 'game']);
     if (!game) {
       console.log(`New file at: ${path}`);
+      // Make sure to enable `processOnTheFly` to get updated stats as the game progresses
       game = new SlippiGame(path, { processOnTheFly: true });
       gameByPath[path] = {
         game: game,
