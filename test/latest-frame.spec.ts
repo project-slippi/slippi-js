@@ -13,6 +13,7 @@ import SlippiGame, {
   SlpParserEvent,
   FrameEntryType,
 } from '../src';
+import { GameMode } from '../dist';
 
 const MAX_ROLLBACK_FRAMES = 7;
 
@@ -24,6 +25,11 @@ describe('when reading last finalised frame from SlpStream', () => {
     });
 
     let lastFinalizedFrame = Frames.FIRST - 1;
+
+    // The game mode should be online
+    const game = new SlippiGame(testFile);
+    const settings = game.getSettings();
+    expect(settings.gameMode).toEqual(GameMode.ONLINE);
 
     stream.on(SlpStreamEvent.COMMAND, (data: SlpCommandEventPayload) => {
       switch (data.command) {
