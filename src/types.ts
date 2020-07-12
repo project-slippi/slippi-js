@@ -20,12 +20,19 @@ export interface PlayerType {
   nametag: string | null;
 }
 
+export enum GameMode {
+  VS = 0x02,
+  ONLINE = 0x08,
+}
+
 export interface GameStartType {
   slpVersion: string | null;
   isTeams: boolean | null;
   isPAL: boolean | null;
   stageId: number | null;
   players: PlayerType[];
+  scene: number | null;
+  gameMode: GameMode | null;
 }
 
 export interface PreFrameUpdateType {

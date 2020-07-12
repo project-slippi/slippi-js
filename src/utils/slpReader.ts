@@ -4,7 +4,7 @@ import iconv from 'iconv-lite';
 import { decode } from '@shelacek/ubjson';
 
 import { toHalfwidth } from './fullwidth';
-import { Command, EventCallbackFunc, EventPayloadTypes, MetadataType } from '../types';
+import { Command, EventCallbackFunc, EventPayloadTypes, MetadataType, PlayerType } from '../types';
 
 export enum SlpInputSource {
   BUFFER = 'buffer',
@@ -239,49 +239,52 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
   const view = new DataView(payload.buffer);
   switch (command) {
     case Command.GAME_START:
+      const getPlayerObject = (playerIndex: number): PlayerType => {
+        // Controller Fix stuff
+        const cfOffset = playerIndex * 0x8;
+        const dashback = readUint32(view, 0x141 + cfOffset);
+        const shieldDrop = readUint32(view, 0x145 + cfOffset);
+        let cfOption = 'None';
+        if (dashback !== shieldDrop) {
+          cfOption = 'Mixed';
+        } else if (dashback === 1) {
+          cfOption = 'UCF';
+        } else if (dashback === 2) {
+          cfOption = 'Dween';
+        }
+
+        // Nametag stuff
+        const nametagOffset = playerIndex * 0x10;
+        const nametagStart = 0x161 + nametagOffset;
+        const nametagBuf = payload.slice(nametagStart, nametagStart + 16);
+        const nametag = toHalfwidth(
+          iconv
+            .decode(nametagBuf as Buffer, 'Shift_JIS')
+            .split('\0')
+            .shift(),
+        );
+
+        const offset = playerIndex * 0x24;
+        return {
+          playerIndex: playerIndex,
+          port: playerIndex + 1,
+          characterId: readUint8(view, 0x65 + offset),
+          characterColor: readUint8(view, 0x68 + offset),
+          startStocks: readUint8(view, 0x67 + offset),
+          type: readUint8(view, 0x66 + offset),
+          teamId: readUint8(view, 0x6e + offset),
+          controllerFix: cfOption,
+          nametag: nametag,
+        };
+      };
       return {
         slpVersion: `${readUint8(view, 0x1)}.${readUint8(view, 0x2)}.${readUint8(view, 0x3)}`,
         isTeams: readBool(view, 0xd),
         isPAL: readBool(view, 0x1a1),
         stageId: readUint16(view, 0x13),
-        players: [0, 1, 2, 3].map((playerIndex) => {
-          // Controller Fix stuff
-          const cfOffset = playerIndex * 0x8;
-          const dashback = readUint32(view, 0x141 + cfOffset);
-          const shieldDrop = readUint32(view, 0x145 + cfOffset);
-          let cfOption = 'None';
-          if (dashback !== shieldDrop) {
-            cfOption = 'Mixed';
-          } else if (dashback === 1) {
-            cfOption = 'UCF';
-          } else if (dashback === 2) {
-            cfOption = 'Dween';
-          }
-
-          // Nametag stuff
-          const nametagOffset = playerIndex * 0x10;
-          const nametagStart = 0x161 + nametagOffset;
-          const nametagBuf = payload.slice(nametagStart, nametagStart + 16);
-          const nametag = toHalfwidth(
-            iconv
-              .decode(nametagBuf as Buffer, 'Shift_JIS')
-              .split('\0')
-              .shift(),
-          );
-
-          const offset = playerIndex * 0x24;
-          return {
-            playerIndex: playerIndex,
-            port: playerIndex + 1,
-            characterId: readUint8(view, 0x65 + offset),
-            characterColor: readUint8(view, 0x68 + offset),
-            startStocks: readUint8(view, 0x67 + offset),
-            type: readUint8(view, 0x66 + offset),
-            teamId: readUint8(view, 0x6e + offset),
-            controllerFix: cfOption,
-            nametag: nametag,
-          };
-        }),
+        players: [0, 1, 2, 3].map(getPlayerObject),
+        scene: readUint8(view, 0x1a3),
+        gameMode: readUint8(view, 0x1a4),
       };
     case Command.PRE_FRAME_UPDATE:
       return {
