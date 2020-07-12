@@ -22,7 +22,7 @@ watcher.on('change', (path) => {
     let game = _.get(gameByPath, [path, 'game']);
     if (!game) {
       console.log(`New file at: ${path}`);
-      game = new SlippiGame(path);
+      game = new SlippiGame(path, { processOnTheFly: true });
       gameByPath[path] = {
         game: game,
         state: {
