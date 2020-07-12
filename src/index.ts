@@ -13,7 +13,6 @@ export * from './stats';
 export * from './utils/slpFile';
 export * from './utils/slpStream';
 export * from './utils/slpParser';
-export { parseMessage } from './utils/slpReader';
 
 // Console networking
 export * from './console';
