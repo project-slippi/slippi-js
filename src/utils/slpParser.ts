@@ -9,9 +9,12 @@ import {
   PreFrameUpdateType,
   ItemUpdateType,
   FrameBookendType,
+  GameMode,
 } from '../types';
 import { FramesType, FrameEntryType, Frames } from '../stats';
 import { EventEmitter } from 'events';
+
+export const MAX_ROLLBACK_FRAMES = 7;
 
 export enum SlpParserEvent {
   SETTINGS = 'settings',
@@ -26,7 +29,6 @@ export class SlpParser extends EventEmitter {
   private gameEnd: GameEndType | null = null;
   private latestFrameIndex: number | null = null;
   private settingsComplete = false;
-  private shouldFinalizeFrames: boolean | null = null;
   private lastFinalizedFrame = Frames.FIRST - 1;
 
   public handleCommand(command: Command, payload: any) {
@@ -35,6 +37,8 @@ export class SlpParser extends EventEmitter {
         this._handleGameStart(payload as GameStartType);
         break;
       case Command.POST_FRAME_UPDATE:
+        // We need to handle the post frame update first since that
+        // will finalize the settings object, before we fire the frame update
         this._handlePostFrameUpdate(payload as PostFrameUpdateType);
         this._handleFrameUpdate(command, payload as PostFrameUpdateType);
         break;
@@ -62,7 +66,6 @@ export class SlpParser extends EventEmitter {
     this.gameEnd = null;
     this.latestFrameIndex = null;
     this.settingsComplete = false;
-    this.shouldFinalizeFrames = null;
     this.lastFinalizedFrame = Frames.FIRST - 1;
   }
 
@@ -102,6 +105,11 @@ export class SlpParser extends EventEmitter {
   }
 
   private _handleGameEnd(payload: GameEndType): void {
+    // Finalize remaining frames if necessary
+    if (this.latestFrameIndex !== this.lastFinalizedFrame) {
+      this._finalizeFrames(this.latestFrameIndex);
+    }
+
     payload = payload as GameEndType;
     this.gameEnd = payload;
     this.emit(SlpParserEvent.END, this.gameEnd);
@@ -155,9 +163,9 @@ export class SlpParser extends EventEmitter {
     // more processing than necessary, but it works
     const settings = this.getSettings();
     if (!settings || semver.lte(settings.slpVersion, '2.2.0')) {
-      // We won't need to finalize frames
-      this._setFinalizationMode(false);
-      this._sendFrame(this.frames[payload.frame]);
+      this.emit(SlpParserEvent.FRAME, this.frames[payload.frame]);
+      // Finalize the previous frame since no bookending exists
+      this._finalizeFrames(payload.frame - 1);
     } else {
       _.set(this.frames, [payload.frame, 'isTransferComplete'], false);
     }
@@ -173,14 +181,18 @@ export class SlpParser extends EventEmitter {
 
   private _handleFrameBookend(payload: FrameBookendType): void {
     const { frame, latestFinalizedFrame } = payload;
-    // Frame 0 is falsey so check against null and undefined
-    const validLatestFrame = latestFinalizedFrame !== null && latestFinalizedFrame !== undefined;
-    this._setFinalizationMode(validLatestFrame && latestFinalizedFrame >= Frames.FIRST);
     _.set(this.frames, [frame, 'isTransferComplete'], true);
     // Fire off a normal frame event
-    this._sendFrame(this.frames[frame]);
+    this.emit(SlpParserEvent.FRAME, this.frames[frame]);
+
     // Finalize frames if necessary
-    this._finalizeFrames(latestFinalizedFrame);
+    const validLatestFrame = this.settings.gameMode === GameMode.ONLINE;
+    if (validLatestFrame && latestFinalizedFrame >= Frames.FIRST) {
+      this._finalizeFrames(latestFinalizedFrame);
+    } else {
+      // Since we don't have a valid finalized frame, just finalize the frame based on MAX_ROLLBACK_FRAMES
+      this._finalizeFrames(payload.frame - MAX_ROLLBACK_FRAMES);
+    }
   }
 
   /**
@@ -188,27 +200,9 @@ export class SlpParser extends EventEmitter {
    * @param num The frame to finalize until
    */
   private _finalizeFrames(num: number) {
-    // Only fire events if we're in finalization mode
-    if (this.shouldFinalizeFrames) {
-      while (this.lastFinalizedFrame < num) {
-        this.lastFinalizedFrame++;
-        this.emit(SlpParserEvent.FINALIZED_FRAME, this.getFrame(this.lastFinalizedFrame));
-      }
-    }
-  }
-
-  private _sendFrame(frame: FrameEntryType) {
-    this.emit(SlpParserEvent.FRAME, frame);
-    if (!this.shouldFinalizeFrames) {
-      // If we're not waiting to finalize frames then fire off the final one too
-      this.emit(SlpParserEvent.FINALIZED_FRAME, frame);
-    }
-  }
-
-  private _setFinalizationMode(option: boolean) {
-    // Only ever set this once
-    if (this.shouldFinalizeFrames === null) {
-      this.shouldFinalizeFrames = option;
+    while (this.lastFinalizedFrame < num) {
+      this.lastFinalizedFrame++;
+      this.emit(SlpParserEvent.FINALIZED_FRAME, this.getFrame(this.lastFinalizedFrame));
     }
   }
 
