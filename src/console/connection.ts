@@ -186,7 +186,7 @@ export class ConsoleConnection extends EventEmitter {
           try {
             consoleComms.receive(data);
           } catch (err) {
-            console.log('Failed to process new data from server...', {
+            console.warn('Failed to process new data from server...', {
               error: err,
               prevDataBuf: consoleComms.getReceiveBuffer(),
               rcvData: data,
@@ -203,13 +203,13 @@ export class ConsoleConnection extends EventEmitter {
           } catch (err) {
             // Disconnect client to send another handshake message
             client.destroy();
-            console.log(err);
+            console.error(err);
           }
         });
 
         client.on('timeout', () => {
           // const previouslyConnected = this.connectionStatus === ConnectionStatus.CONNECTED;
-          console.log(`Attempted connection to ${this.ipAddress}:${this.port} timed out after ${timeout}ms`);
+          console.warn(`Attempted connection to ${this.ipAddress}:${this.port} timed out after ${timeout}ms`);
           client.destroy();
         });
 
@@ -257,7 +257,7 @@ export class ConsoleConnection extends EventEmitter {
     });
 
     connection.on('error', (error) => {
-      console.log(`Connection on port ${port} encountered an error.`, error);
+      console.error(`Connection on port ${port} encountered an error.`, error);
     });
 
     this.connectionsByPort[port] = connection;
@@ -312,7 +312,7 @@ export class ConsoleConnection extends EventEmitter {
         const readPos = Uint8Array.from(message.payload.pos);
         const cmp = Buffer.compare(this.connDetails.gameDataCursor, readPos);
         if (!message.payload.forcePos && cmp !== 0) {
-          console.log(
+          console.warn(
             'Position of received data is not what was expected. Expected, Received:',
             this.connDetails.gameDataCursor,
             readPos,
@@ -323,7 +323,7 @@ export class ConsoleConnection extends EventEmitter {
         }
 
         if (message.payload.forcePos) {
-          console.log(
+          console.warn(
             'Overflow occured in Nintendont, data has likely been skipped and replay corrupted. ' +
               'Expected, Received:',
             this.connDetails.gameDataCursor,
