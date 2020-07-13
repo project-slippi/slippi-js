@@ -5,6 +5,8 @@ import inject from 'reconnect-core';
 
 import { ConsoleCommunication, CommunicationType, CommunicationMessage } from './communication';
 
+export const NETWORK_MESSAGE = 'HELO\0';
+
 const DEFAULT_CONNECTION_TIMEOUT_MS = 20000;
 
 export enum ConnectionEvent {
@@ -302,7 +304,7 @@ export class ConsoleConnection extends EventEmitter {
         // TODO: to time out as long as the main connection is still receving keep alive messages
         // TODO: Need to figure out a better solution for this. There should be no need to have an
         // TODO: active Wii connection for the relay connection to keep itself alive
-        const fakeKeepAlive = Buffer.from('HELO\0');
+        const fakeKeepAlive = Buffer.from(NETWORK_MESSAGE);
         this._handleReplayData(fakeKeepAlive);
 
         break;
