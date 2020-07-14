@@ -34,6 +34,7 @@ describe('when reading last finalised frame from SlpStream', () => {
       switch (data.command) {
         case Command.FRAME_BOOKEND:
           const payload = data.payload as FrameBookendType;
+          expect(payload).toBeTruthy();
           // We should never have the latest finalized frame be less than the first frame
           expect(payload.latestFinalizedFrame).not.toEqual(Frames.FIRST - 1);
           expect(payload.latestFinalizedFrame).toBeGreaterThanOrEqual(lastFinalizedFrame);
@@ -62,6 +63,7 @@ describe('when reading finalised frames from SlpParser', () => {
 
     // Check the finalized frames to ensure they're increasing
     parser.on(SlpParserEvent.FINALIZED_FRAME, (frameEntry: FrameEntryType) => {
+      expect(frameEntry).toBeTruthy();
       const { frame } = frameEntry;
       // We should never receive the same frame twice
       expect(frame).not.toEqual(lastFinalizedFrame);
