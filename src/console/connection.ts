@@ -132,7 +132,6 @@ export class ConsoleConnection extends EventEmitter {
       // and they would encounter issues with the new Nintendont
       this._connectOnPort(Ports.DEFAULT, timeout);
       this._connectOnPort(Ports.LEGACY, timeout);
-      return;
     } else {
       // If port is manually set, use that port.
       this._connectOnPort(port, timeout);
