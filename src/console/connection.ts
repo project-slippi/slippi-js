@@ -62,7 +62,7 @@ const defaultConnectionDetails: ConnectionDetails = {
  * Basic usage example:
  *
  * ```javascript
- * const { ConsoleConnection } = require("@slippi/sdk");
+ * const { ConsoleConnection } = require("@slippi/slippi-js");
  *
  * const connection = new ConsoleConnection();
  * connection.connect("localhost", 667); // You should set these values appropriately

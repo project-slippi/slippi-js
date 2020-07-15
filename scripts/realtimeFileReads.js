@@ -1,4 +1,4 @@
-const { default: SlippiGame } = require('@slippi/sdk');
+const { default: SlippiGame } = require('@slippi/slippi-js');
 const chokidar = require('chokidar');
 const _ = require('lodash');
 

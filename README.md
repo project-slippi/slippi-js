@@ -1,8 +1,8 @@
-# `@slippi/sdk`
+# `@slippi/slippi-js`
 
-[![npm version](http://img.shields.io/npm/v/@slippi/sdk.svg?style=flat)](https://npmjs.org/package/@slippi/sdk 'View this project on npm')
+[![npm version](http://img.shields.io/npm/v/@slippi/slippi-js.svg?style=flat)](https://npmjs.org/package/@slippi/slippi-js 'View this project on npm')
 [![Build Status](https://github.com/project-slippi/slippi-js/workflows/build/badge.svg)](https://github.com/project-slippi/slippi-js/actions?workflow=build)
-[![License](https://img.shields.io/npm/l/@slippi/sdk)](https://github.com/project-slippi/slippi-js/blob/master/LICENSE)
+[![License](https://img.shields.io/npm/l/@slippi/slippi-js)](https://github.com/project-slippi/slippi-js/blob/master/LICENSE)
 
 This is the official Project Slippi Javascript SDK. It provides tools for parsing `.slp` files into structured data and can be used to compute stats. There are already many built-in stats that are computed by the library but the data provided can also be used to compute your own stats.
 
@@ -11,13 +11,13 @@ This is the official Project Slippi Javascript SDK. It provides tools for parsin
 **With NPM**
 
 ```bash
-npm install @slippi/sdk
+npm install @slippi/slippi-js
 ```
 
 **With Yarn**
 
 ```bash
-yarn add @slippi/sdk
+yarn add @slippi/slippi-js
 ```
 
 ## Writing a simple script
@@ -27,7 +27,7 @@ yarn add @slippi/sdk
 3. Fill the `script.js` file with the following contents:
 
 ```
-const { default: SlippiGame } = require('@slippi/sdk');
+const { default: SlippiGame } = require('@slippi/slippi-js');
 
 const game = new SlippiGame("test.slp");
 
@@ -50,12 +50,12 @@ console.log(frames[0].players); // Print frame when timer starts counting down
 ```
 
 4. Copy a .slp file into the directory and call it `test.slp`
-5. Browse to the directory from the command line and run the command: `npm install @slippi/sdk`. This should create a `node_modules` directory in the folder.
+5. Browse to the directory from the command line and run the command: `npm install @slippi/slippi-js`. This should create a `node_modules` directory in the folder.
 6. Run the command: `node script.js`. This will run the script above and will print data about the `test.slp` file
 
 ## Reading live files
 
-When using Slippi to mirror gameplay, it can be useful to extract game data about the live game. There are a few different methods of doing this but `@slippi/sdk` can also be used to read live files. It is written in such a way where as long as the same SlippiGame class is used, it will only read from disk the data it has not yet read.
+When using Slippi to mirror gameplay, it can be useful to extract game data about the live game. There are a few different methods of doing this but `@slippi/slippi-js` can also be used to read live files. It is written in such a way where as long as the same SlippiGame class is used, it will only read from disk the data it has not yet read.
 
 One thing to note, when creating the `SlippiGame` object, be sure to enable `processOnTheFly` to get updated stats as the game progresses.
 
