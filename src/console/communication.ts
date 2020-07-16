@@ -1,4 +1,4 @@
-import { decode, encode } from '@shelacek/ubjson';
+import { decode, encode } from "@shelacek/ubjson";
 
 export enum CommunicationType {
   HANDSHAKE = 1,

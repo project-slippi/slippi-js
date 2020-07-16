@@ -1,5 +1,5 @@
-import _ from 'lodash';
-import { PostFrameUpdateType, GameStartType, PreFrameUpdateType, ItemUpdateType } from '../types';
+import _ from "lodash";
+import { PostFrameUpdateType, GameStartType, PreFrameUpdateType, ItemUpdateType } from "../types";
 
 export interface FrameEntryType {
   frame: number;
@@ -214,8 +214,8 @@ export function isDead(state: number): boolean {
 }
 
 export function calcDamageTaken(frame: PostFrameUpdateType, prevFrame: PostFrameUpdateType): number {
-  const percent = _.get(frame, 'percent', 0);
-  const prevPercent = _.get(prevFrame, 'percent', 0);
+  const percent = _.get(frame, "percent", 0);
+  const prevPercent = _.get(prevFrame, "percent", 0);
 
   return percent - prevPercent;
 }

@@ -1,7 +1,7 @@
-import _ from 'lodash';
-import { FramesType, FrameEntryType, Frames, PlayerIndexedType } from './common';
+import _ from "lodash";
+import { FramesType, FrameEntryType, Frames, PlayerIndexedType } from "./common";
 
-import { StatComputer } from './stats';
+import { StatComputer } from "./stats";
 
 enum JoystickRegion {
   DZ = 0,
@@ -58,7 +58,7 @@ function handleInputCompute(
   const playerFrame = frame.players[indices.playerIndex].pre;
   // FIXME: use PreFrameUpdateType instead of any
   // This is because the default value {} should not be casted as a type of PreFrameUpdateType
-  const prevPlayerFrame: any = _.get(frames, [playerFrame.frame - 1, 'players', indices.playerIndex, 'pre'], {});
+  const prevPlayerFrame: any = _.get(frames, [playerFrame.frame - 1, "players", indices.playerIndex, "pre"], {});
 
   if (playerFrame.frame < Frames.FIRST_PLAYABLE) {
     // Don't count inputs until the game actually starts

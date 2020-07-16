@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import _ from "lodash";
 
 export function toHalfwidth(str: string): string {
   // Code reference from https://github.com/sampathsris/ascii-fullwidth-halfwidth-convert

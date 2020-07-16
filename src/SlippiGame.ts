@@ -1,10 +1,10 @@
 /* eslint-disable no-param-reassign */
-import _ from 'lodash';
-import { openSlpFile, closeSlpFile, iterateEvents, getMetadata, SlpInputSource, SlpReadInput } from './utils/slpReader';
+import _ from "lodash";
+import { openSlpFile, closeSlpFile, iterateEvents, getMetadata, SlpInputSource, SlpReadInput } from "./utils/slpReader";
 
 // Type imports
-import { MetadataType, GameStartType, GameEndType } from './types';
-import { SlpParser, SlpParserEvent } from './utils/slpParser';
+import { MetadataType, GameStartType, GameEndType } from "./types";
+import { SlpParser, SlpParserEvent } from "./utils/slpParser";
 import {
   StockComputer,
   ComboComputer,
@@ -18,7 +18,7 @@ import {
   getSinglesPlayerPermutationsFromSettings,
   generateOverallStats,
   StatOptions,
-} from './stats';
+} from "./stats";
 
 /**
  * Slippi Game class that wraps a file
@@ -48,7 +48,7 @@ export class SlippiGame {
         buffer: input,
       };
     } else {
-      throw new Error('Cannot create SlippiGame with input of that type');
+      throw new Error("Cannot create SlippiGame with input of that type");
     }
 
     // Set up stats calculation

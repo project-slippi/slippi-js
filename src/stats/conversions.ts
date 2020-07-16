@@ -1,8 +1,8 @@
-import _ from 'lodash';
-import { PostFrameUpdateType } from '../types';
-import { FrameEntryType, FramesType, MoveLandedType, ConversionType, PlayerIndexedType } from './common';
-import { isDamaged, isGrabbed, calcDamageTaken, isInControl, didLoseStock, Timers } from './common';
-import { StatComputer } from './stats';
+import _ from "lodash";
+import { PostFrameUpdateType } from "../types";
+import { FrameEntryType, FramesType, MoveLandedType, ConversionType, PlayerIndexedType } from "./common";
+import { isDamaged, isGrabbed, calcDamageTaken, isInControl, didLoseStock, Timers } from "./common";
+import { StatComputer } from "./stats";
 
 interface PlayerConversionState {
   conversion: ConversionType | null;
@@ -57,13 +57,13 @@ export class ConversionComputer implements StatComputer<ConversionType[]> {
   private _populateConversionTypes(): void {
     // Post-processing step: set the openingTypes
     const conversionsToHandle = _.filter(this.conversions, (conversion) => {
-      return conversion.openingType === 'unknown';
+      return conversion.openingType === "unknown";
     });
 
     // Group new conversions by startTime and sort
     const sortedConversions: ConversionType[][] = _.chain(conversionsToHandle)
-      .groupBy('startFrame')
-      .orderBy((conversions) => _.get(conversions, [0, 'startFrame']))
+      .groupBy("startFrame")
+      .orderBy((conversions) => _.get(conversions, [0, "startFrame"]))
       .value();
 
     // Set the opening types on the conversions we need to handle
@@ -75,14 +75,14 @@ export class ConversionComputer implements StatComputer<ConversionType[]> {
 
         if (isTrade) {
           // If trade, just short-circuit
-          conversion.openingType = 'trade';
+          conversion.openingType = "trade";
           return;
         }
 
         // If not trade, check the opponent endFrame
         const oppEndFrame = this.metadata.lastEndFrameByOppIdx[conversion.opponentIndex];
         const isCounterAttack = oppEndFrame && oppEndFrame > conversion.startFrame;
-        conversion.openingType = isCounterAttack ? 'counter-attack' : 'neutral-win';
+        conversion.openingType = isCounterAttack ? "counter-attack" : "neutral-win";
       });
     });
   }
@@ -98,11 +98,11 @@ function handleConversionCompute(
   const playerFrame: PostFrameUpdateType = frame.players[indices.playerIndex].post;
   // FIXME: use type PostFrameUpdateType instead of any
   // This is because the default value {} should not be casted as a type of PostFrameUpdateType
-  const prevPlayerFrame: any = _.get(frames, [playerFrame.frame - 1, 'players', indices.playerIndex, 'post'], {});
+  const prevPlayerFrame: any = _.get(frames, [playerFrame.frame - 1, "players", indices.playerIndex, "post"], {});
   const opponentFrame: PostFrameUpdateType = frame.players[indices.opponentIndex].post;
   // FIXME: use type PostFrameUpdateType instead of any
   // This is because the default value {} should not be casted as a type of PostFrameUpdateType
-  const prevOpponentFrame: any = _.get(frames, [playerFrame.frame - 1, 'players', indices.opponentIndex, 'post'], {});
+  const prevOpponentFrame: any = _.get(frames, [playerFrame.frame - 1, "players", indices.opponentIndex, "post"], {});
 
   const opntIsDamaged = isDamaged(opponentFrame.actionStateId);
   const opntIsGrabbed = isGrabbed(opponentFrame.actionStateId);
@@ -136,7 +136,7 @@ function handleConversionCompute(
         endPercent: null,
         moves: [],
         didKill: false,
-        openingType: 'unknown', // Will be updated later
+        openingType: "unknown", // Will be updated later
       };
 
       conversions.push(state.conversion);

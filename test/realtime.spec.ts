@@ -1,5 +1,5 @@
-import fs from 'fs';
-import { Writable } from 'stream';
+import fs from "fs";
+import { Writable } from "stream";
 
 import SlippiGame, {
   Command,
@@ -14,11 +14,11 @@ import SlippiGame, {
   FrameEntryType,
   MAX_ROLLBACK_FRAMES,
   GameMode,
-} from '../src';
+} from "../src";
 
-describe('when reading last finalised frame from SlpStream', () => {
-  it('should never decrease', async () => {
-    const testFile = 'slp/finalizedFrame.slp';
+describe("when reading last finalised frame from SlpStream", () => {
+  it("should never decrease", async () => {
+    const testFile = "slp/finalizedFrame.slp";
     const stream = new SlpStream({
       mode: SlpStreamMode.MANUAL,
     });
@@ -51,9 +51,9 @@ describe('when reading last finalised frame from SlpStream', () => {
   });
 });
 
-describe('when reading finalised frames from SlpParser', () => {
-  it('should support older SLP files without frame bookend', async () => {
-    const testFile = 'slp/sheik_vs_ics_yoshis.slp';
+describe("when reading finalised frames from SlpParser", () => {
+  it("should support older SLP files without frame bookend", async () => {
+    const testFile = "slp/sheik_vs_ics_yoshis.slp";
     const stream = new SlpStream({
       mode: SlpStreamMode.MANUAL,
     });
@@ -87,8 +87,8 @@ describe('when reading finalised frames from SlpParser', () => {
     expect(lastFrame).toEqual(lastFinalizedFrame);
   });
 
-  it('should only increase', async () => {
-    const testFile = 'slp/finalizedFrame.slp';
+  it("should only increase", async () => {
+    const testFile = "slp/finalizedFrame.slp";
     const stream = new SlpStream({
       mode: SlpStreamMode.MANUAL,
     });
@@ -123,10 +123,10 @@ describe('when reading finalised frames from SlpParser', () => {
 const pipeFileContents = async (filename: string, destination: Writable, options?: any): Promise<void> => {
   return new Promise((resolve): void => {
     const readStream = fs.createReadStream(filename);
-    readStream.on('open', () => {
+    readStream.on("open", () => {
       readStream.pipe(destination, options);
     });
-    readStream.on('close', () => {
+    readStream.on("close", () => {
       resolve();
     });
   });

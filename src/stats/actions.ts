@@ -1,7 +1,7 @@
 // @flow
-import _ from 'lodash';
-import { State, PlayerIndexedType, FrameEntryType, ActionCountsType } from './common';
-import { StatComputer } from './stats';
+import _ from "lodash";
+import { State, PlayerIndexedType, FrameEntryType, ActionCountsType } from "./common";
+import { StatComputer } from "./stats";
 
 // Frame pattern that indicates a dash dance turn was executed
 const dashDanceAnimations = [State.DASH, State.TURN, State.DASH];
@@ -114,19 +114,19 @@ function handleActionCompute(state: PlayerActionState, indices: PlayerIndexedTyp
 
   // Increment counts based on conditions
   const didDashDance = _.isEqual(last3Frames, dashDanceAnimations);
-  incrementCount('dashDanceCount', didDashDance);
+  incrementCount("dashDanceCount", didDashDance);
 
   const didRoll = didStartRoll(currentAnimation, prevAnimation);
-  incrementCount('rollCount', didRoll);
+  incrementCount("rollCount", didRoll);
 
   const didSpotDodge = didStartSpotDodge(currentAnimation, prevAnimation);
-  incrementCount('spotDodgeCount', didSpotDodge);
+  incrementCount("spotDodgeCount", didSpotDodge);
 
   const didAirDodge = didStartAirDodge(currentAnimation, prevAnimation);
-  incrementCount('airDodgeCount', didAirDodge);
+  incrementCount("airDodgeCount", didAirDodge);
 
   const didGrabLedge = didStartLedgegrab(currentAnimation, prevAnimation);
-  incrementCount('ledgegrabCount', didGrabLedge);
+  incrementCount("ledgegrabCount", didGrabLedge);
 
   // Handles wavedash detection (and waveland)
   handleActionWavedash(state.playerCounts, state.animations);

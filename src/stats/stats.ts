@@ -1,6 +1,6 @@
-import _ from 'lodash';
+import _ from "lodash";
 
-import { FrameEntryType, PlayerIndexedType, Frames, FramesType } from './common';
+import { FrameEntryType, PlayerIndexedType, Frames, FramesType } from "./common";
 
 export interface StatComputer<T> {
   setPlayerPermutations(indices: PlayerIndexedType[]): void;
@@ -68,8 +68,8 @@ function isCompletedFrame(playerPermutations: PlayerIndexedType[], frame: FrameE
   // follower frames are not used for any stat calculations so this doesn't matter
   // for our purposes.
   const indices = _.first(playerPermutations);
-  const playerPostFrame = _.get(frame, ['players', indices.playerIndex, 'post']);
-  const oppPostFrame = _.get(frame, ['players', indices.opponentIndex, 'post']);
+  const playerPostFrame = _.get(frame, ["players", indices.playerIndex, "post"]);
+  const oppPostFrame = _.get(frame, ["players", indices.opponentIndex, "post"]);
 
   return Boolean(playerPostFrame && oppPostFrame);
 }

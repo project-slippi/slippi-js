@@ -1,5 +1,5 @@
-import _ from 'lodash';
-import semver from 'semver';
+import _ from "lodash";
+import semver from "semver";
 
 import {
   PostFrameUpdateType,
@@ -10,17 +10,17 @@ import {
   ItemUpdateType,
   FrameBookendType,
   GameMode,
-} from '../types';
-import { FramesType, FrameEntryType, Frames } from '../stats';
-import { EventEmitter } from 'events';
+} from "../types";
+import { FramesType, FrameEntryType, Frames } from "../stats";
+import { EventEmitter } from "events";
 
 export const MAX_ROLLBACK_FRAMES = 7;
 
 export enum SlpParserEvent {
-  SETTINGS = 'settings',
-  END = 'end',
-  FRAME = 'frame', // Emitted for every frame
-  FINALIZED_FRAME = 'finalized-frame', // Emitted for only finalized frames
+  SETTINGS = "settings",
+  END = "end",
+  FRAME = "frame", // Emitted for every frame
+  FINALIZED_FRAME = "finalized-frame", // Emitted for only finalized frames
 }
 
 export class SlpParser extends EventEmitter {
@@ -122,7 +122,7 @@ export class SlpParser extends EventEmitter {
 
     // Check to see if the file was created after the sheik fix so we know
     // we don't have to process the first frame of the game for the full settings
-    if (semver.gte(payload.slpVersion, '1.6.0')) {
+    if (semver.gte(payload.slpVersion, "1.6.0")) {
       this._completeSettings();
     }
   }
@@ -135,7 +135,7 @@ export class SlpParser extends EventEmitter {
     // Finish calculating settings
     if (payload.frame <= Frames.FIRST) {
       const playerIndex = payload.playerIndex;
-      const playersByIndex = _.keyBy(this.settings.players, 'playerIndex');
+      const playersByIndex = _.keyBy(this.settings.players, "playerIndex");
 
       switch (payload.internalCharacterId) {
         case 0x7:
@@ -153,35 +153,35 @@ export class SlpParser extends EventEmitter {
 
   private _handleFrameUpdate(command: Command, payload: PreFrameUpdateType | PostFrameUpdateType): void {
     payload = payload as PostFrameUpdateType;
-    const location = command === Command.PRE_FRAME_UPDATE ? 'pre' : 'post';
-    const field = payload.isFollower ? 'followers' : 'players';
+    const location = command === Command.PRE_FRAME_UPDATE ? "pre" : "post";
+    const field = payload.isFollower ? "followers" : "players";
     this.latestFrameIndex = payload.frame;
     _.set(this.frames, [payload.frame, field, payload.playerIndex, location], payload);
-    _.set(this.frames, [payload.frame, 'frame'], payload.frame);
+    _.set(this.frames, [payload.frame, "frame"], payload.frame);
 
     // If file is from before frame bookending, add frame to stats computer here. Does a little
     // more processing than necessary, but it works
     const settings = this.getSettings();
-    if (!settings || semver.lte(settings.slpVersion, '2.2.0')) {
+    if (!settings || semver.lte(settings.slpVersion, "2.2.0")) {
       this.emit(SlpParserEvent.FRAME, this.frames[payload.frame]);
       // Finalize the previous frame since no bookending exists
       this._finalizeFrames(payload.frame - 1);
     } else {
-      _.set(this.frames, [payload.frame, 'isTransferComplete'], false);
+      _.set(this.frames, [payload.frame, "isTransferComplete"], false);
     }
   }
 
   private _handleItemUpdate(payload: ItemUpdateType): void {
-    const items = _.get(this.frames, [payload.frame, 'items'], []);
+    const items = _.get(this.frames, [payload.frame, "items"], []);
     items.push(payload);
 
     // Set items with newest
-    _.set(this.frames, [payload.frame, 'items'], items);
+    _.set(this.frames, [payload.frame, "items"], items);
   }
 
   private _handleFrameBookend(payload: FrameBookendType): void {
     const { frame, latestFinalizedFrame } = payload;
-    _.set(this.frames, [frame, 'isTransferComplete'], true);
+    _.set(this.frames, [frame, "isTransferComplete"], true);
     // Fire off a normal frame event
     this.emit(SlpParserEvent.FRAME, this.frames[frame]);
 
