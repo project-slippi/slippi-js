@@ -1,18 +1,18 @@
-import _ from 'lodash';
+import _ from "lodash";
 // import path from 'path';
-import fs from 'fs';
-import { SlippiGame } from '../src';
+import fs from "fs";
+import { SlippiGame } from "../src";
 
-test('read settings', () => {
+it("should correctly return game settings", () => {
   const game = new SlippiGame("slp/sheik_vs_ics_yoshis.slp");
   const settings = game.getSettings();
   expect(settings.stageId).toBe(8);
   expect(_.first(settings.players).characterId).toBe(0x13);
-  expect(_.last(settings.players).characterId).toBe(0xE);
+  expect(_.last(settings.players).characterId).toBe(0xe);
   expect(settings.slpVersion).toBe("0.1.0");
 });
 
-test('test stats', () => {
+it("should correctly return stats", () => {
   const game = new SlippiGame("slp/test.slp");
   const stats = game.getStats();
   expect(stats.lastFrame).toBe(3694);
@@ -39,14 +39,14 @@ test('test stats', () => {
   expect(stats.overall[0].inputCount).toBe(494);
 });
 
-test('test metadata', () => {
+it("should correctly return metadata", () => {
   const game = new SlippiGame("slp/test.slp");
   const metadata = game.getMetadata();
   expect(metadata.startAt).toBe("2017-12-18T21:14:14Z");
   expect(metadata.playedOn).toBe("dolphin");
 });
 
-test('test incomplete', () => {
+it("should be able to read incomplete SLP files", () => {
   const game = new SlippiGame("slp/incomplete.slp");
   const settings = game.getSettings();
   expect(settings.players.length).toBe(2);
@@ -54,7 +54,7 @@ test('test incomplete', () => {
   game.getStats();
 });
 
-test('test nametags', () => {
+it("should be able to read nametags", () => {
   const game = new SlippiGame("slp/nametags.slp");
   const settings = game.getSettings();
   expect(settings.players[0].nametag).toBe("AMNイ");
@@ -71,7 +71,7 @@ test('test nametags', () => {
   expect(settings3.players[1].nametag).toBe(".  。");
 });
 
-test('test isPAL', () => {
+it("should support PAL version", () => {
   const palGame = new SlippiGame("slp/pal.slp");
   const ntscGame = new SlippiGame("slp/ntsc.slp");
 
@@ -79,7 +79,7 @@ test('test isPAL', () => {
   expect(ntscGame.getSettings().isPAL).toBe(false);
 });
 
-test('test controllerFixes', () => {
+it("should correctly distinguish between different controller fixes", () => {
   const game = new SlippiGame("slp/controllerFixes.slp");
   const settings = game.getSettings();
   expect(settings.players[0].controllerFix).toBe("Dween");
@@ -87,53 +87,47 @@ test('test controllerFixes', () => {
   expect(settings.players[2].controllerFix).toBe("None");
 });
 
-test('test bufferInput', () => {
+it("should be able to support reading from a buffer input", () => {
   const buf = fs.readFileSync("slp/sheik_vs_ics_yoshis.slp");
   const game = new SlippiGame(buf);
   const settings = game.getSettings();
   expect(settings.stageId).toBe(8);
   expect(_.first(settings.players).characterId).toBe(0x13);
-  expect(_.last(settings.players).characterId).toBe(0xE);
+  expect(_.last(settings.players).characterId).toBe(0xe);
 });
 
-test('test itemExport', () => {
+it.skip("should support item information extraction", () => {
   // const game = new SlippiGame("slp/itemExport.slp");
   // const frames = game.getFrames();
-  
   // TODO: Add test
-
   // const multiItemFrames = _.filter(frames, frame => {
   //   const items = _.get(frame, 'items') || [];
   //   return items.length > 3;
   // });
-
   // const itemsDidDamage = _.flatMap(frames, frame => {
   //   const items = _.get(frame, 'items') || [];
   //   return _.filter(items, item => item.damageTaken > 0);
   // });
-
   // const negativeExpTimeItems = _.flatMap(frames, frame => {
   //   const items = _.get(frame, 'items') || [];
   //   return _.filter(items, item => item.expirationTimer < 0);
   // });
-
   // // console.log(multiItemFrames);
   // // console.log(multiItemFrames);
   // // console.log(_.keyBy(negativeExpTimeItems, 'spawnId'));
-
   // // // console.log(_.map(multiItemFrames, 'items'));
   // // console.log(_.chain(itemsDidDamage).groupBy('spawnId').map(items => items[0]).value());
   // // console.log(itemsDidDamage);
-
   // console.log(frames[429].items);
 });
 
-test('test realtime', () => {
+it("should support realtime parsing", () => {
   const fullData = fs.readFileSync("slp/realtimeTest.slp");
   const buf = Buffer.alloc(100e6); // Allocate 100 MB of space
   const game = new SlippiGame(buf);
 
-  let data, copyPos = 0;
+  let data,
+    copyPos = 0;
 
   const getData = () => ({
     settings: game.getSettings(),
@@ -154,23 +148,23 @@ test('test realtime', () => {
   expect(data.settings).toBe(null);
 
   // Add the header and 0x35 command to buffer
-  copyBuf(0x1D);
+  copyBuf(0x1d);
   data = getData();
 
   // Copy settings
-  copyBuf(0x1A3);
+  copyBuf(0x1a3);
   data = getData();
   expect(data.settings.stageId).toBe(8);
 
   // Copy first 3 frames
-  copyBuf(0xE8 * 3);
+  copyBuf(0xe8 * 3);
   data = getData();
   expect(_.size(data.frames)).toBe(3);
   expect(data.latestFrame.frame).toBe(-122); // Eventually this should be -121
   expect(data.stats.stocks[1].endFrame).toBe(null);
 
   // Load the rest of the game data
-  copyBuf(0x8271B);
+  copyBuf(0x8271b);
   data = getData();
   expect(_.size(data.frames)).toBe(2306);
   expect(data.stats.lastFrame).toBe(2182);
@@ -179,12 +173,12 @@ test('test realtime', () => {
   expect(data.stats.stocks[1].endFrame).toBe(766);
 
   // Load metadata
-  copyBuf(0xA7);
+  copyBuf(0xa7);
   data = getData();
   expect(data.metadata.playedOn).toBe("network");
 });
 
-// test('test speedReadTest', () => {
+// it('test speedReadTest', () => {
 //   const replayPath = "D:\\Slippi\\Tournament-Replays\\Smash-in-Wittenberg-5";
 
 //   const dirContents = fs.readdirSync(replayPath, {

@@ -1,5 +1,5 @@
 # Auto detect text files and perform LF normalization
 * text=auto
 
-# Force js files to use unix line endings
+*.ts text eol=lf
 *.js text eol=lf

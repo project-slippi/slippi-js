@@ -1,20 +1,72 @@
 import _ from "lodash";
-import semver from 'semver';
+import semver from "semver";
 
-import { PostFrameUpdateType, GameStartType, GameEndType, Command, PreFrameUpdateType, ItemUpdateType, FrameBookendType } from "./slpReader";
-import { Stats, FramesType, FrameEntryType, Frames, PlayerIndexedType, getSinglesPlayerPermutationsFromSettings } from "../stats";
+import {
+  PostFrameUpdateType,
+  GameStartType,
+  GameEndType,
+  Command,
+  PreFrameUpdateType,
+  ItemUpdateType,
+  FrameBookendType,
+  GameMode,
+} from "../types";
+import { FramesType, FrameEntryType, Frames } from "../stats";
+import { EventEmitter } from "events";
 
-export class SlpParser {
-  private statsComputer: Stats;
+export const MAX_ROLLBACK_FRAMES = 7;
+
+export enum SlpParserEvent {
+  SETTINGS = "settings",
+  END = "end",
+  FRAME = "frame", // Emitted for every frame
+  FINALIZED_FRAME = "finalized-frame", // Emitted for only finalized frames
+}
+
+export class SlpParser extends EventEmitter {
   private frames: FramesType = {};
   private settings: GameStartType | null = null;
   private gameEnd: GameEndType | null = null;
   private latestFrameIndex: number | null = null;
-  private playerPermutations = new Array<PlayerIndexedType>();
   private settingsComplete = false;
+  private lastFinalizedFrame = Frames.FIRST - 1;
 
-  public constructor(statsComputer: Stats) {
-    this.statsComputer = statsComputer;
+  public handleCommand(command: Command, payload: any) {
+    switch (command) {
+      case Command.GAME_START:
+        this._handleGameStart(payload as GameStartType);
+        break;
+      case Command.POST_FRAME_UPDATE:
+        // We need to handle the post frame update first since that
+        // will finalize the settings object, before we fire the frame update
+        this._handlePostFrameUpdate(payload as PostFrameUpdateType);
+        this._handleFrameUpdate(command, payload as PostFrameUpdateType);
+        break;
+      case Command.PRE_FRAME_UPDATE:
+        this._handleFrameUpdate(command, payload as PreFrameUpdateType);
+        break;
+      case Command.ITEM_UPDATE:
+        this._handleItemUpdate(payload as ItemUpdateType);
+        break;
+      case Command.FRAME_BOOKEND:
+        this._handleFrameBookend(payload as FrameBookendType);
+        break;
+      case Command.GAME_END:
+        this._handleGameEnd(payload as GameEndType);
+        break;
+    }
+  }
+
+  /**
+   * Resets the parser state to their default values.
+   */
+  public reset(): void {
+    this.frames = {};
+    this.settings = null;
+    this.gameEnd = null;
+    this.latestFrameIndex = null;
+    this.settingsComplete = false;
+    this.lastFinalizedFrame = Frames.FIRST - 1;
   }
 
   public getLatestFrameNumber(): number {
@@ -48,26 +100,34 @@ export class SlpParser {
     return this.frames;
   }
 
-  public handleGameEnd(payload: GameEndType): void {
-    payload = payload as GameEndType;
-    this.gameEnd = payload;
+  public getFrame(num: number): FrameEntryType | null {
+    return this.frames[num] || null;
   }
 
-  public handleGameStart(payload: GameStartType): void {
+  private _handleGameEnd(payload: GameEndType): void {
+    // Finalize remaining frames if necessary
+    if (this.latestFrameIndex !== this.lastFinalizedFrame) {
+      this._finalizeFrames(this.latestFrameIndex);
+    }
+
+    payload = payload as GameEndType;
+    this.gameEnd = payload;
+    this.emit(SlpParserEvent.END, this.gameEnd);
+  }
+
+  private _handleGameStart(payload: GameStartType): void {
     this.settings = payload;
     const players = payload.players;
-    this.settings.players = players.filter(player => player.type !== 3);
-    this.playerPermutations = getSinglesPlayerPermutationsFromSettings(this.settings);
-    this.statsComputer.setPlayerPermutations(this.playerPermutations);
+    this.settings.players = players.filter((player) => player.type !== 3);
 
     // Check to see if the file was created after the sheik fix so we know
     // we don't have to process the first frame of the game for the full settings
     if (semver.gte(payload.slpVersion, "1.6.0")) {
-      this.settingsComplete = true;
+      this._completeSettings();
     }
   }
 
-  public handlePostFrameUpdate(payload: PostFrameUpdateType): void {
+  private _handlePostFrameUpdate(payload: PostFrameUpdateType): void {
     if (this.settingsComplete) {
       return;
     }
@@ -75,48 +135,81 @@ export class SlpParser {
     // Finish calculating settings
     if (payload.frame <= Frames.FIRST) {
       const playerIndex = payload.playerIndex;
-      const playersByIndex = _.keyBy(this.settings.players, 'playerIndex');
+      const playersByIndex = _.keyBy(this.settings.players, "playerIndex");
 
       switch (payload.internalCharacterId) {
-      case 0x7:
-        playersByIndex[playerIndex].characterId = 0x13; // Sheik
-        break;
-      case 0x13:
-        playersByIndex[playerIndex].characterId = 0x12; // Zelda
-        break;
+        case 0x7:
+          playersByIndex[playerIndex].characterId = 0x13; // Sheik
+          break;
+        case 0x13:
+          playersByIndex[playerIndex].characterId = 0x12; // Zelda
+          break;
       }
     }
-    this.settingsComplete = payload.frame > Frames.FIRST;
+    if (payload.frame > Frames.FIRST) {
+      this._completeSettings();
+    }
   }
 
-  public handleFrameUpdate(command: Command, payload: PreFrameUpdateType | PostFrameUpdateType): void {
+  private _handleFrameUpdate(command: Command, payload: PreFrameUpdateType | PostFrameUpdateType): void {
     payload = payload as PostFrameUpdateType;
     const location = command === Command.PRE_FRAME_UPDATE ? "pre" : "post";
-    const field = payload.isFollower ? 'followers' : 'players';
+    const field = payload.isFollower ? "followers" : "players";
     this.latestFrameIndex = payload.frame;
     _.set(this.frames, [payload.frame, field, payload.playerIndex, location], payload);
-    _.set(this.frames, [payload.frame, 'frame'], payload.frame);
+    _.set(this.frames, [payload.frame, "frame"], payload.frame);
 
     // If file is from before frame bookending, add frame to stats computer here. Does a little
     // more processing than necessary, but it works
     const settings = this.getSettings();
     if (!settings || semver.lte(settings.slpVersion, "2.2.0")) {
-      this.statsComputer.addFrame(this.frames[payload.frame]);
+      this.emit(SlpParserEvent.FRAME, this.frames[payload.frame]);
+      // Finalize the previous frame since no bookending exists
+      this._finalizeFrames(payload.frame - 1);
     } else {
-      _.set(this.frames, [payload.frame, 'isTransferComplete'], false);
+      _.set(this.frames, [payload.frame, "isTransferComplete"], false);
     }
   }
 
-  public handleItemUpdate(command: Command, payload: ItemUpdateType): void {
-    const items = _.get(this.frames, [payload.frame, 'items'], []);
+  private _handleItemUpdate(payload: ItemUpdateType): void {
+    const items = _.get(this.frames, [payload.frame, "items"], []);
     items.push(payload);
 
     // Set items with newest
-    _.set(this.frames, [payload.frame, 'items'], items);
+    _.set(this.frames, [payload.frame, "items"], items);
   }
 
-  public handleFrameBookend(command: Command, payload: FrameBookendType): void {
-    _.set(this.frames, [payload.frame, 'isTransferComplete'], true);
-    this.statsComputer.addFrame(this.frames[payload.frame]);
+  private _handleFrameBookend(payload: FrameBookendType): void {
+    const { frame, latestFinalizedFrame } = payload;
+    _.set(this.frames, [frame, "isTransferComplete"], true);
+    // Fire off a normal frame event
+    this.emit(SlpParserEvent.FRAME, this.frames[frame]);
+
+    // Finalize frames if necessary
+    const validLatestFrame = this.settings.gameMode === GameMode.ONLINE;
+    if (validLatestFrame && latestFinalizedFrame >= Frames.FIRST) {
+      this._finalizeFrames(latestFinalizedFrame);
+    } else {
+      // Since we don't have a valid finalized frame, just finalize the frame based on MAX_ROLLBACK_FRAMES
+      this._finalizeFrames(payload.frame - MAX_ROLLBACK_FRAMES);
+    }
+  }
+
+  /**
+   * Fires off the FINALIZED_FRAME event for frames up until a certain number
+   * @param num The frame to finalize until
+   */
+  private _finalizeFrames(num: number) {
+    while (this.lastFinalizedFrame < num) {
+      this.lastFinalizedFrame++;
+      this.emit(SlpParserEvent.FINALIZED_FRAME, this.getFrame(this.lastFinalizedFrame));
+    }
+  }
+
+  private _completeSettings() {
+    if (!this.settingsComplete) {
+      this.settingsComplete = true;
+      this.emit(SlpParserEvent.SETTINGS, this.settings);
+    }
   }
 }

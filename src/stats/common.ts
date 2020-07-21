@@ -1,24 +1,28 @@
-import _ from 'lodash';
-import { PostFrameUpdateType, GameStartType, PreFrameUpdateType, ItemUpdateType } from "../utils/slpReader";
+import _ from "lodash";
+import { PostFrameUpdateType, GameStartType, PreFrameUpdateType, ItemUpdateType } from "../types";
 
-export type FrameEntryType = {
+export interface FrameEntryType {
   frame: number;
-  players: { [playerIndex: number]: {
-    pre: PreFrameUpdateType;
-    post: PostFrameUpdateType;
-  };};
-  followers: { [playerIndex: number]: {
-    pre: PreFrameUpdateType;
-    post: PostFrameUpdateType;
-  };};
+  players: {
+    [playerIndex: number]: {
+      pre: PreFrameUpdateType;
+      post: PostFrameUpdateType;
+    };
+  };
+  followers: {
+    [playerIndex: number]: {
+      pre: PreFrameUpdateType;
+      post: PostFrameUpdateType;
+    };
+  };
   items: ItemUpdateType[];
-};
+}
 
-export type FramesType = {
+export interface FramesType {
   [frameIndex: number]: FrameEntryType;
-};
+}
 
-export type StatsType = {
+export interface StatsType {
   gameComplete: boolean;
   lastFrame: number;
   playableFrameCount: number;
@@ -27,54 +31,54 @@ export type StatsType = {
   combos: ComboType[];
   actionCounts: ActionCountsType[];
   overall: OverallType[];
-};
+}
 
-export type RatioType = {
+export interface RatioType {
   count: number;
   total: number;
   ratio: number | null;
-};
+}
 
-export type PlayerIndexedType = {
+export interface PlayerIndexedType {
   playerIndex: number;
   opponentIndex: number;
-};
+}
 
-export type DurationType = {
+export interface DurationType {
   startFrame: number;
-  endFrame: number | null | undefined;
-};
+  endFrame?: number | null;
+}
 
-export type DamageType = {
+export interface DamageType {
   startPercent: number;
   currentPercent: number;
-  endPercent: number | null | undefined;
-};
+  endPercent?: number | null;
+}
 
-export type StockType = PlayerIndexedType & DurationType & DamageType & {
+export interface StockType extends PlayerIndexedType, DurationType, DamageType {
   count: number;
-  deathAnimation: number | null | undefined;
-};
+  deathAnimation?: number | null;
+}
 
-export type MoveLandedType = {
+export interface MoveLandedType {
   frame: number;
   moveId: number;
   hitCount: number;
   damage: number;
-};
+}
 
-export type ConversionType = PlayerIndexedType & DurationType & DamageType & {
+export interface ConversionType extends PlayerIndexedType, DurationType, DamageType {
   moves: MoveLandedType[];
   openingType: string;
   didKill: boolean;
-};
+}
 
-export type ComboType = PlayerIndexedType & DurationType & DamageType & {
+export interface ComboType extends PlayerIndexedType, DurationType, DamageType {
   moves: MoveLandedType[];
   didKill: boolean;
-};
+}
 
-export type ActionCountsType = PlayerIndexedType & {
+export interface ActionCountsType extends PlayerIndexedType {
   wavedashCount: number;
   wavelandCount: number;
   airDodgeCount: number;
@@ -82,9 +86,9 @@ export type ActionCountsType = PlayerIndexedType & {
   spotDodgeCount: number;
   ledgegrabCount: number;
   rollCount: number;
-};
+}
 
-export type OverallType = PlayerIndexedType & {
+export interface OverallType extends PlayerIndexedType {
   inputCount: number;
   conversionCount: number;
   totalDamage: number;
@@ -96,52 +100,52 @@ export type OverallType = PlayerIndexedType & {
   neutralWinRatio: RatioType;
   counterHitRatio: RatioType;
   beneficialTradeRatio: RatioType;
-};
+}
 
 export enum State {
   // Animation ID ranges
-  DAMAGE_START = 0x4B,
-  DAMAGE_END = 0x5B,
-  CAPTURE_START = 0xDF,
-  CAPTURE_END = 0xE8,
-  GUARD_START = 0xB2,
-  GUARD_END = 0xB6,
-  GROUNDED_CONTROL_START = 0xE,
+  DAMAGE_START = 0x4b,
+  DAMAGE_END = 0x5b,
+  CAPTURE_START = 0xdf,
+  CAPTURE_END = 0xe8,
+  GUARD_START = 0xb2,
+  GUARD_END = 0xb6,
+  GROUNDED_CONTROL_START = 0xe,
   GROUNDED_CONTROL_END = 0x18,
   SQUAT_START = 0x27,
   SQUAT_END = 0x29,
-  DOWN_START = 0xB7,
-  DOWN_END = 0xC6,
-  TECH_START = 0xC7,
-  TECH_END = 0xCC,
+  DOWN_START = 0xb7,
+  DOWN_END = 0xc6,
+  TECH_START = 0xc7,
+  TECH_END = 0xcc,
   DYING_START = 0x0,
-  DYING_END = 0xA,
+  DYING_END = 0xa,
   CONTROLLED_JUMP_START = 0x18,
   CONTROLLED_JUMP_END = 0x22,
-  GROUND_ATTACK_START = 0x2C,
+  GROUND_ATTACK_START = 0x2c,
   GROUND_ATTACK_END = 0x40,
 
   // Animation ID specific
-  ROLL_FORWARD = 0xE9,
-  ROLL_BACKWARD = 0xEA,
-  SPOT_DODGE = 0xEB,
-  AIR_DODGE = 0xEC,
-  ACTION_WAIT = 0xE,
+  ROLL_FORWARD = 0xe9,
+  ROLL_BACKWARD = 0xea,
+  SPOT_DODGE = 0xeb,
+  AIR_DODGE = 0xec,
+  ACTION_WAIT = 0xe,
   ACTION_DASH = 0x14,
   ACTION_KNEE_BEND = 0x18,
-  GUARD_ON = 0xB2,
-  TECH_MISS_UP = 0xB7,
-  TECH_MISS_DOWN = 0xBF,
+  GUARD_ON = 0xb2,
+  TECH_MISS_UP = 0xb7,
+  TECH_MISS_DOWN = 0xbf,
   DASH = 0x14,
   TURN = 0x12,
-  LANDING_FALL_SPECIAL = 0x2B,
+  LANDING_FALL_SPECIAL = 0x2b,
   JUMP_FORWARD = 0x19,
-  JUMP_BACKWARD = 0x1A,
-  FALL_FORWARD = 0x1E,
-  FALL_BACKWARD = 0x1F,
-  GRAB = 0xD4,
-  CLIFF_CATCH = 0xFC,
-};
+  JUMP_BACKWARD = 0x1a,
+  FALL_FORWARD = 0x1e,
+  FALL_BACKWARD = 0x1f,
+  GRAB = 0xd4,
+  CLIFF_CATCH = 0xfc,
+}
 
 export const Timers = {
   PUNISH_RESET_FRAMES: 45,
@@ -163,11 +167,12 @@ export function getSinglesPlayerPermutationsFromSettings(settings: GameStartType
   return [
     {
       playerIndex: settings.players[0].playerIndex,
-      opponentIndex: settings.players[1].playerIndex
-    }, {
+      opponentIndex: settings.players[1].playerIndex,
+    },
+    {
       playerIndex: settings.players[1].playerIndex,
-      opponentIndex: settings.players[0].playerIndex
-    }
+      opponentIndex: settings.players[0].playerIndex,
+    },
   ];
 }
 
@@ -176,7 +181,7 @@ export function didLoseStock(frame: PostFrameUpdateType, prevFrame: PostFrameUpd
     return false;
   }
 
-  return (prevFrame.stocksRemaining - frame.stocksRemaining) > 0;
+  return prevFrame.stocksRemaining - frame.stocksRemaining > 0;
 }
 
 export function isInControl(state: number): boolean {
@@ -209,8 +214,8 @@ export function isDead(state: number): boolean {
 }
 
 export function calcDamageTaken(frame: PostFrameUpdateType, prevFrame: PostFrameUpdateType): number {
-  const percent = _.get(frame, 'percent', 0);
-  const prevPercent = _.get(prevFrame, 'percent', 0);
+  const percent = _.get(frame, "percent", 0);
+  const prevPercent = _.get(prevFrame, "percent", 0);
 
   return percent - prevPercent;
 }

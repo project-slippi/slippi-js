@@ -1,6 +1,6 @@
-const { default: SlippiGame } = require('slp-parser-js');
-const chokidar = require('chokidar');
-const _ = require('lodash');
+const { default: SlippiGame } = require("@slippi/slippi-js");
+const chokidar = require("chokidar");
+const _ = require("lodash");
 
 const listenPath = process.argv[2];
 console.log(`Listening at: ${listenPath}`);
@@ -14,25 +14,26 @@ const watcher = chokidar.watch(listenPath, {
 });
 
 const gameByPath = {};
-watcher.on('change', (path) => {
+watcher.on("change", (path) => {
   const start = Date.now();
 
   let gameState, settings, stats, frames, latestFrame, gameEnd;
   try {
-    let game = _.get(gameByPath, [path, 'game']);
+    let game = _.get(gameByPath, [path, "game"]);
     if (!game) {
       console.log(`New file at: ${path}`);
-      game = new SlippiGame(path);
+      // Make sure to enable `processOnTheFly` to get updated stats as the game progresses
+      game = new SlippiGame(path, { processOnTheFly: true });
       gameByPath[path] = {
         game: game,
         state: {
           settings: null,
           detectedPunishes: {},
-        }
+        },
       };
     }
 
-    gameState = _.get(gameByPath, [path, 'state']);
+    gameState = _.get(gameByPath, [path, "state"]);
 
     settings = game.getSettings();
 
@@ -56,15 +57,14 @@ watcher.on('change', (path) => {
   }
 
   console.log(`We have ${_.size(frames)} frames.`);
-  _.forEach(settings.players, player => {
-    const frameData = _.get(latestFrame, ['players', player.playerIndex]);
+  _.forEach(settings.players, (player) => {
+    const frameData = _.get(latestFrame, ["players", player.playerIndex]);
     if (!frameData) {
       return;
     }
 
     console.log(
-      `[Port ${player.port}] ${frameData.post.percent.toFixed(1)}% | ` +
-      `${frameData.post.stocksRemaining} stocks`
+      `[Port ${player.port}] ${frameData.post.percent.toFixed(1)}% | ` + `${frameData.post.stocksRemaining} stocks`,
     );
   });
 

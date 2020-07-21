@@ -14,7 +14,7 @@ export interface StatOptions {
 
 const defaultOptions: StatOptions = {
   processOnTheFly: false,
-}
+};
 
 export class Stats {
   private options: StatOptions;
@@ -24,20 +24,16 @@ export class Stats {
   private allComputers = new Array<StatComputer<unknown>>();
 
   public constructor(options?: StatOptions) {
-    this.options = options || defaultOptions;
+    this.options = Object.assign({}, defaultOptions, options);
   }
 
   public setPlayerPermutations(indices: PlayerIndexedType[]): void {
     this.playerPermutations = indices;
-    this.allComputers.forEach(comp => comp.setPlayerPermutations(indices));
+    this.allComputers.forEach((comp) => comp.setPlayerPermutations(indices));
   }
 
-  public register(computer: StatComputer<unknown>): void {
-    this.allComputers.push(computer);
-  }
-
-  public registerAll(computers: StatComputer<unknown>[]): void {
-    this.allComputers = this.allComputers.concat(computers);
+  public register(...computer: StatComputer<unknown>[]): void {
+    this.allComputers.push(...computer);
   }
 
   public process(): void {
@@ -51,7 +47,7 @@ export class Stats {
       if (!isCompletedFrame(this.playerPermutations, frame)) {
         return;
       }
-      this.allComputers.forEach(comp => comp.processFrame(frame, this.frames));
+      this.allComputers.forEach((comp) => comp.processFrame(frame, this.frames));
       this.lastProcessedFrame = i;
       i++;
     }
@@ -72,8 +68,8 @@ function isCompletedFrame(playerPermutations: PlayerIndexedType[], frame: FrameE
   // follower frames are not used for any stat calculations so this doesn't matter
   // for our purposes.
   const indices = _.first(playerPermutations);
-  const playerPostFrame = _.get(frame, ['players', indices.playerIndex, 'post']);
-  const oppPostFrame = _.get(frame, ['players', indices.opponentIndex, 'post']);
+  const playerPostFrame = _.get(frame, ["players", indices.playerIndex, "post"]);
+  const oppPostFrame = _.get(frame, ["players", indices.opponentIndex, "post"]);
 
   return Boolean(playerPostFrame && oppPostFrame);
 }

@@ -1,20 +1,24 @@
 /* eslint-disable no-param-reassign */
-import _ from 'lodash';
-import { 
-  Command, openSlpFile, closeSlpFile, iterateEvents, getMetadata, GameStartType, SlpInputSource, SlpReadInput
-} from './utils/slpReader';
+import _ from "lodash";
+import { openSlpFile, closeSlpFile, iterateEvents, getMetadata, SlpInputSource, SlpReadInput } from "./utils/slpReader";
 
 // Type imports
+import { MetadataType, GameStartType, GameEndType } from "./types";
+import { SlpParser, SlpParserEvent } from "./utils/slpParser";
 import {
-  PreFrameUpdateType, PostFrameUpdateType, MetadataType, GameEndType,
-  FrameBookendType, ItemUpdateType
-} from "./utils/slpReader";
-import { SlpParser } from './utils/slpParser';
-import {
-  StockComputer, ComboComputer, ActionsComputer, ConversionComputer, InputComputer, Stats,
-  FrameEntryType, FramesType, StatsType, getSinglesPlayerPermutationsFromSettings,
-  generateOverallStats
-} from './stats';
+  StockComputer,
+  ComboComputer,
+  ActionsComputer,
+  ConversionComputer,
+  InputComputer,
+  Stats,
+  FrameEntryType,
+  FramesType,
+  StatsType,
+  getSinglesPlayerPermutationsFromSettings,
+  generateOverallStats,
+  StatOptions,
+} from "./stats";
 
 /**
  * Slippi Game class that wraps a file
@@ -30,9 +34,9 @@ export class SlippiGame {
   private comboComputer: ComboComputer = new ComboComputer();
   private stockComputer: StockComputer = new StockComputer();
   private inputComputer: InputComputer = new InputComputer();
-  private statsComputer: Stats = new Stats();
+  private statsComputer: Stats;
 
-  public constructor(input: string | Buffer) {
+  public constructor(input: string | Buffer, opts?: StatOptions) {
     if (_.isString(input)) {
       this.input = {
         source: SlpInputSource.FILE,
@@ -48,14 +52,23 @@ export class SlippiGame {
     }
 
     // Set up stats calculation
-    this.statsComputer.registerAll([
+    this.statsComputer = new Stats(opts);
+    this.statsComputer.register(
       this.actionsComputer,
       this.comboComputer,
       this.conversionComputer,
       this.inputComputer,
       this.stockComputer,
-    ]);
-    this.parser = new SlpParser(this.statsComputer);
+    );
+    this.parser = new SlpParser();
+    this.parser.on(SlpParserEvent.SETTINGS, (settings) => {
+      const playerPermutations = getSinglesPlayerPermutationsFromSettings(settings);
+      this.statsComputer.setPlayerPermutations(playerPermutations);
+    });
+    // Use finalized frames for stats computation
+    this.parser.on(SlpParserEvent.FINALIZED_FRAME, (frame: FrameEntryType) => {
+      this.statsComputer.addFrame(frame);
+    });
   }
 
   private _process(settingsOnly = false): void {
@@ -64,36 +77,19 @@ export class SlippiGame {
     }
     const slpfile = openSlpFile(this.input);
     // Generate settings from iterating through file
-    this.readPosition = iterateEvents(slpfile, (command, payload) => {
-      if (!payload) {
-        // If payload is falsy, keep iterating. The parser probably just doesn't know
-        // about this command yet
-        return false;
-      }
-
-      switch (command) {
-      case Command.GAME_START:
-        this.parser.handleGameStart(payload as GameStartType);
-        break;
-      case Command.POST_FRAME_UPDATE:
-        this.parser.handlePostFrameUpdate(payload as PostFrameUpdateType);
-        this.parser.handleFrameUpdate(command, payload as PostFrameUpdateType);
-        break;
-      case Command.PRE_FRAME_UPDATE:
-        this.parser.handleFrameUpdate(command, payload as PreFrameUpdateType);
-        break;
-      case Command.ITEM_UPDATE:
-        this.parser.handleItemUpdate(command, payload as ItemUpdateType);
-        break;
-      case Command.FRAME_BOOKEND:
-        this.parser.handleFrameBookend(command, payload as FrameBookendType);
-        break;
-      case Command.GAME_END:
-        this.parser.handleGameEnd(payload as GameEndType);
-        break;
-      }
-      return settingsOnly && this.parser.getSettings() !== null;
-    }, this.readPosition);
+    this.readPosition = iterateEvents(
+      slpfile,
+      (command, payload) => {
+        if (!payload) {
+          // If payload is falsy, keep iterating. The parser probably just doesn't know
+          // about this command yet
+          return false;
+        }
+        this.parser.handleCommand(command, payload);
+        return settingsOnly && this.parser.getSettings() !== null;
+      },
+      this.readPosition,
+    );
     closeSlpFile(slpfile);
   }
 

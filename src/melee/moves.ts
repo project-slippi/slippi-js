@@ -8,9 +8,9 @@ export const UnknownMove: Move = {
   id: -1,
   name: "Unknown Move",
   shortName: "unknown",
-}
+};
 
-const moves: {[id: number]: Move} = {
+const moves: { [id: number]: Move } = {
   1: {
     // This includes all thrown items, zair, luigi's taunt, samus bombs, etc
     id: 1,
