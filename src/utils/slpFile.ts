@@ -99,12 +99,10 @@ export class SlpFile extends Writable {
 
   /**
    * Sets the metadata of the Slippi file, such as consoleNickname, lastFrame, and players.
-   *
-   * @param {SlpFileMetadata} metadata The metadata to be written
-   * @memberof SlpFile
+   * @param metadata The metadata to be written
    */
-  public setMetadata(metadata: SlpFileMetadata): void {
-    this.metadata = metadata;
+  public setMetadata(metadata: Partial<SlpFileMetadata>): void {
+    this.metadata = Object.assign({}, this.metadata, metadata);
   }
 
   public _write(chunk: Uint8Array, encoding: string, callback: (error?: Error | null) => void): void {
