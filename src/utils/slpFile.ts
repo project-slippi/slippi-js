@@ -34,7 +34,7 @@ export class SlpFile extends Writable {
    * @param {WritableOptions} [opts] Options for writing.
    * @memberof SlpFile
    */
-  public constructor(filePath: string, opts?: WritableOptions) {
+  public constructor(filePath: string, slpStream?: SlpStream, opts?: WritableOptions) {
     super(opts);
     this.filePath = filePath;
     this.metadata = {
@@ -43,8 +43,10 @@ export class SlpFile extends Writable {
       lastFrame: -124,
       players: {},
     };
+
+    // Create a new SlpStream if one wasn't already provided
     // This SLP stream represents a single game not multiple, so use manual mode
-    this.slpStream = new SlpStream({ mode: SlpStreamMode.MANUAL });
+    this.slpStream = slpStream ? slpStream : new SlpStream({ mode: SlpStreamMode.MANUAL });
 
     this._setupListeners();
     this._initializeNewGame(this.filePath);
