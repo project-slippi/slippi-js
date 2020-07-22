@@ -79,7 +79,7 @@ export class SlpFile extends Writable {
     // Write it to the file
     this.fileStream.write(chunk);
 
-    // Send through to the stream if it's not an external stream
+    // Parse the data manually if it's an internal stream
     if (!this.usesExternalStream) {
       this.slpStream.write(chunk);
     }
