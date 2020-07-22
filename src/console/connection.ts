@@ -330,7 +330,7 @@ export class ConsoleConnection extends EventEmitter {
           );
         }
 
-        this.connDetails.gameDataCursor = Uint8Array.from(message.payload.pos);
+        this.connDetails.gameDataCursor = Uint8Array.from(message.payload.nextPos);
 
         const data = Uint8Array.from(message.payload.data);
         this._handleReplayData(data);

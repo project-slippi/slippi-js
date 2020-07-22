@@ -12,6 +12,7 @@ export interface CommunicationMessage {
     cursor: Uint8Array;
     clientToken: Uint8Array;
     pos: Uint8Array;
+    nextPos: Uint8Array;
     data: Uint8Array;
     nick: string | null;
     forcePos: boolean;
