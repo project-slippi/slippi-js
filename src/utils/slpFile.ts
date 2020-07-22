@@ -36,8 +36,6 @@ export class SlpFile extends Writable {
    */
   public constructor(filePath: string, opts?: WritableOptions) {
     super(opts);
-    // This SLP stream represents a single game not multiple, so use manual mode
-    this.slpStream = new SlpStream({ mode: SlpStreamMode.MANUAL });
     this.filePath = filePath;
     this.metadata = {
       consoleNickname: DEFAULT_NICKNAME,
@@ -45,20 +43,11 @@ export class SlpFile extends Writable {
       lastFrame: -124,
       players: {},
     };
+    // This SLP stream represents a single game not multiple, so use manual mode
+    this.slpStream = new SlpStream({ mode: SlpStreamMode.MANUAL });
 
-    this.slpStream.on(SlpStreamEvent.COMMAND, (data: SlpCommandEventPayload) => {
-      this._onCommand(data);
-    });
-
+    this._setupListeners();
     this._initializeNewGame(this.filePath);
-    this.on("finish", () => {
-      // Write bytes written
-      const fd = fs.openSync(this.filePath, "r+");
-      (fs as any).writeSync(fd, createUInt32Buffer(this.rawDataLength), 0, "binary", 11);
-      fs.closeSync(fd);
-      // End the SlpStream
-      this.slpStream.end();
-    });
   }
 
   /**
@@ -127,6 +116,22 @@ export class SlpFile extends Writable {
         this.metadata.players[`${playerIndex}`] = player;
         break;
     }
+  }
+
+  private _setupListeners(): void {
+    this.slpStream.on(SlpStreamEvent.COMMAND, (data: SlpCommandEventPayload) => {
+      this._onCommand(data);
+    });
+
+    this.on("finish", () => {
+      // Update file with bytes written
+      const fd = fs.openSync(this.filePath, "r+");
+      (fs as any).writeSync(fd, createUInt32Buffer(this.rawDataLength), 0, "binary", 11);
+      fs.closeSync(fd);
+
+      // Mark the SlpStream as finished
+      this.slpStream.end();
+    });
   }
 
   private _initializeNewGame(filePath: string): void {
