@@ -9,6 +9,7 @@ export * from "./stats";
 
 // Utils
 export * from "./utils/slpFile";
+export * from "./utils/slpFileWriter";
 export * from "./utils/slpStream";
 export * from "./utils/slpParser";
 

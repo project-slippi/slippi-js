@@ -27,6 +27,7 @@ export class SlpFile extends Writable {
   private fileStream: WriteStream;
   private rawDataLength = 0;
   private slpStream: SlpStream;
+  private usesExternalStream = false;
 
   /**
    * Creates an instance of SlpFile.
@@ -43,6 +44,7 @@ export class SlpFile extends Writable {
       lastFrame: -124,
       players: {},
     };
+    this.usesExternalStream = Boolean(slpStream);
 
     // Create a new SlpStream if one wasn't already provided
     // This SLP stream represents a single game not multiple, so use manual mode
@@ -76,8 +78,12 @@ export class SlpFile extends Writable {
     }
     // Write it to the file
     this.fileStream.write(chunk);
-    // Send through to the stream
-    this.slpStream.write(chunk);
+
+    // Send through to the stream if it's not an external stream
+    if (!this.usesExternalStream) {
+      this.slpStream.write(chunk);
+    }
+
     // Keep track of the bytes we've written
     this.rawDataLength += chunk.length;
     callback();
@@ -134,6 +140,10 @@ export class SlpFile extends Writable {
 
       // Unsubscribe from the stream
       this.slpStream.removeListener(SlpStreamEvent.COMMAND, streamListener);
+      // Terminate the internal stream
+      if (!this.usesExternalStream) {
+        this.slpStream.end();
+      }
     });
   }
 
