@@ -121,9 +121,10 @@ export class SlpFile extends Writable {
   }
 
   private _setupListeners(): void {
-    this.slpStream.on(SlpStreamEvent.COMMAND, (data: SlpCommandEventPayload) => {
+    const streamListener = (data: SlpCommandEventPayload) => {
       this._onCommand(data);
-    });
+    };
+    this.slpStream.on(SlpStreamEvent.COMMAND, streamListener);
 
     this.on("finish", () => {
       // Update file with bytes written
@@ -131,8 +132,8 @@ export class SlpFile extends Writable {
       (fs as any).writeSync(fd, createUInt32Buffer(this.rawDataLength), 0, "binary", 11);
       fs.closeSync(fd);
 
-      // Mark the SlpStream as finished
-      this.slpStream.end();
+      // Unsubscribe from the stream
+      this.slpStream.removeListener(SlpStreamEvent.COMMAND, streamListener);
     });
   }
 
