@@ -1,7 +1,9 @@
-import { forEach } from "lodash";
+import { get, forEach } from "lodash";
 import fs, { WriteStream } from "fs";
 import moment, { Moment } from "moment";
 import { Writable, WritableOptions } from "stream";
+import { SlpStream, SlpStreamMode, SlpStreamEvent, SlpCommandEventPayload } from "./slpStream";
+import { Command, PostFrameUpdateType } from "../types";
 
 const DEFAULT_NICKNAME = "unknown";
 
@@ -24,6 +26,7 @@ export class SlpFile extends Writable {
   private metadata: SlpFileMetadata;
   private fileStream: WriteStream;
   private rawDataLength = 0;
+  private slpStream: SlpStream;
 
   /**
    * Creates an instance of SlpFile.
@@ -33,6 +36,8 @@ export class SlpFile extends Writable {
    */
   public constructor(filePath: string, opts?: WritableOptions) {
     super(opts);
+    // This SLP stream represents a single game not multiple, so use manual mode
+    this.slpStream = new SlpStream({ mode: SlpStreamMode.MANUAL });
     this.filePath = filePath;
     this.metadata = {
       consoleNickname: DEFAULT_NICKNAME,
@@ -41,12 +46,44 @@ export class SlpFile extends Writable {
       players: {},
     };
 
+    this.slpStream.on(SlpStreamEvent.COMMAND, (data: SlpCommandEventPayload) => {
+      const { command, payload } = data;
+      switch (command) {
+        case Command.POST_FRAME_UPDATE:
+          // Here we need to update some metadata fields
+          const { frame, playerIndex, isFollower, internalCharacterId } = payload as PostFrameUpdateType;
+          if (isFollower) {
+            // No need to do this for follower
+            break;
+          }
+
+          // Update frame index
+          this.metadata.lastFrame = frame;
+
+          // Update character usage
+          const prevPlayer = get(this.metadata, ["players", `${playerIndex}`]) || {};
+          const characterUsage = prevPlayer.characterUsage || {};
+          const curCharFrames = characterUsage[internalCharacterId] || 0;
+          const player = {
+            ...prevPlayer,
+            characterUsage: {
+              ...characterUsage,
+              [internalCharacterId]: curCharFrames + 1,
+            },
+          };
+          this.metadata.players[`${playerIndex}`] = player;
+          break;
+      }
+    });
+
     this._initializeNewGame(this.filePath);
     this.on("finish", () => {
       // Write bytes written
       const fd = fs.openSync(this.filePath, "r+");
       (fs as any).writeSync(fd, createUInt32Buffer(this.rawDataLength), 0, "binary", 11);
       fs.closeSync(fd);
+      // End the SlpStream
+      this.slpStream.end();
     });
   }
 
@@ -74,7 +111,11 @@ export class SlpFile extends Writable {
     if (encoding !== "buffer") {
       throw new Error(`Unsupported stream encoding. Expected 'buffer' got '${encoding}'.`);
     }
+    // Write it to the file
     this.fileStream.write(chunk);
+    // Send through to the stream
+    this.slpStream.write(chunk);
+    // Keep track of the bytes we've written
     this.rawDataLength += chunk.length;
     callback();
   }
