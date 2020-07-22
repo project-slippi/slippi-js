@@ -3,7 +3,7 @@ import fs, { WriteStream } from "fs";
 import moment, { Moment } from "moment";
 import { Writable, WritableOptions } from "stream";
 import { SlpStream, SlpStreamMode, SlpStreamEvent, SlpCommandEventPayload } from "./slpStream";
-import { Command, PostFrameUpdateType } from "../types";
+import { Command, PostFrameUpdateType, EventPayloadTypes } from "../types";
 
 const DEFAULT_NICKNAME = "unknown";
 
@@ -47,33 +47,7 @@ export class SlpFile extends Writable {
     };
 
     this.slpStream.on(SlpStreamEvent.COMMAND, (data: SlpCommandEventPayload) => {
-      const { command, payload } = data;
-      switch (command) {
-        case Command.POST_FRAME_UPDATE:
-          // Here we need to update some metadata fields
-          const { frame, playerIndex, isFollower, internalCharacterId } = payload as PostFrameUpdateType;
-          if (isFollower) {
-            // No need to do this for follower
-            break;
-          }
-
-          // Update frame index
-          this.metadata.lastFrame = frame;
-
-          // Update character usage
-          const prevPlayer = get(this.metadata, ["players", `${playerIndex}`]) || {};
-          const characterUsage = prevPlayer.characterUsage || {};
-          const curCharFrames = characterUsage[internalCharacterId] || 0;
-          const player = {
-            ...prevPlayer,
-            characterUsage: {
-              ...characterUsage,
-              [internalCharacterId]: curCharFrames + 1,
-            },
-          };
-          this.metadata.players[`${playerIndex}`] = player;
-          break;
-      }
+      this._onCommand(data);
     });
 
     this._initializeNewGame(this.filePath);
@@ -116,6 +90,43 @@ export class SlpFile extends Writable {
     // Keep track of the bytes we've written
     this.rawDataLength += chunk.length;
     callback();
+  }
+
+  /**
+   * Here we define what to do on each command. We need to populate the metadata field
+   * so we keep track of the latest frame, as well as the number of frames each character has
+   * been used.
+   *
+   * @param data The parsed data from a SlpStream
+   */
+  private _onCommand(data: SlpCommandEventPayload) {
+    const { command, payload } = data;
+    switch (command) {
+      case Command.POST_FRAME_UPDATE:
+        // Here we need to update some metadata fields
+        const { frame, playerIndex, isFollower, internalCharacterId } = payload as PostFrameUpdateType;
+        if (isFollower) {
+          // No need to do this for follower
+          break;
+        }
+
+        // Update frame index
+        this.metadata.lastFrame = frame;
+
+        // Update character usage
+        const prevPlayer = get(this.metadata, ["players", `${playerIndex}`]) || {};
+        const characterUsage = prevPlayer.characterUsage || {};
+        const curCharFrames = characterUsage[internalCharacterId] || 0;
+        const player = {
+          ...prevPlayer,
+          characterUsage: {
+            ...characterUsage,
+            [internalCharacterId]: curCharFrames + 1,
+          },
+        };
+        this.metadata.players[`${playerIndex}`] = player;
+        break;
+    }
   }
 
   private _initializeNewGame(filePath: string): void {
