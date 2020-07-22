@@ -3,7 +3,7 @@ import fs, { WriteStream } from "fs";
 import moment, { Moment } from "moment";
 import { Writable, WritableOptions } from "stream";
 import { SlpStream, SlpStreamMode, SlpStreamEvent, SlpCommandEventPayload } from "./slpStream";
-import { Command, PostFrameUpdateType, EventPayloadTypes } from "../types";
+import { Command, PostFrameUpdateType } from "../types";
 
 const DEFAULT_NICKNAME = "unknown";
 
@@ -99,7 +99,7 @@ export class SlpFile extends Writable {
    *
    * @param data The parsed data from a SlpStream
    */
-  private _onCommand(data: SlpCommandEventPayload) {
+  private _onCommand(data: SlpCommandEventPayload): void {
     const { command, payload } = data;
     switch (command) {
       case Command.POST_FRAME_UPDATE:
