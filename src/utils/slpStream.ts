@@ -48,6 +48,8 @@ export class SlpStream extends Writable {
   private settings: SlpStreamSettings;
   private payloadSizes: MessageSizes | null = null;
   private previousBuffer: Uint8Array = Buffer.from([]);
+  private buffersToConcat: Uint8Array[] = [];
+  private fullBuffer: Uint8Array = Buffer.from([]);
 
   /**
    *Creates an instance of SlpStream.
@@ -63,7 +65,9 @@ export class SlpStream extends Writable {
   public restart() {
     this.gameEnded = false;
     this.payloadSizes = null;
+    this.buffersToConcat = [];
     this.previousBuffer = Buffer.from([]);
+    this.fullBuffer = Buffer.from([]);
   }
 
   public _write(newData: Buffer, encoding: string, callback: (error?: Error | null, data?: any) => void): void {
@@ -79,6 +83,9 @@ export class SlpStream extends Writable {
 
     // Join the current data with the old data
     const data = Uint8Array.from(Buffer.concat([this.previousBuffer, newData]));
+
+    // Save the new data into the bufferArray so we can join it if necessary
+    this.buffersToConcat.push(newData);
 
     // Clear previous data
     this.previousBuffer = Buffer.from([]);
@@ -181,6 +188,12 @@ export class SlpStream extends Writable {
       payload: parsedPayload,
     } as SlpCommandEventPayload);
     return payloadSize;
+  }
+
+  getFullBuffer() {
+    if (this.buffersToConcat.length > 0) this.fullBuffer = Buffer.concat([this.fullBuffer, ...this.buffersToConcat]);
+    this.buffersToConcat = [];
+    return this.fullBuffer;
   }
 }
 
