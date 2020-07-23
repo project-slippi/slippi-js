@@ -1,7 +1,9 @@
-import { forEach } from "lodash";
+import { get, forEach } from "lodash";
 import fs, { WriteStream } from "fs";
 import moment, { Moment } from "moment";
 import { Writable, WritableOptions } from "stream";
+import { SlpStream, SlpStreamMode, SlpStreamEvent, SlpCommandEventPayload } from "./slpStream";
+import { Command, PostFrameUpdateType } from "../types";
 
 const DEFAULT_NICKNAME = "unknown";
 
@@ -24,6 +26,8 @@ export class SlpFile extends Writable {
   private metadata: SlpFileMetadata;
   private fileStream: WriteStream;
   private rawDataLength = 0;
+  private slpStream: SlpStream;
+  private usesExternalStream = false;
 
   /**
    * Creates an instance of SlpFile.
@@ -31,7 +35,7 @@ export class SlpFile extends Writable {
    * @param {WritableOptions} [opts] Options for writing.
    * @memberof SlpFile
    */
-  public constructor(filePath: string, opts?: WritableOptions) {
+  public constructor(filePath: string, slpStream?: SlpStream, opts?: WritableOptions) {
     super(opts);
     this.filePath = filePath;
     this.metadata = {
@@ -40,14 +44,14 @@ export class SlpFile extends Writable {
       lastFrame: -124,
       players: {},
     };
+    this.usesExternalStream = Boolean(slpStream);
 
+    // Create a new SlpStream if one wasn't already provided
+    // This SLP stream represents a single game not multiple, so use manual mode
+    this.slpStream = slpStream ? slpStream : new SlpStream({ mode: SlpStreamMode.MANUAL });
+
+    this._setupListeners();
     this._initializeNewGame(this.filePath);
-    this.on("finish", () => {
-      // Write bytes written
-      const fd = fs.openSync(this.filePath, "r+");
-      (fs as any).writeSync(fd, createUInt32Buffer(this.rawDataLength), 0, "binary", 11);
-      fs.closeSync(fd);
-    });
   }
 
   /**
@@ -62,21 +66,85 @@ export class SlpFile extends Writable {
 
   /**
    * Sets the metadata of the Slippi file, such as consoleNickname, lastFrame, and players.
-   *
-   * @param {SlpFileMetadata} metadata The metadata to be written
-   * @memberof SlpFile
+   * @param metadata The metadata to be written
    */
-  public setMetadata(metadata: SlpFileMetadata): void {
-    this.metadata = metadata;
+  public setMetadata(metadata: Partial<SlpFileMetadata>): void {
+    this.metadata = Object.assign({}, this.metadata, metadata);
   }
 
   public _write(chunk: Uint8Array, encoding: string, callback: (error?: Error | null) => void): void {
     if (encoding !== "buffer") {
       throw new Error(`Unsupported stream encoding. Expected 'buffer' got '${encoding}'.`);
     }
+    // Write it to the file
     this.fileStream.write(chunk);
+
+    // Parse the data manually if it's an internal stream
+    if (!this.usesExternalStream) {
+      this.slpStream.write(chunk);
+    }
+
+    // Keep track of the bytes we've written
     this.rawDataLength += chunk.length;
     callback();
+  }
+
+  /**
+   * Here we define what to do on each command. We need to populate the metadata field
+   * so we keep track of the latest frame, as well as the number of frames each character has
+   * been used.
+   *
+   * @param data The parsed data from a SlpStream
+   */
+  private _onCommand(data: SlpCommandEventPayload): void {
+    const { command, payload } = data;
+    switch (command) {
+      case Command.POST_FRAME_UPDATE:
+        // Here we need to update some metadata fields
+        const { frame, playerIndex, isFollower, internalCharacterId } = payload as PostFrameUpdateType;
+        if (isFollower) {
+          // No need to do this for follower
+          break;
+        }
+
+        // Update frame index
+        this.metadata.lastFrame = frame;
+
+        // Update character usage
+        const prevPlayer = get(this.metadata, ["players", `${playerIndex}`]) || {};
+        const characterUsage = prevPlayer.characterUsage || {};
+        const curCharFrames = characterUsage[internalCharacterId] || 0;
+        const player = {
+          ...prevPlayer,
+          characterUsage: {
+            ...characterUsage,
+            [internalCharacterId]: curCharFrames + 1,
+          },
+        };
+        this.metadata.players[`${playerIndex}`] = player;
+        break;
+    }
+  }
+
+  private _setupListeners(): void {
+    const streamListener = (data: SlpCommandEventPayload) => {
+      this._onCommand(data);
+    };
+    this.slpStream.on(SlpStreamEvent.COMMAND, streamListener);
+
+    this.on("finish", () => {
+      // Update file with bytes written
+      const fd = fs.openSync(this.filePath, "r+");
+      (fs as any).writeSync(fd, createUInt32Buffer(this.rawDataLength), 0, "binary", 11);
+      fs.closeSync(fd);
+
+      // Unsubscribe from the stream
+      this.slpStream.removeListener(SlpStreamEvent.COMMAND, streamListener);
+      // Terminate the internal stream
+      if (!this.usesExternalStream) {
+        this.slpStream.end();
+      }
+    });
   }
 
   private _initializeNewGame(filePath: string): void {

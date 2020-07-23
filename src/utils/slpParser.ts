@@ -31,7 +31,7 @@ export class SlpParser extends EventEmitter {
   private settingsComplete = false;
   private lastFinalizedFrame = Frames.FIRST - 1;
 
-  public handleCommand(command: Command, payload: any) {
+  public handleCommand(command: Command, payload: any): void {
     switch (command) {
       case Command.GAME_START:
         this._handleGameStart(payload as GameStartType);
@@ -199,14 +199,14 @@ export class SlpParser extends EventEmitter {
    * Fires off the FINALIZED_FRAME event for frames up until a certain number
    * @param num The frame to finalize until
    */
-  private _finalizeFrames(num: number) {
+  private _finalizeFrames(num: number): void {
     while (this.lastFinalizedFrame < num) {
       this.lastFinalizedFrame++;
       this.emit(SlpParserEvent.FINALIZED_FRAME, this.getFrame(this.lastFinalizedFrame));
     }
   }
 
-  private _completeSettings() {
+  private _completeSettings(): void {
     if (!this.settingsComplete) {
       this.settingsComplete = true;
       this.emit(SlpParserEvent.SETTINGS, this.settings);

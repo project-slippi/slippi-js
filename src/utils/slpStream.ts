@@ -60,7 +60,7 @@ export class SlpStream extends Writable {
     this.settings = Object.assign({}, defaultSettings, slpOptions);
   }
 
-  public restart() {
+  public restart(): void {
     this.gameEnded = false;
     this.payloadSizes = null;
     this.previousBuffer = Buffer.from([]);
