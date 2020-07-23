@@ -127,7 +127,7 @@ export class SlpFile extends Writable {
   }
 
   private _setupListeners(): void {
-    const streamListener = (data: SlpCommandEventPayload) => {
+    const streamListener = (data: SlpCommandEventPayload): void => {
       this._onCommand(data);
     };
     this.slpStream.on(SlpStreamEvent.COMMAND, streamListener);
