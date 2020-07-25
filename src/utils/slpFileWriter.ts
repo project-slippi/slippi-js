@@ -14,12 +14,14 @@ function getNewFilePath(folder: string, m: Moment): string {
 }
 
 export interface SlpFileWriterOptions {
+  outputFiles: boolean;
   folderPath: string;
   consoleNickname: string;
   newFilename: (folder: string, startTime: Moment) => string;
 }
 
 const defaultSettings: SlpFileWriterOptions = {
+  outputFiles: true,
   folderPath: ".",
   consoleNickname: "unknown",
   newFilename: getNewFilePath,
@@ -110,10 +112,13 @@ export class SlpFileWriter extends SlpStream {
   }
 
   private _handleNewGame(): void {
-    const filePath = this.options.newFilename(this.options.folderPath, moment());
-    this.currentFile = new SlpFile(filePath, this);
-    // console.log(`Creating new file at: ${filePath}`);
-    this.emit(SlpFileWriterEvent.NEW_FILE, filePath);
+    // Only create a new file if we're outputting files
+    if (this.options.outputFiles) {
+      const filePath = this.options.newFilename(this.options.folderPath, moment());
+      this.currentFile = new SlpFile(filePath, this);
+      // console.log(`Creating new file at: ${filePath}`);
+      this.emit(SlpFileWriterEvent.NEW_FILE, filePath);
+    }
   }
 
   private _handleEndGame(): void {
