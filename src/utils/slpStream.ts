@@ -44,7 +44,7 @@ export enum SlpStreamEvent {
  * @extends {Writable}
  */
 export class SlpStream extends Writable {
-  private gameEnded = false;
+  private gameEnded = false; // True only if in manual mode and the game has completed
   private settings: SlpStreamSettings;
   private payloadSizes: MessageSizes | null = null;
   private previousBuffer: Uint8Array = Buffer.from([]);
@@ -63,7 +63,6 @@ export class SlpStream extends Writable {
   public restart(): void {
     this.gameEnded = false;
     this.payloadSizes = null;
-    this.previousBuffer = Buffer.from([]);
   }
 
   public _write(newData: Buffer, encoding: string, callback: (error?: Error | null, data?: any) => void): void {
@@ -166,11 +165,12 @@ export class SlpStream extends Writable {
 
     switch (command) {
       case Command.GAME_END:
-        // Reset players
-        this.payloadSizes = null;
         // Stop parsing data until we manually restart the stream
         if (this.settings.mode === SlpStreamMode.MANUAL) {
           this.gameEnded = true;
+        } else {
+          // We're in auto-mode so reset the payload sizes for the next game
+          this.payloadSizes = null;
         }
         break;
     }
