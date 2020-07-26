@@ -22,8 +22,10 @@ describe("when reading last finalised frame from SlpStream", () => {
     const stream = new SlpStream({
       mode: SlpStreamMode.MANUAL,
     });
+    const parser = new SlpParser();
 
     let lastFinalizedFrame = Frames.FIRST - 1;
+    let parserLastFinalizedFrame = Frames.FIRST - 1;
 
     // The game mode should be online
     const game = new SlippiGame(testFile);
@@ -31,6 +33,7 @@ describe("when reading last finalised frame from SlpStream", () => {
     expect(settings.gameMode).toEqual(GameMode.ONLINE);
 
     stream.on(SlpStreamEvent.COMMAND, (data: SlpCommandEventPayload) => {
+      parser.handleCommand(data.command, data.payload);
       switch (data.command) {
         case Command.FRAME_BOOKEND:
           const payload = data.payload as FrameBookendType;
@@ -43,6 +46,18 @@ describe("when reading last finalised frame from SlpStream", () => {
           lastFinalizedFrame = payload.latestFinalizedFrame;
       }
     });
+
+    parser.on(SlpParserEvent.FINALIZED_FRAME, (frameEntry: FrameEntryType) => {
+      expect(frameEntry).toBeTruthy();
+      const { frame, isTransferComplete } = frameEntry;
+      expect(isTransferComplete).toBeTruthy();
+      // We should never receive the same frame twice
+      expect(frame).not.toEqual(parserLastFinalizedFrame);
+      // The frame should monotonically increase
+      expect(frame).toEqual(parserLastFinalizedFrame + 1);
+      parserLastFinalizedFrame = frame;
+    });
+
     await pipeFileContents(testFile, stream);
 
     // The last finalized frame should be the same as what's recorded in the metadata
