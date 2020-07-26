@@ -16,6 +16,7 @@ export interface FrameEntryType {
     };
   };
   items: ItemUpdateType[];
+  isTransferComplete: boolean;
 }
 
 export interface FramesType {
