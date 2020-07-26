@@ -71,12 +71,6 @@ export class SlpStream extends Writable {
       throw new Error(`Unsupported stream encoding. Expected 'buffer' got '${encoding}'.`);
     }
 
-    if (this.settings.mode === SlpStreamMode.MANUAL && this.gameEnded) {
-      // We're in manual mode and the game has already ended so just return immediately
-      callback();
-      return;
-    }
-
     // Join the current data with the old data
     const data = Uint8Array.from(Buffer.concat([this.previousBuffer, newData]));
 
@@ -102,6 +96,11 @@ export class SlpStream extends Writable {
         // If remaining length is not long enough for full payload, save the remaining
         // data until we receive more data. The data has been split up.
         this.previousBuffer = data.slice(index);
+        break;
+      }
+
+      // Only process if the game is still going
+      if (this.settings.mode === SlpStreamMode.MANUAL && this.gameEnded) {
         break;
       }
 
