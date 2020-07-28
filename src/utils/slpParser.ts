@@ -214,7 +214,7 @@ export class SlpParser extends EventEmitter {
         if (!pre || !post) {
           const preOrPost = pre ? "pre" : "post";
           throw new Error(
-            `Error finalizing frame ${frameToFinalize} of ${num}: missing ${preOrPost}-frame update for player ${player.playerIndex}`,
+            `Could not finalize frame ${frameToFinalize} of ${num}: missing ${preOrPost}-frame update for player ${player.playerIndex}`,
           );
         }
       }
