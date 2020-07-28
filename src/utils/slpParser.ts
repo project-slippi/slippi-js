@@ -208,11 +208,6 @@ export class SlpParser extends EventEmitter {
       const frameToFinalize = this.lastFinalizedFrame + 1;
       const frame = this.getFrame(frameToFinalize);
 
-      // Sanity check before finalizing frame
-      if (!frame.isTransferComplete) {
-        throw new Error(`Error finalizing frame ${frameToFinalize} of ${num}: isTransferComplete is false`);
-      }
-
       // Check that we have all the pre and post frame data for all players
       for (const player of this.settings.players) {
         const { pre, post } = frame.players[player.playerIndex];
