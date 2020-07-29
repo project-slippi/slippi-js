@@ -49,8 +49,7 @@ describe("when reading last finalised frame from SlpStream", () => {
 
     parser.on(SlpParserEvent.FINALIZED_FRAME, (frameEntry: FrameEntryType) => {
       expect(frameEntry).toBeTruthy();
-      const { frame, isTransferComplete } = frameEntry;
-      expect(isTransferComplete).toBeTruthy();
+      const { frame } = frameEntry;
       // We should never receive the same frame twice
       expect(frame).not.toEqual(parserLastFinalizedFrame);
       // The frame should monotonically increase

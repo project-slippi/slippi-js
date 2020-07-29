@@ -188,6 +188,10 @@ export class SlpParser extends EventEmitter {
     // Finalize frames if necessary
     const validLatestFrame = this.settings.gameMode === GameMode.ONLINE;
     if (validLatestFrame && latestFinalizedFrame >= Frames.FIRST) {
+      // Ensure valid latestFinalizedFrame
+      if (latestFinalizedFrame < frame - MAX_ROLLBACK_FRAMES) {
+        throw new Error(`latestFinalizedFrame should be within ${MAX_ROLLBACK_FRAMES} frames of ${frame}`);
+      }
       this._finalizeFrames(latestFinalizedFrame);
     } else {
       // Since we don't have a valid finalized frame, just finalize the frame based on MAX_ROLLBACK_FRAMES
@@ -201,8 +205,23 @@ export class SlpParser extends EventEmitter {
    */
   private _finalizeFrames(num: number): void {
     while (this.lastFinalizedFrame < num) {
-      this.lastFinalizedFrame++;
-      this.emit(SlpParserEvent.FINALIZED_FRAME, this.getFrame(this.lastFinalizedFrame));
+      const frameToFinalize = this.lastFinalizedFrame + 1;
+      const frame = this.getFrame(frameToFinalize);
+
+      // Check that we have all the pre and post frame data for all players
+      for (const player of this.settings.players) {
+        const { pre, post } = frame.players[player.playerIndex];
+        if (!pre || !post) {
+          const preOrPost = pre ? "pre" : "post";
+          throw new Error(
+            `Could not finalize frame ${frameToFinalize} of ${num}: missing ${preOrPost}-frame update for player ${player.playerIndex}`,
+          );
+        }
+      }
+
+      // Our frame is complete so finalize the frame
+      this.emit(SlpParserEvent.FINALIZED_FRAME, frame);
+      this.lastFinalizedFrame = frameToFinalize;
     }
   }
 
