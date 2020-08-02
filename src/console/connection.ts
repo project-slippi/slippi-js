@@ -126,8 +126,9 @@ export class ConsoleConnection extends EventEmitter {
    */
   public connect(ip: string, port: number, timeout = DEFAULT_CONNECTION_TIMEOUT_MS): void {
     this.ipAddress = ip;
+    this.port = port;
 
-    if (this.port === Ports.LEGACY || this.port === Ports.DEFAULT) {
+    if (port === Ports.LEGACY || port === Ports.DEFAULT) {
       // Connect to both legacy and default in case somebody accidentally set it
       // and they would encounter issues with the new Nintendont
       this._connectOnPort(Ports.DEFAULT, timeout);
