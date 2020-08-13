@@ -1,6 +1,7 @@
 import _ from "lodash";
 
-import { FrameEntryType, PlayerIndexedType, Frames, FramesType } from "./common";
+import { PlayerIndexedType } from "./common";
+import { FrameEntryType, Frames, FramesType } from "../types";
 
 export interface StatComputer<T> {
   setPlayerPermutations(indices: PlayerIndexedType[]): void;
