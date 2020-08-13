@@ -1,6 +1,7 @@
 // @flow
 import _ from "lodash";
-import { State, PlayerIndexedType, FrameEntryType, ActionCountsType } from "./common";
+import { State, PlayerIndexedType, ActionCountsType } from "./common";
+import { FrameEntryType } from "../types";
 import { StatComputer } from "./stats";
 
 // Frame pattern that indicates a dash dance turn was executed
