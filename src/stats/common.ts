@@ -1,26 +1,5 @@
 import _ from "lodash";
-import { PostFrameUpdateType, GameStartType, PreFrameUpdateType, ItemUpdateType } from "../types";
-
-export interface FrameEntryType {
-  frame: number;
-  players: {
-    [playerIndex: number]: {
-      pre: PreFrameUpdateType;
-      post: PostFrameUpdateType;
-    };
-  };
-  followers: {
-    [playerIndex: number]: {
-      pre: PreFrameUpdateType;
-      post: PostFrameUpdateType;
-    };
-  };
-  items: ItemUpdateType[];
-}
-
-export interface FramesType {
-  [frameIndex: number]: FrameEntryType;
-}
+import { PostFrameUpdateType, GameStartType } from "../types";
 
 export interface StatsType {
   gameComplete: boolean;
@@ -151,11 +130,6 @@ export const Timers = {
   PUNISH_RESET_FRAMES: 45,
   RECOVERY_RESET_FRAMES: 45,
   COMBO_STRING_RESET_FRAMES: 45,
-};
-
-export const Frames = {
-  FIRST: -123,
-  FIRST_PLAYABLE: -39,
 };
 
 export function getSinglesPlayerPermutationsFromSettings(settings: GameStartType): PlayerIndexedType[] {

@@ -1,6 +1,6 @@
 import _ from "lodash";
-import { PostFrameUpdateType } from "../types";
-import { FrameEntryType, FramesType, MoveLandedType, ComboType, PlayerIndexedType } from "./common";
+import { FrameEntryType, FramesType, PostFrameUpdateType } from "../types";
+import { MoveLandedType, ComboType, PlayerIndexedType } from "./common";
 import { isDamaged, isGrabbed, calcDamageTaken, isTeching, didLoseStock, Timers, isDown, isDead } from "./common";
 import { StatComputer } from "./stats";
 

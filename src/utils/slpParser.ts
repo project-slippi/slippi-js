@@ -10,8 +10,10 @@ import {
   ItemUpdateType,
   FrameBookendType,
   GameMode,
+  FrameEntryType,
+  FramesType,
+  Frames,
 } from "../types";
-import { FramesType, FrameEntryType, Frames } from "../stats";
 import { EventEmitter } from "events";
 
 export const MAX_ROLLBACK_FRAMES = 7;
