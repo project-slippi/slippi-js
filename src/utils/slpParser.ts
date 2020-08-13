@@ -25,6 +25,16 @@ export enum SlpParserEvent {
   FINALIZED_FRAME = "finalized-frame", // Emitted for only finalized frames
 }
 
+// If strict mode is on, we will do strict validation checking
+// which could throw errors on invalid data.
+// Default to false though since probably only real time applications
+// would care about valid data.
+const defaultSlpParserOptions = {
+  strict: false,
+};
+
+export type SlpParserOptions = typeof defaultSlpParserOptions;
+
 export class SlpParser extends EventEmitter {
   private frames: FramesType = {};
   private settings: GameStartType | null = null;
@@ -32,6 +42,12 @@ export class SlpParser extends EventEmitter {
   private latestFrameIndex: number | null = null;
   private settingsComplete = false;
   private lastFinalizedFrame = Frames.FIRST - 1;
+  private options: SlpParserOptions;
+
+  public constructor(options?: Partial<SlpParserOptions>) {
+    super();
+    this.options = Object.assign({}, defaultSlpParserOptions, options);
+  }
 
   public handleCommand(command: Command, payload: any): void {
     switch (command) {
@@ -191,7 +207,7 @@ export class SlpParser extends EventEmitter {
     const validLatestFrame = this.settings.gameMode === GameMode.ONLINE;
     if (validLatestFrame && latestFinalizedFrame >= Frames.FIRST) {
       // Ensure valid latestFinalizedFrame
-      if (latestFinalizedFrame < frame - MAX_ROLLBACK_FRAMES) {
+      if (this.options.strict && latestFinalizedFrame < frame - MAX_ROLLBACK_FRAMES) {
         throw new Error(`latestFinalizedFrame should be within ${MAX_ROLLBACK_FRAMES} frames of ${frame}`);
       }
       this._finalizeFrames(latestFinalizedFrame);
@@ -210,21 +226,23 @@ export class SlpParser extends EventEmitter {
       const frameToFinalize = this.lastFinalizedFrame + 1;
       const frame = this.getFrame(frameToFinalize);
 
-      // Check that we have all the pre and post frame data for all players
-      for (const player of this.settings.players) {
-        const playerFrameInfo = frame.players[player.playerIndex];
-        // Allow player frame info to be empty in non 1v1 games since
-        // players which have been defeated will have no frame info.
-        if (this.settings.players.length > 2 && !playerFrameInfo) {
-          continue;
-        }
+      // Check that we have all the pre and post frame data for all players if we're in strict mode
+      if (this.options.strict) {
+        for (const player of this.settings.players) {
+          const playerFrameInfo = frame.players[player.playerIndex];
+          // Allow player frame info to be empty in non 1v1 games since
+          // players which have been defeated will have no frame info.
+          if (this.settings.players.length > 2 && !playerFrameInfo) {
+            continue;
+          }
 
-        const { pre, post } = playerFrameInfo;
-        if (!pre || !post) {
-          const preOrPost = pre ? "pre" : "post";
-          throw new Error(
-            `Could not finalize frame ${frameToFinalize} of ${num}: missing ${preOrPost}-frame update for player ${player.playerIndex}`,
-          );
+          const { pre, post } = playerFrameInfo;
+          if (!pre || !post) {
+            const preOrPost = pre ? "pre" : "post";
+            throw new Error(
+              `Could not finalize frame ${frameToFinalize} of ${num}: missing ${preOrPost}-frame update for player ${player.playerIndex}`,
+            );
+          }
         }
       }
 
