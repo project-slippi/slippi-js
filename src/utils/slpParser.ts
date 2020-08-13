@@ -212,7 +212,14 @@ export class SlpParser extends EventEmitter {
 
       // Check that we have all the pre and post frame data for all players
       for (const player of this.settings.players) {
-        const { pre, post } = frame.players[player.playerIndex];
+        const playerFrameInfo = frame.players[player.playerIndex];
+        // Allow player frame info to be empty in non 1v1 games since
+        // players which have been defeated will have no frame info.
+        if (this.settings.players.length > 2 && !playerFrameInfo) {
+          continue;
+        }
+
+        const { pre, post } = playerFrameInfo;
         if (!pre || !post) {
           const preOrPost = pre ? "pre" : "post";
           throw new Error(
