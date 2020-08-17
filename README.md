@@ -1,6 +1,6 @@
-# `@slippi/slippi-js`
+# `slippi-js`
 
-[![npm version](http://img.shields.io/npm/v/@slippi/slippi-js.svg?style=flat)](https://npmjs.org/package/@slippi/slippi-js 'View this project on npm')
+[![npm version](http://img.shields.io/npm/v/@slippi/slippi-js.svg?style=flat)](https://npmjs.org/package/@slippi/slippi-js "View this project on npm")
 [![Build Status](https://github.com/project-slippi/slippi-js/workflows/build/badge.svg)](https://github.com/project-slippi/slippi-js/actions?workflow=build)
 [![License](https://img.shields.io/npm/l/@slippi/slippi-js)](https://github.com/project-slippi/slippi-js/blob/master/LICENSE)
 
@@ -55,12 +55,12 @@ console.log(frames[0].players); // Print frame when timer starts counting down
 
 ## Reading live files
 
-When using Slippi to mirror gameplay, it can be useful to extract game data about the live game. There are a few different methods of doing this but `@slippi/slippi-js` can also be used to read live files. It is written in such a way where as long as the same SlippiGame class is used, it will only read from disk the data it has not yet read.
+When using Slippi to mirror gameplay, it can be useful to extract game data about the live game. There are a few different methods of doing this but `slippi-js` can also be used to read live files. It is written in such a way where as long as the same SlippiGame class is used, it will only read from disk the data it has not yet read.
 
 One thing to note, when creating the `SlippiGame` object, be sure to enable `processOnTheFly` to get updated stats as the game progresses.
 
 ```javascript
-const game = new SlippiGame('path/to/your/slp/file', { processOnTheFly: true });
+const game = new SlippiGame("path/to/your/slp/file", { processOnTheFly: true });
 ```
 
 An example script for how to do this is provided as part of this repo here: https://github.com/project-slippi/slippi-js/blob/master/scripts/realtimeFileReads.js
