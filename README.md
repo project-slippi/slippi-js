@@ -1,6 +1,6 @@
 # `@slippi/slippi-js`
 
-[![npm version](http://img.shields.io/npm/v/@slippi/slippi-js.svg?style=flat)](https://npmjs.org/package/@slippi/slippi-js 'View this project on npm')
+[![npm version](http://img.shields.io/npm/v/@slippi/slippi-js.svg?style=flat)](https://npmjs.org/package/@slippi/slippi-js "View this project on npm")
 [![Build Status](https://github.com/project-slippi/slippi-js/workflows/build/badge.svg)](https://github.com/project-slippi/slippi-js/actions?workflow=build)
 [![License](https://img.shields.io/npm/l/@slippi/slippi-js)](https://github.com/project-slippi/slippi-js/blob/master/LICENSE)
 
@@ -36,11 +36,11 @@ const settings = game.getSettings();
 console.log(settings);
 
 // Get metadata - start time, platform played on, etc
-const metadata = game.getMetadata();
+const metadata = await game.getMetadata();
 console.log(metadata);
 
 // Get computed stats - openings / kill, conversions, etc
-const stats = game.getStats();
+const stats = await game.getStats();
 console.log(stats);
 
 // Get frames – animation state, inputs, etc
@@ -60,7 +60,7 @@ When using Slippi to mirror gameplay, it can be useful to extract game data abou
 One thing to note, when creating the `SlippiGame` object, be sure to enable `processOnTheFly` to get updated stats as the game progresses.
 
 ```javascript
-const game = new SlippiGame('path/to/your/slp/file', { processOnTheFly: true });
+const game = new SlippiGame("path/to/your/slp/file", { processOnTheFly: true });
 ```
 
 An example script for how to do this is provided as part of this repo here: https://github.com/project-slippi/slippi-js/blob/master/scripts/realtimeFileReads.js
