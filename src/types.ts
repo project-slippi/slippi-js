@@ -121,3 +121,29 @@ export type EventPayloadTypes =
   | GameEndType;
 
 export type EventCallbackFunc = (command: Command, payload?: EventPayloadTypes | null) => boolean;
+
+export interface FrameEntryType {
+  frame: number;
+  players: {
+    [playerIndex: number]: {
+      pre: PreFrameUpdateType;
+      post: PostFrameUpdateType;
+    } | null;
+  };
+  followers: {
+    [playerIndex: number]: {
+      pre: PreFrameUpdateType;
+      post: PostFrameUpdateType;
+    } | null;
+  };
+  items: ItemUpdateType[];
+}
+
+export enum Frames {
+  FIRST = -123,
+  FIRST_PLAYABLE = -39,
+}
+
+export interface FramesType {
+  [frameIndex: number]: FrameEntryType;
+}

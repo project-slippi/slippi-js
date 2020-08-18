@@ -1,7 +1,8 @@
 // @flow
 import _ from "lodash";
 
-import { FrameEntryType, FramesType, isDead, didLoseStock, PlayerIndexedType, StockType } from "./common";
+import { isDead, didLoseStock, PlayerIndexedType, StockType } from "./common";
+import { FrameEntryType, FramesType } from "../types";
 import { StatComputer } from "./stats";
 
 interface StockState {

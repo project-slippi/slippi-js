@@ -1,5 +1,6 @@
 import _ from "lodash";
-import { FramesType, FrameEntryType, Frames, PlayerIndexedType } from "./common";
+import { PlayerIndexedType } from "./common";
+import { FramesType, FrameEntryType, Frames } from "../types";
 
 import { StatComputer } from "./stats";
 
