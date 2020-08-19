@@ -16,7 +16,7 @@ import SlippiGame, {
   GameMode,
 } from "../src";
 
-describe("when reading last finalised frame from SlpStream", async () => {
+describe("when reading last finalised frame from SlpStream", () => {
   it("should never decrease", async () => {
     const testFile = "slp/finalizedFrame.slp";
     const stream = new SlpStream({
