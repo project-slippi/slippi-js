@@ -43,20 +43,21 @@ export interface SlpBufferSourceRef {
 async function getRef(input: SlpReadInput): Promise<SlpRefType> {
   switch (input.source) {
     case SlpInputSource.FILE:
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return new Promise((resolve: (value?: any) => void, reject: (reason?: any) => void): void => {
-        fs.open(input.filePath, "r", (err, fd) => {
-          if (!!err) {
-            reject(err);
-          } else {
-            const ref = {
-              source: input.source,
-              fileDescriptor: fd,
-            } as SlpFileSourceRef;
-            resolve(ref);
-          }
-        });
-      });
+      return new Promise(
+        (resolve: (value: SlpRefType) => void, reject: (reason: NodeJS.ErrnoException) => void): void => {
+          fs.open(input.filePath, "r", (err, fd) => {
+            if (!!err) {
+              reject(err);
+            } else {
+              const ref = {
+                source: input.source,
+                fileDescriptor: fd,
+              } as SlpFileSourceRef;
+              resolve(ref);
+            }
+          });
+        },
+      );
     case SlpInputSource.BUFFER:
       return {
         source: input.source,
@@ -76,8 +77,7 @@ async function readRef(
 ): Promise<number> {
   switch (ref.source) {
     case SlpInputSource.FILE:
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return new Promise((resolve: (value?: any) => void, reject: (reason?: any) => void): void => {
+      return new Promise((resolve: (value: number) => void, reject: (reason: NodeJS.ErrnoException) => void): void => {
         fs.read(
           (ref as SlpFileSourceRef).fileDescriptor,
           buffer,
@@ -103,8 +103,7 @@ async function readRef(
 async function getLenRef(ref: SlpRefType): Promise<number> {
   switch (ref.source) {
     case SlpInputSource.FILE:
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return new Promise((resolve: (value?: any) => void, reject: (reason?: any) => void): void => {
+      return new Promise((resolve: (value: number) => void, reject: (reason: NodeJS.ErrnoException) => void): void => {
         return fs.fstat((ref as SlpFileSourceRef).fileDescriptor, (err, fileStats) => {
           if (!!err) {
             reject(err);
@@ -145,8 +144,7 @@ export async function openSlpFile(input: SlpReadInput): Promise<SlpFileType> {
 export async function closeSlpFile(file: SlpFileType): Promise<void> {
   switch (file.ref.source) {
     case SlpInputSource.FILE:
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return new Promise((resolve: (value?: any) => void, reject: (reason?: any) => void): void => {
+      return new Promise((resolve: (value: void) => void, reject: (reason: NodeJS.ErrnoException) => void): void => {
         fs.close((file.ref as SlpFileSourceRef).fileDescriptor, (err) => {
           if (!!err) {
             reject(err);

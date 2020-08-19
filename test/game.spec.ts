@@ -98,7 +98,7 @@ it("should be able to support reading from a buffer input", async () => {
 
 it.skip("should support item information extraction", () => {
   // const game = new SlippiGame("slp/itemExport.slp");
-  // const frames = game.getFrames();
+  // const frames = await game.getFrames();
   // TODO: Add test
   // const multiItemFrames = _.filter(frames, frame => {
   //   const items = _.get(frame, 'items') || [];
