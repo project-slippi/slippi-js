@@ -4,43 +4,11 @@ import { EventEmitter } from "events";
 import inject from "reconnect-core";
 
 import { ConsoleCommunication, CommunicationType, CommunicationMessage } from "./communication";
+import { ConnectionDetails, Connection, ConnectionStatus, Ports, ConnectionSettings, ConnectionEvent } from "./types";
 
 export const NETWORK_MESSAGE = "HELO\0";
 
 const DEFAULT_CONNECTION_TIMEOUT_MS = 20000;
-
-export enum ConnectionEvent {
-  HANDSHAKE = "handshake",
-  STATUS_CHANGE = "statusChange",
-  DATA = "data",
-  INFO = "loginfo",
-  WARN = "logwarn",
-}
-
-export enum ConnectionStatus {
-  DISCONNECTED = 0,
-  CONNECTING = 1,
-  CONNECTED = 2,
-  RECONNECT_WAIT = 3,
-}
-
-export enum Ports {
-  DEFAULT = 51441,
-  LEGACY = 666,
-  RELAY_START = 53741,
-}
-
-export interface ConnectionDetails {
-  consoleNick: string;
-  gameDataCursor: Uint8Array;
-  version: string;
-  clientToken: number;
-}
-
-export interface ConnectionSettings {
-  ipAddress: string;
-  port: number;
-}
 
 enum CommunicationState {
   INITIAL = "initial",
@@ -77,7 +45,7 @@ const defaultConnectionDetails: ConnectionDetails = {
  * });
  * ```
  */
-export class ConsoleConnection extends EventEmitter {
+export class ConsoleConnection extends EventEmitter implements Connection {
   private ipAddress: string;
   private port: number;
   private connectionStatus = ConnectionStatus.DISCONNECTED;
