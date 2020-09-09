@@ -4,8 +4,6 @@ export enum ConnectionEvent {
   HANDSHAKE = "handshake",
   STATUS_CHANGE = "statusChange",
   DATA = "data",
-  INFO = "loginfo",
-  WARN = "logwarn",
 }
 
 export enum ConnectionStatus {
@@ -23,9 +21,9 @@ export enum Ports {
 
 export interface ConnectionDetails {
   consoleNick: string;
-  gameDataCursor: Uint8Array;
+  gameDataCursor: number | Uint8Array;
   version: string;
-  clientToken: number;
+  clientToken?: number;
 }
 
 export interface ConnectionSettings {
@@ -37,6 +35,6 @@ export interface Connection extends EventEmitter {
   getStatus(): ConnectionStatus;
   getSettings(): ConnectionSettings;
   getDetails(): ConnectionDetails;
-  connect(ip: string, port: number, timeout: number): void;
+  connect(ip: string, port: number): void;
   disconnect(): void;
 }

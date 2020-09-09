@@ -191,7 +191,7 @@ export class ConsoleConnection extends EventEmitter implements Connection {
         });
 
         const handshakeMsgOut = consoleComms.genHandshakeOut(
-          this.connDetails.gameDataCursor,
+          this.connDetails.gameDataCursor as Uint8Array,
           this.connDetails.clientToken,
         );
 
@@ -278,7 +278,7 @@ export class ConsoleConnection extends EventEmitter implements Connection {
         break;
       case CommunicationType.REPLAY:
         const readPos = Uint8Array.from(message.payload.pos);
-        const cmp = Buffer.compare(this.connDetails.gameDataCursor, readPos);
+        const cmp = Buffer.compare(this.connDetails.gameDataCursor as Uint8Array, readPos);
         if (!message.payload.forcePos && cmp !== 0) {
           console.warn(
             "Position of received data is not what was expected. Expected, Received:",

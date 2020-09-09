@@ -1,7 +1,7 @@
 import { Writable, WritableOptions } from "stream";
 import { Command, EventPayloadTypes } from "../types";
 import { parseMessage } from "./slpReader";
-import { NETWORK_MESSAGE } from "../console/connection";
+import { NETWORK_MESSAGE } from "../console";
 
 export enum SlpStreamMode {
   AUTO = "AUTO", // Always reading data, but errors on invalid command
