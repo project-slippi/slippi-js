@@ -82,7 +82,7 @@ export class ConsoleConnection extends EventEmitter implements Connection {
    * @returns The specific details about the connected console.
    */
   public getDetails(): ConnectionDetails {
-    return this.connDetails;
+    return { ...this.connDetails };
   }
 
   /**
