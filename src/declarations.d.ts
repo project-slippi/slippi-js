@@ -8,6 +8,7 @@ declare module "enet" {
   }
   export interface Peer extends EventEmitter {
     ping(): void;
+    disconnect(data?: any): void;
     send(channel: number, packet: Packet): boolean;
   }
   interface ClientArguments {
