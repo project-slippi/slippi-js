@@ -149,7 +149,10 @@ export class DolphinConnection extends EventEmitter implements Connection {
   }
 
   private _setStatus(status: ConnectionStatus): void {
-    this.connectionStatus = status;
-    this.emit(ConnectionEvent.STATUS_CHANGE, this.connectionStatus);
+    // Don't fire the event if the status hasn't actually changed
+    if (this.connectionStatus !== status) {
+      this.connectionStatus = status;
+      this.emit(ConnectionEvent.STATUS_CHANGE, this.connectionStatus);
+    }
   }
 }
