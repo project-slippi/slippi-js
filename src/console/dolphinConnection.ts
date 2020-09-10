@@ -95,7 +95,7 @@ export class DolphinConnection extends EventEmitter implements Connection {
       this.peer.send(0, packet);
     });
 
-    this.peer.on("message", (packet: enet.Packet, _channel: any) => {
+    this.peer.on("message", (packet: enet.Packet) => {
       const data = packet.data();
       if (data.length === 0) {
         return;
