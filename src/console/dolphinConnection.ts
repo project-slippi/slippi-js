@@ -5,7 +5,7 @@ import { Connection, ConnectionStatus, ConnectionSettings, ConnectionDetails, Po
 
 const MAX_PEERS = 32;
 
-enum MessageType {
+export enum DolphinMessageType {
   CONNECT_REPLY = "connect_reply",
   GAME_EVENT = "game_event",
 }
@@ -105,14 +105,14 @@ export class DolphinConnection extends EventEmitter implements Connection {
       const message = JSON.parse(data.toString("ascii"));
       this.emit(ConnectionEvent.MESSAGE, message);
       switch (message.type) {
-        case MessageType.CONNECT_REPLY:
+        case DolphinMessageType.CONNECT_REPLY:
           this.connectionStatus = ConnectionStatus.CONNECTED;
           this.gameCursor = message.cursor;
           this.nickname = message.nick;
           this.version = message.version;
           this.emit(ConnectionEvent.HANDSHAKE, this.getDetails());
           break;
-        case MessageType.GAME_EVENT:
+        case DolphinMessageType.GAME_EVENT:
           const { payload, cursor, next_cursor } = message;
           if (!payload) {
             // We got a disconnection request
