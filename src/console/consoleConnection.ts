@@ -97,7 +97,7 @@ export class ConsoleConnection extends EventEmitter implements Connection {
    * @param ip   The IP address of the Wii or Slippi relay.
    * @param port The port to connect to.
    * @param timeout Optional. The timeout in milliseconds when attempting to connect
-   *                to the Wii or relay. Default: 5000.
+   *                to the Wii or relay.
    */
   public connect(ip: string, port: number, timeout = DEFAULT_CONNECTION_TIMEOUT_MS): void {
     this.ipAddress = ip;
@@ -131,6 +131,7 @@ export class ConsoleConnection extends EventEmitter implements Connection {
         failAfter: Infinity,
       },
       (client) => {
+        this.emit(ConnectionEvent.CONNECT);
         // We successfully connected so turn on auto-reconnect
         this.shouldReconnect = this.options.autoReconnect;
         this.client = client;
@@ -203,7 +204,7 @@ export class ConsoleConnection extends EventEmitter implements Connection {
 
     const setConnectingStatus = (): void => {
       // Indicate we are connecting
-      this._setStatus(ConnectionStatus.CONNECTING);
+      this._setStatus(this.shouldReconnect ? ConnectionStatus.RECONNECT_WAIT : ConnectionStatus.CONNECTING);
     };
 
     connection.on("connect", setConnectingStatus);
@@ -256,6 +257,7 @@ export class ConsoleConnection extends EventEmitter implements Connection {
   }
 
   private _processMessage(message: CommunicationMessage): void {
+    this.emit(ConnectionEvent.MESSAGE, message);
     switch (message.type) {
       case CommunicationType.KEEP_ALIVE:
         // console.log("Keep alive message received");

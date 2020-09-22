@@ -1,6 +1,8 @@
 import { EventEmitter } from "events";
 
 export enum ConnectionEvent {
+  CONNECT = "connect",
+  MESSAGE = "message",
   HANDSHAKE = "handshake",
   STATUS_CHANGE = "statusChange",
   DATA = "data",
