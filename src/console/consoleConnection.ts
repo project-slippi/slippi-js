@@ -23,6 +23,12 @@ const defaultConnectionDetails: ConnectionDetails = {
   clientToken: 0,
 };
 
+const consoleConnectionOptions = {
+  autoReconnect: true,
+};
+
+export type ConsoleConnectionOptions = typeof consoleConnectionOptions;
+
 /**
  * Responsible for maintaining connection to a Slippi relay connection or Wii connection.
  * Events are emitted whenever data is received.
@@ -50,15 +56,16 @@ export class ConsoleConnection extends EventEmitter implements Connection {
   private port: number;
   private connectionStatus = ConnectionStatus.DISCONNECTED;
   private connDetails: ConnectionDetails = { ...defaultConnectionDetails };
-  private clientsByPort: Array<net.Socket>;
-  private connectionsByPort: Array<inject.Instance<unknown, net.Socket>>;
+  private client: net.Socket | null = null;
+  private connection: inject.Instance<unknown, net.Socket> | null = null;
+  private options: ConsoleConnectionOptions;
+  private shouldReconnect = false;
 
-  public constructor() {
+  public constructor(options?: Partial<ConsoleConnectionOptions>) {
     super();
     this.ipAddress = "0.0.0.0";
     this.port = Ports.DEFAULT;
-    this.clientsByPort = [];
-    this.connectionsByPort = [];
+    this.options = Object.assign({}, consoleConnectionOptions, options);
   }
 
   /**
@@ -95,23 +102,14 @@ export class ConsoleConnection extends EventEmitter implements Connection {
   public connect(ip: string, port: number, timeout = DEFAULT_CONNECTION_TIMEOUT_MS): void {
     this.ipAddress = ip;
     this.port = port;
-
-    if (port === Ports.LEGACY || port === Ports.DEFAULT) {
-      // Connect to both legacy and default in case somebody accidentally set it
-      // and they would encounter issues with the new Nintendont
-      this._connectOnPort(Ports.DEFAULT, timeout);
-      this._connectOnPort(Ports.LEGACY, timeout);
-    } else {
-      // If port is manually set, use that port.
-      this._connectOnPort(port, timeout);
-    }
+    this._connectOnPort(ip, port, timeout);
   }
 
-  private _connectOnPort(port: number, timeout: number): void {
+  private _connectOnPort(ip: string, port: number, timeout: number): void {
     // set up reconnect
     const reconnect = inject(() =>
       net.connect({
-        host: this.ipAddress,
+        host: ip,
         port: port,
         timeout: timeout,
       }),
@@ -133,13 +131,15 @@ export class ConsoleConnection extends EventEmitter implements Connection {
         failAfter: Infinity,
       },
       (client) => {
-        this.clientsByPort[port] = client;
+        // We successfully connected so turn on auto-reconnect
+        this.shouldReconnect = this.options.autoReconnect;
+        this.client = client;
 
         let commState: CommunicationState = CommunicationState.INITIAL;
         client.on("data", (data) => {
           if (commState === CommunicationState.INITIAL) {
             commState = this._getInitialCommState(data);
-            console.log(`Connected to ${this.ipAddress}:${this.port} with type: ${commState}`);
+            console.log(`Connected to ${ip}:${port} with type: ${commState}`);
             this._setStatus(ConnectionStatus.CONNECTED);
             console.log(data.toString("hex"));
           }
@@ -177,13 +177,15 @@ export class ConsoleConnection extends EventEmitter implements Connection {
 
         client.on("timeout", () => {
           // const previouslyConnected = this.connectionStatus === ConnectionStatus.CONNECTED;
-          console.warn(`Attempted connection to ${this.ipAddress}:${this.port} timed out after ${timeout}ms`);
+          console.warn(`Attempted connection to ${ip}:${port} timed out after ${timeout}ms`);
           client.destroy();
         });
 
         client.on("end", () => {
           console.log("disconnect");
-          client.destroy();
+          if (!this.shouldReconnect) {
+            client.destroy();
+          }
         });
 
         client.on("close", () => {
@@ -208,18 +210,11 @@ export class ConsoleConnection extends EventEmitter implements Connection {
     connection.on("reconnect", setConnectingStatus);
 
     connection.on("disconnect", () => {
-      // If one of the connections was successful, we no longer need to try connecting this one
-      this.connectionsByPort.forEach((iConn, iPort) => {
-        if (iPort === port || !iConn.connected) {
-          // Only disconnect if a different connection was connected
-          return;
-        }
-
-        // Prevent reconnections and disconnect
+      if (!this.shouldReconnect) {
         connection.reconnect = false;
         connection.disconnect();
-      });
-
+        this._setStatus(ConnectionStatus.DISCONNECTED);
+      }
       // TODO: Figure out how to set RECONNECT_WAIT state here. Currently it will stay on
       // TODO: Connecting... forever
     });
@@ -228,8 +223,7 @@ export class ConsoleConnection extends EventEmitter implements Connection {
       console.error(`Connection on port ${port} encountered an error.`, error);
     });
 
-    this.connectionsByPort[port] = connection;
-    console.log("Starting connection");
+    this.connection = connection;
     connection.connect(port);
   }
 
@@ -237,18 +231,16 @@ export class ConsoleConnection extends EventEmitter implements Connection {
    * Terminate the current connection.
    */
   public disconnect(): void {
-    console.log("Disconnect request");
+    // Prevent reconnections and disconnect
+    if (this.connection) {
+      this.connection.reconnect = false;
+      this.connection.disconnect();
+      this.connection = null;
+    }
 
-    this.connectionsByPort.forEach((connection) => {
-      // Prevent reconnections and disconnect
-      connection.reconnect = false; // eslint-disable-line
-      connection.disconnect();
-    });
-
-    this.clientsByPort.forEach((client) => {
-      client.destroy();
-    });
-    this._setStatus(ConnectionStatus.DISCONNECTED);
+    if (this.client) {
+      this.client.destroy();
+    }
   }
 
   private _getInitialCommState(data: Buffer): CommunicationState {
