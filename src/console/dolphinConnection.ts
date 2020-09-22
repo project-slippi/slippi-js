@@ -78,6 +78,7 @@ export class DolphinConnection extends EventEmitter implements Connection {
         }
 
         newPeer.ping();
+        this.emit(ConnectionEvent.CONNECT);
         this._setStatus(ConnectionStatus.CONNECTED);
       },
     );
@@ -102,6 +103,7 @@ export class DolphinConnection extends EventEmitter implements Connection {
       }
 
       const message = JSON.parse(data.toString("ascii"));
+      this.emit(ConnectionEvent.MESSAGE, message);
       switch (message.type) {
         case MessageType.CONNECT_REPLY:
           this.connectionStatus = ConnectionStatus.CONNECTED;
