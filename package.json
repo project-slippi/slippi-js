@@ -1,6 +1,6 @@
 {
   "name": "@slippi/slippi-js",
-  "version": "5.0.5",
+  "version": "5.1.0-beta.0",
   "description": "Official Project Slippi Javascript SDK",
   "license": "LGPL-3.0-or-later",
   "repository": "project-slippi/slippi-js",
