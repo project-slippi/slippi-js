@@ -1,10 +1,12 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 declare module "enet" {
   import { EventEmitter } from "events";
 
   export const PACKET_FLAG: any;
   export class Packet {
-    constructor(data: string | Buffer, flag: any);
-    data(): Buffer;
+    public constructor(data: string | Buffer, flag: any);
+    public data(): Buffer;
   }
   export interface Peer extends EventEmitter {
     ping(): void;
@@ -23,3 +25,5 @@ declare module "enet" {
   }
   export function createClient(args: ClientArguments, callback: (err: Error, client: Host) => void): Host;
 }
+
+/* eslint-enable @typescript-eslint/no-explicit-any */

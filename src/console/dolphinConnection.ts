@@ -113,7 +113,7 @@ export class DolphinConnection extends EventEmitter implements Connection {
           this.emit(ConnectionEvent.HANDSHAKE, this.getDetails());
           break;
         case DolphinMessageType.GAME_EVENT:
-          const { payload, cursor, next_cursor } = message;
+          const { payload, cursor } = message;
           if (!payload) {
             // We got a disconnection request
             this.disconnect();
@@ -125,7 +125,7 @@ export class DolphinConnection extends EventEmitter implements Connection {
           }
 
           const gameData = Buffer.from(payload, "base64");
-          this.gameCursor = next_cursor;
+          this.gameCursor = message.next_cursor;
           this._handleReplayData(gameData);
           break;
       }

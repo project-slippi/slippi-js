@@ -65,6 +65,7 @@ export class SlpStream extends Writable {
     this.payloadSizes = null;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public _write(newData: Buffer, encoding: string, callback: (error?: Error | null, data?: any) => void): void {
     if (encoding !== "buffer") {
       throw new Error(`Unsupported stream encoding. Expected 'buffer' got '${encoding}'.`);
@@ -154,7 +155,7 @@ export class SlpStream extends Writable {
 
     // Fetch the payload and parse it
     let payload: Uint8Array;
-    let parsedPayload: any;
+    let parsedPayload: EventPayloadTypes | null = null;
     if (payloadSize > 0) {
       payload = this._writeCommand(command, entirePayload, payloadSize);
       parsedPayload = parseMessage(command, payload);
