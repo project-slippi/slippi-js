@@ -155,13 +155,13 @@ export class ConsoleConnection extends EventEmitter implements Connection {
           try {
             consoleComms.receive(data);
           } catch (err) {
-            console.warn("Failed to process new data from server...", {
+            console.error("Failed to process new data from server...", {
               error: err,
               prevDataBuf: consoleComms.getReceiveBuffer(),
               rcvData: data,
             });
             client.destroy();
-
+            this.emit(ConnectionEvent.ERROR, err);
             return;
           }
           const messages = consoleComms.getMessages();
@@ -171,8 +171,9 @@ export class ConsoleConnection extends EventEmitter implements Connection {
             messages.forEach((message) => this._processMessage(message));
           } catch (err) {
             // Disconnect client to send another handshake message
-            client.destroy();
             console.error(err);
+            client.destroy();
+            this.emit(ConnectionEvent.ERROR, err);
           }
         });
 
@@ -274,14 +275,10 @@ export class ConsoleConnection extends EventEmitter implements Connection {
         const readPos = Uint8Array.from(message.payload.pos);
         const cmp = Buffer.compare(this.connDetails.gameDataCursor as Uint8Array, readPos);
         if (!message.payload.forcePos && cmp !== 0) {
-          console.warn(
-            "Position of received data is not what was expected. Expected, Received:",
-            this.connDetails.gameDataCursor,
-            readPos,
-          );
-
           // The readPos is not the one we are waiting on, throw error
-          throw new Error("Position of received data is incorrect.");
+          throw new Error(
+            `Position of received data is incorrect. Expected: ${this.connDetails.gameDataCursor.toString()}, Received: ${readPos.toString()}`,
+          );
         }
 
         if (message.payload.forcePos) {
