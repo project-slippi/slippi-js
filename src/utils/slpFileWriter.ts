@@ -102,6 +102,16 @@ export class SlpFileWriter extends SlpStream {
   }
 
   /**
+   * Ends the current file being written to.
+   *
+   * @returns {(string | null)}
+   * @memberof SlpFileWriter
+   */
+  public endCurrentFile(): void {
+    this._handleEndGame();
+  }
+
+  /**
    * Updates the settings to be the desired ones passed in.
    *
    * @param {Partial<SlpFileWriterOptions>} settings
