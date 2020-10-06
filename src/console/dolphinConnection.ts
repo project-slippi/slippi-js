@@ -8,6 +8,8 @@ const MAX_PEERS = 32;
 export enum DolphinMessageType {
   CONNECT_REPLY = "connect_reply",
   GAME_EVENT = "game_event",
+  START_GAME = "start_game",
+  END_GAME = "end_game",
 }
 
 export class DolphinConnection extends EventEmitter implements Connection {
