@@ -104,7 +104,8 @@ export class DolphinConnection extends EventEmitter implements Connection {
         return;
       }
 
-      const message = JSON.parse(data.toString("ascii"));
+      const dataString = data.toString("ascii");
+      const message = JSON.parse(dataString);
       this.emit(ConnectionEvent.MESSAGE, message);
       switch (message.type) {
         case DolphinMessageType.CONNECT_REPLY:
@@ -123,7 +124,11 @@ export class DolphinConnection extends EventEmitter implements Connection {
           }
 
           if (this.gameCursor !== cursor) {
-            throw new Error(`Unexpected game data cursor. Expected: ${this.gameCursor} but got: ${cursor}`);
+            const err = new Error(
+              `Unexpected game data cursor. Expected: ${this.gameCursor} but got: ${cursor}. Payload: ${dataString}`,
+            );
+            console.error(err);
+            this.emit(ConnectionEvent.ERROR, err);
           }
 
           const gameData = Buffer.from(payload, "base64");

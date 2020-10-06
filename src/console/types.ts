@@ -6,6 +6,7 @@ export enum ConnectionEvent {
   HANDSHAKE = "handshake",
   STATUS_CHANGE = "statusChange",
   DATA = "data",
+  ERROR = "error",
 }
 
 export enum ConnectionStatus {
