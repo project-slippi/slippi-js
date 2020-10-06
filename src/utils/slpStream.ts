@@ -138,7 +138,7 @@ export class SlpStream extends Writable {
 
   private _processCommand(command: Command, entirePayload: Uint8Array, dataView: DataView): number {
     // Handle the message size command
-    if (command === Command.MESSAGE_SIZES && this.payloadSizes === null) {
+    if (command === Command.MESSAGE_SIZES) {
       const payloadSize = dataView.getUint8(0);
       // Set the payload sizes
       this.payloadSizes = processReceiveCommands(dataView);
@@ -169,9 +169,6 @@ export class SlpStream extends Writable {
         // Stop parsing data until we manually restart the stream
         if (this.settings.mode === SlpStreamMode.MANUAL) {
           this.gameEnded = true;
-        } else {
-          // We're in auto-mode so reset the payload sizes for the next game
-          this.payloadSizes = null;
         }
         break;
     }
