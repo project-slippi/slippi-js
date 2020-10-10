@@ -141,7 +141,7 @@ export interface FrameEntryType {
       post: PostFrameUpdateType;
     } | null;
   };
-  items: ItemUpdateType[];
+  items?: ItemUpdateType[];
 }
 
 export enum Frames {
