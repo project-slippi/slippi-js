@@ -90,7 +90,7 @@ export interface ItemUpdateType {
   missileType: number | null;
   turnipFace: number | null;
   chargeShotLaunched: number | null;
-  chargedPower: number | null;
+  chargePower: number | null;
   owner: number | null;
 }
 

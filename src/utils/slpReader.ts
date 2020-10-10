@@ -342,7 +342,7 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
         missileType: readUint8(view, 0x26),
         turnipFace: readUint8(view, 0x27),
         chargeShotLaunched: readUint8(view, 0x28),
-        chargedPower: readUint8(view, 0x29),
+        chargePower: readUint8(view, 0x29),
         owner: readInt8(view, 0x2a),
       };
     case Command.FRAME_BOOKEND:
