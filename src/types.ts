@@ -87,6 +87,11 @@ export interface ItemUpdateType {
   damageTaken: number | null;
   expirationTimer: number | null;
   spawnId: number | null;
+  missileType: number | null;
+  turnipFace: number | null;
+  chargeShotLaunched: number | null;
+  chargedPower: number | null;
+  owner: number | null;
 }
 
 export interface FrameBookendType {
