@@ -337,7 +337,7 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
         positionX: readFloat(view, 0x14),
         positionY: readFloat(view, 0x18),
         damageTaken: readUint16(view, 0x1c),
-        expirationTimer: readUint16(view, 0x1e),
+        expirationTimer: readFloat(view, 0x1e),
         spawnId: readUint32(view, 0x22),
         missileType: readUint8(view, 0x26),
         turnipFace: readUint8(view, 0x27),
