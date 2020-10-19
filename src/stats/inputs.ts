@@ -1,6 +1,6 @@
 import _ from "lodash";
 import { PlayerIndexedType } from "./common";
-import { FramesType, FrameEntryType, Frames } from "../types";
+import { FramesType, FrameEntryType, Frames, PreFrameUpdateType } from "../types";
 
 import { StatComputer } from "./stats";
 
@@ -20,6 +20,10 @@ export interface PlayerInput {
   playerIndex: number;
   opponentIndex: number;
   inputCount: number;
+  joystickInputCount: number;
+  cstickInputCount: number;
+  buttonInputCount: number;
+  triggerInputCount: number;
 }
 
 export class InputComputer implements StatComputer<PlayerInput[]> {
@@ -33,6 +37,10 @@ export class InputComputer implements StatComputer<PlayerInput[]> {
         playerIndex: indices.playerIndex,
         opponentIndex: indices.opponentIndex,
         inputCount: 0,
+        joystickInputCount: 0,
+        cstickInputCount: 0,
+        buttonInputCount: 0,
+        triggerInputCount: 0,
       };
       this.state.set(indices, playerState);
     });
@@ -57,11 +65,14 @@ function handleInputCompute(
   frame: FrameEntryType,
 ): void {
   const playerFrame = frame.players[indices.playerIndex].pre;
-  // FIXME: use PreFrameUpdateType instead of any
-  // This is because the default value {} should not be casted as a type of PreFrameUpdateType
-  const prevPlayerFrame: any = _.get(frames, [playerFrame.frame - 1, "players", indices.playerIndex, "pre"], {});
+  const prevPlayerFrame: PreFrameUpdateType = _.get(frames, [
+    playerFrame.frame - 1,
+    "players",
+    indices.playerIndex,
+    "pre",
+  ]);
 
-  if (playerFrame.frame < Frames.FIRST_PLAYABLE) {
+  if (playerFrame.frame < Frames.FIRST_PLAYABLE || !prevPlayerFrame) {
     // Don't count inputs until the game actually starts
     return;
   }
@@ -71,34 +82,38 @@ function handleInputCompute(
   const invertedPreviousButtons = ~prevPlayerFrame.physicalButtons;
   const currentButtons = playerFrame.physicalButtons;
   const buttonChanges = invertedPreviousButtons & currentButtons & 0xfff;
-  state.inputCount += countSetBits(buttonChanges);
+  const newInputsPressed = countSetBits(buttonChanges);
+  state.inputCount += newInputsPressed;
+  state.buttonInputCount += newInputsPressed;
 
   // Increment action count when sticks change from one region to another.
   // Don't increment when stick returns to deadzone
   const prevAnalogRegion = getJoystickRegion(prevPlayerFrame.joystickX, prevPlayerFrame.joystickY);
   const currentAnalogRegion = getJoystickRegion(playerFrame.joystickX, playerFrame.joystickY);
-  if (prevAnalogRegion !== currentAnalogRegion && currentAnalogRegion !== 0) {
+  if (prevAnalogRegion !== currentAnalogRegion && currentAnalogRegion !== JoystickRegion.DZ) {
     state.inputCount += 1;
+    state.joystickInputCount += 1;
   }
 
   // Do the same for c-stick
   const prevCstickRegion = getJoystickRegion(prevPlayerFrame.cStickX, prevPlayerFrame.cStickY);
   const currentCstickRegion = getJoystickRegion(playerFrame.cStickX, playerFrame.cStickY);
-  if (prevCstickRegion !== currentCstickRegion && currentCstickRegion !== 0) {
+  if (prevCstickRegion !== currentCstickRegion && currentCstickRegion !== JoystickRegion.DZ) {
     state.inputCount += 1;
+    state.cstickInputCount += 1;
   }
 
   // Increment action on analog trigger... I'm not sure when. This needs revision
   // Currently will update input count when the button gets pressed past 0.3
   // Changes from hard shield to light shield should probably count as inputs but
   // are not counted here
-  // FIXME: the lTrigger parameter does not exist on the PreFrameUpdateType
-  if (prevPlayerFrame.lTrigger < 0.3 && (playerFrame as any).lTrigger >= 0.3) {
+  if (prevPlayerFrame.physicalLTrigger < 0.3 && playerFrame.physicalLTrigger >= 0.3) {
     state.inputCount += 1;
+    state.triggerInputCount += 1;
   }
-  // FIXME: the rTrigger parameter does not exist on the PreFrameUpdateType
-  if (prevPlayerFrame.rTrigger < 0.3 && (playerFrame as any).rTrigger >= 0.3) {
+  if (prevPlayerFrame.physicalRTrigger < 0.3 && playerFrame.physicalRTrigger >= 0.3) {
     state.inputCount += 1;
+    state.triggerInputCount += 1;
   }
 }
 
