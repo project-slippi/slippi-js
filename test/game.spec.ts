@@ -36,7 +36,7 @@ it("should correctly return stats", () => {
   expect(stats.actionCounts[0].airDodgeCount).toBe(3);
 
   // Test overall
-  expect(stats.overall[0].inputCount).toBe(494);
+  expect(stats.overall[0].inputCounts.total).toBe(494);
 });
 
 it("should correctly return metadata", () => {
