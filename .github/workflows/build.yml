@@ -1,6 +1,9 @@
 name: build
 
-on: [push]
+on:
+  push:
+    paths-ignore:
+      - "**.md"
 
 jobs:
   build:
@@ -11,16 +14,29 @@ jobs:
         node-version: [10.x]
         os: [ubuntu-latest, windows-latest, macOS-latest]
     steps:
-    - uses: actions/checkout@v1
-    - name: Use Node.js ${{ matrix.node-version }} on ${{ matrix.os }}
-      uses: actions/setup-node@v1
-      with:
-        node-version: ${{ matrix.node-version }}
-    - name: yarn install, test and build
-      run: |
-        yarn install
-        yarn run test
-        yarn run build
-      env:
-        CI: true
-
+      - name: Use Node.js ${{ matrix.node-version }} on ${{ matrix.os }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - uses: actions/checkout@v1
+      - name: Cache node modules
+        uses: actions/cache@v1
+        id: cache
+        with:
+          path: node_modules
+          key: ${{ runner.OS }}-build-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.OS }}-build-${{ env.cache-name }}-
+            ${{ runner.OS }}-build-
+            ${{ runner.OS }}-
+      - name: Install dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          yarn install
+      - name: Build
+        run: |
+          yarn run build
+      - name: Lint
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          yarn run lint
