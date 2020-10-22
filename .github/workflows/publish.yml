@@ -1,23 +1,22 @@
-name: build
+# This workflow will run tests using node and then publish a package to GitHub Packages when a release is created
+# For more information see: https://help.github.com/actions/language-and-framework-guides/publishing-nodejs-packages
+
+name: publish
 
 on:
-  push:
-    paths-ignore:
-      - "**.md"
+  release:
+    types: [published]
 
 jobs:
-  build:
-    name: Test on node ${{ matrix.node-version }} and ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        node-version: [10.x]
-        os: [ubuntu-latest, windows-latest, macOS-latest]
+  publish:
+    name: Publish
+    runs-on: ubuntu-latest
     steps:
-      - name: Use Node.js ${{ matrix.node-version }} on ${{ matrix.os }}
+      - name: Setup Node.js
         uses: actions/setup-node@v1
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 10.x
+          registry-url: https://registry.npmjs.org/
       - uses: actions/checkout@v1
       - name: Cache node modules
         uses: actions/cache@v1
@@ -33,10 +32,8 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
           yarn install
-      - name: Build
+      - name: Publish to NPM
         run: |
-          yarn run build
-      - name: Lint
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          yarn run lint
+          npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
