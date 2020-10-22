@@ -16,18 +16,18 @@ jobs:
         node-version: [10.x]
         os: [ubuntu-latest, windows-latest, macOS-latest]
     steps:
-    - uses: actions/checkout@v1
-    - name: Use Node.js ${{ matrix.node-version }} on ${{ matrix.os }}
-      uses: actions/setup-node@v1
-      with:
-        node-version: ${{ matrix.node-version }}
-    - name: yarn install, test and build
-      run: |
-        yarn install
-        yarn run test
-        yarn run build
-      env:
-        CI: true
+      - uses: actions/checkout@v1
+      - name: Use Node.js ${{ matrix.node-version }} on ${{ matrix.os }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: yarn install, test and build
+        run: |
+          yarn install
+          yarn run test
+          yarn run build
+        env:
+          CI: true
 
   publish-npm:
     needs: build
