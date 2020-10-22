@@ -36,7 +36,7 @@ it("should correctly return stats", () => {
   expect(stats.actionCounts[0].airDodgeCount).toBe(3);
 
   // Test overall
-  expect(stats.overall[0].inputCount).toBe(494);
+  expect(stats.overall[0].inputCounts.total).toBe(494);
 });
 
 it("should correctly return metadata", () => {
@@ -94,31 +94,6 @@ it("should be able to support reading from a buffer input", () => {
   expect(settings.stageId).toBe(8);
   expect(_.first(settings.players).characterId).toBe(0x13);
   expect(_.last(settings.players).characterId).toBe(0xe);
-});
-
-it.skip("should support item information extraction", () => {
-  // const game = new SlippiGame("slp/itemExport.slp");
-  // const frames = game.getFrames();
-  // TODO: Add test
-  // const multiItemFrames = _.filter(frames, frame => {
-  //   const items = _.get(frame, 'items') || [];
-  //   return items.length > 3;
-  // });
-  // const itemsDidDamage = _.flatMap(frames, frame => {
-  //   const items = _.get(frame, 'items') || [];
-  //   return _.filter(items, item => item.damageTaken > 0);
-  // });
-  // const negativeExpTimeItems = _.flatMap(frames, frame => {
-  //   const items = _.get(frame, 'items') || [];
-  //   return _.filter(items, item => item.expirationTimer < 0);
-  // });
-  // // console.log(multiItemFrames);
-  // // console.log(multiItemFrames);
-  // // console.log(_.keyBy(negativeExpTimeItems, 'spawnId'));
-  // // // console.log(_.map(multiItemFrames, 'items'));
-  // // console.log(_.chain(itemsDidDamage).groupBy('spawnId').map(items => items[0]).value());
-  // // console.log(itemsDidDamage);
-  // console.log(frames[429].items);
 });
 
 it("should support realtime parsing", () => {

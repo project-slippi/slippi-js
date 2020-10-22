@@ -87,6 +87,11 @@ export interface ItemUpdateType {
   damageTaken: number | null;
   expirationTimer: number | null;
   spawnId: number | null;
+  missileType: number | null;
+  turnipFace: number | null;
+  chargeShotLaunched: number | null;
+  chargePower: number | null;
+  owner: number | null;
 }
 
 export interface FrameBookendType {
@@ -136,7 +141,7 @@ export interface FrameEntryType {
       post: PostFrameUpdateType;
     } | null;
   };
-  items: ItemUpdateType[];
+  items?: ItemUpdateType[];
 }
 
 export enum Frames {

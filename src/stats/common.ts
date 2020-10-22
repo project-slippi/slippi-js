@@ -67,13 +67,22 @@ export interface ActionCountsType extends PlayerIndexedType {
   rollCount: number;
 }
 
+export interface InputCountsType {
+  buttons: number;
+  triggers: number;
+  joystick: number;
+  cstick: number;
+  total: number;
+}
+
 export interface OverallType extends PlayerIndexedType {
-  inputCount: number;
+  inputCounts: InputCountsType;
   conversionCount: number;
   totalDamage: number;
   killCount: number;
   successfulConversions: RatioType;
   inputsPerMinute: RatioType;
+  digitalInputsPerMinute: RatioType;
   openingsPerKill: RatioType;
   damagePerOpening: RatioType;
   neutralWinRatio: RatioType;
