@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { ConversionType, PlayerIndexedType, StockType, OverallType, RatioType } from "./common";
+import { ConversionType, PlayerIndexedType, StockType, OverallType, RatioType, InputCountsType } from "./common";
 import { PlayerInput } from "./inputs";
 
 interface ConversionsByPlayerByOpening {
@@ -27,9 +27,14 @@ export function generateOverallStats(
   const overall = playerIndices.map((indices) => {
     const playerIndex = indices.playerIndex;
     const opponentIndex = indices.opponentIndex;
-
-    const inputCount = _.get(inputsByPlayer, [playerIndex, "inputCount"]) || 0;
-    const digitalInputCount = _.get(inputsByPlayer, [playerIndex, "buttonInputCount"]) || 0;
+    const playerInputs = _.get(inputsByPlayer, [playerIndex, "inputCounts"]) || {};
+    const inputCounts: InputCountsType = {
+      buttons: _.get(playerInputs, "buttonInputCount"),
+      triggers: _.get(playerInputs, "triggerInputCount"),
+      cstick: _.get(playerInputs, "cstickInputCount"),
+      joystick: _.get(playerInputs, "joystickInputCount"),
+      total: _.get(playerInputs, "inputCount"),
+    };
     const conversions = _.get(conversionsByPlayer, playerIndex) || [];
     const successfulConversions = conversions.filter((conversion) => conversion.moves.length > 1);
     const opponentStocks = _.get(stocksByPlayer, opponentIndex) || [];
@@ -43,15 +48,14 @@ export function generateOverallStats(
     return {
       playerIndex: playerIndex,
       opponentIndex: opponentIndex,
-      inputCount: inputCount,
-      digitalInputCount: digitalInputCount,
+      inputCounts: inputCounts,
       conversionCount: conversionCount,
       totalDamage: totalDamage,
       killCount: killCount,
 
       successfulConversions: getRatio(successfulConversionCount, conversionCount),
-      inputsPerMinute: getRatio(inputCount, gameMinutes),
-      digitalInputsPerMinute: getRatio(digitalInputCount, gameMinutes),
+      inputsPerMinute: getRatio(inputCounts.total, gameMinutes),
+      digitalInputsPerMinute: getRatio(inputCounts.buttons, gameMinutes),
       openingsPerKill: getRatio(conversionCount, killCount),
       damagePerOpening: getRatio(totalDamage, conversionCount),
       neutralWinRatio: getOpeningRatio(conversionsByPlayerByOpening, playerIndex, opponentIndex, "neutral-win"),
