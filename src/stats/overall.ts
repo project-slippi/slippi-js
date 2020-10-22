@@ -27,7 +27,7 @@ export function generateOverallStats(
   const overall = playerIndices.map((indices) => {
     const playerIndex = indices.playerIndex;
     const opponentIndex = indices.opponentIndex;
-    const playerInputs = _.get(inputsByPlayer, [playerIndex, "inputCounts"]) || {};
+    const playerInputs = _.get(inputsByPlayer, playerIndex) || {};
     const inputCounts: InputCountsType = {
       buttons: _.get(playerInputs, "buttonInputCount"),
       triggers: _.get(playerInputs, "triggerInputCount"),
