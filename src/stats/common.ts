@@ -69,11 +69,13 @@ export interface ActionCountsType extends PlayerIndexedType {
 
 export interface OverallType extends PlayerIndexedType {
   inputCount: number;
+  digitalInputCount: number;
   conversionCount: number;
   totalDamage: number;
   killCount: number;
   successfulConversions: RatioType;
   inputsPerMinute: RatioType;
+  digitalInputsPerMinute: RatioType;
   openingsPerKill: RatioType;
   damagePerOpening: RatioType;
   neutralWinRatio: RatioType;

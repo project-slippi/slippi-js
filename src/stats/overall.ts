@@ -29,6 +29,7 @@ export function generateOverallStats(
     const opponentIndex = indices.opponentIndex;
 
     const inputCount = _.get(inputsByPlayer, [playerIndex, "inputCount"]) || 0;
+    const digitalInputCount = _.get(inputsByPlayer, [playerIndex, "buttonInputCount"]) || 0;
     const conversions = _.get(conversionsByPlayer, playerIndex) || [];
     const successfulConversions = conversions.filter((conversion) => conversion.moves.length > 1);
     const opponentStocks = _.get(stocksByPlayer, opponentIndex) || [];
@@ -43,12 +44,14 @@ export function generateOverallStats(
       playerIndex: playerIndex,
       opponentIndex: opponentIndex,
       inputCount: inputCount,
+      digitalInputCount: digitalInputCount,
       conversionCount: conversionCount,
       totalDamage: totalDamage,
       killCount: killCount,
 
       successfulConversions: getRatio(successfulConversionCount, conversionCount),
       inputsPerMinute: getRatio(inputCount, gameMinutes),
+      digitalInputsPerMinute: getRatio(digitalInputCount, gameMinutes),
       openingsPerKill: getRatio(conversionCount, killCount),
       damagePerOpening: getRatio(totalDamage, conversionCount),
       neutralWinRatio: getOpeningRatio(conversionsByPlayerByOpening, playerIndex, opponentIndex, "neutral-win"),
