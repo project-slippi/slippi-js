@@ -83,6 +83,9 @@ export interface OverallType extends PlayerIndexedType {
   successfulConversions: RatioType;
   inputsPerMinute: RatioType;
   digitalInputsPerMinute: RatioType;
+  joystickDistanceTraveled: number;
+  joystickMetersTraveled: number;
+  joystickAverageVelocity: RatioType;
   openingsPerKill: RatioType;
   damagePerOpening: RatioType;
   neutralWinRatio: RatioType;

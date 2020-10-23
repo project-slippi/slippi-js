@@ -45,6 +45,11 @@ export function generateOverallStats(
     const totalDamage = _.sumBy(opponentStocks, "currentPercent") || 0;
     const killCount = opponentEndedStocks.length;
 
+    const analogDistance = _.get(playerInputs, "joystickDistanceTraveled");
+    // Distance from stick top to gyro center is ~2cm. Distance from center to edge of gate is ~.47 rad.
+    // If there are more detailed measurements that have been taken, this is the place to use them.
+    const metersTraveled = analogDistance * (.02 * .47);
+
     return {
       playerIndex: playerIndex,
       opponentIndex: opponentIndex,
@@ -56,6 +61,9 @@ export function generateOverallStats(
       successfulConversions: getRatio(successfulConversionCount, conversionCount),
       inputsPerMinute: getRatio(inputCounts.total, gameMinutes),
       digitalInputsPerMinute: getRatio(inputCounts.buttons, gameMinutes),
+      joystickDistanceTraveled: analogDistance,
+      joystickMetersTraveled: metersTraveled,
+      joystickAverageVelocity: getRatio(metersTraveled, gameMinutes * 60),
       openingsPerKill: getRatio(conversionCount, killCount),
       damagePerOpening: getRatio(totalDamage, conversionCount),
       neutralWinRatio: getOpeningRatio(conversionsByPlayerByOpening, playerIndex, opponentIndex, "neutral-win"),
