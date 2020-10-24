@@ -75,6 +75,7 @@ export interface InputCountsType {
   total: number;
 }
 
+export interface AnalogMotionType {
   distanceTraveled: number;
   metersTraveled: number;
   analogMotionFrameCount: number;
