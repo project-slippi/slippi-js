@@ -25,6 +25,7 @@ export interface PlayerInput {
   buttonInputCount: number;
   triggerInputCount: number;
   joystickDistanceTraveled: number;
+  joystickMotionFrameCount: number;
 }
 
 export class InputComputer implements StatComputer<PlayerInput[]> {
@@ -43,6 +44,7 @@ export class InputComputer implements StatComputer<PlayerInput[]> {
         buttonInputCount: 0,
         triggerInputCount: 0,
         joystickDistanceTraveled: 0,
+        joystickMotionFrameCount: 0,
       };
       this.state.set(indices, playerState);
     });
@@ -122,7 +124,12 @@ function handleInputCompute(
   // be converted into meters, provided the controller being used has a standard gamecube stick.
   const deltaX = playerFrame.joystickX - prevPlayerFrame.joystickX;
   const deltaY = playerFrame.joystickY - prevPlayerFrame.joystickY;
-  state.joystickDistanceTraveled += getJoystickAnalogDistance(deltaX, deltaY);
+  const joystickDistance = getJoystickAnalogDistance(deltaX, deltaY);
+  state.joystickDistanceTraveled += joystickDistance;
+  if(joystickDistance > .001)
+  {
+  	state.joystickMotionFrameCount += 1;
+  }
 }
 
 function countSetBits(x: number): number {

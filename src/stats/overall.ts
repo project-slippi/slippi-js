@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { ConversionType, PlayerIndexedType, StockType, OverallType, RatioType, InputCountsType } from "./common";
+import { ConversionType, PlayerIndexedType, StockType, OverallType, RatioType, InputCountsType, AnalogMotionType } from "./common";
 import { PlayerInput } from "./inputs";
 
 interface ConversionsByPlayerByOpening {
@@ -45,10 +45,17 @@ export function generateOverallStats(
     const totalDamage = _.sumBy(opponentStocks, "currentPercent") || 0;
     const killCount = opponentEndedStocks.length;
 
-    const analogDistance = _.get(playerInputs, "joystickDistanceTraveled");
+    const joystickAnalogDistance = _.get(playerInputs, "joystickDistanceTraveled");
+    const joystickMotionFrameCount = _.get(playerInputs, "joystickMotionFrameCount");
     // Distance from stick top to gyro center is ~2cm. Distance from center to edge of gate is ~.47 rad.
     // If there are more detailed measurements that have been taken, this is the place to use them.
-    const metersTraveled = analogDistance * (.02 * .47);
+    const joystickMetersTraveled = joystickAnalogDistance * (.02 * .47);
+    const joystickMotion: AnalogMotionType = {
+      distanceTraveled: joystickAnalogDistance,
+      metersTraveled: joystickMetersTraveled,
+      analogMotionFrameCount: joystickMotionFrameCount,
+      averageVelocity: getRatio(joystickMetersTraveled, joystickMotionFrameCount / 60),
+    }
 
     return {
       playerIndex: playerIndex,
@@ -61,9 +68,7 @@ export function generateOverallStats(
       successfulConversions: getRatio(successfulConversionCount, conversionCount),
       inputsPerMinute: getRatio(inputCounts.total, gameMinutes),
       digitalInputsPerMinute: getRatio(inputCounts.buttons, gameMinutes),
-      joystickDistanceTraveled: analogDistance,
-      joystickMetersTraveled: metersTraveled,
-      joystickAverageVelocity: getRatio(metersTraveled, gameMinutes * 60),
+      joystickMotion: joystickMotion,
       openingsPerKill: getRatio(conversionCount, killCount),
       damagePerOpening: getRatio(totalDamage, conversionCount),
       neutralWinRatio: getOpeningRatio(conversionsByPlayerByOpening, playerIndex, opponentIndex, "neutral-win"),
