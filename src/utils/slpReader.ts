@@ -340,7 +340,7 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
         actionStateCounter: readFloat(view, 0x22),
         miscActionState: readFloat(view, 0x2b),
         isAirborne: readBool(view, 0x2f),
-        lastGroundID: readUint16(view, 0x30),
+        lastGroundId: readUint16(view, 0x30),
         jumpsRemaining: readUint8(view, 0x32),
         lCancelStatus: readUint8(view, 0x33),
         hurtboxCollisionState: readUint8(view, 0x34),

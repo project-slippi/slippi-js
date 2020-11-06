@@ -74,7 +74,7 @@ export interface PostFrameUpdateType {
   actionStateCounter: number | null;
   miscActionState: number | null;
   isAirborne: boolean | null;
-  lastGroundID: number | null;
+  lastGroundId: number | null;
   jumpsRemaining: number | null;
   lCancelStatus: number | null;
   hurtboxCollisionState: number | null;
