@@ -72,7 +72,21 @@ export interface PostFrameUpdateType {
   lastHitBy: number | null;
   stocksRemaining: number | null;
   actionStateCounter: number | null;
+  miscActionState: number | null;
+  isAirborne: boolean | null;
+  lastGroundID: number | null;
+  jumpsRemaining: number | null;
   lCancelStatus: number | null;
+  hurtboxCollisionState: number | null;
+  selfInducedSpeeds: SelfInducedSpeedsType | null;
+}
+
+export interface SelfInducedSpeedsType {
+  airX: number | null;
+  y: number | null;
+  attackX: number | null;
+  attackY: number | null;
+  groundX: number | null;
 }
 
 export interface ItemUpdateType {

@@ -4,7 +4,14 @@ import iconv from "iconv-lite";
 import { decode } from "@shelacek/ubjson";
 
 import { toHalfwidth } from "./fullwidth";
-import { Command, EventCallbackFunc, EventPayloadTypes, MetadataType, PlayerType } from "../types";
+import {
+  Command,
+  EventCallbackFunc,
+  EventPayloadTypes,
+  MetadataType,
+  PlayerType,
+  SelfInducedSpeedsType,
+} from "../types";
 
 export enum SlpInputSource {
   BUFFER = "buffer",
@@ -308,6 +315,13 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
         percent: readFloat(view, 0x3c),
       };
     case Command.POST_FRAME_UPDATE:
+      const selfInducedSpeeds: SelfInducedSpeedsType = {
+        airX: readFloat(view, 0x35),
+        y: readFloat(view, 0x39),
+        attackX: readFloat(view, 0x3d),
+        attackY: readFloat(view, 0x41),
+        groundX: readFloat(view, 0x45),
+      };
       return {
         frame: readInt32(view, 0x1),
         playerIndex: readUint8(view, 0x5),
@@ -324,7 +338,13 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
         lastHitBy: readUint8(view, 0x20),
         stocksRemaining: readUint8(view, 0x21),
         actionStateCounter: readFloat(view, 0x22),
+        miscActionState: readFloat(view, 0x2b),
+        isAirborne: readBool(view, 0x2f),
+        lastGroundID: readUint16(view, 0x30),
+        jumpsRemaining: readUint8(view, 0x32),
         lCancelStatus: readUint8(view, 0x33),
+        hurtboxCollisionState: readUint8(view, 0x34),
+        selfInducedSpeeds: selfInducedSpeeds,
       };
     case Command.ITEM_UPDATE:
       return {
