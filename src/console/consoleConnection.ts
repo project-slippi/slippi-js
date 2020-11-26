@@ -4,43 +4,11 @@ import { EventEmitter } from "events";
 import inject from "reconnect-core";
 
 import { ConsoleCommunication, CommunicationType, CommunicationMessage } from "./communication";
+import { ConnectionDetails, Connection, ConnectionStatus, Ports, ConnectionSettings, ConnectionEvent } from "./types";
 
 export const NETWORK_MESSAGE = "HELO\0";
 
 const DEFAULT_CONNECTION_TIMEOUT_MS = 20000;
-
-export enum ConnectionEvent {
-  HANDSHAKE = "handshake",
-  STATUS_CHANGE = "statusChange",
-  DATA = "data",
-  INFO = "loginfo",
-  WARN = "logwarn",
-}
-
-export enum ConnectionStatus {
-  DISCONNECTED = 0,
-  CONNECTING = 1,
-  CONNECTED = 2,
-  RECONNECT_WAIT = 3,
-}
-
-export enum Ports {
-  DEFAULT = 51441,
-  LEGACY = 666,
-  RELAY_START = 53741,
-}
-
-export interface ConnectionDetails {
-  consoleNick: string;
-  gameDataCursor: Uint8Array;
-  version: string;
-  clientToken: number;
-}
-
-export interface ConnectionSettings {
-  ipAddress: string;
-  port: number;
-}
 
 enum CommunicationState {
   INITIAL = "initial",
@@ -54,6 +22,12 @@ const defaultConnectionDetails: ConnectionDetails = {
   version: "",
   clientToken: 0,
 };
+
+const consoleConnectionOptions = {
+  autoReconnect: true,
+};
+
+export type ConsoleConnectionOptions = typeof consoleConnectionOptions;
 
 /**
  * Responsible for maintaining connection to a Slippi relay connection or Wii connection.
@@ -77,20 +51,21 @@ const defaultConnectionDetails: ConnectionDetails = {
  * });
  * ```
  */
-export class ConsoleConnection extends EventEmitter {
+export class ConsoleConnection extends EventEmitter implements Connection {
   private ipAddress: string;
   private port: number;
   private connectionStatus = ConnectionStatus.DISCONNECTED;
   private connDetails: ConnectionDetails = { ...defaultConnectionDetails };
-  private clientsByPort: Array<net.Socket>;
-  private connectionsByPort: Array<inject.Instance<unknown, net.Socket>>;
+  private client: net.Socket | null = null;
+  private connection: inject.Instance<unknown, net.Socket> | null = null;
+  private options: ConsoleConnectionOptions;
+  private shouldReconnect = false;
 
-  public constructor() {
+  public constructor(options?: Partial<ConsoleConnectionOptions>) {
     super();
     this.ipAddress = "0.0.0.0";
     this.port = Ports.DEFAULT;
-    this.clientsByPort = [];
-    this.connectionsByPort = [];
+    this.options = Object.assign({}, consoleConnectionOptions, options);
   }
 
   /**
@@ -114,7 +89,7 @@ export class ConsoleConnection extends EventEmitter {
    * @returns The specific details about the connected console.
    */
   public getDetails(): ConnectionDetails {
-    return this.connDetails;
+    return { ...this.connDetails };
   }
 
   /**
@@ -122,28 +97,19 @@ export class ConsoleConnection extends EventEmitter {
    * @param ip   The IP address of the Wii or Slippi relay.
    * @param port The port to connect to.
    * @param timeout Optional. The timeout in milliseconds when attempting to connect
-   *                to the Wii or relay. Default: 5000.
+   *                to the Wii or relay.
    */
   public connect(ip: string, port: number, timeout = DEFAULT_CONNECTION_TIMEOUT_MS): void {
     this.ipAddress = ip;
     this.port = port;
-
-    if (port === Ports.LEGACY || port === Ports.DEFAULT) {
-      // Connect to both legacy and default in case somebody accidentally set it
-      // and they would encounter issues with the new Nintendont
-      this._connectOnPort(Ports.DEFAULT, timeout);
-      this._connectOnPort(Ports.LEGACY, timeout);
-    } else {
-      // If port is manually set, use that port.
-      this._connectOnPort(port, timeout);
-    }
+    this._connectOnPort(ip, port, timeout);
   }
 
-  private _connectOnPort(port: number, timeout: number): void {
+  private _connectOnPort(ip: string, port: number, timeout: number): void {
     // set up reconnect
     const reconnect = inject(() =>
       net.connect({
-        host: this.ipAddress,
+        host: ip,
         port: port,
         timeout: timeout,
       }),
@@ -165,13 +131,16 @@ export class ConsoleConnection extends EventEmitter {
         failAfter: Infinity,
       },
       (client) => {
-        this.clientsByPort[port] = client;
+        this.emit(ConnectionEvent.CONNECT);
+        // We successfully connected so turn on auto-reconnect
+        this.shouldReconnect = this.options.autoReconnect;
+        this.client = client;
 
         let commState: CommunicationState = CommunicationState.INITIAL;
         client.on("data", (data) => {
           if (commState === CommunicationState.INITIAL) {
             commState = this._getInitialCommState(data);
-            console.log(`Connected to ${this.ipAddress}:${this.port} with type: ${commState}`);
+            console.log(`Connected to ${ip}:${port} with type: ${commState}`);
             this._setStatus(ConnectionStatus.CONNECTED);
             console.log(data.toString("hex"));
           }
@@ -186,13 +155,13 @@ export class ConsoleConnection extends EventEmitter {
           try {
             consoleComms.receive(data);
           } catch (err) {
-            console.warn("Failed to process new data from server...", {
+            console.error("Failed to process new data from server...", {
               error: err,
               prevDataBuf: consoleComms.getReceiveBuffer(),
               rcvData: data,
             });
             client.destroy();
-
+            this.emit(ConnectionEvent.ERROR, err);
             return;
           }
           const messages = consoleComms.getMessages();
@@ -202,20 +171,23 @@ export class ConsoleConnection extends EventEmitter {
             messages.forEach((message) => this._processMessage(message));
           } catch (err) {
             // Disconnect client to send another handshake message
-            client.destroy();
             console.error(err);
+            client.destroy();
+            this.emit(ConnectionEvent.ERROR, err);
           }
         });
 
         client.on("timeout", () => {
           // const previouslyConnected = this.connectionStatus === ConnectionStatus.CONNECTED;
-          console.warn(`Attempted connection to ${this.ipAddress}:${this.port} timed out after ${timeout}ms`);
+          console.warn(`Attempted connection to ${ip}:${port} timed out after ${timeout}ms`);
           client.destroy();
         });
 
         client.on("end", () => {
           console.log("disconnect");
-          client.destroy();
+          if (!this.shouldReconnect) {
+            client.destroy();
+          }
         });
 
         client.on("close", () => {
@@ -223,7 +195,7 @@ export class ConsoleConnection extends EventEmitter {
         });
 
         const handshakeMsgOut = consoleComms.genHandshakeOut(
-          this.connDetails.gameDataCursor,
+          this.connDetails.gameDataCursor as Uint8Array,
           this.connDetails.clientToken,
         );
 
@@ -233,25 +205,18 @@ export class ConsoleConnection extends EventEmitter {
 
     const setConnectingStatus = (): void => {
       // Indicate we are connecting
-      this._setStatus(ConnectionStatus.CONNECTING);
+      this._setStatus(this.shouldReconnect ? ConnectionStatus.RECONNECT_WAIT : ConnectionStatus.CONNECTING);
     };
 
     connection.on("connect", setConnectingStatus);
     connection.on("reconnect", setConnectingStatus);
 
     connection.on("disconnect", () => {
-      // If one of the connections was successful, we no longer need to try connecting this one
-      this.connectionsByPort.forEach((iConn, iPort) => {
-        if (iPort === port || !iConn.connected) {
-          // Only disconnect if a different connection was connected
-          return;
-        }
-
-        // Prevent reconnections and disconnect
+      if (!this.shouldReconnect) {
         connection.reconnect = false;
         connection.disconnect();
-      });
-
+        this._setStatus(ConnectionStatus.DISCONNECTED);
+      }
       // TODO: Figure out how to set RECONNECT_WAIT state here. Currently it will stay on
       // TODO: Connecting... forever
     });
@@ -260,8 +225,7 @@ export class ConsoleConnection extends EventEmitter {
       console.error(`Connection on port ${port} encountered an error.`, error);
     });
 
-    this.connectionsByPort[port] = connection;
-    console.log("Starting connection");
+    this.connection = connection;
     connection.connect(port);
   }
 
@@ -269,18 +233,16 @@ export class ConsoleConnection extends EventEmitter {
    * Terminate the current connection.
    */
   public disconnect(): void {
-    console.log("Disconnect request");
+    // Prevent reconnections and disconnect
+    if (this.connection) {
+      this.connection.reconnect = false;
+      this.connection.disconnect();
+      this.connection = null;
+    }
 
-    this.connectionsByPort.forEach((connection) => {
-      // Prevent reconnections and disconnect
-      connection.reconnect = false; // eslint-disable-line
-      connection.disconnect();
-    });
-
-    this.clientsByPort.forEach((client) => {
-      client.destroy();
-    });
-    this._setStatus(ConnectionStatus.DISCONNECTED);
+    if (this.client) {
+      this.client.destroy();
+    }
   }
 
   private _getInitialCommState(data: Buffer): CommunicationState {
@@ -296,6 +258,7 @@ export class ConsoleConnection extends EventEmitter {
   }
 
   private _processMessage(message: CommunicationMessage): void {
+    this.emit(ConnectionEvent.MESSAGE, message);
     switch (message.type) {
       case CommunicationType.KEEP_ALIVE:
         // console.log("Keep alive message received");
@@ -310,16 +273,12 @@ export class ConsoleConnection extends EventEmitter {
         break;
       case CommunicationType.REPLAY:
         const readPos = Uint8Array.from(message.payload.pos);
-        const cmp = Buffer.compare(this.connDetails.gameDataCursor, readPos);
+        const cmp = Buffer.compare(this.connDetails.gameDataCursor as Uint8Array, readPos);
         if (!message.payload.forcePos && cmp !== 0) {
-          console.warn(
-            "Position of received data is not what was expected. Expected, Received:",
-            this.connDetails.gameDataCursor,
-            readPos,
-          );
-
           // The readPos is not the one we are waiting on, throw error
-          throw new Error("Position of received data is incorrect.");
+          throw new Error(
+            `Position of received data is incorrect. Expected: ${this.connDetails.gameDataCursor.toString()}, Received: ${readPos.toString()}`,
+          );
         }
 
         if (message.payload.forcePos) {
@@ -355,7 +314,10 @@ export class ConsoleConnection extends EventEmitter {
   }
 
   private _setStatus(status: ConnectionStatus): void {
-    this.connectionStatus = status;
-    this.emit(ConnectionEvent.STATUS_CHANGE, this.connectionStatus);
+    // Don't fire the event if the status hasn't actually changed
+    if (this.connectionStatus !== status) {
+      this.connectionStatus = status;
+      this.emit(ConnectionEvent.STATUS_CHANGE, this.connectionStatus);
+    }
   }
 }

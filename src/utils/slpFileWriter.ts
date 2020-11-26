@@ -13,7 +13,7 @@ function getNewFilePath(folder: string, m: Moment): string {
   return path.join(folder, `Game_${m.format("YYYYMMDD")}T${m.format("HHmmss")}.slp`);
 }
 
-export interface SlpFileWriterOptions {
+export interface SlpFileWriterOptions extends Partial<SlpStreamSettings> {
   outputFiles: boolean;
   folderPath: string;
   consoleNickname: string;
@@ -49,12 +49,8 @@ export class SlpFileWriter extends SlpStream {
   /**
    * Creates an instance of SlpFileWriter.
    */
-  public constructor(
-    options?: Partial<SlpFileWriterOptions>,
-    slpOptions?: Partial<SlpStreamSettings>,
-    opts?: WritableOptions,
-  ) {
-    super(slpOptions, opts);
+  public constructor(options?: Partial<SlpFileWriterOptions>, opts?: WritableOptions) {
+    super(options, opts);
     this.options = Object.assign({}, defaultSettings, options);
     this._setupListeners();
   }
@@ -99,6 +95,16 @@ export class SlpFileWriter extends SlpStream {
       return path.resolve(this.currentFile.path());
     }
     return null;
+  }
+
+  /**
+   * Ends the current file being written to.
+   *
+   * @returns {(string | null)}
+   * @memberof SlpFileWriter
+   */
+  public endCurrentFile(): void {
+    this._handleEndGame();
   }
 
   /**

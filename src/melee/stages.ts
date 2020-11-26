@@ -1,139 +1,134 @@
-export interface Stage {
+import { Stage } from "./types";
+
+export interface StageInfo {
   id: number;
   name: string;
 }
 
-const stages: { [id: number]: Stage } = {
-  2: {
-    id: 2,
+const stages: { [id: number]: StageInfo } = {
+  [Stage.FOUNTAIN_OF_DREAMS]: {
+    id: Stage.FOUNTAIN_OF_DREAMS,
     name: "Fountain of Dreams",
   },
-  3: {
-    id: 3,
+  [Stage.POKEMON_STADIUM]: {
+    id: Stage.POKEMON_STADIUM,
     name: "Pokémon Stadium",
   },
-  4: {
-    id: 4,
+  [Stage.PEACHS_CASTLE]: {
+    id: Stage.PEACHS_CASTLE,
     name: "Princess Peach's Castle",
   },
-  5: {
-    id: 5,
+  [Stage.KONGO_JUNGLE]: {
+    id: Stage.KONGO_JUNGLE,
     name: "Kongo Jungle",
   },
-  6: {
-    id: 6,
+  [Stage.BRINSTAR]: {
+    id: Stage.BRINSTAR,
     name: "Brinstar",
   },
-  7: {
-    id: 7,
+  [Stage.CORNERIA]: {
+    id: Stage.CORNERIA,
     name: "Corneria",
   },
-  8: {
-    id: 8,
+  [Stage.YOSHIS_STORY]: {
+    id: Stage.YOSHIS_STORY,
     name: "Yoshi's Story",
   },
-  9: {
-    id: 9,
+  [Stage.ONETT]: {
+    id: Stage.ONETT,
     name: "Onett",
   },
-  10: {
-    id: 10,
+  [Stage.MUTE_CITY]: {
+    id: Stage.MUTE_CITY,
     name: "Mute City",
   },
-  11: {
-    id: 11,
+  [Stage.RAINBOW_CRUISE]: {
+    id: Stage.RAINBOW_CRUISE,
     name: "Rainbow Cruise",
   },
-  12: {
-    id: 12,
+  [Stage.JUNGLE_JAPES]: {
+    id: Stage.JUNGLE_JAPES,
     name: "Jungle Japes",
   },
-  13: {
-    id: 13,
+  [Stage.GREAT_BAY]: {
+    id: Stage.GREAT_BAY,
     name: "Great Bay",
   },
-  14: {
-    id: 14,
+  [Stage.HYRULE_TEMPLE]: {
+    id: Stage.HYRULE_TEMPLE,
     name: "Hyrule Temple",
   },
-  15: {
-    id: 15,
+  [Stage.BRINSTAR_DEPTHS]: {
+    id: Stage.BRINSTAR_DEPTHS,
     name: "Brinstar Depths",
   },
-  16: {
-    id: 16,
+  [Stage.YOSHIS_ISLAND]: {
+    id: Stage.YOSHIS_ISLAND,
     name: "Yoshi's Island",
   },
-  17: {
-    id: 17,
+  [Stage.GREEN_GREENS]: {
+    id: Stage.GREEN_GREENS,
     name: "Green Greens",
   },
-  18: {
-    id: 18,
+  [Stage.FOURSIDE]: {
+    id: Stage.FOURSIDE,
     name: "Fourside",
   },
-  19: {
-    id: 19,
+  [Stage.MUSHROOM_KINGDOM]: {
+    id: Stage.MUSHROOM_KINGDOM,
     name: "Mushroom Kingdom I",
   },
-  20: {
-    id: 20,
+  [Stage.MUSHROOM_KINGDOM_2]: {
+    id: Stage.MUSHROOM_KINGDOM_2,
     name: "Mushroom Kingdom II",
   },
-  22: {
-    id: 22,
+  [Stage.VENOM]: {
+    id: Stage.VENOM,
     name: "Venom",
   },
-  23: {
-    id: 23,
+  [Stage.POKE_FLOATS]: {
+    id: Stage.POKE_FLOATS,
     name: "Poké Floats",
   },
-  24: {
-    id: 24,
+  [Stage.BIG_BLUE]: {
+    id: Stage.BIG_BLUE,
     name: "Big Blue",
   },
-  25: {
-    id: 25,
+  [Stage.ICICLE_MOUNTAIN]: {
+    id: Stage.ICICLE_MOUNTAIN,
     name: "Icicle Mountain",
   },
-  26: {
-    id: 26,
+  [Stage.ICETOP]: {
+    id: Stage.ICETOP,
     name: "Icetop",
   },
-  27: {
-    id: 27,
+  [Stage.FLAT_ZONE]: {
+    id: Stage.FLAT_ZONE,
     name: "Flat Zone",
   },
-  28: {
-    id: 28,
+  [Stage.DREAMLAND]: {
+    id: Stage.DREAMLAND,
     name: "Dream Land N64",
   },
-  29: {
-    id: 29,
+  [Stage.YOSHIS_ISLAND_N64]: {
+    id: Stage.YOSHIS_ISLAND_N64,
     name: "Yoshi's Island N64",
   },
-  30: {
-    id: 30,
+  [Stage.KONGO_JUNGLE_N64]: {
+    id: Stage.KONGO_JUNGLE_N64,
     name: "Kongo Jungle N64",
   },
-  31: {
-    id: 31,
+  [Stage.BATTLEFIELD]: {
+    id: Stage.BATTLEFIELD,
     name: "Battlefield",
   },
-  32: {
-    id: 32,
+  [Stage.FINAL_DESTINATION]: {
+    id: Stage.FINAL_DESTINATION,
     name: "Final Destination",
   },
 };
 
-export const STAGE_FOD = 2;
-export const STAGE_POKEMON = 3;
-export const STAGE_YOSHIS = 8;
-export const STAGE_DREAM_LAND = 28;
-export const STAGE_BATTLEFIELD = 31;
-export const STAGE_FD = 32;
-
-export function getStageInfo(stageId: number): Stage {
+export function getStageInfo(stageId: number): StageInfo {
   const s = stages[stageId];
   if (!s) {
     throw new Error(`Invalid stage with id ${stageId}`);

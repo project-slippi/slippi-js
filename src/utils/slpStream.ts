@@ -1,7 +1,7 @@
 import { Writable, WritableOptions } from "stream";
 import { Command, EventPayloadTypes } from "../types";
 import { parseMessage } from "./slpReader";
-import { NETWORK_MESSAGE } from "../console/connection";
+import { NETWORK_MESSAGE } from "../console";
 
 export enum SlpStreamMode {
   AUTO = "AUTO", // Always reading data, but errors on invalid command
@@ -65,6 +65,7 @@ export class SlpStream extends Writable {
     this.payloadSizes = null;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public _write(newData: Buffer, encoding: string, callback: (error?: Error | null, data?: any) => void): void {
     if (encoding !== "buffer") {
       throw new Error(`Unsupported stream encoding. Expected 'buffer' got '${encoding}'.`);
@@ -137,7 +138,7 @@ export class SlpStream extends Writable {
 
   private _processCommand(command: Command, entirePayload: Uint8Array, dataView: DataView): number {
     // Handle the message size command
-    if (command === Command.MESSAGE_SIZES && this.payloadSizes === null) {
+    if (command === Command.MESSAGE_SIZES) {
       const payloadSize = dataView.getUint8(0);
       // Set the payload sizes
       this.payloadSizes = processReceiveCommands(dataView);
@@ -154,7 +155,7 @@ export class SlpStream extends Writable {
 
     // Fetch the payload and parse it
     let payload: Uint8Array;
-    let parsedPayload: any;
+    let parsedPayload: EventPayloadTypes | null = null;
     if (payloadSize > 0) {
       payload = this._writeCommand(command, entirePayload, payloadSize);
       parsedPayload = parseMessage(command, payload);
@@ -168,9 +169,6 @@ export class SlpStream extends Writable {
         // Stop parsing data until we manually restart the stream
         if (this.settings.mode === SlpStreamMode.MANUAL) {
           this.gameEnded = true;
-        } else {
-          // We're in auto-mode so reset the payload sizes for the next game
-          this.payloadSizes = null;
         }
         break;
     }

@@ -49,6 +49,7 @@ export class SlpParser extends EventEmitter {
     this.options = Object.assign({}, defaultSlpParserOptions, options);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public handleCommand(command: Command, payload: any): void {
     switch (command) {
       case Command.GAME_START:
