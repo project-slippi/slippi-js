@@ -1,5 +1,3 @@
-import enet from "enet";
-
 import { EventEmitter } from "events";
 import { Connection, ConnectionStatus, ConnectionSettings, ConnectionDetails, Ports, ConnectionEvent } from "./types";
 
@@ -19,21 +17,12 @@ export class DolphinConnection extends EventEmitter implements Connection {
   private gameCursor = 0;
   private nickname = "unknown";
   private version = "";
-  private client: enet.Host;
-  private peer: enet.Peer | null = null;
+  private peer: any | null = null;
 
   public constructor() {
     super();
     this.ipAddress = "0.0.0.0";
     this.port = Ports.DEFAULT;
-
-    // Create the enet client
-    this.client = enet.createClient({ peers: MAX_PEERS, channels: 3, down: 0, up: 0 }, (err) => {
-      if (err) {
-        console.error(err);
-        return;
-      }
-    });
   }
 
   /**
@@ -61,19 +50,28 @@ export class DolphinConnection extends EventEmitter implements Connection {
     };
   }
 
-  public connect(ip: string, port: number): void {
+  public async connect(ip: string, port: number): Promise<void> {
     console.log(`Connecting to: ${ip}:${port}`);
     this.ipAddress = ip;
     this.port = port;
 
-    this.peer = this.client.connect(
+    const enet = await import("enet");
+    // Create the enet client
+    const client = enet.createClient({ peers: MAX_PEERS, channels: 3, down: 0, up: 0 }, (err) => {
+      if (err) {
+        console.error(err);
+        return;
+      }
+    });
+
+    this.peer = client.connect(
       {
         address: this.ipAddress,
         port: this.port,
       },
       3,
       1337, // Data to send, not sure what this is or what this represents
-      (err, newPeer) => {
+      (err: any, newPeer: any) => {
         if (err) {
           console.error(err);
           return;
@@ -98,7 +96,7 @@ export class DolphinConnection extends EventEmitter implements Connection {
       this.peer.send(0, packet);
     });
 
-    this.peer.on("message", (packet: enet.Packet) => {
+    this.peer.on("message", (packet: any) => {
       const data = packet.data();
       if (data.length === 0) {
         return;
