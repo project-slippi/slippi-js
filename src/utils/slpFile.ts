@@ -135,11 +135,7 @@ export class SlpFile extends Writable {
     this.on("finish", () => {
       // Update file with bytes written
       const fd = fs.openSync(this.filePath, "r+");
-
-      // Not sure why writeSync isn't defined on fs so just ignore the lint warning for now
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (fs as any).writeSync(fd, createUInt32Buffer(this.rawDataLength), 0, "binary", 11);
-
+      fs.writeSync(fd, createUInt32Buffer(this.rawDataLength), 0, 4, 11);
       fs.closeSync(fd);
 
       // Unsubscribe from the stream
