@@ -4,11 +4,12 @@ import { SlpFileWriter } from "../src";
 import { Writable } from "stream";
 
 describe("when ending SlpFileWriter", () => {
-  it("should write payload length to file", async () => {
+  it("should write data length to file", async () => {
     const testFilePath = "slp/finalizedFrame.slp";
 
     const slpFileWriter = new SlpFileWriter();
     const slpFile = openSlpFile({ source: SlpInputSource.FILE, filePath: testFilePath });
+    const dataLength = slpFile.rawDataLength;
     const dataPos = slpFile.rawDataPosition;
 
     const testFd = fs.openSync(testFilePath, "r");
@@ -17,22 +18,17 @@ describe("when ending SlpFileWriter", () => {
     const newFilename = slpFileWriter.getCurrentFilename();
     const buffer = Buffer.alloc(4);
 
-    pipeAllEvents(testFd, newPos, dataPos + slpFile.rawDataLength, slpFileWriter, slpFile.messageSizes);
+    pipeAllEvents(testFd, newPos, dataPos + dataLength, slpFileWriter, slpFile.messageSizes);
     await new Promise((resolve) => {
       // On my machine, >100 is required to give the slpFile.ts "finish" callback time to execute.
       // I thought a 'yield' 0 ms setTimout would allow the callback to execute, but that's not the case.
       const timeoutMs = 1000;
 
       setTimeout(() => {
-        debugger;
-        const fd = fs.openSync(newFilename, "r");
-        fs.readSync(fd, buffer, 0, 4, 11);
-        fs.closeSync(testFd);
-        fs.closeSync(fd);
+        const writtenDataLength = openSlpFile({ source: SlpInputSource.FILE, filePath: newFilename }).rawDataLength;
         fs.unlinkSync(newFilename);
 
-        // The expected value may change if slp/finalizedFrame.slp changes but otherwise it should not.
-        expect(buffer.readUInt32BE(0)).toBe(5218007);
+        expect(writtenDataLength).toBe(dataLength);
 
         resolve();
       }, timeoutMs);
