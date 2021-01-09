@@ -71,6 +71,15 @@ it("should be able to read nametags", () => {
   expect(settings3.players[1].nametag).toBe(".  。");
 });
 
+it("should be able to read netplay names and codes", () => {
+  const game = new SlippiGame("slp/finalizedFrame.slp");
+  const metadata = game.getMetadata();
+  expect(metadata.players[0].names.netplay).toBe("V");
+  expect(metadata.players[0].names.code).toBe("VA#0");
+  expect(metadata.players[1].names.netplay).toBe("Fizzi");
+  expect(metadata.players[1].names.code).toBe("FIZZI#36");
+});
+
 it("should support PAL version", () => {
   const palGame = new SlippiGame("slp/pal.slp");
   const ntscGame = new SlippiGame("slp/ntsc.slp");
