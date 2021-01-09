@@ -127,6 +127,10 @@ export interface MetadataType {
       characters: {
         [internalCharacterId: number]: number;
       };
+      names?: {
+        netplay?: string | null;
+        code?: string | null;
+      };
     };
   } | null;
 }
