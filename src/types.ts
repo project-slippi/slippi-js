@@ -133,6 +133,7 @@ export interface MetadataType {
       };
     };
   } | null;
+  consoleNick?: string | null;
 }
 
 export type EventPayloadTypes =

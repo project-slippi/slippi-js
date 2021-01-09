@@ -80,6 +80,12 @@ it("should be able to read netplay names and codes", () => {
   expect(metadata.players[1].names.code).toBe("FIZZI#36");
 });
 
+it("should be able to read console nickname", () => {
+  const game = new SlippiGame("slp/realtimeTest.slp");
+  const metadata = game.getMetadata().consoleNick;
+  expect(game.getMetadata().consoleNick).toBe("Day 1");
+});
+
 it("should support PAL version", () => {
   const palGame = new SlippiGame("slp/pal.slp");
   const ntscGame = new SlippiGame("slp/ntsc.slp");
