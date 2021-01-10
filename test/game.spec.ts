@@ -34,6 +34,10 @@ it("should correctly return stats", () => {
   expect(stats.actionCounts[0].wavedashCount).toBe(16);
   expect(stats.actionCounts[0].wavelandCount).toBe(1);
   expect(stats.actionCounts[0].airDodgeCount).toBe(3);
+  expect(stats.actionCounts[0].dashDanceCount).toBe(39);
+  expect(stats.actionCounts[0].spotDodgeCount).toBe(0);
+  expect(stats.actionCounts[0].ledgegrabCount).toBe(1);
+  expect(stats.actionCounts[0].rollCount).toBe(0);
 
   // Test overall
   expect(stats.overall[0].inputCounts.total).toBe(494);
