@@ -14,12 +14,10 @@ describe("when ending SlpFileWriter", () => {
 
     const testFd = fs.openSync(testFilePath, "r");
     const newPos = pipeMessageSizes(testFd, dataPos, slpFileWriter);
-
     const newFilename = slpFileWriter.getCurrentFilename();
-    const buffer = Buffer.alloc(4);
 
     pipeAllEvents(testFd, newPos, dataPos + dataLength, slpFileWriter, slpFile.messageSizes);
-    await new Promise((resolve) => {
+    await new Promise((resolve): void => {
       // On my machine, >100 is required to give the slpFile.ts "finish" callback time to execute.
       // I thought a 'yield' 0 ms setTimout would allow the callback to execute, but that's not the case.
       const timeoutMs = 1000;
@@ -59,13 +57,12 @@ const pipeAllEvents = function (
   messageSizes: {
     [command: number]: number;
   },
-) {
+): void {
   let pos = start;
   while (pos < end) {
     const commandByteBuffer = new Uint8Array(1);
     fs.readSync(fd, commandByteBuffer, 0, 1, pos);
     const length = messageSizes[commandByteBuffer[0]] + 1;
-    const commandByte = commandByteBuffer[0];
 
     const buffer = new Uint8Array(length);
     fs.readSync(fd, buffer, 0, length, pos);

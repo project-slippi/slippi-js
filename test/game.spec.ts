@@ -1,7 +1,7 @@
 import _ from "lodash";
 // import path from 'path';
 import fs from "fs";
-import { SlippiGame } from "../src";
+import { FrameEntryType, FramesType, GameEndType, GameStartType, MetadataType, SlippiGame, StatsType } from "../src";
 
 it("should correctly return game settings", () => {
   const game = new SlippiGame("slp/sheik_vs_ics_yoshis.slp");
@@ -71,21 +71,6 @@ it("should be able to read nametags", () => {
   expect(settings3.players[1].nametag).toBe(".  。");
 });
 
-it("should be able to read netplay names and codes", () => {
-  const game = new SlippiGame("slp/finalizedFrame.slp");
-  const metadata = game.getMetadata();
-  expect(metadata.players[0].names.netplay).toBe("V");
-  expect(metadata.players[0].names.code).toBe("VA#0");
-  expect(metadata.players[1].names.netplay).toBe("Fizzi");
-  expect(metadata.players[1].names.code).toBe("FIZZI#36");
-});
-
-it("should be able to read console nickname", () => {
-  const game = new SlippiGame("slp/realtimeTest.slp");
-  const metadata = game.getMetadata().consoleNick;
-  expect(game.getMetadata().consoleNick).toBe("Day 1");
-});
-
 it("should support PAL version", () => {
   const palGame = new SlippiGame("slp/pal.slp");
   const ntscGame = new SlippiGame("slp/ntsc.slp");
@@ -119,7 +104,14 @@ it("should support realtime parsing", () => {
   let data,
     copyPos = 0;
 
-  const getData = () => ({
+  const getData = (): {
+    settings: GameStartType;
+    frames: FramesType;
+    metadata: MetadataType;
+    gameEnd: GameEndType | null;
+    stats: StatsType;
+    latestFrame: FrameEntryType | null;
+  } => ({
     settings: game.getSettings(),
     frames: game.getFrames(),
     metadata: game.getMetadata(),
