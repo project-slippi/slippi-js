@@ -86,7 +86,6 @@ it("should be able to read netplay names and codes", () => {
 
 it("should be able to read console nickname", () => {
   const game = new SlippiGame("slp/realtimeTest.slp");
-  const metadata = game.getMetadata().consoleNick;
   expect(game.getMetadata().consoleNick).toBe("Day 1");
 });
 
