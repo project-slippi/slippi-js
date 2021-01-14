@@ -95,7 +95,7 @@ export class SlippiGame {
    * Gets the game settings, these are the settings that describe the starting state of
    * the game such as characters, stage, etc.
    */
-  public getSettings(): GameStartType {
+  public getSettings(): GameStartType | null {
     // Settings is only complete after post-frame update
     this._process(true);
     return this.parser.getSettings();
@@ -154,7 +154,7 @@ export class SlippiGame {
     return stats;
   }
 
-  public getMetadata(): MetadataType {
+  public getMetadata(): MetadataType | null {
     if (this.metadata) {
       return this.metadata;
     }
@@ -169,7 +169,7 @@ export class SlippiGame {
       return null;
     }
 
-    return this.input.filePath || null;
+    return this.input.filePath ?? null;
   }
 }
 

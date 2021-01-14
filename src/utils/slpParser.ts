@@ -115,7 +115,7 @@ export class SlpParser extends EventEmitter {
     return this.gameEnd;
   }
 
-  public getFrames(): FramesType | null {
+  public getFrames(): FramesType {
     return this.frames;
   }
 
