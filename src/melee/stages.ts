@@ -5,6 +5,11 @@ export interface StageInfo {
   name: string;
 }
 
+export const UnknownStage: StageInfo = {
+  id: -1,
+  name: "Unknown Stage",
+};
+
 const stages: { [id: number]: StageInfo } = {
   [Stage.FOUNTAIN_OF_DREAMS]: {
     id: Stage.FOUNTAIN_OF_DREAMS,
@@ -131,7 +136,7 @@ const stages: { [id: number]: StageInfo } = {
 export function getStageInfo(stageId: number): StageInfo {
   const s = stages[stageId];
   if (!s) {
-    throw new Error(`Invalid stage with id ${stageId}`);
+    return UnknownStage;
   }
   return s;
 }
