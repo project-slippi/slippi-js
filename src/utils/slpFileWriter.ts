@@ -43,7 +43,7 @@ export enum SlpFileWriterEvent {
  * @extends {SlpStream}
  */
 export class SlpFileWriter extends SlpStream {
-  private currentFile: SlpFile | null;
+  private currentFile: SlpFile | null = null;
   private options: SlpFileWriterOptions;
 
   /**

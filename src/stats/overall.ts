@@ -93,20 +93,20 @@ function getBeneficialTradeRatio(
   playerIndex: number,
   opponentIndex: number,
 ): RatioType {
-  const playerTrades = _.get(conversionsByPlayerByOpening, [playerIndex, "trade"]) || [];
-  const opponentTrades = _.get(conversionsByPlayerByOpening, [opponentIndex, "trade"]) || [];
+  const playerTrades = conversionsByPlayerByOpening[playerIndex].trade;
+  const opponentTrades = conversionsByPlayerByOpening[opponentIndex].trade;
 
   const benefitsPlayer = [];
 
   // Figure out which punishes benefited this player
-  const zippedTrades: [ConversionType, ConversionType][] = _.zip(playerTrades, opponentTrades);
+  const zippedTrades = _.zip(playerTrades, opponentTrades);
   zippedTrades.forEach((conversionPair) => {
     const playerConversion = _.first(conversionPair);
     const opponentConversion = _.last(conversionPair);
-    const playerDamage = playerConversion.currentPercent - playerConversion.startPercent;
-    const opponentDamage = opponentConversion.currentPercent - opponentConversion.startPercent;
+    const playerDamage = playerConversion!.currentPercent - playerConversion!.startPercent;
+    const opponentDamage = opponentConversion!.currentPercent - opponentConversion!.startPercent;
 
-    if (playerConversion.didKill && !opponentConversion.didKill) {
+    if (playerConversion!.didKill && !opponentConversion!.didKill) {
       benefitsPlayer.push(playerConversion);
     } else if (playerDamage > opponentDamage) {
       benefitsPlayer.push(playerConversion);

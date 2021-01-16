@@ -1,4 +1,3 @@
-// @flow
 import _ from "lodash";
 
 import { isDead, didLoseStock, PlayerIndexedType, StockType } from "./common";
@@ -27,7 +26,9 @@ export class StockComputer implements StatComputer<StockType[]> {
   public processFrame(frame: FrameEntryType, allFrames: FramesType): void {
     this.playerPermutations.forEach((indices) => {
       const state = this.state.get(indices);
-      handleStockCompute(allFrames, state, indices, frame, this.stocks);
+      if (state) {
+        handleStockCompute(allFrames, state, indices, frame, this.stocks);
+      }
     });
   }
 
@@ -43,14 +44,15 @@ function handleStockCompute(
   frame: FrameEntryType,
   stocks: StockType[],
 ): void {
-  const playerFrame = frame.players[indices.playerIndex].post;
-  // FIXME: use PostFrameUpdateType instead of any
-  const prevPlayerFrame: any = _.get(frames, [playerFrame.frame - 1, "players", indices.playerIndex, "post"], {});
+  const playerFrame = frame.players[indices.playerIndex]!.post;
+  const currentFrameNumber = playerFrame.frame!;
+  const prevFrameNumber = currentFrameNumber - 1;
+  const prevPlayerFrame = frames[prevFrameNumber].players[indices.playerIndex]!.post;
 
   // If there is currently no active stock, wait until the player is no longer spawning.
   // Once the player is no longer spawning, start the stock
   if (!state.stock) {
-    const isPlayerDead = isDead(playerFrame.actionStateId);
+    const isPlayerDead = isDead(playerFrame.actionStateId!);
     if (isPlayerDead) {
       return;
     }
@@ -58,22 +60,22 @@ function handleStockCompute(
     state.stock = {
       playerIndex: indices.playerIndex,
       opponentIndex: indices.opponentIndex,
-      startFrame: playerFrame.frame,
+      startFrame: currentFrameNumber,
       endFrame: null,
       startPercent: 0,
       endPercent: null,
       currentPercent: 0,
-      count: playerFrame.stocksRemaining,
+      count: playerFrame.stocksRemaining!,
       deathAnimation: null,
     };
 
     stocks.push(state.stock);
   } else if (didLoseStock(playerFrame, prevPlayerFrame)) {
     state.stock.endFrame = playerFrame.frame;
-    state.stock.endPercent = prevPlayerFrame.percent || 0;
+    state.stock.endPercent = prevPlayerFrame.percent ?? 0;
     state.stock.deathAnimation = playerFrame.actionStateId;
     state.stock = null;
   } else {
-    state.stock.currentPercent = playerFrame.percent || 0;
+    state.stock.currentPercent = playerFrame.percent ?? 0;
   }
 }

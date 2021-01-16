@@ -89,10 +89,13 @@ export class SlpParser extends EventEmitter {
   }
 
   public getLatestFrameNumber(): number {
-    return this.latestFrameIndex;
+    return this.latestFrameIndex ?? Frames.FIRST - 1;
   }
 
   public getPlayableFrameCount(): number {
+    if (this.latestFrameIndex === null) {
+      return 0;
+    }
     return this.latestFrameIndex < Frames.FIRST_PLAYABLE ? 0 : this.latestFrameIndex - Frames.FIRST_PLAYABLE;
   }
 
@@ -102,7 +105,7 @@ export class SlpParser extends EventEmitter {
     // TODO: Modify this to check if we actually have all the latest frame data and return that
     // TODO: If we do. For now I'm just going to take a shortcut
     const allFrames = this.getFrames();
-    const frameIndex = this.latestFrameIndex || Frames.FIRST;
+    const frameIndex = this.latestFrameIndex !== null ? this.latestFrameIndex : Frames.FIRST;
     const indexToUse = this.gameEnd ? frameIndex : frameIndex - 1;
     return _.get(allFrames, indexToUse) || null;
   }
@@ -115,7 +118,7 @@ export class SlpParser extends EventEmitter {
     return this.gameEnd;
   }
 
-  public getFrames(): FramesType | null {
+  public getFrames(): FramesType {
     return this.frames;
   }
 
@@ -125,7 +128,7 @@ export class SlpParser extends EventEmitter {
 
   private _handleGameEnd(payload: GameEndType): void {
     // Finalize remaining frames if necessary
-    if (this.latestFrameIndex !== this.lastFinalizedFrame) {
+    if (this.latestFrameIndex !== null && this.latestFrameIndex !== this.lastFinalizedFrame) {
       this._finalizeFrames(this.latestFrameIndex);
     }
 
@@ -141,7 +144,7 @@ export class SlpParser extends EventEmitter {
 
     // Check to see if the file was created after the sheik fix so we know
     // we don't have to process the first frame of the game for the full settings
-    if (semver.gte(payload.slpVersion, "1.6.0")) {
+    if (payload.slpVersion && semver.gte(payload.slpVersion, "1.6.0")) {
       this._completeSettings();
     }
   }
@@ -152,9 +155,9 @@ export class SlpParser extends EventEmitter {
     }
 
     // Finish calculating settings
-    if (payload.frame <= Frames.FIRST) {
-      const playerIndex = payload.playerIndex;
-      const playersByIndex = _.keyBy(this.settings.players, "playerIndex");
+    if (payload.frame! <= Frames.FIRST) {
+      const playerIndex = payload.playerIndex!;
+      const playersByIndex = _.keyBy(this.settings!.players, "playerIndex");
 
       switch (payload.internalCharacterId) {
         case 0x7:
@@ -165,7 +168,7 @@ export class SlpParser extends EventEmitter {
           break;
       }
     }
-    if (payload.frame > Frames.FIRST) {
+    if (payload.frame! > Frames.FIRST) {
       this._completeSettings();
     }
   }
@@ -174,47 +177,50 @@ export class SlpParser extends EventEmitter {
     payload = payload as PostFrameUpdateType;
     const location = command === Command.PRE_FRAME_UPDATE ? "pre" : "post";
     const field = payload.isFollower ? "followers" : "players";
-    this.latestFrameIndex = payload.frame;
-    _.set(this.frames, [payload.frame, field, payload.playerIndex, location], payload);
-    _.set(this.frames, [payload.frame, "frame"], payload.frame);
+    const currentFrameNumber = payload.frame!;
+    this.latestFrameIndex = currentFrameNumber;
+    _.set(this.frames, [currentFrameNumber, field, payload.playerIndex!, location], payload);
+    _.set(this.frames, [currentFrameNumber, "frame"], currentFrameNumber);
 
     // If file is from before frame bookending, add frame to stats computer here. Does a little
     // more processing than necessary, but it works
-    const settings = this.getSettings();
-    if (!settings || semver.lte(settings.slpVersion, "2.2.0")) {
-      this.emit(SlpParserEvent.FRAME, this.frames[payload.frame]);
+    const settings = this.getSettings()!;
+    if (!settings.slpVersion || semver.lte(settings.slpVersion, "2.2.0")) {
+      this.emit(SlpParserEvent.FRAME, this.frames[currentFrameNumber]);
       // Finalize the previous frame since no bookending exists
-      this._finalizeFrames(payload.frame - 1);
+      this._finalizeFrames(currentFrameNumber - 1);
     } else {
-      _.set(this.frames, [payload.frame, "isTransferComplete"], false);
+      _.set(this.frames, [currentFrameNumber, "isTransferComplete"], false);
     }
   }
 
   private _handleItemUpdate(payload: ItemUpdateType): void {
-    const items = _.get(this.frames, [payload.frame, "items"], []);
+    const currentFrameNumber = payload.frame!;
+    const items = this.frames[currentFrameNumber].items ?? [];
     items.push(payload);
 
     // Set items with newest
-    _.set(this.frames, [payload.frame, "items"], items);
+    _.set(this.frames, [currentFrameNumber, "items"], items);
   }
 
   private _handleFrameBookend(payload: FrameBookendType): void {
-    const { frame, latestFinalizedFrame } = payload;
-    _.set(this.frames, [frame, "isTransferComplete"], true);
+    const latestFinalizedFrame = payload.latestFinalizedFrame!;
+    const currentFrameNumber = payload.frame!;
+    _.set(this.frames, [currentFrameNumber, "isTransferComplete"], true);
     // Fire off a normal frame event
-    this.emit(SlpParserEvent.FRAME, this.frames[frame]);
+    this.emit(SlpParserEvent.FRAME, this.frames[currentFrameNumber]);
 
     // Finalize frames if necessary
-    const validLatestFrame = this.settings.gameMode === GameMode.ONLINE;
+    const validLatestFrame = this.settings!.gameMode === GameMode.ONLINE;
     if (validLatestFrame && latestFinalizedFrame >= Frames.FIRST) {
       // Ensure valid latestFinalizedFrame
-      if (this.options.strict && latestFinalizedFrame < frame - MAX_ROLLBACK_FRAMES) {
-        throw new Error(`latestFinalizedFrame should be within ${MAX_ROLLBACK_FRAMES} frames of ${frame}`);
+      if (this.options.strict && latestFinalizedFrame < currentFrameNumber - MAX_ROLLBACK_FRAMES) {
+        throw new Error(`latestFinalizedFrame should be within ${MAX_ROLLBACK_FRAMES} frames of ${currentFrameNumber}`);
       }
       this._finalizeFrames(latestFinalizedFrame);
     } else {
       // Since we don't have a valid finalized frame, just finalize the frame based on MAX_ROLLBACK_FRAMES
-      this._finalizeFrames(payload.frame - MAX_ROLLBACK_FRAMES);
+      this._finalizeFrames(currentFrameNumber - MAX_ROLLBACK_FRAMES);
     }
   }
 
@@ -225,19 +231,19 @@ export class SlpParser extends EventEmitter {
   private _finalizeFrames(num: number): void {
     while (this.lastFinalizedFrame < num) {
       const frameToFinalize = this.lastFinalizedFrame + 1;
-      const frame = this.getFrame(frameToFinalize);
+      const frame = this.getFrame(frameToFinalize)!;
 
       // Check that we have all the pre and post frame data for all players if we're in strict mode
       if (this.options.strict) {
-        for (const player of this.settings.players) {
+        for (const player of this.settings!.players) {
           const playerFrameInfo = frame.players[player.playerIndex];
           // Allow player frame info to be empty in non 1v1 games since
           // players which have been defeated will have no frame info.
-          if (this.settings.players.length > 2 && !playerFrameInfo) {
+          if (this.settings!.players.length > 2 && !playerFrameInfo) {
             continue;
           }
 
-          const { pre, post } = playerFrameInfo;
+          const { pre, post } = playerFrameInfo!;
           if (!pre || !post) {
             const preOrPost = pre ? "pre" : "post";
             throw new Error(

@@ -9,6 +9,13 @@ export interface CharacterInfo {
   colors: CharacterColor[];
 }
 
+export const UnknownCharacter: CharacterInfo = {
+  id: -1,
+  name: "Unknown Character",
+  shortName: "Unknown",
+  colors: ["Default"],
+};
+
 const externalCharacters: CharacterInfo[] = [
   {
     id: Character.CAPTAIN_FALCON,
@@ -174,7 +181,7 @@ export function getAllCharacters(): CharacterInfo[] {
 
 export function getCharacterInfo(externalCharacterId: number): CharacterInfo {
   if (externalCharacterId < 0 || externalCharacterId >= externalCharacters.length) {
-    throw new Error(`Invalid character id: ${externalCharacterId}`);
+    return UnknownCharacter;
   }
   return externalCharacters[externalCharacterId];
 }

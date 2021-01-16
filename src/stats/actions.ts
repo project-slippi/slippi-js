@@ -1,4 +1,3 @@
-// @flow
 import _ from "lodash";
 import { State, PlayerIndexedType, ActionCountsType } from "./common";
 import { FrameEntryType } from "../types";
@@ -41,12 +40,14 @@ export class ActionsComputer implements StatComputer<ActionCountsType[]> {
   public processFrame(frame: FrameEntryType): void {
     this.playerPermutations.forEach((indices) => {
       const state = this.state.get(indices);
-      handleActionCompute(state, indices, frame);
+      if (state) {
+        handleActionCompute(state, indices, frame);
+      }
     });
   }
 
   public fetch(): ActionCountsType[] {
-    return Array.from(this.state.keys()).map((key) => this.state.get(key).playerCounts);
+    return Array.from(this.state.values()).map((val) => val.playerCounts);
   }
 }
 
@@ -95,7 +96,7 @@ function didStartLedgegrab(currentAnimation: State, previousAnimation: State): b
 }
 
 function handleActionCompute(state: PlayerActionState, indices: PlayerIndexedType, frame: FrameEntryType): void {
-  const playerFrame = frame.players[indices.playerIndex].post;
+  const playerFrame = frame.players[indices.playerIndex]!.post;
   const incrementCount = (field: string, condition: boolean): void => {
     if (!condition) {
       return;
@@ -106,11 +107,11 @@ function handleActionCompute(state: PlayerActionState, indices: PlayerIndexedTyp
   };
 
   // Manage animation state
-  state.animations.push(playerFrame.actionStateId);
+  state.animations.push(playerFrame.actionStateId!);
 
   // Grab last 3 frames
   const last3Frames = state.animations.slice(-3);
-  const currentAnimation = playerFrame.actionStateId;
+  const currentAnimation = playerFrame.actionStateId!;
   const prevAnimation = last3Frames[last3Frames.length - 2];
 
   // Increment counts based on conditions

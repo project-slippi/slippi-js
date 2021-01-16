@@ -50,6 +50,9 @@ export interface SlpBufferSourceRef {
 function getRef(input: SlpReadInput): SlpRefType {
   switch (input.source) {
     case SlpInputSource.FILE:
+      if (!input.filePath) {
+        throw new Error("File source requires a file path");
+      }
       const fd = fs.openSync(input.filePath, "r");
       return {
         source: input.source,
@@ -209,7 +212,7 @@ export function iterateEvents(
 ): number {
   const ref = slpFile.ref;
 
-  let readPosition = startPos || slpFile.rawDataPosition;
+  let readPosition = startPos !== null ? startPos : slpFile.rawDataPosition;
   const stopReadingAt = slpFile.rawDataPosition + slpFile.rawDataLength;
 
   // Generate read buffers for each
@@ -264,12 +267,11 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
         const nametagOffset = playerIndex * 0x10;
         const nametagStart = 0x161 + nametagOffset;
         const nametagBuf = payload.slice(nametagStart, nametagStart + 16);
-        const nametag = toHalfwidth(
-          iconv
-            .decode(nametagBuf as Buffer, "Shift_JIS")
-            .split("\0")
-            .shift(),
-        );
+        const nameTagString = iconv
+          .decode(nametagBuf as Buffer, "Shift_JIS")
+          .split("\0")
+          .shift();
+        const nametag = nameTagString ? toHalfwidth(nameTagString) : "";
 
         const offset = playerIndex * 0x24;
         return {

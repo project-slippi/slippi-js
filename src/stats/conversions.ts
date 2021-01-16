@@ -45,7 +45,9 @@ export class ConversionComputer implements StatComputer<ConversionType[]> {
   public processFrame(frame: FrameEntryType, allFrames: FramesType): void {
     this.playerPermutations.forEach((indices) => {
       const state = this.state.get(indices);
-      handleConversionCompute(allFrames, state, indices, frame, this.conversions);
+      if (state) {
+        handleConversionCompute(allFrames, state, indices, frame, this.conversions);
+      }
     });
   }
 
@@ -71,7 +73,7 @@ export class ConversionComputer implements StatComputer<ConversionType[]> {
       const isTrade = conversions.length >= 2;
       conversions.forEach((conversion) => {
         // Set end frame for this conversion
-        this.metadata.lastEndFrameByOppIdx[conversion.playerIndex] = conversion.endFrame;
+        this.metadata.lastEndFrameByOppIdx[conversion.playerIndex] = conversion.endFrame!;
 
         if (isTrade) {
           // If trade, just short-circuit
@@ -95,17 +97,16 @@ function handleConversionCompute(
   frame: FrameEntryType,
   conversions: ConversionType[],
 ): void {
-  const playerFrame: PostFrameUpdateType = frame.players[indices.playerIndex].post;
-  // FIXME: use type PostFrameUpdateType instead of any
-  // This is because the default value {} should not be casted as a type of PostFrameUpdateType
-  const prevPlayerFrame: any = _.get(frames, [playerFrame.frame - 1, "players", indices.playerIndex, "post"], {});
-  const opponentFrame: PostFrameUpdateType = frame.players[indices.opponentIndex].post;
-  // FIXME: use type PostFrameUpdateType instead of any
-  // This is because the default value {} should not be casted as a type of PostFrameUpdateType
-  const prevOpponentFrame: any = _.get(frames, [playerFrame.frame - 1, "players", indices.opponentIndex, "post"], {});
+  const playerFrame: PostFrameUpdateType = frame.players[indices.playerIndex]!.post;
+  const currentFrameNumber = playerFrame.frame!;
+  const prevFrameNumber = currentFrameNumber - 1;
+  const prevPlayerFrame = frames[prevFrameNumber].players[indices.playerIndex]!.post;
+  const opponentFrame = frame.players[indices.opponentIndex]!.post;
+  const prevOpponentFrame = frames[prevFrameNumber].players[indices.opponentIndex]!.post;
 
-  const opntIsDamaged = isDamaged(opponentFrame.actionStateId);
-  const opntIsGrabbed = isGrabbed(opponentFrame.actionStateId);
+  const oppActionStateId = opponentFrame.actionStateId!;
+  const opntIsDamaged = isDamaged(oppActionStateId);
+  const opntIsGrabbed = isGrabbed(oppActionStateId);
   const opntDamageTaken = calcDamageTaken(opponentFrame, prevOpponentFrame);
 
   // Keep track of whether actionState changes after a hit. Used to compute move count
@@ -115,8 +116,8 @@ function handleConversionCompute(
   // an animation started. Should be more robust, for old files it should always be
   // null and null < null = false
   const actionChangedSinceHit = playerFrame.actionStateId !== state.lastHitAnimation;
-  const actionCounter = playerFrame.actionStateCounter;
-  const prevActionCounter = prevPlayerFrame.actionStateCounter;
+  const actionCounter = playerFrame.actionStateCounter!;
+  const prevActionCounter = prevPlayerFrame.actionStateCounter!;
   const actionFrameCounterReset = actionCounter < prevActionCounter;
   if (actionChangedSinceHit || actionFrameCounterReset) {
     state.lastHitAnimation = null;
@@ -129,10 +130,10 @@ function handleConversionCompute(
       state.conversion = {
         playerIndex: indices.playerIndex,
         opponentIndex: indices.opponentIndex,
-        startFrame: playerFrame.frame,
+        startFrame: currentFrameNumber,
         endFrame: null,
-        startPercent: prevOpponentFrame.percent || 0,
-        currentPercent: opponentFrame.percent || 0,
+        startPercent: prevOpponentFrame.percent ?? 0,
+        currentPercent: opponentFrame.percent ?? 0,
         endPercent: null,
         moves: [],
         didKill: false,
@@ -145,10 +146,10 @@ function handleConversionCompute(
     if (opntDamageTaken) {
       // If animation of last hit has been cleared that means this is a new move. This
       // prevents counting multiple hits from the same move such as fox's drill
-      if (!state.lastHitAnimation) {
+      if (state.lastHitAnimation === null) {
         state.move = {
-          frame: playerFrame.frame,
-          moveId: playerFrame.lastAttackLanded,
+          frame: currentFrameNumber,
+          moveId: playerFrame.lastAttackLanded!,
           hitCount: 0,
           damage: 0,
         };
@@ -173,12 +174,12 @@ function handleConversionCompute(
     return;
   }
 
-  const opntInControl = isInControl(opponentFrame.actionStateId);
+  const opntInControl = isInControl(oppActionStateId);
   const opntDidLoseStock = didLoseStock(opponentFrame, prevOpponentFrame);
 
   // Update percent if opponent didn't lose stock
   if (!opntDidLoseStock) {
-    state.conversion.currentPercent = opponentFrame.percent || 0;
+    state.conversion.currentPercent = opponentFrame.percent ?? 0;
   }
 
   if (opntIsDamaged || opntIsGrabbed) {
@@ -211,7 +212,7 @@ function handleConversionCompute(
   // If conversion should terminate, mark the end states and add it to list
   if (shouldTerminate) {
     state.conversion.endFrame = playerFrame.frame;
-    state.conversion.endPercent = prevOpponentFrame.percent || 0;
+    state.conversion.endPercent = prevOpponentFrame.percent ?? 0;
 
     state.conversion = null;
     state.move = null;

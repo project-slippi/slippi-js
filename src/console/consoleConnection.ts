@@ -196,7 +196,7 @@ export class ConsoleConnection extends EventEmitter implements Connection {
 
         const handshakeMsgOut = consoleComms.genHandshakeOut(
           this.connDetails.gameDataCursor as Uint8Array,
-          this.connDetails.clientToken,
+          this.connDetails.clientToken ?? 0,
         );
 
         client.write(handshakeMsgOut);
@@ -296,10 +296,15 @@ export class ConsoleConnection extends EventEmitter implements Connection {
         this._handleReplayData(data);
         break;
       case CommunicationType.HANDSHAKE:
-        this.connDetails.consoleNick = message.payload.nick;
+        const { nick, nintendontVersion } = message.payload;
+        if (nick) {
+          this.connDetails.consoleNick = nick;
+        }
         const tokenBuf = Buffer.from(message.payload.clientToken);
         this.connDetails.clientToken = tokenBuf.readUInt32BE(0);
-        this.connDetails.version = message.payload.nintendontVersion;
+        if (nintendontVersion) {
+          this.connDetails.version = nintendontVersion;
+        }
         this.connDetails.gameDataCursor = Uint8Array.from(message.payload.pos);
         this.emit(ConnectionEvent.HANDSHAKE, this.connDetails);
         break;

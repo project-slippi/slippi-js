@@ -41,7 +41,7 @@ export class Stats {
     if (this.playerPermutations.length === 0) {
       return;
     }
-    let i = this.lastProcessedFrame ? this.lastProcessedFrame + 1 : Frames.FIRST;
+    let i = this.lastProcessedFrame !== null ? this.lastProcessedFrame + 1 : Frames.FIRST;
     while (this.frames[i]) {
       const frame = this.frames[i];
       // Don't attempt to compute stats on frames that have not been fully received
@@ -68,9 +68,9 @@ function isCompletedFrame(playerPermutations: PlayerIndexedType[], frame: FrameE
   // It is not perfect because it does not wait for follower frames. Fortunately,
   // follower frames are not used for any stat calculations so this doesn't matter
   // for our purposes.
-  const indices = _.first(playerPermutations);
-  const playerPostFrame = _.get(frame, ["players", indices.playerIndex, "post"]);
-  const oppPostFrame = _.get(frame, ["players", indices.opponentIndex, "post"]);
+  const { playerIndex, opponentIndex } = _.first(playerPermutations)!;
+  const playerPostFrame = _.get(frame, ["players", playerIndex, "post"]);
+  const oppPostFrame = _.get(frame, ["players", opponentIndex, "post"]);
 
   return Boolean(playerPostFrame && oppPostFrame);
 }
