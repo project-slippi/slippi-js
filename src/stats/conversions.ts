@@ -132,7 +132,7 @@ function handleConversionCompute(
         startFrame: playerFrame.frame,
         endFrame: null,
         startPercent: prevOpponentFrame.percent || 0,
-        currentPercent: opponentFrame.percent || 0,
+        currentPercent: opponentFrame.percent ?? 0,
         endPercent: null,
         moves: [],
         didKill: false,
@@ -145,7 +145,7 @@ function handleConversionCompute(
     if (opntDamageTaken) {
       // If animation of last hit has been cleared that means this is a new move. This
       // prevents counting multiple hits from the same move such as fox's drill
-      if (!state.lastHitAnimation) {
+      if (state.lastHitAnimation === null) {
         state.move = {
           frame: playerFrame.frame,
           moveId: playerFrame.lastAttackLanded,
@@ -178,7 +178,7 @@ function handleConversionCompute(
 
   // Update percent if opponent didn't lose stock
   if (!opntDidLoseStock) {
-    state.conversion.currentPercent = opponentFrame.percent || 0;
+    state.conversion.currentPercent = opponentFrame.percent ?? 0;
   }
 
   if (opntIsDamaged || opntIsGrabbed) {

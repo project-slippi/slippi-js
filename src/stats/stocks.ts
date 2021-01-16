@@ -70,10 +70,10 @@ function handleStockCompute(
     stocks.push(state.stock);
   } else if (didLoseStock(playerFrame, prevPlayerFrame)) {
     state.stock.endFrame = playerFrame.frame;
-    state.stock.endPercent = prevPlayerFrame.percent || 0;
+    state.stock.endPercent = prevPlayerFrame.percent ?? 0;
     state.stock.deathAnimation = playerFrame.actionStateId;
     state.stock = null;
   } else {
-    state.stock.currentPercent = playerFrame.percent || 0;
+    state.stock.currentPercent = playerFrame.percent ?? 0;
   }
 }
