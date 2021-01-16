@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { FrameEntryType, FramesType, PostFrameUpdateType } from "../types";
+import { FrameEntryType, FramesType } from "../types";
 import { MoveLandedType, ComboType, PlayerIndexedType } from "./common";
 import { isDamaged, isGrabbed, calcDamageTaken, isTeching, didLoseStock, Timers, isDown, isDead } from "./common";
 import { StatComputer } from "./stats";
@@ -32,7 +32,9 @@ export class ComboComputer implements StatComputer<ComboType[]> {
   public processFrame(frame: FrameEntryType, allFrames: FramesType): void {
     this.playerPermutations.forEach((indices) => {
       const state = this.state.get(indices);
-      handleComboCompute(allFrames, state, indices, frame, this.combos);
+      if (state) {
+        handleComboCompute(allFrames, state, indices, frame, this.combos);
+      }
     });
   }
 
@@ -48,17 +50,17 @@ function handleComboCompute(
   frame: FrameEntryType,
   combos: ComboType[],
 ): void {
-  const playerFrame: PostFrameUpdateType = frame.players[indices.playerIndex].post;
-  // FIXME: use type PostFrameUpdateType instead of any
-  // This is because the default value {} should not be casted as a type of PostFrameUpdateType
-  const prevPlayerFrame: any = _.get(frames, [playerFrame.frame - 1, "players", indices.playerIndex, "post"], {});
-  const opponentFrame: PostFrameUpdateType = frame.players[indices.opponentIndex].post;
-  // FIXME: use type PostFrameUpdateType instead of any
-  // This is because the default value {} should not be casted as a type of PostFrameUpdateType
-  const prevOpponentFrame: any = _.get(frames, [playerFrame.frame - 1, "players", indices.opponentIndex, "post"], {});
+  const playerFrame = frame.players[indices.playerIndex]!.post;
+  const currentFrameNumber = playerFrame.frame!;
+  const prevFrameNumber = currentFrameNumber - 1;
 
-  const opntIsDamaged = isDamaged(opponentFrame.actionStateId);
-  const opntIsGrabbed = isGrabbed(opponentFrame.actionStateId);
+  const prevPlayerFrame = frames[prevFrameNumber].players[indices.playerIndex]!.post;
+  const opponentFrame = frame.players[indices.opponentIndex]!.post;
+  const prevOpponentFrame = frames[prevFrameNumber].players[indices.opponentIndex]!.post;
+
+  const oppActionStateId = opponentFrame.actionStateId!;
+  const opntIsDamaged = isDamaged(oppActionStateId);
+  const opntIsGrabbed = isGrabbed(oppActionStateId);
   const opntDamageTaken = calcDamageTaken(opponentFrame, prevOpponentFrame);
 
   // Keep track of whether actionState changes after a hit. Used to compute move count
@@ -68,8 +70,8 @@ function handleComboCompute(
   // an animation started. Should be more robust, for old files it should always be
   // null and null < null = false
   const actionChangedSinceHit = playerFrame.actionStateId !== state.lastHitAnimation;
-  const actionCounter = playerFrame.actionStateCounter;
-  const prevActionCounter = prevPlayerFrame.actionStateCounter;
+  const actionCounter = playerFrame.actionStateCounter!;
+  const prevActionCounter = prevPlayerFrame.actionStateCounter!;
   const actionFrameCounterReset = actionCounter < prevActionCounter;
   if (actionChangedSinceHit || actionFrameCounterReset) {
     state.lastHitAnimation = null;
@@ -82,9 +84,9 @@ function handleComboCompute(
       state.combo = {
         playerIndex: indices.playerIndex,
         opponentIndex: indices.opponentIndex,
-        startFrame: playerFrame.frame,
+        startFrame: currentFrameNumber,
         endFrame: null,
-        startPercent: prevOpponentFrame.percent || 0,
+        startPercent: prevOpponentFrame.percent ?? 0,
         currentPercent: opponentFrame.percent ?? 0,
         endPercent: null,
         moves: [],
@@ -99,8 +101,8 @@ function handleComboCompute(
       // prevents counting multiple hits from the same move such as fox's drill
       if (state.lastHitAnimation === null) {
         state.move = {
-          frame: playerFrame.frame,
-          moveId: playerFrame.lastAttackLanded,
+          frame: currentFrameNumber,
+          moveId: playerFrame.lastAttackLanded!,
           hitCount: 0,
           damage: 0,
         };
@@ -125,10 +127,10 @@ function handleComboCompute(
     return;
   }
 
-  const opntIsTeching = isTeching(opponentFrame.actionStateId);
-  const opntIsDowned = isDown(opponentFrame.actionStateId);
+  const opntIsTeching = isTeching(oppActionStateId);
+  const opntIsDowned = isDown(oppActionStateId);
   const opntDidLoseStock = didLoseStock(opponentFrame, prevOpponentFrame);
-  const opntIsDying = isDead(opponentFrame.actionStateId);
+  const opntIsDying = isDead(oppActionStateId);
 
   // Update percent if opponent didn't lose stock
   if (!opntDidLoseStock) {
@@ -158,7 +160,7 @@ function handleComboCompute(
   // If combo should terminate, mark the end states and add it to list
   if (shouldTerminate) {
     state.combo.endFrame = playerFrame.frame;
-    state.combo.endPercent = prevOpponentFrame.percent || 0;
+    state.combo.endPercent = prevOpponentFrame.percent ?? 0;
 
     state.combo = null;
     state.move = null;

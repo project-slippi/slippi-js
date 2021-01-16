@@ -24,7 +24,7 @@ export interface SlpFileMetadata {
 export class SlpFile extends Writable {
   private filePath: string;
   private metadata: SlpFileMetadata;
-  private fileStream: WriteStream;
+  private fileStream: WriteStream | null = null;
   private rawDataLength = 0;
   private slpStream: SlpStream;
   private usesExternalStream = false;
@@ -77,7 +77,9 @@ export class SlpFile extends Writable {
       throw new Error(`Unsupported stream encoding. Expected 'buffer' got '${encoding}'.`);
     }
     // Write it to the file
-    this.fileStream.write(chunk);
+    if (this.fileStream) {
+      this.fileStream.write(chunk);
+    }
 
     // Parse the data manually if it's an internal stream
     if (!this.usesExternalStream) {
@@ -108,17 +110,17 @@ export class SlpFile extends Writable {
         }
 
         // Update frame index
-        this.metadata.lastFrame = frame;
+        this.metadata.lastFrame = frame!;
 
         // Update character usage
         const prevPlayer = get(this.metadata, ["players", `${playerIndex}`]) || {};
         const characterUsage = prevPlayer.characterUsage || {};
-        const curCharFrames = characterUsage[internalCharacterId] || 0;
+        const curCharFrames = characterUsage[internalCharacterId!] || 0;
         const player = {
           ...prevPlayer,
           characterUsage: {
             ...characterUsage,
-            [internalCharacterId]: curCharFrames + 1,
+            [internalCharacterId!]: curCharFrames + 1,
           },
         };
         this.metadata.players[`${playerIndex}`] = player;
@@ -240,7 +242,9 @@ export class SlpFile extends Writable {
     footer = Buffer.concat([footer, Buffer.from("}}")]);
 
     // End the stream
-    this.fileStream.write(footer, callback);
+    if (this.fileStream) {
+      this.fileStream.write(footer, callback);
+    }
   }
 }
 

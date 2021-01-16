@@ -164,7 +164,7 @@ export function didLoseStock(frame: PostFrameUpdateType, prevFrame: PostFrameUpd
     return false;
   }
 
-  return prevFrame.stocksRemaining - frame.stocksRemaining > 0;
+  return prevFrame.stocksRemaining! - frame.stocksRemaining! > 0;
 }
 
 export function isInControl(state: number): boolean {
@@ -197,8 +197,8 @@ export function isDead(state: number): boolean {
 }
 
 export function calcDamageTaken(frame: PostFrameUpdateType, prevFrame: PostFrameUpdateType): number {
-  const percent = _.get(frame, "percent", 0);
-  const prevPercent = _.get(prevFrame, "percent", 0);
+  const percent = frame.percent ?? 0;
+  const prevPercent = prevFrame.percent ?? 0;
 
   return percent - prevPercent;
 }

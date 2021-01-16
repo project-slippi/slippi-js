@@ -90,7 +90,10 @@ export class SlpStream extends Writable {
 
       // Make sure we have enough data to read a full payload
       const command = dataView.getUint8(index);
-      const payloadSize = this.payloadSizes && this.payloadSizes.has(command) ? this.payloadSizes.get(command) : 0;
+      let payloadSize = 0;
+      if (this.payloadSizes) {
+        payloadSize = this.payloadSizes.get(command) ?? 0;
+      }
       const remainingLen = data.length - index;
       if (remainingLen < payloadSize + 1) {
         // If remaining length is not long enough for full payload, save the remaining
@@ -151,7 +154,10 @@ export class SlpStream extends Writable {
       return payloadSize;
     }
 
-    const payloadSize = this.payloadSizes && this.payloadSizes.has(command) ? this.payloadSizes.get(command) : 0;
+    let payloadSize = 0;
+    if (this.payloadSizes) {
+      payloadSize = this.payloadSizes.get(command) ?? 0;
+    }
 
     // Fetch the payload and parse it
     let payload: Uint8Array;

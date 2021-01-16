@@ -1,4 +1,3 @@
-/* eslint-disable no-param-reassign */
 import _ from "lodash";
 import { openSlpFile, closeSlpFile, iterateEvents, getMetadata, SlpInputSource, SlpReadInput } from "./utils/slpReader";
 
@@ -23,8 +22,8 @@ import {
  */
 export class SlippiGame {
   private input: SlpReadInput;
-  private metadata: MetadataType | null;
-  private finalStats: StatsType | null;
+  private metadata: MetadataType | null = null;
+  private finalStats: StatsType | null = null;
   private parser: SlpParser;
   private readPosition: number | null = null;
   private actionsComputer: ActionsComputer = new ActionsComputer();
@@ -128,7 +127,7 @@ export class SlippiGame {
     const inputs = this.inputComputer.fetch();
     const stocks = this.stockComputer.fetch();
     const conversions = this.conversionComputer.fetch();
-    const indices = getSinglesPlayerPermutationsFromSettings(this.parser.getSettings());
+    const indices = getSinglesPlayerPermutationsFromSettings(this.parser.getSettings()!);
     const playableFrames = this.parser.getPlayableFrameCount();
     const overall = generateOverallStats(indices, inputs, stocks, conversions, playableFrames);
 
@@ -172,5 +171,3 @@ export class SlippiGame {
     return this.input.filePath ?? null;
   }
 }
-
-/* eslint-enable no-param-reassign */

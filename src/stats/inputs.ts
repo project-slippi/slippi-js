@@ -1,6 +1,6 @@
 import _ from "lodash";
 import { PlayerIndexedType } from "./common";
-import { FramesType, FrameEntryType, Frames, PreFrameUpdateType } from "../types";
+import { FramesType, FrameEntryType, Frames } from "../types";
 
 import { StatComputer } from "./stats";
 
@@ -49,12 +49,14 @@ export class InputComputer implements StatComputer<PlayerInput[]> {
   public processFrame(frame: FrameEntryType, allFrames: FramesType): void {
     this.playerPermutations.forEach((indices) => {
       const state = this.state.get(indices);
-      handleInputCompute(allFrames, state, indices, frame);
+      if (state) {
+        handleInputCompute(allFrames, state, indices, frame);
+      }
     });
   }
 
   public fetch(): PlayerInput[] {
-    return Array.from(this.state.keys()).map((key) => this.state.get(key));
+    return Array.from(this.state.values());
   }
 }
 
@@ -64,23 +66,20 @@ function handleInputCompute(
   indices: PlayerIndexedType,
   frame: FrameEntryType,
 ): void {
-  const playerFrame = frame.players[indices.playerIndex].pre;
-  const prevPlayerFrame: PreFrameUpdateType = _.get(frames, [
-    playerFrame.frame - 1,
-    "players",
-    indices.playerIndex,
-    "pre",
-  ]);
+  const playerFrame = frame.players[indices.playerIndex]!.pre;
+  const currentFrameNumber = playerFrame.frame!;
+  const prevFrameNumber = currentFrameNumber - 1;
+  const prevPlayerFrame = frames[prevFrameNumber].players[indices.playerIndex]!.pre;
 
-  if (playerFrame.frame < Frames.FIRST_PLAYABLE || !prevPlayerFrame) {
+  if (currentFrameNumber < Frames.FIRST_PLAYABLE || !prevPlayerFrame) {
     // Don't count inputs until the game actually starts
     return;
   }
 
   // First count the number of buttons that go from 0 to 1
   // Increment action count by amount of button presses
-  const invertedPreviousButtons = ~prevPlayerFrame.physicalButtons;
-  const currentButtons = playerFrame.physicalButtons;
+  const invertedPreviousButtons = ~prevPlayerFrame.physicalButtons!;
+  const currentButtons = playerFrame.physicalButtons!;
   const buttonChanges = invertedPreviousButtons & currentButtons & 0xfff;
   const newInputsPressed = countSetBits(buttonChanges);
   state.inputCount += newInputsPressed;
@@ -88,16 +87,16 @@ function handleInputCompute(
 
   // Increment action count when sticks change from one region to another.
   // Don't increment when stick returns to deadzone
-  const prevAnalogRegion = getJoystickRegion(prevPlayerFrame.joystickX, prevPlayerFrame.joystickY);
-  const currentAnalogRegion = getJoystickRegion(playerFrame.joystickX, playerFrame.joystickY);
+  const prevAnalogRegion = getJoystickRegion(prevPlayerFrame.joystickX!, prevPlayerFrame.joystickY!);
+  const currentAnalogRegion = getJoystickRegion(playerFrame.joystickX!, playerFrame.joystickY!);
   if (prevAnalogRegion !== currentAnalogRegion && currentAnalogRegion !== JoystickRegion.DZ) {
     state.inputCount += 1;
     state.joystickInputCount += 1;
   }
 
   // Do the same for c-stick
-  const prevCstickRegion = getJoystickRegion(prevPlayerFrame.cStickX, prevPlayerFrame.cStickY);
-  const currentCstickRegion = getJoystickRegion(playerFrame.cStickX, playerFrame.cStickY);
+  const prevCstickRegion = getJoystickRegion(prevPlayerFrame.cStickX!, prevPlayerFrame.cStickY!);
+  const currentCstickRegion = getJoystickRegion(playerFrame.cStickX!, playerFrame.cStickY!);
   if (prevCstickRegion !== currentCstickRegion && currentCstickRegion !== JoystickRegion.DZ) {
     state.inputCount += 1;
     state.cstickInputCount += 1;
@@ -107,11 +106,11 @@ function handleInputCompute(
   // Currently will update input count when the button gets pressed past 0.3
   // Changes from hard shield to light shield should probably count as inputs but
   // are not counted here
-  if (prevPlayerFrame.physicalLTrigger < 0.3 && playerFrame.physicalLTrigger >= 0.3) {
+  if (prevPlayerFrame.physicalLTrigger! < 0.3 && playerFrame.physicalLTrigger! >= 0.3) {
     state.inputCount += 1;
     state.triggerInputCount += 1;
   }
-  if (prevPlayerFrame.physicalRTrigger < 0.3 && playerFrame.physicalRTrigger >= 0.3) {
+  if (prevPlayerFrame.physicalRTrigger! < 0.3 && playerFrame.physicalRTrigger! >= 0.3) {
     state.inputCount += 1;
     state.triggerInputCount += 1;
   }
