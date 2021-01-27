@@ -28,6 +28,8 @@ export class ActionsComputer implements StatComputer<ActionCountsType[]> {
         spotDodgeCount: 0,
         ledgegrabCount: 0,
         rollCount: 0,
+        lCancelSuccessCount: 0,
+        lCancelFailCount: 0,
       };
       const playerState: PlayerActionState = {
         playerCounts: playerCounts,
@@ -88,6 +90,10 @@ function isGrabbingLedge(animation: State): boolean {
   return animation === State.CLIFF_CATCH;
 }
 
+function isAerialAttack(animation: State): boolean {
+  return animation >= State.AERIAL_ATTACK_START && animation <= State.AERIAL_ATTACK_END;
+}
+
 function didStartLedgegrab(currentAnimation: State, previousAnimation: State): boolean {
   const isCurrentlyGrabbingLedge = isGrabbingLedge(currentAnimation);
   const wasPreviouslyGrabbingLedge = isGrabbingLedge(previousAnimation);
@@ -107,11 +113,11 @@ function handleActionCompute(state: PlayerActionState, indices: PlayerIndexedTyp
   };
 
   // Manage animation state
-  state.animations.push(playerFrame.actionStateId!);
+  const currentAnimation = playerFrame.actionStateId!;
+  state.animations.push(currentAnimation);
 
   // Grab last 3 frames
   const last3Frames = state.animations.slice(-3);
-  const currentAnimation = playerFrame.actionStateId!;
   const prevAnimation = last3Frames[last3Frames.length - 2];
 
   // Increment counts based on conditions
@@ -129,6 +135,11 @@ function handleActionCompute(state: PlayerActionState, indices: PlayerIndexedTyp
 
   const didGrabLedge = didStartLedgegrab(currentAnimation, prevAnimation);
   incrementCount("ledgegrabCount", didGrabLedge);
+
+  if (isAerialAttack(currentAnimation)) {
+    incrementCount("lCancelSuccessCount", playerFrame.lCancelStatus === 1);
+    incrementCount("lCancelFailCount", playerFrame.lCancelStatus === 2);
+  }
 
   // Handles wavedash detection (and waveland)
   handleActionWavedash(state.playerCounts, state.animations);

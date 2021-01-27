@@ -65,6 +65,8 @@ export interface ActionCountsType extends PlayerIndexedType {
   spotDodgeCount: number;
   ledgegrabCount: number;
   rollCount: number;
+  lCancelSuccessCount: number;
+  lCancelFailCount: number;
 }
 
 export interface InputCountsType {
@@ -112,6 +114,8 @@ export enum State {
   CONTROLLED_JUMP_END = 0x22,
   GROUND_ATTACK_START = 0x2c,
   GROUND_ATTACK_END = 0x40,
+  AERIAL_ATTACK_START = 0x41,
+  AERIAL_ATTACK_END = 0x4a,
 
   // Animation ID specific
   ROLL_FORWARD = 0xe9,
