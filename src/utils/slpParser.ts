@@ -184,8 +184,8 @@ export class SlpParser extends EventEmitter {
 
     // If file is from before frame bookending, add frame to stats computer here. Does a little
     // more processing than necessary, but it works
-    const settings = this.getSettings()!;
-    if (!settings.slpVersion || semver.lte(settings.slpVersion, "2.2.0")) {
+    const settings = this.getSettings();
+    if (settings && (!settings.slpVersion || semver.lte(settings.slpVersion, "2.2.0"))) {
       this.emit(SlpParserEvent.FRAME, this.frames[currentFrameNumber]);
       // Finalize the previous frame since no bookending exists
       this._finalizeFrames(currentFrameNumber - 1);

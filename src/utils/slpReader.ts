@@ -212,7 +212,7 @@ export function iterateEvents(
 ): number {
   const ref = slpFile.ref;
 
-  let readPosition = startPos !== null ? startPos : slpFile.rawDataPosition;
+  let readPosition = startPos !== null && startPos > 0 ? startPos : slpFile.rawDataPosition;
   const stopReadingAt = slpFile.rawDataPosition + slpFile.rawDataLength;
 
   // Generate read buffers for each
