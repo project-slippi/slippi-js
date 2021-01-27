@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { FrameEntryType, FramesType } from "../types";
+import { FrameEntryType, Frames, FramesType, PostFrameUpdateType } from "../types";
 import { MoveLandedType, ComboType, PlayerIndexedType } from "./common";
 import { isDamaged, isGrabbed, calcDamageTaken, isTeching, didLoseStock, Timers, isDown, isDead } from "./common";
 import { StatComputer } from "./stats";
@@ -50,18 +50,23 @@ function handleComboCompute(
   frame: FrameEntryType,
   combos: ComboType[],
 ): void {
+  const currentFrameNumber = frame.frame;
   const playerFrame = frame.players[indices.playerIndex]!.post;
-  const currentFrameNumber = playerFrame.frame!;
-  const prevFrameNumber = currentFrameNumber - 1;
-
-  const prevPlayerFrame = frames[prevFrameNumber].players[indices.playerIndex]!.post;
   const opponentFrame = frame.players[indices.opponentIndex]!.post;
-  const prevOpponentFrame = frames[prevFrameNumber].players[indices.opponentIndex]!.post;
+
+  const prevFrameNumber = currentFrameNumber - 1;
+  let prevPlayerFrame: PostFrameUpdateType | null = null;
+  let prevOpponentFrame: PostFrameUpdateType | null = null;
+
+  if (frames[prevFrameNumber]) {
+    prevPlayerFrame = frames[prevFrameNumber].players[indices.playerIndex]!.post;
+    prevOpponentFrame = frames[prevFrameNumber].players[indices.opponentIndex]!.post;
+  }
 
   const oppActionStateId = opponentFrame.actionStateId!;
   const opntIsDamaged = isDamaged(oppActionStateId);
   const opntIsGrabbed = isGrabbed(oppActionStateId);
-  const opntDamageTaken = calcDamageTaken(opponentFrame, prevOpponentFrame);
+  const opntDamageTaken = prevOpponentFrame ? calcDamageTaken(opponentFrame, prevOpponentFrame) : 0;
 
   // Keep track of whether actionState changes after a hit. Used to compute move count
   // When purely using action state there was a bug where if you did two of the same
@@ -71,7 +76,7 @@ function handleComboCompute(
   // null and null < null = false
   const actionChangedSinceHit = playerFrame.actionStateId !== state.lastHitAnimation;
   const actionCounter = playerFrame.actionStateCounter!;
-  const prevActionCounter = prevPlayerFrame.actionStateCounter!;
+  const prevActionCounter = prevPlayerFrame ? prevPlayerFrame.actionStateCounter! : 0;
   const actionFrameCounterReset = actionCounter < prevActionCounter;
   if (actionChangedSinceHit || actionFrameCounterReset) {
     state.lastHitAnimation = null;
@@ -86,7 +91,7 @@ function handleComboCompute(
         opponentIndex: indices.opponentIndex,
         startFrame: currentFrameNumber,
         endFrame: null,
-        startPercent: prevOpponentFrame.percent ?? 0,
+        startPercent: prevOpponentFrame ? prevOpponentFrame.percent ?? 0 : 0,
         currentPercent: opponentFrame.percent ?? 0,
         endPercent: null,
         moves: [],
@@ -117,7 +122,7 @@ function handleComboCompute(
 
       // Store previous frame animation to consider the case of a trade, the previous
       // frame should always be the move that actually connected... I hope
-      state.lastHitAnimation = prevPlayerFrame.actionStateId;
+      state.lastHitAnimation = prevPlayerFrame ? prevPlayerFrame.actionStateId : null;
     }
   }
 
@@ -129,7 +134,7 @@ function handleComboCompute(
 
   const opntIsTeching = isTeching(oppActionStateId);
   const opntIsDowned = isDown(oppActionStateId);
-  const opntDidLoseStock = didLoseStock(opponentFrame, prevOpponentFrame);
+  const opntDidLoseStock = prevOpponentFrame && didLoseStock(opponentFrame, prevOpponentFrame);
   const opntIsDying = isDead(oppActionStateId);
 
   // Update percent if opponent didn't lose stock
@@ -160,7 +165,7 @@ function handleComboCompute(
   // If combo should terminate, mark the end states and add it to list
   if (shouldTerminate) {
     state.combo.endFrame = playerFrame.frame;
-    state.combo.endPercent = prevOpponentFrame.percent ?? 0;
+    state.combo.endPercent = prevOpponentFrame ? prevOpponentFrame.percent ?? 0 : 0;
 
     state.combo = null;
     state.move = null;

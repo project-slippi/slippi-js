@@ -97,17 +97,23 @@ function handleConversionCompute(
   frame: FrameEntryType,
   conversions: ConversionType[],
 ): void {
+  const currentFrameNumber = frame.frame;
   const playerFrame: PostFrameUpdateType = frame.players[indices.playerIndex]!.post;
-  const currentFrameNumber = playerFrame.frame!;
-  const prevFrameNumber = currentFrameNumber - 1;
-  const prevPlayerFrame = frames[prevFrameNumber].players[indices.playerIndex]!.post;
   const opponentFrame = frame.players[indices.opponentIndex]!.post;
-  const prevOpponentFrame = frames[prevFrameNumber].players[indices.opponentIndex]!.post;
+
+  const prevFrameNumber = currentFrameNumber - 1;
+  let prevPlayerFrame: PostFrameUpdateType | null = null;
+  let prevOpponentFrame: PostFrameUpdateType | null = null;
+
+  if (frames[prevFrameNumber]) {
+    prevPlayerFrame = frames[prevFrameNumber].players[indices.playerIndex]!.post;
+    prevOpponentFrame = frames[prevFrameNumber].players[indices.opponentIndex]!.post;
+  }
 
   const oppActionStateId = opponentFrame.actionStateId!;
   const opntIsDamaged = isDamaged(oppActionStateId);
   const opntIsGrabbed = isGrabbed(oppActionStateId);
-  const opntDamageTaken = calcDamageTaken(opponentFrame, prevOpponentFrame);
+  const opntDamageTaken = prevOpponentFrame ? calcDamageTaken(opponentFrame, prevOpponentFrame) : 0;
 
   // Keep track of whether actionState changes after a hit. Used to compute move count
   // When purely using action state there was a bug where if you did two of the same
@@ -117,7 +123,7 @@ function handleConversionCompute(
   // null and null < null = false
   const actionChangedSinceHit = playerFrame.actionStateId !== state.lastHitAnimation;
   const actionCounter = playerFrame.actionStateCounter!;
-  const prevActionCounter = prevPlayerFrame.actionStateCounter!;
+  const prevActionCounter = prevPlayerFrame ? prevPlayerFrame.actionStateCounter! : 0;
   const actionFrameCounterReset = actionCounter < prevActionCounter;
   if (actionChangedSinceHit || actionFrameCounterReset) {
     state.lastHitAnimation = null;
@@ -132,7 +138,7 @@ function handleConversionCompute(
         opponentIndex: indices.opponentIndex,
         startFrame: currentFrameNumber,
         endFrame: null,
-        startPercent: prevOpponentFrame.percent ?? 0,
+        startPercent: prevOpponentFrame ? prevOpponentFrame.percent ?? 0 : 0,
         currentPercent: opponentFrame.percent ?? 0,
         endPercent: null,
         moves: [],
@@ -164,7 +170,7 @@ function handleConversionCompute(
 
       // Store previous frame animation to consider the case of a trade, the previous
       // frame should always be the move that actually connected... I hope
-      state.lastHitAnimation = prevPlayerFrame.actionStateId;
+      state.lastHitAnimation = prevPlayerFrame ? prevPlayerFrame.actionStateId : null;
     }
   }
 
@@ -175,7 +181,7 @@ function handleConversionCompute(
   }
 
   const opntInControl = isInControl(oppActionStateId);
-  const opntDidLoseStock = didLoseStock(opponentFrame, prevOpponentFrame);
+  const opntDidLoseStock = prevOpponentFrame && didLoseStock(opponentFrame, prevOpponentFrame);
 
   // Update percent if opponent didn't lose stock
   if (!opntDidLoseStock) {
@@ -212,7 +218,7 @@ function handleConversionCompute(
   // If conversion should terminate, mark the end states and add it to list
   if (shouldTerminate) {
     state.conversion.endFrame = playerFrame.frame;
-    state.conversion.endPercent = prevOpponentFrame.percent ?? 0;
+    state.conversion.endPercent = prevOpponentFrame ? prevOpponentFrame.percent ?? 0 : 0;
 
     state.conversion = null;
     state.move = null;

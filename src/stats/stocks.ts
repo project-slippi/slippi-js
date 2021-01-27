@@ -47,7 +47,7 @@ function handleStockCompute(
   const playerFrame = frame.players[indices.playerIndex]!.post;
   const currentFrameNumber = playerFrame.frame!;
   const prevFrameNumber = currentFrameNumber - 1;
-  const prevPlayerFrame = frames[prevFrameNumber].players[indices.playerIndex]!.post;
+  const prevPlayerFrame = frames[prevFrameNumber] ? frames[prevFrameNumber].players[indices.playerIndex]!.post : null;
 
   // If there is currently no active stock, wait until the player is no longer spawning.
   // Once the player is no longer spawning, start the stock
@@ -70,7 +70,7 @@ function handleStockCompute(
     };
 
     stocks.push(state.stock);
-  } else if (didLoseStock(playerFrame, prevPlayerFrame)) {
+  } else if (prevPlayerFrame && didLoseStock(playerFrame, prevPlayerFrame)) {
     state.stock.endFrame = playerFrame.frame;
     state.stock.endPercent = prevPlayerFrame.percent ?? 0;
     state.stock.deathAnimation = playerFrame.actionStateId;
