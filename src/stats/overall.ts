@@ -93,8 +93,8 @@ function getBeneficialTradeRatio(
   playerIndex: number,
   opponentIndex: number,
 ): RatioType {
-  const playerTrades = conversionsByPlayerByOpening[playerIndex].trade;
-  const opponentTrades = conversionsByPlayerByOpening[opponentIndex].trade;
+  const playerTrades = _.get(conversionsByPlayerByOpening, [playerIndex, "trade"]) || [];
+  const opponentTrades = _.get(conversionsByPlayerByOpening, [opponentIndex, "trade"]) || [];
 
   const benefitsPlayer = [];
 
