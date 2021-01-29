@@ -16,9 +16,7 @@ enum JoystickRegion {
   W = 8,
 }
 
-export interface PlayerInput {
-  playerIndex: number;
-  opponentIndex: number;
+export interface PlayerInput extends PlayerIndexedType {
   inputCount: number;
   joystickInputCount: number;
   cstickInputCount: number;

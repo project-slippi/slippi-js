@@ -12,7 +12,7 @@ import {
   InputComputer,
   Stats,
   StatsType,
-  getSinglesPlayerPermutationsFromSettings,
+  getPlayerPermutationsFromSettings,
   generateOverallStats,
   StatOptions,
 } from "./stats";
@@ -59,7 +59,7 @@ export class SlippiGame {
     );
     this.parser = new SlpParser();
     this.parser.on(SlpParserEvent.SETTINGS, (settings) => {
-      const playerPermutations = getSinglesPlayerPermutationsFromSettings(settings);
+      const playerPermutations = getPlayerPermutationsFromSettings(settings);
       this.statsComputer.setPlayerPermutations(playerPermutations);
     });
     // Use finalized frames for stats computation
@@ -127,7 +127,7 @@ export class SlippiGame {
     const inputs = this.inputComputer.fetch();
     const stocks = this.stockComputer.fetch();
     const conversions = this.conversionComputer.fetch();
-    const indices = getSinglesPlayerPermutationsFromSettings(this.parser.getSettings()!);
+    const indices = getPlayerPermutationsFromSettings(this.parser.getSettings()!);
     const playableFrames = this.parser.getPlayableFrameCount();
     const overall = generateOverallStats(indices, inputs, stocks, conversions, playableFrames);
 

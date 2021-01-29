@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { PostFrameUpdateType, GameStartType } from "../types";
+import { PostFrameUpdateType, GameStartType, PlayerType } from "../types";
 
 export interface StatsType {
   gameComplete: boolean;
@@ -20,7 +20,7 @@ export interface RatioType {
 
 export interface PlayerIndexedType {
   playerIndex: number;
-  opponentIndex: number;
+  opponentIndex: number[];
 }
 
 export interface DurationType {
@@ -97,9 +97,9 @@ export interface OverallType extends PlayerIndexedType {
   digitalInputsPerMinute: RatioType;
   openingsPerKill: RatioType;
   damagePerOpening: RatioType;
-  neutralWinRatio: RatioType;
-  counterHitRatio: RatioType;
-  beneficialTradeRatio: RatioType;
+  neutralWinRatio: RatioType[];
+  counterHitRatio: RatioType[];
+  beneficialTradeRatio: RatioType[];
 }
 
 export enum State {
@@ -161,22 +161,18 @@ export const Timers = {
   COMBO_STRING_RESET_FRAMES: 45,
 };
 
-export function getSinglesPlayerPermutationsFromSettings(settings: GameStartType): PlayerIndexedType[] {
-  if (!settings || settings.players.length !== 2) {
+export function getPlayerPermutationsFromSettings(settings: GameStartType): PlayerIndexedType[] {
+  if (!settings) {
     // Only return opponent indices for singles
     return [];
   }
 
-  return [
-    {
-      playerIndex: settings.players[0].playerIndex,
-      opponentIndex: settings.players[1].playerIndex,
-    },
-    {
-      playerIndex: settings.players[1].playerIndex,
-      opponentIndex: settings.players[0].playerIndex,
-    },
-  ];
+  return settings.players.map((player) => {
+    return {
+      playerIndex: player.playerIndex,
+      opponentIndex: _.without([0, 1, 2, 3], player.playerIndex),
+    };
+  });
 }
 
 export function didLoseStock(frame: PostFrameUpdateType, prevFrame: PostFrameUpdateType): boolean {

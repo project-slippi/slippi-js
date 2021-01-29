@@ -26,7 +26,6 @@ export function generateOverallStats(
 
   const overall = playerIndices.map((indices) => {
     const playerIndex = indices.playerIndex;
-    const opponentIndex = indices.opponentIndex;
     const playerInputs = _.get(inputsByPlayer, playerIndex) || {};
     const inputCounts: InputCountsType = {
       buttons: _.get(playerInputs, "buttonInputCount"),
@@ -37,17 +36,29 @@ export function generateOverallStats(
     };
     const conversions = _.get(conversionsByPlayer, playerIndex) || [];
     const successfulConversions = conversions.filter((conversion) => conversion.moves.length > 1);
-    const opponentStocks = _.get(stocksByPlayer, opponentIndex) || [];
-    const opponentEndedStocks = _.filter(opponentStocks, "endFrame");
 
     const conversionCount = conversions.length;
     const successfulConversionCount = successfulConversions.length;
-    const totalDamage = _.sumBy(opponentStocks, "currentPercent") || 0;
-    const killCount = opponentEndedStocks.length;
+    // let totalDamage = _.sumBy(opponentStocks, "currentPercent") || 0;
+    // let killCount = opponentEndedStocks.length;
+    let totalDamage = 0;
+    let killCount = 0;
+    const response = _.map(indices.opponentIndex, (opponentIndex) => {
+      const opponentStocks = _.get(stocksByPlayer, opponentIndex) || [];
+      const opponentEndedStocks = _.filter(opponentStocks, "endFrame");
+      totalDamage += _.sumBy(opponentStocks, "currentPercent");
+      killCount += opponentEndedStocks.length;
+
+      return {
+        neutralWinRatio: getOpeningRatio(conversionsByPlayerByOpening, playerIndex, opponentIndex, "neutral-win"),
+        counterHitRatio: getOpeningRatio(conversionsByPlayerByOpening, playerIndex, opponentIndex, "counter-attack"),
+        beneficialTradeRatio: getBeneficialTradeRatio(conversionsByPlayerByOpening, playerIndex, opponentIndex),
+      };
+    });
 
     return {
       playerIndex: playerIndex,
-      opponentIndex: opponentIndex,
+      opponentIndex: indices.opponentIndex,
       inputCounts: inputCounts,
       conversionCount: conversionCount,
       totalDamage: totalDamage,
@@ -58,9 +69,9 @@ export function generateOverallStats(
       digitalInputsPerMinute: getRatio(inputCounts.buttons, gameMinutes),
       openingsPerKill: getRatio(conversionCount, killCount),
       damagePerOpening: getRatio(totalDamage, conversionCount),
-      neutralWinRatio: getOpeningRatio(conversionsByPlayerByOpening, playerIndex, opponentIndex, "neutral-win"),
-      counterHitRatio: getOpeningRatio(conversionsByPlayerByOpening, playerIndex, opponentIndex, "counter-attack"),
-      beneficialTradeRatio: getBeneficialTradeRatio(conversionsByPlayerByOpening, playerIndex, opponentIndex),
+      neutralWinRatio: _.map(response, _.method("neutralWinRatio")),
+      counterHitRatio: _.mapValues(response, _.method("neutralWinRatio")),
+      beneficialTradeRatio: _.mapValues(response, _.method("neutralWinRatio")),
     };
   });
 

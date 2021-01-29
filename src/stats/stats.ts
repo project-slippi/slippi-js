@@ -70,7 +70,7 @@ function isCompletedFrame(playerPermutations: PlayerIndexedType[], frame: FrameE
   // for our purposes.
   const { playerIndex, opponentIndex } = _.first(playerPermutations)!;
   const playerPostFrame = _.get(frame, ["players", playerIndex, "post"]);
-  const oppPostFrame = _.get(frame, ["players", opponentIndex, "post"]);
+  const oppPostFrame = _.get(frame, ["players", opponentIndex[0], "post"]);
 
   return Boolean(playerPostFrame && oppPostFrame);
 }
