@@ -32,14 +32,14 @@ export class ActionsComputer implements StatComputer<ActionCountsType[]> {
         lCancelFailCount: 0,
         grabCounts: {
           success: 0,
-          fail: 0
+          fail: 0,
         },
         throwCounts: {
           up: 0,
           forward: 0,
           back: 0,
-          down: 0
-        }
+          down: 0,
+        },
       };
       const playerState: PlayerActionState = {
         playerCounts: playerCounts,
@@ -125,7 +125,7 @@ function handleActionCompute(state: PlayerActionState, indices: PlayerIndexedTyp
       return;
     }
 
-    _.update(state.playerCounts, field, (n) => n+1)
+    _.update(state.playerCounts, field, (n) => n + 1);
   };
 
   // Manage animation state
@@ -135,7 +135,7 @@ function handleActionCompute(state: PlayerActionState, indices: PlayerIndexedTyp
   // Grab last 3 frames
   const last3Frames = state.animations.slice(-3);
   const prevAnimation = last3Frames[last3Frames.length - 2];
-  const newAnimation = currentAnimation !== prevAnimation
+  const newAnimation = currentAnimation !== prevAnimation;
 
   // Increment counts based on conditions
   const didDashDance = _.isEqual(last3Frames, dashDanceAnimations);
@@ -152,7 +152,7 @@ function handleActionCompute(state: PlayerActionState, indices: PlayerIndexedTyp
 
   const didGrabLedge = didStartLedgegrab(currentAnimation, prevAnimation);
   incrementCount("ledgegrabCount", didGrabLedge);
-  
+
   const didGrabSucceed = didStartGrabSuccess(currentAnimation, prevAnimation);
   incrementCount("grabCounts.success", didGrabSucceed);
   const didGrabFail = didStartGrabFail(currentAnimation, prevAnimation);

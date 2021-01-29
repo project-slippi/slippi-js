@@ -68,14 +68,14 @@ export interface ActionCountsType extends PlayerIndexedType {
   lCancelSuccessCount: number;
   lCancelFailCount: number;
   grabCounts: {
-    success: number,
-    fail: number
-  }
+    success: number;
+    fail: number;
+  };
   throwCounts: {
-    up: number,
-    forward: number,
-    back: number,
-    down: number
+    up: number;
+    forward: number;
+    back: number;
+    down: number;
   };
 }
 
@@ -152,7 +152,7 @@ export enum State {
   THROW_UP = 0xdd,
   THROW_FORWARD = 0xdb,
   THROW_DOWN = 0xde,
-  THROW_BACK = 0xdc
+  THROW_BACK = 0xdc,
 }
 
 export const Timers = {
