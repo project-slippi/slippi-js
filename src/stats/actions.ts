@@ -30,6 +30,16 @@ export class ActionsComputer implements StatComputer<ActionCountsType[]> {
         rollCount: 0,
         lCancelSuccessCount: 0,
         lCancelFailCount: 0,
+        grabCounts: {
+          success: 0,
+          fail: 0
+        },
+        throwCounts: {
+          up: 0,
+          forward: 0,
+          back: 0,
+          down: 0
+        }
       };
       const playerState: PlayerActionState = {
         playerCounts: playerCounts,
@@ -66,6 +76,13 @@ function didStartRoll(currentAnimation: number, previousAnimation: number): bool
 
 function isSpotDodging(animation: State): boolean {
   return animation === State.SPOT_DODGE;
+}
+
+function didStartGrabSuccess(currentAnimation: State, previousAnimation: State): boolean {
+  return previousAnimation === State.GRAB && currentAnimation <= State.GRAB_WAIT && currentAnimation > State.GRAB;
+}
+function didStartGrabFail(currentAnimation: State, previousAnimation: State): boolean {
+  return previousAnimation === State.GRAB && (currentAnimation > State.GRAB_WAIT || currentAnimation < State.GRAB);
 }
 
 function didStartSpotDodge(currentAnimation: State, previousAnimation: State): boolean {
@@ -108,8 +125,7 @@ function handleActionCompute(state: PlayerActionState, indices: PlayerIndexedTyp
       return;
     }
 
-    // FIXME: ActionsCountsType should be a map of actions -> number, instead of accessing the field via string
-    (state.playerCounts as any)[field] += 1;
+    _.update(state.playerCounts, field, (n) => n+1)
   };
 
   // Manage animation state
@@ -119,6 +135,7 @@ function handleActionCompute(state: PlayerActionState, indices: PlayerIndexedTyp
   // Grab last 3 frames
   const last3Frames = state.animations.slice(-3);
   const prevAnimation = last3Frames[last3Frames.length - 2];
+  const newAnimation = currentAnimation !== prevAnimation
 
   // Increment counts based on conditions
   const didDashDance = _.isEqual(last3Frames, dashDanceAnimations);
@@ -135,6 +152,16 @@ function handleActionCompute(state: PlayerActionState, indices: PlayerIndexedTyp
 
   const didGrabLedge = didStartLedgegrab(currentAnimation, prevAnimation);
   incrementCount("ledgegrabCount", didGrabLedge);
+  
+  const didGrabSucceed = didStartGrabSuccess(currentAnimation, prevAnimation);
+  incrementCount("grabCounts.success", didGrabSucceed);
+  const didGrabFail = didStartGrabFail(currentAnimation, prevAnimation);
+  incrementCount("grabCounts.fail", didGrabFail);
+
+  incrementCount("throwCounts.up", currentAnimation === State.THROW_UP && newAnimation);
+  incrementCount("throwCounts.forward", currentAnimation === State.THROW_FORWARD && newAnimation);
+  incrementCount("throwCounts.down", currentAnimation === State.THROW_DOWN && newAnimation);
+  incrementCount("throwCounts.back", currentAnimation === State.THROW_BACK && newAnimation);
 
   if (isAerialAttack(currentAnimation)) {
     incrementCount("lCancelSuccessCount", playerFrame.lCancelStatus === 1);
