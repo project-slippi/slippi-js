@@ -39,8 +39,7 @@ export function generateOverallStats(
 
     const conversionCount = conversions.length;
     const successfulConversionCount = successfulConversions.length;
-    // let totalDamage = _.sumBy(opponentStocks, "currentPercent") || 0;
-    // let killCount = opponentEndedStocks.length;
+
     let totalDamage = 0;
     let killCount = 0;
     const response = _.map(indices.opponentIndex, (opponentIndex) => {
@@ -111,16 +110,20 @@ function getBeneficialTradeRatio(
 
   // Figure out which punishes benefited this player
   const zippedTrades = _.zip(playerTrades, opponentTrades);
+  // console.log(zippedTrades, opponentTrades)
   zippedTrades.forEach((conversionPair) => {
+    console.log(playerTrades, opponentTrades)
     const playerConversion = _.first(conversionPair);
     const opponentConversion = _.last(conversionPair);
-    const playerDamage = playerConversion!.currentPercent - playerConversion!.startPercent;
-    const opponentDamage = opponentConversion!.currentPercent - opponentConversion!.startPercent;
-
-    if (playerConversion!.didKill && !opponentConversion!.didKill) {
-      benefitsPlayer.push(playerConversion);
-    } else if (playerDamage > opponentDamage) {
-      benefitsPlayer.push(playerConversion);
+    if(playerConversion && opponentConversion){
+      const playerDamage = playerConversion.currentPercent - playerConversion.startPercent;
+      const opponentDamage = opponentConversion.currentPercent  - opponentConversion.startPercent;
+  
+      if (playerConversion!.didKill && !opponentConversion!.didKill) {
+        benefitsPlayer.push(playerConversion);
+      } else if (playerDamage > opponentDamage) {
+        benefitsPlayer.push(playerConversion);
+      }
     }
   });
 

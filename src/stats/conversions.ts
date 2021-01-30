@@ -83,8 +83,8 @@ export class ConversionComputer implements StatComputer<ConversionType[]> {
         }
 
         // If not trade, check the opponent endFrame
-        const oppEndFrame = this.metadata.lastEndFrameByOppIdx[conversion.playerIndex];
-        const isCounterAttack = oppEndFrame && oppEndFrame > conversion.startFrame;
+        const playerEndFrame = this.metadata.lastEndFrameByOppIdx[conversion.playerIndex];
+        const isCounterAttack = playerEndFrame && playerEndFrame > conversion.startFrame;
         conversion.openingType = isCounterAttack ? "counter-attack" : "neutral-win";
       });
     });

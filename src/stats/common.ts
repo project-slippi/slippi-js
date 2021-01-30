@@ -173,7 +173,7 @@ export function getPlayerPermutationsFromSettings(settings: GameStartType): Play
   return settings.players.map((player) => {
     return {
       playerIndex: player.playerIndex,
-      opponentIndex: _.without([0, 1, 2, 3], player.playerIndex),
+      opponentIndex: _.without(Array.from(Array(settings.players.length).keys()), player.playerIndex),
     };
   });
 }
