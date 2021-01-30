@@ -83,7 +83,7 @@ export class ConversionComputer implements StatComputer<ConversionType[]> {
         }
 
         // If not trade, check the opponent endFrame
-        const oppEndFrame = this.metadata.lastEndFrameByOppIdx[conversion.opponentIndex[0]];
+        const oppEndFrame = this.metadata.lastEndFrameByOppIdx[conversion.playerIndex];
         const isCounterAttack = oppEndFrame && oppEndFrame > conversion.startFrame;
         conversion.openingType = isCounterAttack ? "counter-attack" : "neutral-win";
       });
@@ -123,113 +123,104 @@ function handleConversionCompute(
     state.lastHitAnimation = null;
   }
 
-  _.forEach(indices.opponentIndex, (opponentIndex) => {
-    if (opponentIndex === undefined) {
-      return;
-    }
-    const opponentFrame = frame.players[opponentIndex]!.post;
-    if (frames[prevFrameNumber]) {
-      prevOpponentFrame = frames[prevFrameNumber].players[opponentIndex]!.post;
+
+  const playerActionStateId = playerFrame.actionStateId!;
+  const playerIsDamaged = isDamaged(playerActionStateId);
+  const playerIsGrabbed = isGrabbed(playerActionStateId);
+
+  // If opponent took damage and was put in some kind of stun this frame, either
+  // start a conversion or
+  if (playerIsDamaged || playerIsGrabbed) {
+    if (!state.conversion) {
+      state.conversion = {
+        playerIndex: indices.playerIndex,
+        startFrame: currentFrameNumber,
+        endFrame: null,
+        startPercent: prevPlayerFrame ? prevPlayerFrame.percent ?? 0 : 0,
+        currentPercent: playerFrame.percent ?? 0,
+        endPercent: null,
+        moves: [],
+        didKill: false,
+        openingType: "unknown", // Will be updated later
+      };
+
+      conversions.push(state.conversion);
     }
 
-    const oppActionStateId = opponentFrame.actionStateId!;
-    const opntIsDamaged = isDamaged(oppActionStateId);
-    const opntIsGrabbed = isGrabbed(oppActionStateId);
-    const opntDamageTaken = prevOpponentFrame ? calcDamageTaken(opponentFrame, prevOpponentFrame) : 0;
-
-    // If opponent took damage and was put in some kind of stun this frame, either
-    // start a conversion or
-    if (opntIsDamaged || opntIsGrabbed) {
-      if (!state.conversion) {
-        state.conversion = {
-          playerIndex: indices.playerIndex,
-          opponentIndex: [opponentIndex],
-          startFrame: currentFrameNumber,
-          endFrame: null,
-          startPercent: prevOpponentFrame ? prevOpponentFrame.percent ?? 0 : 0,
-          currentPercent: opponentFrame.percent ?? 0,
-          endPercent: null,
-          moves: [],
-          didKill: false,
-          openingType: "unknown", // Will be updated later
+    const playerDamageTaken = prevPlayerFrame ? calcDamageTaken(playerFrame, prevPlayerFrame) : 0;
+    if (playerDamageTaken) {
+      // If animation of last hit has been cleared that means this is a new move. This
+      // prevents counting multiple hits from the same move such as fox's drill
+      if (state.lastHitAnimation === null) {
+        state.move = {
+          frame: currentFrameNumber,
+          moveId: playerFrame.lastAttackLanded!,
+          hitCount: 0,
+          damage: 0,
+          playerIndex: playerFrame.lastHitBy ?? indices.playerIndex,
         };
 
-        conversions.push(state.conversion);
+        state.conversion.moves.push(state.move);
       }
 
-      if (opntDamageTaken) {
-        // If animation of last hit has been cleared that means this is a new move. This
-        // prevents counting multiple hits from the same move such as fox's drill
-        if (state.lastHitAnimation === null) {
-          state.move = {
-            frame: currentFrameNumber,
-            moveId: playerFrame.lastAttackLanded!,
-            hitCount: 0,
-            damage: 0,
-          };
-
-          state.conversion.moves.push(state.move);
-        }
-
-        if (state.move) {
-          state.move.hitCount += 1;
-          state.move.damage += opntDamageTaken;
-        }
-
-        // Store previous frame animation to consider the case of a trade, the previous
-        // frame should always be the move that actually connected... I hope
-        state.lastHitAnimation = prevPlayerFrame ? prevPlayerFrame.actionStateId : null;
+      if (state.move) {
+        state.move.hitCount += 1;
+        state.move.damage += playerDamageTaken;
       }
+
+      // Store previous frame animation to consider the case of a trade, the previous
+      // frame should always be the move that actually connected... I hope
+      state.lastHitAnimation = prevPlayerFrame ? prevPlayerFrame.actionStateId : null;
     }
+  }
 
-    if (!state.conversion || state.conversion.opponentIndex[0] !== opponentIndex) {
-      // The rest of the function handles conversion termination logic, so if we don't
-      // have a conversion started, there is no need to continue
-      return;
-    }
+  if (!state.conversion) {
+    // The rest of the function handles conversion termination logic, so if we don't
+    // have a conversion started, there is no need to continue
+    return;
+  }
 
-    const opntInControl = isInControl(oppActionStateId);
-    const opntDidLoseStock = prevOpponentFrame && didLoseStock(opponentFrame, prevOpponentFrame);
+  const opntInControl = isInControl(playerActionStateId);
+  const playerDidLoseStock = prevPlayerFrame && didLoseStock(playerFrame, prevPlayerFrame);
 
-    // Update percent if opponent didn't lose stock
-    if (!opntDidLoseStock) {
-      state.conversion.currentPercent = opponentFrame.percent ?? 0;
-    }
+  // Update percent if opponent didn't lose stock
+  if (!playerDidLoseStock) {
+    state.conversion.currentPercent = playerFrame.percent ?? 0;
+  }
 
-    if (opntIsDamaged || opntIsGrabbed) {
-      // If opponent got grabbed or damaged, reset the reset counter
-      state.resetCounter = 0;
-    }
+  if (playerIsDamaged || playerIsGrabbed) {
+    // If opponent got grabbed or damaged, reset the reset counter
+    state.resetCounter = 0;
+  }
 
-    const shouldStartResetCounter = state.resetCounter === 0 && opntInControl;
-    const shouldContinueResetCounter = state.resetCounter > 0;
-    if (shouldStartResetCounter || shouldContinueResetCounter) {
-      // This will increment the reset timer under the following conditions:
-      // 1) if we were punishing opponent but they have now entered an actionable state
-      // 2) if counter has already started counting meaning opponent has entered actionable state
-      state.resetCounter += 1;
-    }
+  const shouldStartResetCounter = state.resetCounter === 0 && opntInControl;
+  const shouldContinueResetCounter = state.resetCounter > 0;
+  if (shouldStartResetCounter || shouldContinueResetCounter) {
+    // This will increment the reset timer under the following conditions:
+    // 1) if we were punishing opponent but they have now entered an actionable state
+    // 2) if counter has already started counting meaning opponent has entered actionable state
+    state.resetCounter += 1;
+  }
 
-    let shouldTerminate = false;
+  let shouldTerminate = false;
 
-    // Termination condition 1 - player kills opponent
-    if (opntDidLoseStock) {
-      state.conversion.didKill = true;
-      shouldTerminate = true;
-    }
+  // Termination condition 1 - player kills opponent
+  if (playerDidLoseStock) {
+    state.conversion.didKill = true;
+    shouldTerminate = true;
+  }
 
-    // Termination condition 2 - conversion resets on time
-    if (state.resetCounter > Timers.PUNISH_RESET_FRAMES) {
-      shouldTerminate = true;
-    }
+  // Termination condition 2 - conversion resets on time
+  if (state.resetCounter > Timers.PUNISH_RESET_FRAMES) {
+    shouldTerminate = true;
+  }
 
-    // If conversion should terminate, mark the end states and add it to list
-    if (shouldTerminate) {
-      state.conversion.endFrame = playerFrame.frame;
-      state.conversion.endPercent = prevOpponentFrame ? prevOpponentFrame.percent ?? 0 : 0;
+  // If conversion should terminate, mark the end states and add it to list
+  if (shouldTerminate) {
+    state.conversion.endFrame = playerFrame.frame;
+    state.conversion.endPercent = prevPlayerFrame ? prevPlayerFrame.percent ?? 0 : 0;
 
-      state.conversion = null;
-      state.move = null;
-    }
-  });
+    state.conversion = null;
+    state.move = null;
+  }
 }

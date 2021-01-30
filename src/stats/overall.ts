@@ -69,9 +69,9 @@ export function generateOverallStats(
       digitalInputsPerMinute: getRatio(inputCounts.buttons, gameMinutes),
       openingsPerKill: getRatio(conversionCount, killCount),
       damagePerOpening: getRatio(totalDamage, conversionCount),
-      neutralWinRatio: _.map(response, _.method("neutralWinRatio")),
-      counterHitRatio: _.mapValues(response, _.method("neutralWinRatio")),
-      beneficialTradeRatio: _.mapValues(response, _.method("neutralWinRatio")),
+      neutralWinRatio: [response[0].neutralWinRatio],
+      counterHitRatio: [response[0].counterHitRatio],
+      beneficialTradeRatio: [response[0].beneficialTradeRatio],
     };
   });
 
