@@ -1,16 +1,26 @@
-import { get, forEach } from "lodash";
+import { forEach } from "lodash";
 import fs, { WriteStream } from "fs";
 import moment, { Moment } from "moment";
 import { Writable, WritableOptions } from "stream";
 import { SlpStream, SlpStreamMode, SlpStreamEvent, SlpCommandEventPayload } from "./slpStream";
-import { Command, PostFrameUpdateType } from "../types";
+import { Command, GameStartType, PostFrameUpdateType } from "../types";
 
 const DEFAULT_NICKNAME = "unknown";
 
 export interface SlpFileMetadata {
   startTime: Moment;
   lastFrame: number;
-  players: any;
+  players: {
+    [playerIndex: number]: {
+      characterUsage: {
+        [internalCharacterId: number]: number;
+      };
+      names: {
+        netplay: string;
+        code: string;
+      };
+    };
+  };
   consoleNickname?: string;
 }
 
@@ -101,6 +111,22 @@ export class SlpFile extends Writable {
   private _onCommand(data: SlpCommandEventPayload): void {
     const { command, payload } = data;
     switch (command) {
+      case Command.GAME_START:
+        const { players } = payload as GameStartType;
+        forEach(players, (player, i) => {
+          if (player.type === 3) {
+            return;
+          }
+
+          this.metadata.players[i] = {
+            characterUsage: {},
+            names: {
+              netplay: player.displayName,
+              code: player.connectCode,
+            },
+          };
+        });
+        break;
       case Command.POST_FRAME_UPDATE:
         // Here we need to update some metadata fields
         const { frame, playerIndex, isFollower, internalCharacterId } = payload as PostFrameUpdateType;
@@ -113,8 +139,8 @@ export class SlpFile extends Writable {
         this.metadata.lastFrame = frame!;
 
         // Update character usage
-        const prevPlayer = get(this.metadata, ["players", `${playerIndex}`]) || {};
-        const characterUsage = prevPlayer.characterUsage || {};
+        const prevPlayer = this.metadata.players[playerIndex!];
+        const characterUsage = prevPlayer.characterUsage;
         const curCharFrames = characterUsage[internalCharacterId!] || 0;
         const player = {
           ...prevPlayer,
@@ -123,7 +149,7 @@ export class SlpFile extends Writable {
             [internalCharacterId!]: curCharFrames + 1,
           },
         };
-        this.metadata.players[`${playerIndex}`] = player;
+        this.metadata.players[playerIndex!] = player;
         break;
     }
   }
@@ -221,7 +247,33 @@ export class SlpFile extends Writable {
         ]);
       });
 
-      // Close characters and player
+      // Close characters
+      footer = Buffer.concat([footer, Buffer.from("}")]);
+
+      // Start names key for this player
+      footer = Buffer.concat([footer, Buffer.from("U"), Buffer.from([5]), Buffer.from("names{")]);
+
+      // Write display name
+      footer = Buffer.concat([
+        footer,
+        Buffer.from("U"),
+        Buffer.from([7]),
+        Buffer.from("netplaySU"),
+        Buffer.from([player.names.netplay.length]),
+        Buffer.from(`${player.names.netplay}`),
+      ]);
+
+      // Write connect code
+      footer = Buffer.concat([
+        footer,
+        Buffer.from("U"),
+        Buffer.from([4]),
+        Buffer.from("codeSU"),
+        Buffer.from([player.names.code.length]),
+        Buffer.from(`${player.names.code}`),
+      ]);
+
+      // Close names and player
       footer = Buffer.concat([footer, Buffer.from("}}")]);
     });
 
