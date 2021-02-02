@@ -1,6 +1,5 @@
 import _ from "lodash";
-import { exit } from "process";
-import { PostFrameUpdateType, GameStartType, PlayerType } from "../types";
+import { PostFrameUpdateType, GameStartType } from "../types";
 
 export interface StatsType {
   gameComplete: boolean;
@@ -49,7 +48,7 @@ export interface MoveLandedType {
 }
 
 export interface ConversionType extends DurationType, DamageType {
-  playerIndex: number,
+  playerIndex: number;
   moves: MoveLandedType[];
   openingType: string;
   didKill: boolean;
@@ -170,7 +169,7 @@ export function getPlayerPermutationsFromSettings(settings: GameStartType): Play
     // Only return opponent indices for singles
     return [];
   }
-  let playerIds: number[] = settings.players.map((v) => v.playerIndex)
+  const playerIds: number[] = settings.players.map((v) => v.playerIndex);
 
   return settings.players.map((player) => {
     return {

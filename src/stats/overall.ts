@@ -1,5 +1,4 @@
 import _ from "lodash";
-import { moves } from "../melee";
 import { ConversionType, PlayerIndexedType, StockType, OverallType, RatioType, InputCountsType } from "./common";
 import { PlayerInput } from "./inputs";
 
@@ -114,10 +113,10 @@ function getBeneficialTradeRatio(
   zippedTrades.forEach((conversionPair) => {
     const playerConversion = _.first(conversionPair);
     const opponentConversion = _.last(conversionPair);
-    if(playerConversion && opponentConversion){
+    if (playerConversion && opponentConversion) {
       const playerDamage = playerConversion.currentPercent - playerConversion.startPercent;
-      const opponentDamage = opponentConversion.currentPercent  - opponentConversion.startPercent;
-  
+      const opponentDamage = opponentConversion.currentPercent - opponentConversion.startPercent;
+
       if (playerConversion!.didKill && !opponentConversion!.didKill) {
         benefitsPlayer.push(playerConversion);
       } else if (playerDamage > opponentDamage) {

@@ -80,9 +80,11 @@ export class ConversionComputer implements StatComputer<ConversionType[]> {
           conversion.openingType = "trade";
           return;
         }
-        let lastMove = _.last(conversion.moves)
+        const lastMove = _.last(conversion.moves);
         // If not trade, check the opponent endFrame
-        const playerEndFrame = this.metadata.lastEndFrameByOppIdx[lastMove ? lastMove.playerIndex : conversion.playerIndex];
+        const playerEndFrame = this.metadata.lastEndFrameByOppIdx[
+          lastMove ? lastMove.playerIndex : conversion.playerIndex
+        ];
         const isCounterAttack = playerEndFrame && playerEndFrame > conversion.startFrame;
         conversion.openingType = isCounterAttack ? "counter-attack" : "neutral-win";
       });
@@ -121,7 +123,6 @@ function handleConversionCompute(
     state.lastHitAnimation = null;
   }
 
-
   const playerActionStateId = playerFrame.actionStateId!;
   const playerIsDamaged = isDamaged(playerActionStateId);
   const playerIsGrabbed = isGrabbed(playerActionStateId);
@@ -149,10 +150,10 @@ function handleConversionCompute(
     if (playerDamageTaken) {
       // If animation of last hit has been cleared that means this is a new move. This
       // prevents counting multiple hits from the same move such as fox's drill
-      let lastHitBy = playerFrame.lastHitBy ?? indices.playerIndex
-      if(playerFrame.lastHitBy === null || playerFrame.lastHitBy > 4){
-        lastHitBy = indices.playerIndex
-        console.log('not in range', playerFrame.lastHitBy, indices.playerIndex, frame.players[lastHitBy]?.post.percent)
+      let lastHitBy = playerFrame.lastHitBy ?? indices.playerIndex;
+      if (playerFrame.lastHitBy === null || playerFrame.lastHitBy > 4) {
+        lastHitBy = indices.playerIndex;
+        console.log("not in range", playerFrame.lastHitBy, indices.playerIndex, frame.players[lastHitBy]?.post.percent);
       }
       if (state.lastHitAnimation === null) {
         state.move = {

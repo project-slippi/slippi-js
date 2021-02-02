@@ -1,4 +1,4 @@
-import _, { indexOf } from "lodash";
+import _ from "lodash";
 import { FrameEntryType, FramesType, PostFrameUpdateType } from "../types";
 import { MoveLandedType, ComboType, PlayerIndexedType } from "./common";
 import { isDamaged, isGrabbed, calcDamageTaken, isTeching, didLoseStock, Timers, isDown, isDead } from "./common";
@@ -74,11 +74,10 @@ function handleComboCompute(
     state.lastHitAnimation = null;
   }
 
-
   const playerActionStateId = playerFrame.actionStateId!;
   const playerIsDamaged = isDamaged(playerActionStateId);
   const playerIsGrabbed = isGrabbed(playerActionStateId);
-  
+
   // If opponent took damage and was put in some kind of stun this frame, either
   // start a combo or count the moves for the existing combo
   if (playerIsDamaged || playerIsGrabbed) {
@@ -93,10 +92,10 @@ function handleComboCompute(
         moves: [],
         didKill: false,
       };
-      
+
       combos.push(state.combo);
     }
-    
+
     const playerDamageTaken = prevPlayerFrame ? calcDamageTaken(playerFrame, prevPlayerFrame) : 0;
     if (playerDamageTaken) {
       // If animation of last hit has been cleared that means this is a new move. This
