@@ -1,17 +1,6 @@
 import { SlippiGame } from "../src";
 import { didLoseStock } from "../src/stats/common";
 
-const expectedThrow = {
-  up: 1,
-  forward: 1,
-  back: 2,
-  down: 1,
-};
-
-const expectedGrab = {
-  success: 6,
-  fail: 2,
-};
 const slippiDefault = {
   playerIndex: 0,
   opponentIndex: [2],
@@ -85,18 +74,6 @@ describe("when calculating stats", () => {
     const p2Fail = stats.actionCounts[1].lCancelFailCount;
     expect(p2Success).toBe(5);
     expect(p2Fail).toBe(4);
-  });
-  it("should correctly calculate throw counts", () => {
-    const game = new SlippiGame("slp/throwGrab.slp");
-    const stats = game.getStats();
-    const p2Throws = stats.actionCounts[1].throwCounts;
-    expect(p2Throws).toEqual(expectedThrow);
-  });
-  it("should correctly calculate grab counts", () => {
-    const game = new SlippiGame("slp/throwGrab.slp");
-    const stats = game.getStats();
-    const p2Grabs = stats.actionCounts[1].grabCounts;
-    expect(p2Grabs).toEqual(expectedGrab);
   });
   it("should match output of test.slp", () => {
     const game = new SlippiGame("slp/test.slp");
