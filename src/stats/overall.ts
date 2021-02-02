@@ -1,4 +1,5 @@
 import _ from "lodash";
+import { moves } from "../melee";
 import { ConversionType, PlayerIndexedType, StockType, OverallType, RatioType, InputCountsType } from "./common";
 import { PlayerInput } from "./inputs";
 
@@ -17,7 +18,7 @@ export function generateOverallStats(
 ): OverallType[] {
   const inputsByPlayer = _.keyBy(inputs, "playerIndex");
   const stocksByPlayer = _.groupBy(stocks, "playerIndex");
-  const conversionsByPlayer = _.groupBy(conversions, "playerIndex");
+  const conversionsByPlayer = _.groupBy(conversions, (conv) => conv.moves[0]?.playerIndex);
   const conversionsByPlayerByOpening: ConversionsByPlayerByOpening = _.mapValues(conversionsByPlayer, (conversions) =>
     _.groupBy(conversions, "openingType"),
   );
@@ -68,9 +69,9 @@ export function generateOverallStats(
       digitalInputsPerMinute: getRatio(inputCounts.buttons, gameMinutes),
       openingsPerKill: getRatio(conversionCount, killCount),
       damagePerOpening: getRatio(totalDamage, conversionCount),
-      neutralWinRatio: [response[0].neutralWinRatio],
-      counterHitRatio: [response[0].counterHitRatio],
-      beneficialTradeRatio: [response[0].beneficialTradeRatio],
+      neutralWinRatio: response.map((item) => item.neutralWinRatio),
+      counterHitRatio: response.map((item) => item.counterHitRatio),
+      beneficialTradeRatio: response.map((item) => item.beneficialTradeRatio),
     };
   });
 
@@ -110,9 +111,7 @@ function getBeneficialTradeRatio(
 
   // Figure out which punishes benefited this player
   const zippedTrades = _.zip(playerTrades, opponentTrades);
-  // console.log(zippedTrades, opponentTrades)
   zippedTrades.forEach((conversionPair) => {
-    console.log(playerTrades, opponentTrades)
     const playerConversion = _.first(conversionPair);
     const opponentConversion = _.last(conversionPair);
     if(playerConversion && opponentConversion){

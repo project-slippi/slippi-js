@@ -1,4 +1,5 @@
 import _ from "lodash";
+import { exit } from "process";
 import { PostFrameUpdateType, GameStartType, PlayerType } from "../types";
 
 export interface StatsType {
@@ -169,11 +170,12 @@ export function getPlayerPermutationsFromSettings(settings: GameStartType): Play
     // Only return opponent indices for singles
     return [];
   }
+  let playerIds: number[] = settings.players.map((v) => v.playerIndex)
 
   return settings.players.map((player) => {
     return {
       playerIndex: player.playerIndex,
-      opponentIndex: _.without(Array.from(Array(settings.players.length).keys()), player.playerIndex),
+      opponentIndex: _.without(playerIds, player.playerIndex),
     };
   });
 }

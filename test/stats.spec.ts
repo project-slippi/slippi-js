@@ -1,4 +1,5 @@
 import { SlippiGame } from "../src";
+import { didLoseStock } from "../src/stats/common";
 
 const expectedThrow = {
   up: 1,
@@ -36,5 +37,10 @@ describe("when calculating stats", () => {
     const stats = game.getStats();
     const p2Grabs = stats.actionCounts[1].grabCounts;
     expect(p2Grabs).toEqual(expectedGrab);
+  });
+});
+describe("when using common functions", () => {
+  it("Should return false if required", () => {
+    expect(didLoseStock(undefined,undefined)).toEqual(false)
   });
 });

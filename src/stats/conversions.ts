@@ -2,7 +2,6 @@ import _ from "lodash";
 import { FrameEntryType, FramesType, PostFrameUpdateType } from "../types";
 import { MoveLandedType, ConversionType, PlayerIndexedType } from "./common";
 import { isDamaged, isGrabbed, calcDamageTaken, isInControl, didLoseStock, Timers } from "./common";
-import { PlayerInput } from "./inputs";
 import { StatComputer } from "./stats";
 
 interface PlayerConversionState {
@@ -81,9 +80,9 @@ export class ConversionComputer implements StatComputer<ConversionType[]> {
           conversion.openingType = "trade";
           return;
         }
-
+        let lastMove = _.last(conversion.moves)
         // If not trade, check the opponent endFrame
-        const playerEndFrame = this.metadata.lastEndFrameByOppIdx[conversion.playerIndex];
+        const playerEndFrame = this.metadata.lastEndFrameByOppIdx[lastMove ? lastMove.playerIndex : conversion.playerIndex];
         const isCounterAttack = playerEndFrame && playerEndFrame > conversion.startFrame;
         conversion.openingType = isCounterAttack ? "counter-attack" : "neutral-win";
       });
@@ -103,7 +102,6 @@ function handleConversionCompute(
 
   const prevFrameNumber = currentFrameNumber - 1;
   let prevPlayerFrame: PostFrameUpdateType | null = null;
-  let prevOpponentFrame: PostFrameUpdateType | null = null;
 
   if (frames[prevFrameNumber]) {
     prevPlayerFrame = frames[prevFrameNumber].players[indices.playerIndex]!.post;
@@ -151,13 +149,18 @@ function handleConversionCompute(
     if (playerDamageTaken) {
       // If animation of last hit has been cleared that means this is a new move. This
       // prevents counting multiple hits from the same move such as fox's drill
+      let lastHitBy = playerFrame.lastHitBy ?? indices.playerIndex
+      if(playerFrame.lastHitBy === null || playerFrame.lastHitBy > 4){
+        lastHitBy = indices.playerIndex
+        console.log('not in range', playerFrame.lastHitBy, indices.playerIndex, frame.players[lastHitBy]?.post.percent)
+      }
       if (state.lastHitAnimation === null) {
         state.move = {
           frame: currentFrameNumber,
-          moveId: playerFrame.lastAttackLanded!,
+          moveId: frame.players[lastHitBy]!.post!.lastAttackLanded!,
           hitCount: 0,
           damage: 0,
-          playerIndex: playerFrame.lastHitBy ?? indices.playerIndex,
+          playerIndex: lastHitBy,
         };
 
         state.conversion.moves.push(state.move);
@@ -180,7 +183,7 @@ function handleConversionCompute(
     return;
   }
 
-  const opntInControl = isInControl(playerActionStateId);
+  const playerInControl = isInControl(playerActionStateId);
   const playerDidLoseStock = prevPlayerFrame && didLoseStock(playerFrame, prevPlayerFrame);
 
   // Update percent if opponent didn't lose stock
@@ -193,7 +196,7 @@ function handleConversionCompute(
     state.resetCounter = 0;
   }
 
-  const shouldStartResetCounter = state.resetCounter === 0 && opntInControl;
+  const shouldStartResetCounter = state.resetCounter === 0 && playerInControl;
   const shouldContinueResetCounter = state.resetCounter > 0;
   if (shouldStartResetCounter || shouldContinueResetCounter) {
     // This will increment the reset timer under the following conditions:
