@@ -153,7 +153,6 @@ function handleConversionCompute(
       let lastHitBy = playerFrame.lastHitBy ?? indices.playerIndex;
       if (playerFrame.lastHitBy === null || playerFrame.lastHitBy > 4) {
         lastHitBy = indices.playerIndex;
-        console.log("not in range", playerFrame.lastHitBy, indices.playerIndex, frame.players[lastHitBy]?.post.percent);
       }
       if (state.lastHitAnimation === null) {
         state.move = {
