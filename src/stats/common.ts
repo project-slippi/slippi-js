@@ -166,7 +166,6 @@ export const Timers = {
 
 export function getPlayerPermutationsFromSettings(settings: GameStartType): PlayerIndexedType[] {
   if (!settings) {
-    // Only return opponent indices for singles
     return [];
   }
   const playerIds: number[] = settings.players.map((v) => v.playerIndex);

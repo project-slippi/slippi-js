@@ -100,13 +100,17 @@ function handleComboCompute(
     if (playerDamageTaken) {
       // If animation of last hit has been cleared that means this is a new move. This
       // prevents counting multiple hits from the same move such as fox's drill
+      let lastHitBy = playerFrame.lastHitBy ?? indices.playerIndex;
+      if (playerFrame.lastHitBy === null || playerFrame.lastHitBy > 4) {
+        lastHitBy = indices.playerIndex;
+      }
       if (state.lastHitAnimation === null) {
         state.move = {
           frame: currentFrameNumber,
-          moveId: playerFrame.lastAttackLanded!,
+          moveId: frame.players[lastHitBy]!.post!.lastAttackLanded!,
           hitCount: 0,
           damage: 0,
-          playerIndex: playerFrame.lastHitBy ?? indices.playerIndex,
+          playerIndex: lastHitBy,
         };
 
         state.combo.moves.push(state.move);
