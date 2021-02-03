@@ -20,7 +20,7 @@ export interface RatioType {
 
 export interface PlayerIndexedType {
   playerIndex: number;
-  opponentIndex: number[];
+  opponentIndices: number[];
 }
 
 export interface DurationType {
@@ -160,7 +160,7 @@ export function getPlayerPermutationsFromSettings(settings: GameStartType): Play
   return settings.players.map((player) => {
     return {
       playerIndex: player.playerIndex,
-      opponentIndex: _.without(playerIds, player.playerIndex),
+      opponentIndices: _.without(playerIds, player.playerIndex),
     };
   });
 }
