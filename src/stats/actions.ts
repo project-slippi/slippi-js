@@ -20,7 +20,6 @@ export class ActionsComputer implements StatComputer<ActionCountsType[]> {
     this.playerPermutations.forEach((indices) => {
       const playerCounts: ActionCountsType = {
         playerIndex: indices.playerIndex,
-        opponentIndex: indices.opponentIndex,
         wavedashCount: 0,
         wavelandCount: 0,
         airDodgeCount: 0,

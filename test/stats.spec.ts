@@ -3,7 +3,6 @@ import { didLoseStock } from "../src/stats/common";
 
 const slippiDefault = {
   playerIndex: 0,
-  opponentIndex: [2],
   inputCounts: {
     buttons: 150,
     triggers: 0,

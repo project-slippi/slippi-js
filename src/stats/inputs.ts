@@ -16,7 +16,8 @@ enum JoystickRegion {
   W = 8,
 }
 
-export interface PlayerInput extends PlayerIndexedType {
+export interface PlayerInput {
+  playerIndex: number;
   inputCount: number;
   joystickInputCount: number;
   cstickInputCount: number;
@@ -33,7 +34,6 @@ export class InputComputer implements StatComputer<PlayerInput[]> {
     this.playerPermutations.forEach((indices) => {
       const playerState: PlayerInput = {
         playerIndex: indices.playerIndex,
-        opponentIndex: indices.opponentIndex,
         inputCount: 0,
         joystickInputCount: 0,
         cstickInputCount: 0,

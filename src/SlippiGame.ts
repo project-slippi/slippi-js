@@ -59,8 +59,7 @@ export class SlippiGame {
     );
     this.parser = new SlpParser();
     this.parser.on(SlpParserEvent.SETTINGS, (settings) => {
-      const playerPermutations = getPlayerPermutationsFromSettings(settings);
-      this.statsComputer.setPlayerPermutations(playerPermutations);
+      this.statsComputer.setGameSettings(settings);
     });
     // Use finalized frames for stats computation
     this.parser.on(SlpParserEvent.FINALIZED_FRAME, (frame: FrameEntryType) => {

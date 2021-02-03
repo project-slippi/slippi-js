@@ -57,7 +57,6 @@ export function generateOverallStats(
 
     return {
       playerIndex: playerIndex,
-      opponentIndex: indices.opponentIndex,
       inputCounts: inputCounts,
       conversionCount: conversionCount,
       totalDamage: totalDamage,

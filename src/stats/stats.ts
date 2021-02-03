@@ -1,7 +1,7 @@
 import _ from "lodash";
 
-import { PlayerIndexedType } from "./common";
-import { FrameEntryType, Frames, FramesType } from "../types";
+import { getPlayerPermutationsFromSettings, PlayerIndexedType } from "./common";
+import { FrameEntryType, Frames, FramesType, GameStartType } from "../types";
 
 export interface StatComputer<T> {
   setPlayerPermutations(indices: PlayerIndexedType[]): void;
@@ -28,7 +28,8 @@ export class Stats {
     this.options = Object.assign({}, defaultOptions, options);
   }
 
-  public setPlayerPermutations(indices: PlayerIndexedType[]): void {
+  public setGameSettings(settings: GameStartType): void {
+    const indices = getPlayerPermutationsFromSettings(settings);
     this.playerPermutations = indices;
     this.allComputers.forEach((comp) => comp.setPlayerPermutations(indices));
   }
@@ -68,9 +69,12 @@ function isCompletedFrame(playerPermutations: PlayerIndexedType[], frame: FrameE
   // It is not perfect because it does not wait for follower frames. Fortunately,
   // follower frames are not used for any stat calculations so this doesn't matter
   // for our purposes.
-  const { playerIndex, opponentIndex } = _.first(playerPermutations)!;
-  const playerPostFrame = _.get(frame, ["players", playerIndex, "post"]);
-  const oppPostFrame = _.get(frame, ["players", opponentIndex[0], "post"]);
+  for (const player of playerPermutations) {
+    const playerPostFrame = _.get(frame, ["players", player.playerIndex, "post"]);
+    if (!playerPostFrame) {
+      return false;
+    }
+  }
 
-  return Boolean(playerPostFrame && oppPostFrame);
+  return true;
 }

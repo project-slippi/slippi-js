@@ -34,7 +34,8 @@ export interface DamageType {
   endPercent?: number | null;
 }
 
-export interface StockType extends PlayerIndexedType, DurationType, DamageType {
+export interface StockType extends DurationType, DamageType {
+  playerIndex: number;
   count: number;
   deathAnimation?: number | null;
 }
@@ -60,7 +61,8 @@ export interface ComboType extends DurationType, DamageType {
   didKill: boolean;
 }
 
-export interface ActionCountsType extends PlayerIndexedType {
+export interface ActionCountsType {
+  playerIndex: number;
   wavedashCount: number;
   wavelandCount: number;
   airDodgeCount: number;
@@ -80,7 +82,8 @@ export interface InputCountsType {
   total: number;
 }
 
-export interface OverallType extends PlayerIndexedType {
+export interface OverallType {
+  playerIndex: number;
   inputCounts: InputCountsType;
   conversionCount: number;
   totalDamage: number;
