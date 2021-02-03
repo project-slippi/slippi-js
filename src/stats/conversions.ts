@@ -81,7 +81,7 @@ export class ConversionComputer implements StatComputer<ConversionType[]> {
           return;
         }
         const lastMove = _.last(conversion.moves);
-        // If not trade, check the opponent endFrame
+        // If not trade, check the player endFrame
         const playerEndFrame = this.metadata.lastEndFrameByOppIdx[
           lastMove ? lastMove.playerIndex : conversion.playerIndex
         ];
@@ -127,7 +127,7 @@ function handleConversionCompute(
   const playerIsDamaged = isDamaged(playerActionStateId);
   const playerIsGrabbed = isGrabbed(playerActionStateId);
 
-  // If opponent took damage and was put in some kind of stun this frame, either
+  // If the player took damage and was put in some kind of stun this frame, either
   // start a conversion or
   if (playerIsDamaged || playerIsGrabbed) {
     if (!state.conversion) {
@@ -186,13 +186,13 @@ function handleConversionCompute(
   const playerInControl = isInControl(playerActionStateId);
   const playerDidLoseStock = prevPlayerFrame && didLoseStock(playerFrame, prevPlayerFrame);
 
-  // Update percent if opponent didn't lose stock
+  // Update percent if the player didn't lose stock
   if (!playerDidLoseStock) {
     state.conversion.currentPercent = playerFrame.percent ?? 0;
   }
 
   if (playerIsDamaged || playerIsGrabbed) {
-    // If opponent got grabbed or damaged, reset the reset counter
+    // If the player got grabbed or damaged, reset the reset counter
     state.resetCounter = 0;
   }
 
@@ -200,14 +200,14 @@ function handleConversionCompute(
   const shouldContinueResetCounter = state.resetCounter > 0;
   if (shouldStartResetCounter || shouldContinueResetCounter) {
     // This will increment the reset timer under the following conditions:
-    // 1) if we were punishing opponent but they have now entered an actionable state
-    // 2) if counter has already started counting meaning opponent has entered actionable state
+    // 1) if the player is being punishing but they have now entered an actionable state
+    // 2) if counter has already started counting meaning the player has entered actionable state
     state.resetCounter += 1;
   }
 
   let shouldTerminate = false;
 
-  // Termination condition 1 - player kills opponent
+  // Termination condition 1 - player was killed
   if (playerDidLoseStock) {
     state.conversion.didKill = true;
     shouldTerminate = true;
