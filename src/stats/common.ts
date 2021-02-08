@@ -20,6 +20,7 @@ export interface RatioType {
 
 export interface PlayerIndexedType {
   playerIndex: number;
+  teamMembers?: number[];
   opponentIndices: number[];
 }
 
@@ -158,10 +159,16 @@ export function getPlayerPermutationsFromSettings(settings: GameStartType): Play
   const playerIds: number[] = settings.players.map((v) => v.playerIndex);
 
   return settings.players.map((player) => {
-    return {
+    const response: PlayerIndexedType = {
       playerIndex: player.playerIndex,
       opponentIndices: _.without(playerIds, player.playerIndex),
     };
+    if (settings.isTeams) {
+      response.teamMembers = settings.players
+        .filter((p) => p.teamId === player.teamId && p.playerIndex !== player.playerIndex)
+        .map((p) => p.playerIndex);
+    }
+    return response;
   });
 }
 

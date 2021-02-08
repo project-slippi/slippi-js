@@ -42,7 +42,8 @@ export function generateOverallStats(
 
     let totalDamage = 0;
     let killCount = 0;
-    _.map(indices.opponentIndices, (opponentIndex) => {
+    let opponentIndices = _.difference(indices.opponentIndices, indices.teamMembers || []);
+    _.map(opponentIndices, (opponentIndex) => {
       const opponentStocks = _.get(stocksByPlayer, opponentIndex) || [];
       const opponentEndedStocks = _.filter(opponentStocks, "endFrame");
       totalDamage += _.sumBy(opponentStocks, "currentPercent");
@@ -61,19 +62,9 @@ export function generateOverallStats(
       digitalInputsPerMinute: getRatio(inputCounts.buttons, gameMinutes),
       openingsPerKill: getRatio(conversionCount, killCount),
       damagePerOpening: getRatio(totalDamage, conversionCount),
-      neutralWinRatio: getOpeningRatio(
-        conversionsByPlayerByOpening,
-        playerIndex,
-        indices.opponentIndices,
-        "neutral-win",
-      ),
-      counterHitRatio: getOpeningRatio(
-        conversionsByPlayerByOpening,
-        playerIndex,
-        indices.opponentIndices,
-        "counter-attack",
-      ),
-      beneficialTradeRatio: getBeneficialTradeRatio(conversionsByPlayerByOpening, playerIndex, indices.opponentIndices),
+      neutralWinRatio: getOpeningRatio(conversionsByPlayerByOpening, playerIndex, opponentIndices, "neutral-win"),
+      counterHitRatio: getOpeningRatio(conversionsByPlayerByOpening, playerIndex, opponentIndices, "counter-attack"),
+      beneficialTradeRatio: getBeneficialTradeRatio(conversionsByPlayerByOpening, playerIndex, opponentIndices),
     };
   });
 
