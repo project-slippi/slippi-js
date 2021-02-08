@@ -42,7 +42,7 @@ export function generateOverallStats(
 
     let totalDamage = 0;
     let killCount = 0;
-    let opponentIndices = _.difference(indices.opponentIndices, indices.teamMembers || []);
+    const opponentIndices = _.difference(indices.opponentIndices, indices.teamMembers || []);
     _.map(opponentIndices, (opponentIndex) => {
       const opponentStocks = _.get(stocksByPlayer, opponentIndex) || [];
       const opponentEndedStocks = _.filter(opponentStocks, "endFrame");
