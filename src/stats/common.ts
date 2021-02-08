@@ -93,9 +93,9 @@ export interface OverallType {
   digitalInputsPerMinute: RatioType;
   openingsPerKill: RatioType;
   damagePerOpening: RatioType;
-  neutralWinRatio: RatioType[];
-  counterHitRatio: RatioType[];
-  beneficialTradeRatio: RatioType[];
+  neutralWinRatio: RatioType;
+  counterHitRatio: RatioType;
+  beneficialTradeRatio: RatioType;
 }
 
 export enum State {

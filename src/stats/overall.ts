@@ -42,17 +42,11 @@ export function generateOverallStats(
 
     let totalDamage = 0;
     let killCount = 0;
-    const response = _.map(indices.opponentIndices, (opponentIndex) => {
+    _.map(indices.opponentIndices, (opponentIndex) => {
       const opponentStocks = _.get(stocksByPlayer, opponentIndex) || [];
       const opponentEndedStocks = _.filter(opponentStocks, "endFrame");
       totalDamage += _.sumBy(opponentStocks, "currentPercent");
       killCount += opponentEndedStocks.length;
-
-      return {
-        neutralWinRatio: getOpeningRatio(conversionsByPlayerByOpening, playerIndex, opponentIndex, "neutral-win"),
-        counterHitRatio: getOpeningRatio(conversionsByPlayerByOpening, playerIndex, opponentIndex, "counter-attack"),
-        beneficialTradeRatio: getBeneficialTradeRatio(conversionsByPlayerByOpening, playerIndex, opponentIndex),
-      };
     });
 
     return {
@@ -67,9 +61,9 @@ export function generateOverallStats(
       digitalInputsPerMinute: getRatio(inputCounts.buttons, gameMinutes),
       openingsPerKill: getRatio(conversionCount, killCount),
       damagePerOpening: getRatio(totalDamage, conversionCount),
-      neutralWinRatio: response.map((item) => item.neutralWinRatio),
-      counterHitRatio: response.map((item) => item.counterHitRatio),
-      beneficialTradeRatio: response.map((item) => item.beneficialTradeRatio),
+      neutralWinRatio: getOpeningRatio(conversionsByPlayerByOpening, playerIndex, indices.opponentIndices, "neutral-win"),
+      counterHitRatio: getOpeningRatio(conversionsByPlayerByOpening, playerIndex, indices.opponentIndices, "counter-attack"),
+      beneficialTradeRatio: getBeneficialTradeRatio(conversionsByPlayerByOpening, playerIndex, indices.opponentIndices),
     };
   });
 
@@ -87,12 +81,12 @@ function getRatio(count: number, total: number): RatioType {
 function getOpeningRatio(
   conversionsByPlayerByOpening: ConversionsByPlayerByOpening,
   playerIndex: number,
-  opponentIndex: number,
+  opponentIndices: number[],
   type: string,
 ): RatioType {
   const openings = _.get(conversionsByPlayerByOpening, [playerIndex, type]) || [];
 
-  const opponentOpenings = _.get(conversionsByPlayerByOpening, [opponentIndex, type]) || [];
+  const opponentOpenings = _.flatten(opponentIndices.map( opponentIndex =>_.get(conversionsByPlayerByOpening, [opponentIndex, type]) || []));
 
   return getRatio(openings.length, openings.length + opponentOpenings.length);
 }
@@ -100,10 +94,10 @@ function getOpeningRatio(
 function getBeneficialTradeRatio(
   conversionsByPlayerByOpening: ConversionsByPlayerByOpening,
   playerIndex: number,
-  opponentIndex: number,
+  opponentIndices: number[],
 ): RatioType {
   const playerTrades = _.get(conversionsByPlayerByOpening, [playerIndex, "trade"]) || [];
-  const opponentTrades = _.get(conversionsByPlayerByOpening, [opponentIndex, "trade"]) || [];
+  const opponentTrades = _.flatten(opponentIndices.map( opponentIndex =>_.get(conversionsByPlayerByOpening, [opponentIndex, "trade"]) || []));
 
   const benefitsPlayer = [];
 

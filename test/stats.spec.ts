@@ -38,27 +38,21 @@ const slippiDefault = {
     total: 8,
     ratio: 44.91000175476074,
   },
-  neutralWinRatio: [
-    {
+  neutralWinRatio: {
       count: 8,
       total: 8,
       ratio: 1,
     },
-  ],
-  counterHitRatio: [
-    {
+  counterHitRatio: {
       count: 0,
       total: 2,
       ratio: 0,
     },
-  ],
-  beneficialTradeRatio: [
-    {
+  beneficialTradeRatio: {
       count: 0,
       total: 0,
       ratio: null,
     },
-  ],
 };
 
 describe("when calculating stats", () => {
