@@ -61,8 +61,18 @@ export function generateOverallStats(
       digitalInputsPerMinute: getRatio(inputCounts.buttons, gameMinutes),
       openingsPerKill: getRatio(conversionCount, killCount),
       damagePerOpening: getRatio(totalDamage, conversionCount),
-      neutralWinRatio: getOpeningRatio(conversionsByPlayerByOpening, playerIndex, indices.opponentIndices, "neutral-win"),
-      counterHitRatio: getOpeningRatio(conversionsByPlayerByOpening, playerIndex, indices.opponentIndices, "counter-attack"),
+      neutralWinRatio: getOpeningRatio(
+        conversionsByPlayerByOpening,
+        playerIndex,
+        indices.opponentIndices,
+        "neutral-win",
+      ),
+      counterHitRatio: getOpeningRatio(
+        conversionsByPlayerByOpening,
+        playerIndex,
+        indices.opponentIndices,
+        "counter-attack",
+      ),
       beneficialTradeRatio: getBeneficialTradeRatio(conversionsByPlayerByOpening, playerIndex, indices.opponentIndices),
     };
   });
@@ -86,7 +96,9 @@ function getOpeningRatio(
 ): RatioType {
   const openings = _.get(conversionsByPlayerByOpening, [playerIndex, type]) || [];
 
-  const opponentOpenings = _.flatten(opponentIndices.map( opponentIndex =>_.get(conversionsByPlayerByOpening, [opponentIndex, type]) || []));
+  const opponentOpenings = _.flatten(
+    opponentIndices.map((opponentIndex) => _.get(conversionsByPlayerByOpening, [opponentIndex, type]) || []),
+  );
 
   return getRatio(openings.length, openings.length + opponentOpenings.length);
 }
@@ -97,7 +109,9 @@ function getBeneficialTradeRatio(
   opponentIndices: number[],
 ): RatioType {
   const playerTrades = _.get(conversionsByPlayerByOpening, [playerIndex, "trade"]) || [];
-  const opponentTrades = _.flatten(opponentIndices.map( opponentIndex =>_.get(conversionsByPlayerByOpening, [opponentIndex, "trade"]) || []));
+  const opponentTrades = _.flatten(
+    opponentIndices.map((opponentIndex) => _.get(conversionsByPlayerByOpening, [opponentIndex, "trade"]) || []),
+  );
 
   const benefitsPlayer = [];
 
