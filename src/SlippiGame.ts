@@ -12,7 +12,6 @@ import {
   InputComputer,
   Stats,
   StatsType,
-  getPlayerPermutationsFromSettings,
   generateOverallStats,
   StatOptions,
 } from "./stats";
@@ -59,7 +58,7 @@ export class SlippiGame {
     );
     this.parser = new SlpParser();
     this.parser.on(SlpParserEvent.SETTINGS, (settings) => {
-      this.statsComputer.setGameSettings(settings);
+      this.statsComputer.setup(settings);
     });
     // Use finalized frames for stats computation
     this.parser.on(SlpParserEvent.FINALIZED_FRAME, (frame: FrameEntryType) => {
@@ -114,21 +113,25 @@ export class SlippiGame {
     return this.parser.getFrames();
   }
 
-  public getStats(): StatsType {
+  public getStats(): StatsType | null {
     if (this.finalStats) {
       return this.finalStats;
     }
 
     this._process();
 
+    const settings = this.parser.getSettings();
+    if (settings === null) {
+      return null;
+    }
+
     // Finish processing if we're not up to date
     this.statsComputer.process();
     const inputs = this.inputComputer.fetch();
     const stocks = this.stockComputer.fetch();
     const conversions = this.conversionComputer.fetch();
-    const indices = getPlayerPermutationsFromSettings(this.parser.getSettings()!);
     const playableFrames = this.parser.getPlayableFrameCount();
-    const overall = generateOverallStats(indices, inputs, stocks, conversions, playableFrames);
+    const overall = generateOverallStats(settings, inputs, stocks, conversions, playableFrames);
 
     const stats = {
       lastFrame: this.parser.getLatestFrameNumber(),

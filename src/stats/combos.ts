@@ -1,6 +1,6 @@
 import _ from "lodash";
-import { FrameEntryType, FramesType, PostFrameUpdateType } from "../types";
-import { MoveLandedType, ComboType, PlayerIndexedType } from "./common";
+import { FrameEntryType, FramesType, GameStartType, PostFrameUpdateType } from "../types";
+import { MoveLandedType, ComboType } from "./common";
 import { isDamaged, isGrabbed, calcDamageTaken, isTeching, didLoseStock, Timers, isDown, isDead } from "./common";
 import { StatComputer } from "./stats";
 
@@ -12,13 +12,17 @@ interface ComboState {
 }
 
 export class ComboComputer implements StatComputer<ComboType[]> {
-  private playerPermutations = new Array<PlayerIndexedType>();
-  private state = new Map<PlayerIndexedType, ComboState>();
-  private combos = new Array<ComboType>();
+  private playerIndices: number[] = [];
+  private combos: ComboType[] = [];
+  private state = new Map<number, ComboState>();
 
-  public setPlayerPermutations(playerPermutations: PlayerIndexedType[]): void {
-    this.playerPermutations = playerPermutations;
-    this.playerPermutations.forEach((indices) => {
+  public setup(settings: GameStartType): void {
+    // Reset the state
+    this.state = new Map();
+    this.combos = [];
+
+    this.playerIndices = settings.players.map((p) => p.playerIndex);
+    this.playerIndices.forEach((indices) => {
       const playerState: ComboState = {
         combo: null,
         move: null,
@@ -30,10 +34,10 @@ export class ComboComputer implements StatComputer<ComboType[]> {
   }
 
   public processFrame(frame: FrameEntryType, allFrames: FramesType): void {
-    this.playerPermutations.forEach((indices) => {
-      const state = this.state.get(indices);
+    this.playerIndices.forEach((index) => {
+      const state = this.state.get(index);
       if (state) {
-        handleComboCompute(allFrames, state, indices, frame, this.combos);
+        handleComboCompute(allFrames, state, index, frame, this.combos);
       }
     });
   }
@@ -46,18 +50,18 @@ export class ComboComputer implements StatComputer<ComboType[]> {
 function handleComboCompute(
   frames: FramesType,
   state: ComboState,
-  indices: PlayerIndexedType,
+  playerIndex: number,
   frame: FrameEntryType,
   combos: ComboType[],
 ): void {
   const currentFrameNumber = frame.frame;
-  const playerFrame = frame.players[indices.playerIndex]!.post;
+  const playerFrame = frame.players[playerIndex]!.post;
 
   const prevFrameNumber = currentFrameNumber - 1;
   let prevPlayerFrame: PostFrameUpdateType | null = null;
 
   if (frames[prevFrameNumber]) {
-    prevPlayerFrame = frames[prevFrameNumber].players[indices.playerIndex]!.post;
+    prevPlayerFrame = frames[prevFrameNumber].players[playerIndex]!.post;
   }
 
   // Keep track of whether actionState changes after a hit. Used to compute move count
@@ -83,7 +87,7 @@ function handleComboCompute(
   if (playerIsDamaged || playerIsGrabbed) {
     if (!state.combo) {
       state.combo = {
-        playerIndex: indices.playerIndex,
+        playerIndex,
         startFrame: currentFrameNumber,
         endFrame: null,
         startPercent: prevPlayerFrame ? prevPlayerFrame.percent ?? 0 : 0,
@@ -100,9 +104,9 @@ function handleComboCompute(
     if (playerDamageTaken) {
       // If animation of last hit has been cleared that means this is a new move. This
       // prevents counting multiple hits from the same move such as fox's drill
-      let lastHitBy = playerFrame.lastHitBy ?? indices.playerIndex;
+      let lastHitBy = playerFrame.lastHitBy ?? playerIndex;
       if (playerFrame.lastHitBy === null || playerFrame.lastHitBy > 4) {
-        lastHitBy = indices.playerIndex;
+        lastHitBy = playerIndex;
       }
       if (state.lastHitAnimation === null) {
         state.move = {

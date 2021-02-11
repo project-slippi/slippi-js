@@ -1,6 +1,6 @@
 import _ from "lodash";
-import { FrameEntryType, FramesType, PostFrameUpdateType } from "../types";
-import { MoveLandedType, ConversionType, PlayerIndexedType } from "./common";
+import { FrameEntryType, FramesType, GameStartType, PostFrameUpdateType } from "../types";
+import { MoveLandedType, ConversionType } from "./common";
 import { isDamaged, isGrabbed, calcDamageTaken, isInControl, didLoseStock, Timers } from "./common";
 import { StatComputer } from "./stats";
 
@@ -18,9 +18,9 @@ interface MetadataType {
 }
 
 export class ConversionComputer implements StatComputer<ConversionType[]> {
-  private playerPermutations = new Array<PlayerIndexedType>();
-  private conversions = new Array<ConversionType>();
-  private state = new Map<PlayerIndexedType, PlayerConversionState>();
+  private playerIndices: number[] = [];
+  private conversions: ConversionType[] = [];
+  private state = new Map<number, PlayerConversionState>();
   private metadata: MetadataType;
 
   public constructor() {
@@ -29,24 +29,31 @@ export class ConversionComputer implements StatComputer<ConversionType[]> {
     };
   }
 
-  public setPlayerPermutations(playerPermutations: PlayerIndexedType[]): void {
-    this.playerPermutations = playerPermutations;
-    this.playerPermutations.forEach((indices) => {
+  public setup(settings: GameStartType): void {
+    // Reset the state since it's a new game
+    this.playerIndices = settings.players.map((p) => p.playerIndex);
+    this.conversions = [];
+    this.state = new Map<number, PlayerConversionState>();
+    this.metadata = {
+      lastEndFrameByOppIdx: {},
+    };
+
+    this.playerIndices.forEach((index) => {
       const playerState: PlayerConversionState = {
         conversion: null,
         move: null,
         resetCounter: 0,
         lastHitAnimation: null,
       };
-      this.state.set(indices, playerState);
+      this.state.set(index, playerState);
     });
   }
 
   public processFrame(frame: FrameEntryType, allFrames: FramesType): void {
-    this.playerPermutations.forEach((indices) => {
-      const state = this.state.get(indices);
+    this.playerIndices.forEach((index) => {
+      const state = this.state.get(index);
       if (state) {
-        handleConversionCompute(allFrames, state, indices, frame, this.conversions);
+        handleConversionCompute(allFrames, state, index, frame, this.conversions);
       }
     });
   }
@@ -95,18 +102,18 @@ export class ConversionComputer implements StatComputer<ConversionType[]> {
 function handleConversionCompute(
   frames: FramesType,
   state: PlayerConversionState,
-  indices: PlayerIndexedType,
+  playerIndex: number,
   frame: FrameEntryType,
   conversions: ConversionType[],
 ): void {
   const currentFrameNumber = frame.frame;
-  const playerFrame: PostFrameUpdateType = frame.players[indices.playerIndex]!.post;
+  const playerFrame: PostFrameUpdateType = frame.players[playerIndex]!.post;
 
   const prevFrameNumber = currentFrameNumber - 1;
   let prevPlayerFrame: PostFrameUpdateType | null = null;
 
   if (frames[prevFrameNumber]) {
-    prevPlayerFrame = frames[prevFrameNumber].players[indices.playerIndex]!.post;
+    prevPlayerFrame = frames[prevFrameNumber].players[playerIndex]!.post;
   }
 
   // Keep track of whether actionState changes after a hit. Used to compute move count
@@ -132,7 +139,7 @@ function handleConversionCompute(
   if (playerIsDamaged || playerIsGrabbed) {
     if (!state.conversion) {
       state.conversion = {
-        playerIndex: indices.playerIndex,
+        playerIndex,
         startFrame: currentFrameNumber,
         endFrame: null,
         startPercent: prevPlayerFrame ? prevPlayerFrame.percent ?? 0 : 0,
@@ -150,9 +157,9 @@ function handleConversionCompute(
     if (playerDamageTaken) {
       // If animation of last hit has been cleared that means this is a new move. This
       // prevents counting multiple hits from the same move such as fox's drill
-      let lastHitBy = playerFrame.lastHitBy ?? indices.playerIndex;
+      let lastHitBy = playerFrame.lastHitBy ?? playerIndex;
       if (playerFrame.lastHitBy === null || playerFrame.lastHitBy > 4) {
-        lastHitBy = indices.playerIndex;
+        lastHitBy = playerIndex;
       }
       if (state.lastHitAnimation === null) {
         state.move = {

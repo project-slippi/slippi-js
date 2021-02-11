@@ -1,5 +1,6 @@
 import _ from "lodash";
-import { ConversionType, PlayerIndexedType, StockType, OverallType, RatioType, InputCountsType } from "./common";
+import { GameStartType } from "../types";
+import { ConversionType, StockType, OverallType, RatioType, InputCountsType } from "./common";
 import { PlayerInput } from "./inputs";
 
 interface ConversionsByPlayerByOpening {
@@ -9,7 +10,7 @@ interface ConversionsByPlayerByOpening {
 }
 
 export function generateOverallStats(
-  playerIndices: PlayerIndexedType[],
+  settings: GameStartType,
   inputs: PlayerInput[],
   stocks: StockType[],
   conversions: ConversionType[],
@@ -24,8 +25,8 @@ export function generateOverallStats(
 
   const gameMinutes = playableFrameCount / 3600;
 
-  const overall = playerIndices.map((indices) => {
-    const playerIndex = indices.playerIndex;
+  const overall = settings.players.map((player) => {
+    const playerIndex = player.playerIndex;
     const playerInputs = _.get(inputsByPlayer, playerIndex) || {};
     const inputCounts: InputCountsType = {
       buttons: _.get(playerInputs, "buttonInputCount"),
@@ -40,11 +41,22 @@ export function generateOverallStats(
     const conversionCount = conversions.length;
     const successfulConversionCount = successfulConversions.length;
 
+    const opponentIndices = settings.players
+      .filter((opp) => {
+        // We want players which aren't ourselves
+        if (opp.playerIndex === playerIndex) {
+          return false;
+        }
+
+        // Make sure they're not on our team either
+        return !settings.isTeams || opp.teamId !== player.teamId;
+      })
+      .map((opp) => opp.playerIndex);
+
     let totalDamage = 0;
     let killCount = 0;
-    const opponentIndices = _.difference(indices.opponentIndices, indices.teamMembers || []);
-    _.map(opponentIndices, (opponentIndex) => {
-      const opponentStocks = _.get(stocksByPlayer, opponentIndex) || [];
+    opponentIndices.map((opponent) => {
+      const opponentStocks = _.get(stocksByPlayer, opponent) || [];
       const opponentEndedStocks = _.filter(opponentStocks, "endFrame");
       totalDamage += _.sumBy(opponentStocks, "currentPercent");
       killCount += opponentEndedStocks.length;

@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { PostFrameUpdateType, GameStartType } from "../types";
+import { PostFrameUpdateType } from "../types";
 
 export interface StatsType {
   gameComplete: boolean;
@@ -16,12 +16,6 @@ export interface RatioType {
   count: number;
   total: number;
   ratio: number | null;
-}
-
-export interface PlayerIndexedType {
-  playerIndex: number;
-  teamMembers?: number[];
-  opponentIndices: number[];
 }
 
 export interface DurationType {
@@ -151,26 +145,6 @@ export const Timers = {
   RECOVERY_RESET_FRAMES: 45,
   COMBO_STRING_RESET_FRAMES: 45,
 };
-
-export function getPlayerPermutationsFromSettings(settings: GameStartType): PlayerIndexedType[] {
-  if (!settings) {
-    return [];
-  }
-  const playerIds: number[] = settings.players.map((v) => v.playerIndex);
-
-  return settings.players.map((player) => {
-    const response: PlayerIndexedType = {
-      playerIndex: player.playerIndex,
-      opponentIndices: _.without(playerIds, player.playerIndex),
-    };
-    if (settings.isTeams) {
-      response.teamMembers = settings.players
-        .filter((p) => p.teamId === player.teamId && p.playerIndex !== player.playerIndex)
-        .map((p) => p.playerIndex);
-    }
-    return response;
-  });
-}
 
 export function didLoseStock(frame: PostFrameUpdateType, prevFrame: PostFrameUpdateType): boolean {
   if (!frame || !prevFrame) {
