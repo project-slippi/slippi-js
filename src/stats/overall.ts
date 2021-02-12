@@ -17,7 +17,6 @@ export function generateOverallStats(
   playableFrameCount: number,
 ): OverallType[] {
   const inputsByPlayer = _.keyBy(inputs, "playerIndex");
-  const stocksByPlayer = _.groupBy(stocks, "playerIndex");
   const conversionsByPlayer = _.groupBy(conversions, (conv) => conv.moves[0]?.playerIndex);
   const conversionsByPlayerByOpening: ConversionsByPlayerByOpening = _.mapValues(conversionsByPlayer, (conversions) =>
     _.groupBy(conversions, "openingType"),
@@ -55,11 +54,21 @@ export function generateOverallStats(
 
     let totalDamage = 0;
     let killCount = 0;
-    opponentIndices.map((opponent) => {
-      const opponentStocks = _.get(stocksByPlayer, opponent) || [];
-      const opponentEndedStocks = _.filter(opponentStocks, "endFrame");
-      totalDamage += _.sumBy(opponentStocks, "currentPercent");
-      killCount += opponentEndedStocks.length;
+
+    // These are the conversions that we did on our opponents
+    const opponentStocks = _.get(conversionsByPlayer, playerIndex) || [];
+    const opponentEndedStocks = _.filter(opponentStocks, "endFrame");
+    opponentEndedStocks.forEach((conversion) => {
+      conversion.moves.forEach((move) => {
+        if (move.playerIndex === playerIndex) {
+          // We hit the opponent
+          totalDamage += move.damage;
+        }
+      });
+
+      if (conversion.didKill && conversion.lastHitBy === playerIndex) {
+        killCount += 1;
+      }
     });
 
     return {
