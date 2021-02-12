@@ -43,17 +43,15 @@ export interface MoveLandedType {
   playerIndex: number;
 }
 
-export interface ConversionType extends DurationType, DamageType {
-  playerIndex: number;
-  moves: MoveLandedType[];
-  openingType: string;
-  didKill: boolean;
-}
-
 export interface ComboType extends DurationType, DamageType {
   playerIndex: number;
   moves: MoveLandedType[];
   didKill: boolean;
+  lastHitBy: number | null;
+}
+
+export interface ConversionType extends ComboType {
+  openingType: string;
 }
 
 export interface ActionCountsType {

@@ -148,6 +148,7 @@ function handleConversionCompute(
         moves: [],
         didKill: false,
         openingType: "unknown", // Will be updated later
+        lastHitBy: null,
       };
 
       conversions.push(state.conversion);
@@ -161,6 +162,10 @@ function handleConversionCompute(
       if (playerFrame.lastHitBy === null || playerFrame.lastHitBy > 4) {
         lastHitBy = playerIndex;
       }
+
+      // Update who hit us last
+      state.conversion.lastHitBy = lastHitBy;
+
       if (state.lastHitAnimation === null) {
         state.move = {
           frame: currentFrameNumber,

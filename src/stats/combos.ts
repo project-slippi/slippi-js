@@ -95,6 +95,7 @@ function handleComboCompute(
         endPercent: null,
         moves: [],
         didKill: false,
+        lastHitBy: null,
       };
 
       combos.push(state.combo);
@@ -108,6 +109,10 @@ function handleComboCompute(
       if (playerFrame.lastHitBy === null || playerFrame.lastHitBy > 4) {
         lastHitBy = playerIndex;
       }
+
+      // Update who hit us last
+      state.combo.lastHitBy = lastHitBy;
+
       if (state.lastHitAnimation === null) {
         state.move = {
           frame: currentFrameNumber,
