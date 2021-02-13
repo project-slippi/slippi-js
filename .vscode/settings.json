@@ -1,4 +1,9 @@
 {
+  "search.exclude": {
+    ".git": true,
+    "node_modules": true
+  },
+  "files.eol": "\n",
   "editor.detectIndentation": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.codeActionsOnSave": {
