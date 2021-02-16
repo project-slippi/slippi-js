@@ -19,7 +19,7 @@ describe("when calculating stats", () => {
       const stats = game.getStats();
       const bowser = stats.overall[0]
       let totalDamageBowserDealt = 0
-      stats.conversions.map( conversion => {
+      stats.conversions.forEach( conversion => {
         if(conversion.playerIndex === bowser.playerIndex ){
           totalDamageBowserDealt += conversion.moves.reduce((total, move) => total + move.damage, 0)
         }
