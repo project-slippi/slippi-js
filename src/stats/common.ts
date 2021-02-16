@@ -98,8 +98,6 @@ export enum State {
   DAMAGE_END = 0x5b,
   CAPTURE_START = 0xdf,
   CAPTURE_END = 0xe8,
-  COMMAND_GRAB_START = 0x10a,
-  COMMAND_GRAB_END = 0x130,
   GUARD_START = 0xb2,
   GUARD_END = 0xb6,
   GROUNDED_CONTROL_START = 0xe,
@@ -120,7 +118,6 @@ export enum State {
   AERIAL_ATTACK_END = 0x4a,
 
   // Animation ID specific
-  DAMAGE_FALL = 0x26,
   ROLL_FORWARD = 0xe9,
   ROLL_BACKWARD = 0xea,
   SPOT_DODGE = 0xeb,
@@ -140,6 +137,18 @@ export enum State {
   FALL_BACKWARD = 0x1f,
   GRAB = 0xd4,
   CLIFF_CATCH = 0xfc,
+  DAMAGE_FALL = 0x26,
+
+
+  // Command Grabs
+  COMMAND_GRAB_RANGE1_START = 0x10a,
+  COMMAND_GRAB_RANGE1_END = 0x130,
+
+  COMMAND_GRAB_RANGE2_START = 0x147,
+  COMMAND_GRAB_RANGE2_END = 0x153,
+
+  COMMAND_GRAB_RANGE3_START = 0x177,
+  COMMAND_GRAB_RANGE3_END = 0x17E,
 }
 
 export const Timers = {
@@ -198,8 +207,12 @@ export function isDamaged(state: number): boolean {
 export function isGrabbed(state: number): boolean {
   return state >= State.CAPTURE_START && state <= State.CAPTURE_END;
 }
+
+// TODO: Find better implementation of 3 seperate ranges
 export function isCommandGrabbed(state: number): boolean {
-  return state >= State.COMMAND_GRAB_START && state <= State.COMMAND_GRAB_END;
+  return state >= State.COMMAND_GRAB_RANGE1_START && state <= State.COMMAND_GRAB_RANGE1_END ||
+         state >= State.COMMAND_GRAB_RANGE2_START && state <= State.COMMAND_GRAB_RANGE2_END ||
+         state >= State.COMMAND_GRAB_RANGE3_START && state <= State.COMMAND_GRAB_RANGE3_END;
 }
 
 export function isDead(state: number): boolean {
