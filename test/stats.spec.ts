@@ -13,6 +13,34 @@ describe("when calculating stats", () => {
     expect(p2Success).toBe(5);
     expect(p2Fail).toBe(4);
   });
+  it("accounts for Blast Zone Magnifying Glass", () => {
+    const game = new SlippiGame("slp/consistencyTest/Puff-MagnifyingGlass-10.slp");
+    const stats = game.getStats();
+    const puff = stats.overall[0]
+    let totalDamagePuffDealt = 0
+    stats.conversions.forEach( conversion => {
+      if(conversion.playerIndex === puff.playerIndex ){
+        totalDamagePuffDealt += conversion.moves.reduce((total, move) => total + move.damage, 0)
+      }
+    })
+    expect(totalDamagePuffDealt).toBe(puff.totalDamage);
+    expect(puff.killCount).toBe(0);
+    expect(puff.conversionCount).toBe(0);
+  });
+  it("accounts for Pichu Self Harm", () => {
+    const game = new SlippiGame("slp/consistencyTest/PichuVSelf-All-22.slp");
+    const stats = game.getStats();
+    const pichu = stats.overall[0]
+    let totalDamagePichuDealt = 0
+    stats.conversions.forEach( conversion => {
+      if(conversion.playerIndex === pichu.playerIndex ){
+        totalDamagePichuDealt += conversion.moves.reduce((total, move) => total + move.damage, 0)
+      }
+    })
+    expect(totalDamagePichuDealt).toBe(pichu.totalDamage);
+    expect(pichu.killCount).toBe(0);
+    expect(pichu.conversionCount).toBe(3);
+  });
   describe("When Handling Command Grabs", () => {
     it("accounts for Bowser's Command Grab", () => {
       const game = new SlippiGame("slp/consistencyTest/BowsVDK-SB-63.slp");
@@ -24,9 +52,9 @@ describe("when calculating stats", () => {
           totalDamageBowserDealt += conversion.moves.reduce((total, move) => total + move.damage, 0)
         }
       })
+      expect(totalDamageBowserDealt).toBe(bowser.totalDamage);
       expect(bowser.killCount).toBe(0);
       expect(bowser.conversionCount).toBe(3);
-      expect(bowser.totalDamage).toBe(totalDamageBowserDealt);
     });
     it("accounts for Falcon's Command Grab", () => {
       const game = new SlippiGame("slp/consistencyTest/FalcVBows-5UB-67.slp");
@@ -38,9 +66,9 @@ describe("when calculating stats", () => {
           totalDamageFalconDealt += conversion.moves.reduce((total, move) => total + move.damage, 0)
         }
       })
+      expect(totalDamageFalconDealt).toBe(falcon.totalDamage);
       expect(falcon.killCount).toBe(0);
-      expect(falcon.conversionCount).toBe(4);
-      expect(falcon.totalDamage).toBe(totalDamageFalconDealt);
+      expect(falcon.conversionCount).toBe(3);
     });
     it("accounts for Ganon's Command Grab", () => {
       const game = new SlippiGame("slp/consistencyTest/GanonVDK-5UB-73.slp");
@@ -52,9 +80,9 @@ describe("when calculating stats", () => {
           totalDamageGanonDealt += conversion.moves.reduce((total, move) => total + move.damage, 0)
         }
       })
+      expect(totalDamageGanonDealt).toBe(ganon.totalDamage);
       expect(ganon.killCount).toBe(0);
       expect(ganon.conversionCount).toBe(5);
-      expect(ganon.totalDamage).toBe(totalDamageGanonDealt);
     });
     it("accounts for Kirby's Command Grab", () => {
       const game = new SlippiGame("slp/consistencyTest/KirbyVDK-Neutral-17.slp");
@@ -66,9 +94,9 @@ describe("when calculating stats", () => {
           totalDamageKirbyDealt += conversion.moves.reduce((total, move) => total + move.damage, 0)
         }
       })
+      expect(totalDamageKirbyDealt).toBe(kirby.totalDamage);
       expect(kirby.killCount).toBe(0);
-      expect(kirby.conversionCount).toBe(1);
-      expect(kirby.totalDamage).toBe(totalDamageKirbyDealt);
+      expect(kirby.conversionCount).toBe(3);
     });
     it("accounts for Yoshi's Command Grab", () => {
       const game = new SlippiGame("slp/consistencyTest/YoshiVDK-Egg-13.slp");
@@ -80,9 +108,9 @@ describe("when calculating stats", () => {
           totalDamageYoshiDealt += conversion.moves.reduce((total, move) => total + move.damage, 0)
         }
       })
+      expect(totalDamageYoshiDealt).toBe(yoshi.totalDamage);
       expect(yoshi.killCount).toBe(0);
-      expect(yoshi.conversionCount).toBe(0);
-      expect(yoshi.totalDamage).toBe(totalDamageYoshiDealt);
+      expect(yoshi.conversionCount).toBe(2);
     });
     it("accounts for MewTwo's Command Grab", () => {
       const game = new SlippiGame("slp/consistencyTest/MewTwoVDK-SB-42.slp");
@@ -94,9 +122,10 @@ describe("when calculating stats", () => {
           totalDamageMewTwoDealt += conversion.moves.reduce((total, move) => total + move.damage, 0)
         }
       })
+      expect(totalDamageMewTwoDealt).toBe(mewTwo.totalDamage);
       expect(mewTwo.killCount).toBe(0);
       expect(mewTwo.conversionCount).toBe(1);
-      expect(mewTwo.totalDamage).toBe(totalDamageMewTwoDealt);
     });
+    
   });
 });

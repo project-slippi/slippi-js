@@ -98,6 +98,8 @@ export enum State {
   DAMAGE_END = 0x5b,
   CAPTURE_START = 0xdf,
   CAPTURE_END = 0xe8,
+  COMMAND_GRAB_START = 0x10a,
+  COMMAND_GRAB_END = 0x130,
   GUARD_START = 0xb2,
   GUARD_END = 0xb6,
   GROUNDED_CONTROL_START = 0xe,
@@ -118,6 +120,7 @@ export enum State {
   AERIAL_ATTACK_END = 0x4a,
 
   // Animation ID specific
+  DAMAGE_FALL = 0x26,
   ROLL_FORWARD = 0xe9,
   ROLL_BACKWARD = 0xea,
   SPOT_DODGE = 0xeb,
@@ -137,26 +140,6 @@ export enum State {
   FALL_BACKWARD = 0x1f,
   GRAB = 0xd4,
   CLIFF_CATCH = 0xfc,
-
-  // Command Grabs
-  CAPTURE_CAPTAIN = 0x113,
-  CAPTURE_YOSHI = 0x114,
-  CAPTURE_KOOPA = 0x116,
-  CAPTURE_DAMAGE_KOOPA = 0x117,
-  CAPTURE_WAIT_KOOPA = 0x118,
-  CAPTURE_KOOPA_AIR = 0x11B,
-  CAPTURE_DAMAGE_KOOPA_AIR = 0x11C,
-  CAPTURE_WAIT_KOOPA_AIR = 0x11D,
-  CAPTURE_KIRBY = 0x120,
-  CAPTURE_WAIT_KIRBY = 0x121,
-  CAPTURE_MEWTWO = 0x12D,
-  CAPTURE_MEWTWO_AIR = 0x12E,
-  CAPTURE_MASTER_HAND = 0x147,
-  CAPTURE_DAMAGE_MASTER_HAND = 0x148,
-  CAPTURE_WAIT_MASTER_HAND = 0x149,
-  CAPTURE_KIRBY_YOSHI = 0x14B,
-  CAPTURE_KOOPA_HIT = 0x177,
-  CAPTURE_KOOPA_AIR_HIT = 0x17A,
 }
 
 export const Timers = {
@@ -209,28 +192,14 @@ export function isDown(state: number): boolean {
 }
 
 export function isDamaged(state: number): boolean {
-  return state >= State.DAMAGE_START && state <= State.DAMAGE_END;
+  return state >= State.DAMAGE_START && state <= State.DAMAGE_END || state === State.DAMAGE_FALL;
 }
 
 export function isGrabbed(state: number): boolean {
   return state >= State.CAPTURE_START && state <= State.CAPTURE_END;
 }
 export function isCommandGrabbed(state: number): boolean {
-  return state === State.CAPTURE_CAPTAIN ||
-  state === State.CAPTURE_YOSHI ||
-  state === State.CAPTURE_KOOPA ||
-  state === State.CAPTURE_DAMAGE_KOOPA ||
-  state === State.CAPTURE_WAIT_KOOPA ||
-  state === State.CAPTURE_KOOPA_AIR ||
-  state === State.CAPTURE_DAMAGE_KOOPA_AIR ||
-  state === State.CAPTURE_WAIT_KOOPA_AIR ||
-  state === State.CAPTURE_KIRBY ||
-  state === State.CAPTURE_WAIT_KIRBY ||
-  state === State.CAPTURE_MEWTWO ||
-  state === State.CAPTURE_MEWTWO_AIR ||
-  state === State.CAPTURE_KIRBY_YOSHI ||
-  state === State.CAPTURE_KOOPA_HIT ||
-  state === State.CAPTURE_KOOPA_AIR_HIT
+  return state >= State.COMMAND_GRAB_START && state <= State.COMMAND_GRAB_END;
 }
 
 export function isDead(state: number): boolean {
