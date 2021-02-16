@@ -42,7 +42,8 @@ export function generateOverallStats(
 
     const conversionCount = conversions.length;
     const successfulConversionCount = successfulConversions.length;
-    const totalDamage = _.sumBy(conversions, (conversion) => conversion.moves.reduce((total, move) => total + move.damage, 0)) || 0;
+    const totalDamage =
+      _.sumBy(conversions, (conversion) => conversion.moves.reduce((total, move) => total + move.damage, 0)) || 0;
     const killCount = opponentEndedStocks.length;
 
     return {
