@@ -84,5 +84,5 @@ describe("when calculating stats", () => {
       expect(yoshi.conversionCount).toBe(0);
       expect(yoshi.totalDamage).toBe(totalDamageYoshiDealt);
     });
-  }
+  });
 });
