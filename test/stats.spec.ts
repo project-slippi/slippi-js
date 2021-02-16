@@ -41,6 +41,43 @@ describe("when calculating stats", () => {
     expect(pichu.killCount).toBe(0);
     expect(pichu.conversionCount).toBe(3);
   });
+  it("accounts for Puff's Sing", () => {
+    const game = new SlippiGame("slp/consistencyTest/PuffVFalcon-Sing.slp");
+    const stats = game.getStats();
+    const puff = stats.overall[0]
+    let totalDamagePuffDealt = 0
+    stats.conversions.forEach( conversion => {
+      if(conversion.playerIndex === puff.playerIndex ){
+        totalDamagePuffDealt += conversion.moves.reduce((total, move) => total + move.damage, 0)
+      }
+    })
+    expect(totalDamagePuffDealt).toBe(puff.totalDamage);
+    expect(puff.killCount).toBe(0);
+    expect(puff.conversionCount).toBe(2);
+  });
+  it("accounts for Ness's Recover", () => {
+    const game = new SlippiGame("slp/consistencyTest/NessVFox-Absorb.slp");
+    const stats = game.getStats();
+    const ness = stats.overall[0]
+    const fox = stats.overall[1]
+    let totalDamageNessDealt = 0
+    let totalDamageFoxDealt = 0
+    stats.conversions.forEach( conversion => {
+      if(conversion.playerIndex === ness.playerIndex ){
+        totalDamageNessDealt += conversion.moves.reduce((total, move) => total + move.damage, 0)
+      }
+      if(conversion.playerIndex === fox.playerIndex ){
+        totalDamageFoxDealt += conversion.moves.reduce((total, move) => total + move.damage, 0)
+      }
+    })
+    expect(totalDamageNessDealt).toBe(ness.totalDamage);
+    expect(ness.killCount).toBe(0);
+    expect(ness.conversionCount).toBe(0);
+
+    expect(totalDamageFoxDealt).toBe(fox.totalDamage);
+    expect(fox.killCount).toBe(0);
+    expect(fox.conversionCount).toBe(2);
+  });
   describe("When Handling Command Grabs", () => {
     it("accounts for Bowser's Command Grab", () => {
       const game = new SlippiGame("slp/consistencyTest/BowsVDK-SB-63.slp");
