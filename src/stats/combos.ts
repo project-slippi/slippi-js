@@ -1,7 +1,7 @@
 import _ from "lodash";
 import { FrameEntryType, FramesType, PostFrameUpdateType } from "../types";
 import { MoveLandedType, ComboType, PlayerIndexedType } from "./common";
-import { isDamaged, isGrabbed, calcDamageTaken, isTeching, didLoseStock, Timers, isDown, isDead } from "./common";
+import { isDamaged, isGrabbed, isCommandGrabbed, calcDamageTaken, isTeching, didLoseStock, Timers, isDown, isDead } from "./common";
 import { StatComputer } from "./stats";
 
 interface ComboState {
@@ -66,6 +66,7 @@ function handleComboCompute(
   const oppActionStateId = opponentFrame.actionStateId!;
   const opntIsDamaged = isDamaged(oppActionStateId);
   const opntIsGrabbed = isGrabbed(oppActionStateId);
+  const opntIsCommandGrabbed = isCommandGrabbed(oppActionStateId);
   const opntDamageTaken = prevOpponentFrame ? calcDamageTaken(opponentFrame, prevOpponentFrame) : 0;
 
   // Keep track of whether actionState changes after a hit. Used to compute move count
@@ -84,7 +85,7 @@ function handleComboCompute(
 
   // If opponent took damage and was put in some kind of stun this frame, either
   // start a combo or count the moves for the existing combo
-  if (opntIsDamaged || opntIsGrabbed) {
+  if (opntIsDamaged || opntIsGrabbed || opntIsCommandGrabbed) {
     if (!state.combo) {
       state.combo = {
         playerIndex: indices.playerIndex,
@@ -142,7 +143,7 @@ function handleComboCompute(
     state.combo.currentPercent = opponentFrame.percent ?? 0;
   }
 
-  if (opntIsDamaged || opntIsGrabbed || opntIsTeching || opntIsDowned || opntIsDying) {
+  if (opntIsDamaged || opntIsGrabbed || opntIsCommandGrabbed || opntIsTeching || opntIsDowned || opntIsDying) {
     // If opponent got grabbed or damaged, reset the reset counter
     state.resetCounter = 0;
   } else {
