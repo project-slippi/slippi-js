@@ -33,7 +33,7 @@ describe("when calculating stats", () => {
       const stats = game.getStats();
       const falcon = stats.overall[0]
       let totalDamageFalconDealt = 0
-      stats.conversions.map( conversion => {
+      stats.conversions.forEach( conversion => {
         if(conversion.playerIndex === falcon.playerIndex ){
           totalDamageFalconDealt += conversion.moves.reduce((total, move) => total + move.damage, 0)
         }
@@ -47,7 +47,7 @@ describe("when calculating stats", () => {
       const stats = game.getStats();
       const ganon = stats.overall[0]
       let totalDamageGanonDealt = 0
-      stats.conversions.map( conversion => {
+      stats.conversions.forEach( conversion => {
         if(conversion.playerIndex === ganon.playerIndex ){
           totalDamageGanonDealt += conversion.moves.reduce((total, move) => total + move.damage, 0)
         }
@@ -61,7 +61,7 @@ describe("when calculating stats", () => {
       const stats = game.getStats();
       const kirby = stats.overall[0]
       let totalDamageKirbyDealt = 0
-      stats.conversions.map( conversion => {
+      stats.conversions.forEach( conversion => {
         if(conversion.playerIndex === kirby.playerIndex ){
           totalDamageKirbyDealt += conversion.moves.reduce((total, move) => total + move.damage, 0)
         }
@@ -75,7 +75,7 @@ describe("when calculating stats", () => {
       const stats = game.getStats();
       const yoshi = stats.overall[0]
       let totalDamageYoshiDealt = 0
-      stats.conversions.map( conversion => {
+      stats.conversions.forEach( conversion => {
         if(conversion.playerIndex === yoshi.playerIndex ){
           totalDamageYoshiDealt += conversion.moves.reduce((total, move) => total + move.damage, 0)
         }
