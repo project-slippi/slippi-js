@@ -139,7 +139,6 @@ export enum State {
   CLIFF_CATCH = 0xfc,
   DAMAGE_FALL = 0x26,
 
-
   // Command Grabs
   COMMAND_GRAB_RANGE1_START = 0x10a,
   COMMAND_GRAB_RANGE1_END = 0x130,
@@ -148,7 +147,7 @@ export enum State {
   COMMAND_GRAB_RANGE2_END = 0x153,
 
   COMMAND_GRAB_RANGE3_START = 0x177,
-  COMMAND_GRAB_RANGE3_END = 0x17E,
+  COMMAND_GRAB_RANGE3_END = 0x17e,
 }
 
 export const Timers = {
@@ -201,7 +200,7 @@ export function isDown(state: number): boolean {
 }
 
 export function isDamaged(state: number): boolean {
-  return state >= State.DAMAGE_START && state <= State.DAMAGE_END || state === State.DAMAGE_FALL;
+  return (state >= State.DAMAGE_START && state <= State.DAMAGE_END) || state === State.DAMAGE_FALL;
 }
 
 export function isGrabbed(state: number): boolean {
@@ -210,9 +209,11 @@ export function isGrabbed(state: number): boolean {
 
 // TODO: Find better implementation of 3 seperate ranges
 export function isCommandGrabbed(state: number): boolean {
-  return state >= State.COMMAND_GRAB_RANGE1_START && state <= State.COMMAND_GRAB_RANGE1_END ||
-         state >= State.COMMAND_GRAB_RANGE2_START && state <= State.COMMAND_GRAB_RANGE2_END ||
-         state >= State.COMMAND_GRAB_RANGE3_START && state <= State.COMMAND_GRAB_RANGE3_END;
+  return (
+    (state >= State.COMMAND_GRAB_RANGE1_START && state <= State.COMMAND_GRAB_RANGE1_END) ||
+    (state >= State.COMMAND_GRAB_RANGE2_START && state <= State.COMMAND_GRAB_RANGE2_END) ||
+    (state >= State.COMMAND_GRAB_RANGE3_START && state <= State.COMMAND_GRAB_RANGE3_END)
+  );
 }
 
 export function isDead(state: number): boolean {
