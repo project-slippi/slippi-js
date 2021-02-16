@@ -84,5 +84,19 @@ describe("when calculating stats", () => {
       expect(yoshi.conversionCount).toBe(0);
       expect(yoshi.totalDamage).toBe(totalDamageYoshiDealt);
     });
+    it("accounts for MewTwo's Command Grab", () => {
+      const game = new SlippiGame("slp/consistencyTest/MewTwoVDK-SB-42.slp");
+      const stats = game.getStats();
+      const mewTwo = stats.overall[0]
+      let totalDamageMewTwoDealt = 0
+      stats.conversions.forEach( conversion => {
+        if(conversion.playerIndex === mewTwo.playerIndex ){
+          totalDamageMewTwoDealt += conversion.moves.reduce((total, move) => total + move.damage, 0)
+        }
+      })
+      expect(mewTwo.killCount).toBe(0);
+      expect(mewTwo.conversionCount).toBe(1);
+      expect(mewTwo.totalDamage).toBe(totalDamageMewTwoDealt);
+    });
   });
 });
