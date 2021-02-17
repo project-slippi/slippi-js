@@ -9,9 +9,7 @@ module.exports = {
   verbose: true,
   globals: {
     "ts-jest": {
-      diagnostics: {
-        warnOnly: true,
-      },
+      diagnostics: false,
     },
   },
 };

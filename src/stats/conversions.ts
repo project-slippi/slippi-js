@@ -1,7 +1,7 @@
 import _ from "lodash";
 import { FrameEntryType, FramesType, PostFrameUpdateType } from "../types";
 import { MoveLandedType, ConversionType, PlayerIndexedType } from "./common";
-import { isDamaged, isGrabbed, calcDamageTaken, isInControl, didLoseStock, Timers } from "./common";
+import { isDamaged, isGrabbed, isCommandGrabbed, calcDamageTaken, isInControl, didLoseStock, Timers } from "./common";
 import { StatComputer } from "./stats";
 
 interface PlayerConversionState {
@@ -113,6 +113,7 @@ function handleConversionCompute(
   const oppActionStateId = opponentFrame.actionStateId!;
   const opntIsDamaged = isDamaged(oppActionStateId);
   const opntIsGrabbed = isGrabbed(oppActionStateId);
+  const opntIsCommandGrabbed = isCommandGrabbed(oppActionStateId);
   const opntDamageTaken = prevOpponentFrame ? calcDamageTaken(opponentFrame, prevOpponentFrame) : 0;
 
   // Keep track of whether actionState changes after a hit. Used to compute move count
@@ -131,7 +132,7 @@ function handleConversionCompute(
 
   // If opponent took damage and was put in some kind of stun this frame, either
   // start a conversion or
-  if (opntIsDamaged || opntIsGrabbed) {
+  if (opntIsDamaged || opntIsGrabbed || opntIsCommandGrabbed) {
     if (!state.conversion) {
       state.conversion = {
         playerIndex: indices.playerIndex,
@@ -188,7 +189,7 @@ function handleConversionCompute(
     state.conversion.currentPercent = opponentFrame.percent ?? 0;
   }
 
-  if (opntIsDamaged || opntIsGrabbed) {
+  if (opntIsDamaged || opntIsGrabbed || opntIsCommandGrabbed) {
     // If opponent got grabbed or damaged, reset the reset counter
     state.resetCounter = 0;
   }
