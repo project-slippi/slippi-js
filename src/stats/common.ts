@@ -140,12 +140,12 @@ export enum State {
   DAMAGE_FALL = 0x26,
 
   // Command Grabs
-  BARREL_CANNON_WAIT = 0x153,
+  BARREL_WAIT = 0x125,
   COMMAND_GRAB_RANGE1_START = 0x10a,
   COMMAND_GRAB_RANGE1_END = 0x130,
 
   COMMAND_GRAB_RANGE2_START = 0x147,
-  COMMAND_GRAB_RANGE2_END = 0x153,
+  COMMAND_GRAB_RANGE2_END = 0x152,
 
   COMMAND_GRAB_RANGE3_START = 0x177,
   COMMAND_GRAB_RANGE3_END = 0x17e,
@@ -214,7 +214,7 @@ export function isCommandGrabbed(state: number): boolean {
     ((state >= State.COMMAND_GRAB_RANGE1_START && state <= State.COMMAND_GRAB_RANGE1_END) ||
       (state >= State.COMMAND_GRAB_RANGE2_START && state <= State.COMMAND_GRAB_RANGE2_END) ||
       (state >= State.COMMAND_GRAB_RANGE3_START && state <= State.COMMAND_GRAB_RANGE3_END)) &&
-    state !== State.BARREL_CANNON_WAIT
+    state !== State.BARREL_WAIT
   );
 }
 
