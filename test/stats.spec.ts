@@ -19,6 +19,7 @@ describe("when calculating stats", () => {
       const game = new SlippiGame("slp/consistencyTest/Puff-MagnifyingGlass-10.slp");
       const stats = game.getStats();
       const puff = stats.overall[0];
+      const yl = stats.overall[1];
       let totalDamagePuffDealt = 0;
       stats.conversions.forEach((conversion) => {
         if (conversion.playerIndex === puff.playerIndex) {
@@ -28,6 +29,7 @@ describe("when calculating stats", () => {
       expect(totalDamagePuffDealt).toBe(puff.totalDamage);
       expect(puff.killCount).toBe(0);
       expect(puff.conversionCount).toBe(0);
+      expect(yl.totalDamage).toBe(0);
     });
 
     it("should ignore Pichu's self-damage", () => {
@@ -55,7 +57,8 @@ describe("when calculating stats", () => {
       // Pichu's self-damage should not count towards its own total damage dealt
       expect(pichu.totalDamage).not.toBe(pichuStock.currentPercent + icsStock.currentPercent);
       expect(pichu.killCount).toBe(0);
-      expect(icsDamageDealt).toBe(0);
+      expect(ics.totalDamage).toBe(0);
+      expect(ics.totalDamage).toBe(icsDamageDealt);
       expect(pichu.conversionCount).toBe(3);
     });
 
