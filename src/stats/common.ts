@@ -137,6 +137,18 @@ export enum State {
   FALL_BACKWARD = 0x1f,
   GRAB = 0xd4,
   CLIFF_CATCH = 0xfc,
+  DAMAGE_FALL = 0x26,
+
+  // Command Grabs
+  BARREL_WAIT = 0x125,
+  COMMAND_GRAB_RANGE1_START = 0x10a,
+  COMMAND_GRAB_RANGE1_END = 0x130,
+
+  COMMAND_GRAB_RANGE2_START = 0x147,
+  COMMAND_GRAB_RANGE2_END = 0x152,
+
+  COMMAND_GRAB_RANGE3_START = 0x177,
+  COMMAND_GRAB_RANGE3_END = 0x17e,
 }
 
 export const Timers = {
@@ -189,11 +201,21 @@ export function isDown(state: number): boolean {
 }
 
 export function isDamaged(state: number): boolean {
-  return state >= State.DAMAGE_START && state <= State.DAMAGE_END;
+  return (state >= State.DAMAGE_START && state <= State.DAMAGE_END) || state === State.DAMAGE_FALL;
 }
 
 export function isGrabbed(state: number): boolean {
   return state >= State.CAPTURE_START && state <= State.CAPTURE_END;
+}
+
+// TODO: Find better implementation of 3 seperate ranges
+export function isCommandGrabbed(state: number): boolean {
+  return (
+    ((state >= State.COMMAND_GRAB_RANGE1_START && state <= State.COMMAND_GRAB_RANGE1_END) ||
+      (state >= State.COMMAND_GRAB_RANGE2_START && state <= State.COMMAND_GRAB_RANGE2_END) ||
+      (state >= State.COMMAND_GRAB_RANGE3_START && state <= State.COMMAND_GRAB_RANGE3_END)) &&
+    state !== State.BARREL_WAIT
+  );
 }
 
 export function isDead(state: number): boolean {
