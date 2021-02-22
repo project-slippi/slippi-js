@@ -1,7 +1,17 @@
 import _ from "lodash";
-import { FrameEntryType, FramesType, GameStartType, PostFrameUpdateType } from "../types";
+import { FrameEntryType, FramesType, PostFrameUpdateType, GameStartType } from "../types";
 import { MoveLandedType, ComboType } from "./common";
-import { isDamaged, isGrabbed, calcDamageTaken, isTeching, didLoseStock, Timers, isDown, isDead } from "./common";
+import {
+  isDamaged,
+  isGrabbed,
+  isCommandGrabbed,
+  calcDamageTaken,
+  isTeching,
+  didLoseStock,
+  Timers,
+  isDown,
+  isDead,
+} from "./common";
 import { StatComputer } from "./stats";
 
 interface ComboState {
@@ -81,10 +91,11 @@ function handleComboCompute(
   const playerActionStateId = playerFrame.actionStateId!;
   const playerIsDamaged = isDamaged(playerActionStateId);
   const playerIsGrabbed = isGrabbed(playerActionStateId);
+  const playerIsCommandGrabbed = isCommandGrabbed(playerActionStateId);
 
   // If the player took damage and was put in some kind of stun this frame, either
   // start a combo or count the moves for the existing combo
-  if (playerIsDamaged || playerIsGrabbed) {
+  if (playerIsDamaged || playerIsGrabbed || playerIsCommandGrabbed) {
     if (!state.combo) {
       state.combo = {
         playerIndex,
@@ -152,7 +163,14 @@ function handleComboCompute(
     state.combo.currentPercent = playerFrame.percent ?? 0;
   }
 
-  if (playerIsDamaged || playerIsGrabbed || playerIsTeching || playerIsDowned || playerIsDying) {
+  if (
+    playerIsDamaged ||
+    playerIsGrabbed ||
+    playerIsCommandGrabbed ||
+    playerIsTeching ||
+    playerIsDowned ||
+    playerIsDying
+  ) {
     // If the player got grabbed or damaged, reset the reset counter
     state.resetCounter = 0;
   } else {

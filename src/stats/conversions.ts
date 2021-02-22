@@ -1,7 +1,7 @@
 import _ from "lodash";
 import { FrameEntryType, FramesType, GameStartType, PostFrameUpdateType } from "../types";
 import { MoveLandedType, ConversionType } from "./common";
-import { isDamaged, isGrabbed, calcDamageTaken, isInControl, didLoseStock, Timers } from "./common";
+import { isDamaged, isGrabbed, isCommandGrabbed, calcDamageTaken, isInControl, didLoseStock, Timers } from "./common";
 import { StatComputer } from "./stats";
 
 interface PlayerConversionState {
@@ -133,10 +133,11 @@ function handleConversionCompute(
   const playerActionStateId = playerFrame.actionStateId!;
   const playerIsDamaged = isDamaged(playerActionStateId);
   const playerIsGrabbed = isGrabbed(playerActionStateId);
+  const playerIsCommandGrabbed = isCommandGrabbed(playerActionStateId);
 
   // If the player took damage and was put in some kind of stun this frame, either
   // start a conversion or
-  if (playerIsDamaged || playerIsGrabbed) {
+  if (playerIsDamaged || playerIsGrabbed || playerIsCommandGrabbed) {
     if (!state.conversion) {
       state.conversion = {
         playerIndex,
@@ -203,7 +204,7 @@ function handleConversionCompute(
     state.conversion.currentPercent = playerFrame.percent ?? 0;
   }
 
-  if (playerIsDamaged || playerIsGrabbed) {
+  if (playerIsDamaged || playerIsGrabbed || playerIsCommandGrabbed) {
     // If the player got grabbed or damaged, reset the reset counter
     state.resetCounter = 0;
   }
