@@ -156,12 +156,19 @@ export const Timers = {
   COMBO_STRING_RESET_FRAMES: 45,
 };
 
-export function didLoseStock(frame: PostFrameUpdateType, prevFrame: PostFrameUpdateType): boolean {
+export function didLoseStock(
+  frame: PostFrameUpdateType | undefined,
+  prevFrame: PostFrameUpdateType | undefined,
+): boolean {
   if (!frame || !prevFrame) {
     return false;
   }
 
-  return prevFrame.stocksRemaining! - frame.stocksRemaining! > 0;
+  if (prevFrame.stocksRemaining === null || frame.stocksRemaining === null) {
+    return false;
+  }
+
+  return prevFrame.stocksRemaining - frame.stocksRemaining > 0;
 }
 
 export function isInControl(state: number): boolean {
