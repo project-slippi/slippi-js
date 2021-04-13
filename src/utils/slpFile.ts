@@ -1,9 +1,10 @@
-import { get, forEach } from "lodash";
 import fs, { WriteStream } from "fs";
+import { forEach, get } from "lodash";
 import moment, { Moment } from "moment";
 import { Writable, WritableOptions } from "stream";
-import { SlpStream, SlpStreamMode, SlpStreamEvent, SlpCommandEventPayload } from "./slpStream";
+
 import { Command, PostFrameUpdateType } from "../types";
+import { SlpCommandEventPayload, SlpStream, SlpStreamEvent, SlpStreamMode } from "./slpStream";
 
 const DEFAULT_NICKNAME = "unknown";
 

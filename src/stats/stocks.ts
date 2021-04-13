@@ -1,7 +1,7 @@
 import _ from "lodash";
 
-import { isDead, didLoseStock, StockType } from "./common";
 import { FrameEntryType, FramesType, GameStartType } from "../types";
+import { didLoseStock, isDead, StockType } from "./common";
 import { StatComputer } from "./stats";
 
 interface StockState {

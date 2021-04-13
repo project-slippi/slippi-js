@@ -1,6 +1,6 @@
 import _ from "lodash";
-import { FramesType, FrameEntryType, Frames, GameStartType } from "../types";
 
+import { FrameEntryType, Frames, FramesType, GameStartType } from "../types";
 import { StatComputer } from "./stats";
 
 enum JoystickRegion {

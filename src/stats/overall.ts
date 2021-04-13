@@ -1,6 +1,7 @@
 import _ from "lodash";
+
 import { GameStartType } from "../types";
-import { ConversionType, StockType, OverallType, RatioType, InputCountsType } from "./common";
+import { ConversionType, InputCountsType, OverallType, RatioType, StockType } from "./common";
 import { PlayerInput } from "./inputs";
 
 interface ConversionsByPlayerByOpening {
@@ -61,9 +62,13 @@ export function generateOverallStats(
     // const opponentEndedStocks = _.filter(opponentStocks, "endFrame");
 
     originalConversions.reduce((accum, conversion) => {
-      if (conversion.playerIndex === playerIndex) return totalDamage;
+      if (conversion.playerIndex === playerIndex) {
+        return totalDamage;
+      }
       conversionCount++;
-      if (conversion.moves.length > 1) successfulConversionCount++;
+      if (conversion.moves.length > 1) {
+        successfulConversionCount++;
+      }
       conversion.moves.forEach((move) => {
         totalDamage += move.damage;
         if (conversion.didKill && conversion.lastHitBy === playerIndex) {

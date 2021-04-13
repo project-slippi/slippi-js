@@ -4,14 +4,14 @@ import { SlippiGame } from "./SlippiGame";
 export * from "./melee";
 
 // Export types
-export * from "./types";
 export * from "./stats";
+export * from "./types";
 
 // Utils
 export * from "./utils/slpFile";
 export * from "./utils/slpFileWriter";
-export * from "./utils/slpStream";
 export * from "./utils/slpParser";
+export * from "./utils/slpStream";
 
 // Console networking
 export * from "./console";
@@ -19,4 +19,5 @@ export * from "./console";
 // Support both named and default exports
 export * from "./SlippiGame";
 
+// eslint-disable-next-line import/no-default-export
 export default SlippiGame;

@@ -1,20 +1,20 @@
 import _ from "lodash";
-import { openSlpFile, closeSlpFile, iterateEvents, getMetadata, SlpInputSource, SlpReadInput } from "./utils/slpReader";
 
-// Type imports
-import { MetadataType, GameStartType, GameEndType, FrameEntryType, FramesType } from "./types";
-import { SlpParser, SlpParserEvent } from "./utils/slpParser";
 import {
-  StockComputer,
-  ComboComputer,
   ActionsComputer,
+  ComboComputer,
   ConversionComputer,
+  generateOverallStats,
   InputComputer,
+  StatOptions,
   Stats,
   StatsType,
-  generateOverallStats,
-  StatOptions,
+  StockComputer,
 } from "./stats";
+// Type imports
+import { FrameEntryType, FramesType, GameEndType, GameStartType, MetadataType } from "./types";
+import { SlpParser, SlpParserEvent } from "./utils/slpParser";
+import { closeSlpFile, getMetadata, iterateEvents, openSlpFile, SlpInputSource, SlpReadInput } from "./utils/slpReader";
 
 /**
  * Slippi Game class that wraps a file

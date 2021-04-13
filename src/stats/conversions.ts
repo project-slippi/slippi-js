@@ -1,7 +1,17 @@
 import _ from "lodash";
+
 import { FrameEntryType, FramesType, GameStartType, PostFrameUpdateType } from "../types";
-import { MoveLandedType, ConversionType } from "./common";
-import { isDamaged, isGrabbed, isCommandGrabbed, calcDamageTaken, isInControl, didLoseStock, Timers } from "./common";
+import {
+  calcDamageTaken,
+  ConversionType,
+  didLoseStock,
+  isCommandGrabbed,
+  isDamaged,
+  isGrabbed,
+  isInControl,
+  MoveLandedType,
+  Timers,
+} from "./common";
 import { StatComputer } from "./stats";
 
 interface PlayerConversionState {
