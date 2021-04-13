@@ -1,3 +1,4 @@
+import { EventEmitter } from "events";
 import _ from "lodash";
 
 import { FrameEntryType, FramesType, GameStartType, PostFrameUpdateType } from "../types";
@@ -27,13 +28,15 @@ interface MetadataType {
   };
 }
 
-export class ConversionComputer implements StatComputer<ConversionType[]> {
+export class ConversionComputer extends EventEmitter implements StatComputer<ConversionType[]> {
   private playerIndices: number[] = [];
   private conversions: ConversionType[] = [];
   private state = new Map<number, PlayerConversionState>();
   private metadata: MetadataType;
+  private settings: GameStartType | null = null;
 
   public constructor() {
+    super();
     this.metadata = {
       lastEndFrameByOppIdx: {},
     };
@@ -41,6 +44,7 @@ export class ConversionComputer implements StatComputer<ConversionType[]> {
 
   public setup(settings: GameStartType): void {
     // Reset the state since it's a new game
+    this.settings = settings;
     this.playerIndices = settings.players.map((p) => p.playerIndex);
     this.conversions = [];
     this.state = new Map<number, PlayerConversionState>();
@@ -63,7 +67,13 @@ export class ConversionComputer implements StatComputer<ConversionType[]> {
     this.playerIndices.forEach((index) => {
       const state = this.state.get(index);
       if (state) {
-        handleConversionCompute(allFrames, state, index, frame, this.conversions);
+        const terminated = handleConversionCompute(allFrames, state, index, frame, this.conversions);
+        if (terminated) {
+          this.emit("CONVERSION", {
+            combo: _.last(this.conversions),
+            settings: this.settings,
+          });
+        }
       }
     });
   }
@@ -115,7 +125,7 @@ function handleConversionCompute(
   playerIndex: number,
   frame: FrameEntryType,
   conversions: ConversionType[],
-): void {
+): boolean {
   const currentFrameNumber = frame.frame;
   const playerFrame: PostFrameUpdateType = frame.players[playerIndex]!.post;
 
@@ -203,7 +213,7 @@ function handleConversionCompute(
   if (!state.conversion) {
     // The rest of the function handles conversion termination logic, so if we don't
     // have a conversion started, there is no need to continue
-    return;
+    return false;
   }
 
   const playerInControl = isInControl(playerActionStateId);
@@ -249,4 +259,6 @@ function handleConversionCompute(
     state.conversion = null;
     state.move = null;
   }
+
+  return shouldTerminate;
 }

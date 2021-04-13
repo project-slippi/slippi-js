@@ -1,4 +1,5 @@
-import _ from "lodash";
+import { EventEmitter } from "events";
+import last from "lodash/last";
 
 import { FrameEntryType, FramesType, GameStartType, PostFrameUpdateType } from "../types";
 import {
@@ -16,20 +17,29 @@ import {
 } from "./common";
 import { StatComputer } from "./stats";
 
+export enum ComboEvent {
+  COMBO_START = "COMBO_START",
+  COMBO_EXTEND = "COMBO_EXTEND",
+  COMBO_END = "COMBO_END",
+}
+
 interface ComboState {
   combo: ComboType | null;
   move: MoveLandedType | null;
   resetCounter: number;
   lastHitAnimation: number | null;
+  event: ComboEvent | null;
 }
 
-export class ComboComputer implements StatComputer<ComboType[]> {
+export class ComboComputer extends EventEmitter implements StatComputer<ComboType[]> {
   private playerIndices: number[] = [];
   private combos: ComboType[] = [];
   private state = new Map<number, ComboState>();
+  private settings: GameStartType | null = null;
 
   public setup(settings: GameStartType): void {
     // Reset the state
+    this.settings = settings;
     this.state = new Map();
     this.combos = [];
 
@@ -40,6 +50,7 @@ export class ComboComputer implements StatComputer<ComboType[]> {
         move: null,
         resetCounter: 0,
         lastHitAnimation: null,
+        event: null,
       };
       this.state.set(indices, playerState);
     });
@@ -50,6 +61,15 @@ export class ComboComputer implements StatComputer<ComboType[]> {
       const state = this.state.get(index);
       if (state) {
         handleComboCompute(allFrames, state, index, frame, this.combos);
+
+        // Emit an event for the new combo
+        if (state.event !== null) {
+          this.emit(state.event, {
+            combo: last(this.combos),
+            settings: this.settings,
+          });
+          state.event = null;
+        }
       }
     });
   }
@@ -98,6 +118,8 @@ function handleComboCompute(
   // If the player took damage and was put in some kind of stun this frame, either
   // start a combo or count the moves for the existing combo
   if (playerIsDamaged || playerIsGrabbed || playerIsCommandGrabbed) {
+    let comboStarted = false;
+
     if (!state.combo) {
       state.combo = {
         playerIndex,
@@ -112,6 +134,9 @@ function handleComboCompute(
       };
 
       combos.push(state.combo);
+
+      // Track whether this is a new combo or not
+      comboStarted = true;
     }
 
     const playerDamageTaken = prevPlayerFrame ? calcDamageTaken(playerFrame, prevPlayerFrame) : 0;
@@ -136,6 +161,11 @@ function handleComboCompute(
         };
 
         state.combo.moves.push(state.move);
+
+        // Make sure we don't overwrite the START event
+        if (!comboStarted) {
+          state.event = ComboEvent.COMBO_EXTEND;
+        }
       }
 
       if (state.move) {
@@ -146,6 +176,10 @@ function handleComboCompute(
       // Store previous frame animation to consider the case of a trade, the previous
       // frame should always be the move that actually connected... I hope
       state.lastHitAnimation = prevPlayerFrame ? prevPlayerFrame.actionStateId : null;
+    }
+
+    if (comboStarted) {
+      state.event = ComboEvent.COMBO_START;
     }
   }
 
@@ -196,6 +230,7 @@ function handleComboCompute(
   if (shouldTerminate) {
     state.combo.endFrame = playerFrame.frame;
     state.combo.endPercent = prevPlayerFrame ? prevPlayerFrame.percent ?? 0 : 0;
+    state.event = ComboEvent.COMBO_END;
 
     state.combo = null;
     state.move = null;
