@@ -57,7 +57,7 @@ export function generateOverallStats(
     let killCount = 0;
 
     // These are the conversions that we did on our opponents
-    const opponentStocks = _.get(conversionsByPlayer, playerIndex) || [];
+    // const opponentStocks = _.get(conversionsByPlayer, playerIndex) || [];
     // const opponentEndedStocks = _.filter(opponentStocks, "endFrame");
 
     originalConversions.reduce((accum, conversion) => {
