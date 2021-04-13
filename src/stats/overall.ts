@@ -27,7 +27,6 @@ export function generateOverallStats(
 
   const overall = settings.players.map((player) => {
     const playerIndex = player.playerIndex;
-    const gameMinutes = playableFrameCount / 3600;
 
     const playerInputs = _.get(inputsByPlayer, playerIndex) || {};
     const inputCounts: InputCountsType = {
@@ -37,8 +36,8 @@ export function generateOverallStats(
       joystick: _.get(playerInputs, "joystickInputCount"),
       total: _.get(playerInputs, "inputCount"),
     };
-    const conversions = _.get(conversionsByPlayer, playerIndex) || [];
-    const successfulConversions = conversions.filter((conversion) => conversion.moves.length > 1);
+    // const conversions = _.get(conversionsByPlayer, playerIndex) || [];
+    // const successfulConversions = conversions.filter((conversion) => conversion.moves.length > 1);
     let conversionCount = 0;
     let successfulConversionCount = 0;
 
@@ -59,7 +58,7 @@ export function generateOverallStats(
 
     // These are the conversions that we did on our opponents
     const opponentStocks = _.get(conversionsByPlayer, playerIndex) || [];
-    const opponentEndedStocks = _.filter(opponentStocks, "endFrame");
+    // const opponentEndedStocks = _.filter(opponentStocks, "endFrame");
 
     originalConversions.reduce((accum, conversion) => {
       if (conversion.playerIndex === playerIndex) return totalDamage;
