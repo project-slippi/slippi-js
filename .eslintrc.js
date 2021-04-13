@@ -24,7 +24,6 @@ module.exports = {
         varsIgnorePattern: "^_",
       },
     ],
-    "object-shorthand": ["error", "never"],
     "strict-booleans/no-nullable-numbers": "error",
   },
 };

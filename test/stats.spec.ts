@@ -1,4 +1,5 @@
 import { SlippiGame } from "../src";
+import { didLoseStock } from "../src/stats/common";
 
 describe("when calculating stats", () => {
   it("should correctly calculate L cancel counts", () => {
@@ -22,7 +23,7 @@ describe("when calculating stats", () => {
       const yl = stats.overall[1];
       let totalDamagePuffDealt = 0;
       stats.conversions.forEach((conversion) => {
-        if (conversion.playerIndex === puff.playerIndex) {
+        if (conversion.lastHitBy === puff.playerIndex) {
           totalDamagePuffDealt += conversion.moves.reduce((total, move) => total + move.damage, 0);
         }
       });
@@ -42,15 +43,11 @@ describe("when calculating stats", () => {
       let totalDamagePichuDealt = 0;
       let icsDamageDealt = 0;
       stats.conversions.forEach((conversion) => {
-        switch (conversion.playerIndex) {
-          case pichu.playerIndex: {
-            totalDamagePichuDealt += conversion.moves.reduce((total, move) => total + move.damage, 0);
-            break;
-          }
-          case ics.playerIndex: {
-            icsDamageDealt += conversion.moves.reduce((total, move) => total + move.damage, 0);
-            break;
-          }
+        if (conversion.playerIndex === pichu.playerIndex) {
+          icsDamageDealt += conversion.moves.reduce((total, move) => total + move.damage, 0);
+        }
+        if (conversion.playerIndex === ics.playerIndex) {
+          totalDamagePichuDealt += conversion.moves.reduce((total, move) => total + move.damage, 0);
         }
       });
       expect(totalDamagePichuDealt).toBe(pichu.totalDamage);
@@ -70,10 +67,10 @@ describe("when calculating stats", () => {
       let totalDamageNessDealt = 0;
       let totalDamageFoxDealt = 0;
       stats.conversions.forEach((conversion) => {
-        if (conversion.playerIndex === ness.playerIndex) {
+        if (conversion.lastHitBy === ness.playerIndex) {
           totalDamageNessDealt += conversion.moves.reduce((total, move) => total + move.damage, 0);
         }
-        if (conversion.playerIndex === fox.playerIndex) {
+        if (conversion.lastHitBy === fox.playerIndex) {
           totalDamageFoxDealt += conversion.moves.reduce((total, move) => total + move.damage, 0);
         }
       });
@@ -85,5 +82,11 @@ describe("when calculating stats", () => {
       expect(fox.killCount).toBe(0);
       expect(fox.conversionCount).toBe(2);
     });
+  });
+});
+
+describe("when using common functions", () => {
+  it("should return false if required", () => {
+    expect(didLoseStock(undefined, undefined)).toEqual(false);
   });
 });
