@@ -1,60 +1,6 @@
 import { SlippiGame } from "../src";
 import { didLoseStock } from "../src/stats/common";
 
-const slippiDefault = {
-  playerIndex: 0,
-  inputCounts: {
-    buttons: 150,
-    triggers: 0,
-    cstick: 35,
-    joystick: 309,
-    total: 494,
-  },
-  conversionCount: 8,
-  totalDamage: 359.28001403808594,
-  killCount: 4,
-  successfulConversions: {
-    count: 6,
-    total: 8,
-    ratio: 0.75,
-  },
-  inputsPerMinute: {
-    count: 494,
-    total: 1.0369444444444444,
-    ratio: 476.39967854272703,
-  },
-  digitalInputsPerMinute: {
-    count: 150,
-    total: 1.0369444444444444,
-    ratio: 144.65577283686042,
-  },
-  openingsPerKill: {
-    count: 8,
-    total: 4,
-    ratio: 2,
-  },
-  damagePerOpening: {
-    count: 359.28001403808594,
-    total: 8,
-    ratio: 44.91000175476074,
-  },
-  neutralWinRatio: {
-    count: 8,
-    total: 8,
-    ratio: 1,
-  },
-  counterHitRatio: {
-    count: 0,
-    total: 2,
-    ratio: 0,
-  },
-  beneficialTradeRatio: {
-    count: 0,
-    total: 0,
-    ratio: null,
-  },
-};
-
 describe("when calculating stats", () => {
   it("should correctly calculate L cancel counts", () => {
     const game = new SlippiGame("slp/lCancel.slp");
@@ -138,8 +84,9 @@ describe("when calculating stats", () => {
     });
   });
 });
+
 describe("when using common functions", () => {
-  it("Should return false if required", () => {
+  it("should return false if required", () => {
     expect(didLoseStock(undefined, undefined)).toEqual(false);
   });
 });
