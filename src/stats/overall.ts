@@ -17,6 +17,7 @@ export function generateOverallStats(
   playableFrameCount: number,
 ): OverallType[] {
   const inputsByPlayer = _.keyBy(inputs, "playerIndex");
+  let originalConversions = conversions
   const conversionsByPlayer = _.groupBy(conversions, (conv) => conv.moves[0]?.playerIndex);
   const conversionsByPlayerByOpening: ConversionsByPlayerByOpening = _.mapValues(conversionsByPlayer, (conversions) =>
     _.groupBy(conversions, "openingType"),
@@ -26,6 +27,8 @@ export function generateOverallStats(
 
   const overall = settings.players.map((player) => {
     const playerIndex = player.playerIndex;
+    const gameMinutes = playableFrameCount / 3600;
+
     const playerInputs = _.get(inputsByPlayer, playerIndex) || {};
     const inputCounts: InputCountsType = {
       buttons: _.get(playerInputs, "buttonInputCount"),
@@ -36,9 +39,8 @@ export function generateOverallStats(
     };
     const conversions = _.get(conversionsByPlayer, playerIndex) || [];
     const successfulConversions = conversions.filter((conversion) => conversion.moves.length > 1);
-
-    const conversionCount = conversions.length;
-    const successfulConversionCount = successfulConversions.length;
+    let conversionCount = 0
+    let successfulConversionCount = 0
 
     const opponentIndices = settings.players
       .filter((opp) => {
@@ -58,18 +60,19 @@ export function generateOverallStats(
     // These are the conversions that we did on our opponents
     const opponentStocks = _.get(conversionsByPlayer, playerIndex) || [];
     const opponentEndedStocks = _.filter(opponentStocks, "endFrame");
-    opponentEndedStocks.forEach((conversion) => {
-      conversion.moves.forEach((move) => {
-        if (move.playerIndex === playerIndex) {
-          // We hit the opponent
-          totalDamage += move.damage;
-        }
-      });
 
-      if (conversion.didKill && conversion.lastHitBy === playerIndex) {
-        killCount += 1;
-      }
-    });
+    originalConversions.reduce((accum, conversion)=>{ 
+      if(conversion.playerIndex === playerIndex) return totalDamage
+      conversionCount++
+      if(conversion.moves.length > 1) successfulConversionCount++
+      conversion.moves.forEach((move) => {
+        totalDamage += move.damage
+        if (conversion.didKill && conversion.lastHitBy === playerIndex) {
+          killCount += 1;
+        }
+      })
+      return accum
+    }, 0)
 
     return {
       playerIndex: playerIndex,
