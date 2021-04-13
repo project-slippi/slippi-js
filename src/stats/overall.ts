@@ -17,7 +17,7 @@ export function generateOverallStats(
   playableFrameCount: number,
 ): OverallType[] {
   const inputsByPlayer = _.keyBy(inputs, "playerIndex");
-  let originalConversions = conversions
+  const originalConversions = conversions;
   const conversionsByPlayer = _.groupBy(conversions, (conv) => conv.moves[0]?.playerIndex);
   const conversionsByPlayerByOpening: ConversionsByPlayerByOpening = _.mapValues(conversionsByPlayer, (conversions) =>
     _.groupBy(conversions, "openingType"),
@@ -39,8 +39,8 @@ export function generateOverallStats(
     };
     const conversions = _.get(conversionsByPlayer, playerIndex) || [];
     const successfulConversions = conversions.filter((conversion) => conversion.moves.length > 1);
-    let conversionCount = 0
-    let successfulConversionCount = 0
+    let conversionCount = 0;
+    let successfulConversionCount = 0;
 
     const opponentIndices = settings.players
       .filter((opp) => {
@@ -61,18 +61,18 @@ export function generateOverallStats(
     const opponentStocks = _.get(conversionsByPlayer, playerIndex) || [];
     const opponentEndedStocks = _.filter(opponentStocks, "endFrame");
 
-    originalConversions.reduce((accum, conversion)=>{ 
-      if(conversion.playerIndex === playerIndex) return totalDamage
-      conversionCount++
-      if(conversion.moves.length > 1) successfulConversionCount++
+    originalConversions.reduce((accum, conversion) => {
+      if (conversion.playerIndex === playerIndex) return totalDamage;
+      conversionCount++;
+      if (conversion.moves.length > 1) successfulConversionCount++;
       conversion.moves.forEach((move) => {
-        totalDamage += move.damage
+        totalDamage += move.damage;
         if (conversion.didKill && conversion.lastHitBy === playerIndex) {
           killCount += 1;
         }
-      })
-      return accum
-    }, 0)
+      });
+      return accum;
+    }, 0);
 
     return {
       playerIndex: playerIndex,
