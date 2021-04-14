@@ -1,5 +1,3 @@
-import { SlippiGame } from "./SlippiGame";
-
 // Export melee util types
 export * from "./melee";
 
@@ -18,6 +16,3 @@ export * from "./console";
 
 // Support both named and default exports
 export * from "./SlippiGame";
-
-// eslint-disable-next-line import/no-default-export
-export default SlippiGame;
