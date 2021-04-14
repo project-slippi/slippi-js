@@ -30,14 +30,14 @@ describe("when calculating stats", () => {
   it("should correctly calculate throw counts", () => {
     const game = new SlippiGame("slp/throwGrab.slp");
     const stats = game.getStats();
-    const p2Throws = stats.actionCounts[1].throwCounts;
+    const p2Throws = stats.actionCounts[1].throwCount;
     expect(p2Throws).toEqual(expectedThrow);
   });
 
   it("should correctly calculate grab counts", () => {
     const game = new SlippiGame("slp/throwGrab.slp");
     const stats = game.getStats();
-    const p2Grabs = stats.actionCounts[1].grabCounts;
+    const p2Grabs = stats.actionCounts[1].grabCount;
     expect(p2Grabs).toEqual(expectedGrab);
   });
 

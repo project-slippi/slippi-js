@@ -35,11 +35,11 @@ export class ActionsComputer implements StatComputer<ActionCountsType[]> {
           success: 0,
           fail: 0,
         },
-        grabCounts: {
+        grabCount: {
           success: 0,
           fail: 0,
         },
-        throwCounts: {
+        throwCount: {
           up: 0,
           forward: 0,
           back: 0,
@@ -159,14 +159,14 @@ function handleActionCompute(state: PlayerActionState, playerIndex: number, fram
   incrementCount("ledgegrabCount", didGrabLedge);
 
   const didGrabSucceed = didStartGrabSuccess(currentAnimation, prevAnimation);
-  incrementCount("grabCounts.success", didGrabSucceed);
+  incrementCount("grabCount.success", didGrabSucceed);
   const didGrabFail = didStartGrabFail(currentAnimation, prevAnimation);
-  incrementCount("grabCounts.fail", didGrabFail);
+  incrementCount("grabCount.fail", didGrabFail);
 
-  incrementCount("throwCounts.up", currentAnimation === State.THROW_UP && newAnimation);
-  incrementCount("throwCounts.forward", currentAnimation === State.THROW_FORWARD && newAnimation);
-  incrementCount("throwCounts.down", currentAnimation === State.THROW_DOWN && newAnimation);
-  incrementCount("throwCounts.back", currentAnimation === State.THROW_BACK && newAnimation);
+  incrementCount("throwCount.up", currentAnimation === State.THROW_UP && newAnimation);
+  incrementCount("throwCount.forward", currentAnimation === State.THROW_FORWARD && newAnimation);
+  incrementCount("throwCount.down", currentAnimation === State.THROW_DOWN && newAnimation);
+  incrementCount("throwCount.back", currentAnimation === State.THROW_BACK && newAnimation);
 
   if (isAerialAttack(currentAnimation)) {
     incrementCount("lCancelCount.success", playerFrame.lCancelStatus === 1);

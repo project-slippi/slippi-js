@@ -68,11 +68,11 @@ export interface ActionCountsType {
     success: number;
     fail: number;
   };
-  grabCounts: {
+  grabCount: {
     success: number;
     fail: number;
   };
-  throwCounts: {
+  throwCount: {
     up: number;
     forward: number;
     back: number;
