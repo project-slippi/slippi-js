@@ -28,7 +28,7 @@ yarn add @slippi/slippi-js
 3. Fill the `script.js` file with the following contents:
 
 ```js
-const { SlippiGame } = require('@slippi/slippi-js');
+const { SlippiGame } = require("@slippi/slippi-js");
 
 const game = new SlippiGame("test.slp");
 
