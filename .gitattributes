@@ -1,5 +1,3 @@
-# Auto detect text files and perform LF normalization
-* text=auto
+* text eol=lf
 
-*.ts text eol=lf
-*.js text eol=lf
+*.slp binary

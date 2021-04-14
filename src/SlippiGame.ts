@@ -1,21 +1,20 @@
 import _ from "lodash";
-import { openSlpFile, closeSlpFile, iterateEvents, getMetadata, SlpInputSource, SlpReadInput } from "./utils/slpReader";
 
-// Type imports
-import { MetadataType, GameStartType, GameEndType, FrameEntryType, FramesType } from "./types";
-import { SlpParser, SlpParserEvent } from "./utils/slpParser";
 import {
-  StockComputer,
-  ComboComputer,
   ActionsComputer,
+  ComboComputer,
   ConversionComputer,
+  generateOverallStats,
   InputComputer,
+  StatOptions,
   Stats,
   StatsType,
-  getSinglesPlayerPermutationsFromSettings,
-  generateOverallStats,
-  StatOptions,
+  StockComputer,
 } from "./stats";
+// Type imports
+import { FrameEntryType, FramesType, GameEndType, GameStartType, MetadataType } from "./types";
+import { SlpParser, SlpParserEvent } from "./utils/slpParser";
+import { closeSlpFile, getMetadata, iterateEvents, openSlpFile, SlpInputSource, SlpReadInput } from "./utils/slpReader";
 
 /**
  * Slippi Game class that wraps a file
@@ -59,8 +58,7 @@ export class SlippiGame {
     );
     this.parser = new SlpParser();
     this.parser.on(SlpParserEvent.SETTINGS, (settings) => {
-      const playerPermutations = getSinglesPlayerPermutationsFromSettings(settings);
-      this.statsComputer.setPlayerPermutations(playerPermutations);
+      this.statsComputer.setup(settings);
     });
     // Use finalized frames for stats computation
     this.parser.on(SlpParserEvent.FINALIZED_FRAME, (frame: FrameEntryType) => {
@@ -115,21 +113,25 @@ export class SlippiGame {
     return this.parser.getFrames();
   }
 
-  public getStats(): StatsType {
+  public getStats(): StatsType | null {
     if (this.finalStats) {
       return this.finalStats;
     }
 
     this._process();
 
+    const settings = this.parser.getSettings();
+    if (settings === null) {
+      return null;
+    }
+
     // Finish processing if we're not up to date
     this.statsComputer.process();
     const inputs = this.inputComputer.fetch();
     const stocks = this.stockComputer.fetch();
     const conversions = this.conversionComputer.fetch();
-    const indices = getSinglesPlayerPermutationsFromSettings(this.parser.getSettings()!);
     const playableFrames = this.parser.getPlayableFrameCount();
-    const overall = generateOverallStats(indices, inputs, stocks, conversions, playableFrames);
+    const overall = generateOverallStats(settings, inputs, stocks, conversions, playableFrames);
 
     const stats = {
       lastFrame: this.parser.getLatestFrameNumber(),

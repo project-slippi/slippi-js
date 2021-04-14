@@ -1,5 +1,6 @@
 import { EventEmitter } from "events";
-import { Connection, ConnectionStatus, ConnectionSettings, ConnectionDetails, Ports, ConnectionEvent } from "./types";
+
+import { Connection, ConnectionDetails, ConnectionEvent, ConnectionSettings, ConnectionStatus, Ports } from "./types";
 
 const MAX_PEERS = 32;
 

@@ -1,9 +1,8 @@
-import _ from "lodash";
+import { decode } from "@shelacek/ubjson";
 import fs from "fs";
 import iconv from "iconv-lite";
-import { decode } from "@shelacek/ubjson";
+import _ from "lodash";
 
-import { toHalfwidth } from "./fullwidth";
 import {
   Command,
   EventCallbackFunc,
@@ -12,6 +11,7 @@ import {
   PlayerType,
   SelfInducedSpeedsType,
 } from "../types";
+import { toHalfwidth } from "./fullwidth";
 
 export enum SlpInputSource {
   BUFFER = "buffer",

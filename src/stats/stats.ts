@@ -1,10 +1,9 @@
 import _ from "lodash";
 
-import { PlayerIndexedType } from "./common";
-import { FrameEntryType, Frames, FramesType } from "../types";
+import { FrameEntryType, Frames, FramesType, GameStartType } from "../types";
 
 export interface StatComputer<T> {
-  setPlayerPermutations(indices: PlayerIndexedType[]): void;
+  setup(settings: GameStartType): void;
   processFrame(newFrame: FrameEntryType, allFrames: FramesType): void;
   fetch(): T;
 }
@@ -21,16 +20,23 @@ export class Stats {
   private options: StatOptions;
   private lastProcessedFrame: number | null = null;
   private frames: FramesType = {};
-  private playerPermutations = new Array<PlayerIndexedType>();
+  private players: number[] = [];
   private allComputers = new Array<StatComputer<unknown>>();
 
   public constructor(options?: StatOptions) {
     this.options = Object.assign({}, defaultOptions, options);
   }
 
-  public setPlayerPermutations(indices: PlayerIndexedType[]): void {
-    this.playerPermutations = indices;
-    this.allComputers.forEach((comp) => comp.setPlayerPermutations(indices));
+  /**
+   * Should reset the frames to their default values.
+   */
+  public setup(settings: GameStartType): void {
+    // Reset the frames since it's a new game
+    this.frames = {};
+    this.players = settings.players.map((v) => v.playerIndex);
+
+    // Forward the settings on to the individual stat computer
+    this.allComputers.forEach((comp) => comp.setup(settings));
   }
 
   public register(...computer: StatComputer<unknown>[]): void {
@@ -38,14 +44,15 @@ export class Stats {
   }
 
   public process(): void {
-    if (this.playerPermutations.length === 0) {
+    if (this.players.length === 0) {
       return;
     }
+
     let i = this.lastProcessedFrame !== null ? this.lastProcessedFrame + 1 : Frames.FIRST;
     while (this.frames[i]) {
       const frame = this.frames[i];
       // Don't attempt to compute stats on frames that have not been fully received
-      if (!isCompletedFrame(this.playerPermutations, frame)) {
+      if (!isCompletedFrame(this.players, frame)) {
         return;
       }
       this.allComputers.forEach((comp) => comp.processFrame(frame, this.frames));
@@ -63,14 +70,17 @@ export class Stats {
   }
 }
 
-function isCompletedFrame(playerPermutations: PlayerIndexedType[], frame: FrameEntryType): boolean {
+function isCompletedFrame(players: number[], frame: FrameEntryType): boolean {
   // This function checks whether we have successfully received an entire frame.
   // It is not perfect because it does not wait for follower frames. Fortunately,
   // follower frames are not used for any stat calculations so this doesn't matter
   // for our purposes.
-  const { playerIndex, opponentIndex } = _.first(playerPermutations)!;
-  const playerPostFrame = _.get(frame, ["players", playerIndex, "post"]);
-  const oppPostFrame = _.get(frame, ["players", opponentIndex, "post"]);
+  for (const player of players) {
+    const playerPostFrame = _.get(frame, ["players", player, "post"]);
+    if (!playerPostFrame) {
+      return false;
+    }
+  }
 
-  return Boolean(playerPostFrame && oppPostFrame);
+  return true;
 }

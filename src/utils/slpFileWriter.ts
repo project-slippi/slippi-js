@@ -1,10 +1,10 @@
-import path from "path";
 import moment, { Moment } from "moment";
-
-import { SlpFile } from "./slpFile";
-import { SlpStream, SlpStreamEvent, SlpRawEventPayload, SlpStreamSettings } from "./slpStream";
-import { Command } from "../types";
+import path from "path";
 import { WritableOptions } from "stream";
+
+import { Command } from "../types";
+import { SlpFile } from "./slpFile";
+import { SlpRawEventPayload, SlpStream, SlpStreamEvent, SlpStreamSettings } from "./slpStream";
 
 /**
  * The default function to use for generating new SLP files.
