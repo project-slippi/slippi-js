@@ -14,5 +14,5 @@ export * from "./utils/slpStream";
 // Console networking
 export * from "./console";
 
-// Support both named and default exports
+// Export the main SlippiGame logic
 export * from "./SlippiGame";
