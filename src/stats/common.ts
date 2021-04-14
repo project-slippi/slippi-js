@@ -64,8 +64,20 @@ export interface ActionCountsType {
   spotDodgeCount: number;
   ledgegrabCount: number;
   rollCount: number;
-  lCancelSuccessCount: number;
-  lCancelFailCount: number;
+  lCancelCount: {
+    success: number;
+    fail: number;
+  };
+  grabCount: {
+    success: number;
+    fail: number;
+  };
+  throwCount: {
+    up: number;
+    forward: number;
+    back: number;
+    down: number;
+  };
 }
 
 export interface InputCountsType {
@@ -136,7 +148,13 @@ export enum State {
   FALL_FORWARD = 0x1e,
   FALL_BACKWARD = 0x1f,
   GRAB = 0xd4,
+  GRAB_WAIT = 0xd8,
+  PUMMEL = 0xd9,
   CLIFF_CATCH = 0xfc,
+  THROW_UP = 0xdd,
+  THROW_FORWARD = 0xdb,
+  THROW_DOWN = 0xde,
+  THROW_BACK = 0xdc,
   DAMAGE_FALL = 0x26,
 
   // Command Grabs
