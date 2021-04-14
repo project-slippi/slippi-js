@@ -18,6 +18,8 @@ export interface PlayerType {
   teamId: number | null;
   controllerFix: string | null;
   nametag: string | null;
+  displayName: string;
+  connectCode: string;
 }
 
 export enum GameMode {

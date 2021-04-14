@@ -2,6 +2,7 @@
 
 [![npm version](http://img.shields.io/npm/v/@slippi/slippi-js.svg?style=flat)](https://npmjs.org/package/@slippi/slippi-js "View this project on npm")
 [![Build Status](https://github.com/project-slippi/slippi-js/workflows/build/badge.svg)](https://github.com/project-slippi/slippi-js/actions?workflow=build)
+[![Coverage Status](https://coveralls.io/repos/github/project-slippi/slippi-js/badge.svg)](https://coveralls.io/github/project-slippi/slippi-js)
 [![License](https://img.shields.io/npm/l/@slippi/slippi-js)](https://github.com/project-slippi/slippi-js/blob/master/LICENSE)
 
 This is the official Project Slippi Javascript SDK. It provides tools for parsing `.slp` files into structured data and can be used to compute stats. There are already many built-in stats that are computed by the library but the data provided can also be used to compute your own stats.
@@ -26,8 +27,8 @@ yarn add @slippi/slippi-js
 2. Inside this new directory, create a file called `script.js`
 3. Fill the `script.js` file with the following contents:
 
-```
-const { default: SlippiGame } = require('@slippi/slippi-js');
+```js
+const { SlippiGame } = require("@slippi/slippi-js");
 
 const game = new SlippiGame("test.slp");
 

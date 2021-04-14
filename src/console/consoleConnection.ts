@@ -1,10 +1,9 @@
-import net from "net";
 import { EventEmitter } from "events";
-
+import net from "net";
 import inject from "reconnect-core";
 
-import { ConsoleCommunication, CommunicationType, CommunicationMessage } from "./communication";
-import { ConnectionDetails, Connection, ConnectionStatus, Ports, ConnectionSettings, ConnectionEvent } from "./types";
+import { CommunicationMessage, CommunicationType, ConsoleCommunication } from "./communication";
+import { Connection, ConnectionDetails, ConnectionEvent, ConnectionSettings, ConnectionStatus, Ports } from "./types";
 
 export const NETWORK_MESSAGE = "HELO\0";
 

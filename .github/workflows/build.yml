@@ -9,7 +9,7 @@ on:
 
 jobs:
   build:
-    name: Test on node ${{ matrix.node-version }} and ${{ matrix.os }}
+    name: Build on node ${{ matrix.node-version }} and ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -38,9 +38,6 @@ jobs:
       - name: Build
         run: |
           yarn run build
-      - name: Test
-        run: |
-          yarn run test
       - name: Lint
         if: matrix.os == 'ubuntu-latest'
         run: |
