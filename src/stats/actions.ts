@@ -1,6 +1,7 @@
 import _ from "lodash";
-import { State, PlayerIndexedType, ActionCountsType } from "./common";
-import { FrameEntryType } from "../types";
+
+import { FrameEntryType, GameStartType } from "../types";
+import { ActionCountsType, State } from "./common";
 import { StatComputer } from "./stats";
 
 // Frame pattern that indicates a dash dance turn was executed
@@ -12,15 +13,17 @@ interface PlayerActionState {
 }
 
 export class ActionsComputer implements StatComputer<ActionCountsType[]> {
-  private playerPermutations = new Array<PlayerIndexedType>();
-  private state = new Map<PlayerIndexedType, PlayerActionState>();
+  private playerIndices: number[] = [];
+  private state = new Map<number, PlayerActionState>();
 
-  public setPlayerPermutations(playerPermutations: PlayerIndexedType[]): void {
-    this.playerPermutations = playerPermutations;
-    this.playerPermutations.forEach((indices) => {
+  public setup(settings: GameStartType): void {
+    // Reset the state
+    this.state = new Map();
+
+    this.playerIndices = settings.players.map((p) => p.playerIndex);
+    this.playerIndices.forEach((playerIndex) => {
       const playerCounts: ActionCountsType = {
-        playerIndex: indices.playerIndex,
-        opponentIndex: indices.opponentIndex,
+        playerIndex,
         wavedashCount: 0,
         wavelandCount: 0,
         airDodgeCount: 0,
@@ -28,22 +31,34 @@ export class ActionsComputer implements StatComputer<ActionCountsType[]> {
         spotDodgeCount: 0,
         ledgegrabCount: 0,
         rollCount: 0,
-        lCancelSuccessCount: 0,
-        lCancelFailCount: 0,
+        lCancelCount: {
+          success: 0,
+          fail: 0,
+        },
+        grabCount: {
+          success: 0,
+          fail: 0,
+        },
+        throwCount: {
+          up: 0,
+          forward: 0,
+          back: 0,
+          down: 0,
+        },
       };
       const playerState: PlayerActionState = {
         playerCounts: playerCounts,
         animations: [],
       };
-      this.state.set(indices, playerState);
+      this.state.set(playerIndex, playerState);
     });
   }
 
   public processFrame(frame: FrameEntryType): void {
-    this.playerPermutations.forEach((indices) => {
-      const state = this.state.get(indices);
+    this.playerIndices.forEach((index) => {
+      const state = this.state.get(index);
       if (state) {
-        handleActionCompute(state, indices, frame);
+        handleActionCompute(state, index, frame);
       }
     });
   }
@@ -66,6 +81,13 @@ function didStartRoll(currentAnimation: number, previousAnimation: number): bool
 
 function isSpotDodging(animation: State): boolean {
   return animation === State.SPOT_DODGE;
+}
+
+function didStartGrabSuccess(currentAnimation: State, previousAnimation: State): boolean {
+  return previousAnimation === State.GRAB && currentAnimation <= State.GRAB_WAIT && currentAnimation > State.GRAB;
+}
+function didStartGrabFail(currentAnimation: State, previousAnimation: State): boolean {
+  return previousAnimation === State.GRAB && (currentAnimation > State.GRAB_WAIT || currentAnimation < State.GRAB);
 }
 
 function didStartSpotDodge(currentAnimation: State, previousAnimation: State): boolean {
@@ -101,15 +123,14 @@ function didStartLedgegrab(currentAnimation: State, previousAnimation: State): b
   return isCurrentlyGrabbingLedge && !wasPreviouslyGrabbingLedge;
 }
 
-function handleActionCompute(state: PlayerActionState, indices: PlayerIndexedType, frame: FrameEntryType): void {
-  const playerFrame = frame.players[indices.playerIndex]!.post;
+function handleActionCompute(state: PlayerActionState, playerIndex: number, frame: FrameEntryType): void {
+  const playerFrame = frame.players[playerIndex]!.post;
   const incrementCount = (field: string, condition: boolean): void => {
     if (!condition) {
       return;
     }
 
-    // FIXME: ActionsCountsType should be a map of actions -> number, instead of accessing the field via string
-    (state.playerCounts as any)[field] += 1;
+    _.update(state.playerCounts, field, (n) => n + 1);
   };
 
   // Manage animation state
@@ -119,6 +140,7 @@ function handleActionCompute(state: PlayerActionState, indices: PlayerIndexedTyp
   // Grab last 3 frames
   const last3Frames = state.animations.slice(-3);
   const prevAnimation = last3Frames[last3Frames.length - 2];
+  const newAnimation = currentAnimation !== prevAnimation;
 
   // Increment counts based on conditions
   const didDashDance = _.isEqual(last3Frames, dashDanceAnimations);
@@ -136,9 +158,19 @@ function handleActionCompute(state: PlayerActionState, indices: PlayerIndexedTyp
   const didGrabLedge = didStartLedgegrab(currentAnimation, prevAnimation);
   incrementCount("ledgegrabCount", didGrabLedge);
 
+  const didGrabSucceed = didStartGrabSuccess(currentAnimation, prevAnimation);
+  incrementCount("grabCount.success", didGrabSucceed);
+  const didGrabFail = didStartGrabFail(currentAnimation, prevAnimation);
+  incrementCount("grabCount.fail", didGrabFail);
+
+  incrementCount("throwCount.up", currentAnimation === State.THROW_UP && newAnimation);
+  incrementCount("throwCount.forward", currentAnimation === State.THROW_FORWARD && newAnimation);
+  incrementCount("throwCount.down", currentAnimation === State.THROW_DOWN && newAnimation);
+  incrementCount("throwCount.back", currentAnimation === State.THROW_BACK && newAnimation);
+
   if (isAerialAttack(currentAnimation)) {
-    incrementCount("lCancelSuccessCount", playerFrame.lCancelStatus === 1);
-    incrementCount("lCancelFailCount", playerFrame.lCancelStatus === 2);
+    incrementCount("lCancelCount.success", playerFrame.lCancelStatus === 1);
+    incrementCount("lCancelCount.fail", playerFrame.lCancelStatus === 2);
   }
 
   // Handles wavedash detection (and waveland)

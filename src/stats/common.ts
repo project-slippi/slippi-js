@@ -1,5 +1,6 @@
 import _ from "lodash";
-import { PostFrameUpdateType, GameStartType } from "../types";
+
+import { PostFrameUpdateType } from "../types";
 
 export interface StatsType {
   gameComplete: boolean;
@@ -18,11 +19,6 @@ export interface RatioType {
   ratio: number | null;
 }
 
-export interface PlayerIndexedType {
-  playerIndex: number;
-  opponentIndex: number;
-}
-
 export interface DurationType {
   startFrame: number;
   endFrame?: number | null;
@@ -34,7 +30,8 @@ export interface DamageType {
   endPercent?: number | null;
 }
 
-export interface StockType extends PlayerIndexedType, DurationType, DamageType {
+export interface StockType extends DurationType, DamageType {
+  playerIndex: number;
   count: number;
   deathAnimation?: number | null;
 }
@@ -44,20 +41,22 @@ export interface MoveLandedType {
   moveId: number;
   hitCount: number;
   damage: number;
+  playerIndex: number;
 }
 
-export interface ConversionType extends PlayerIndexedType, DurationType, DamageType {
+export interface ComboType extends DurationType, DamageType {
+  playerIndex: number;
   moves: MoveLandedType[];
+  didKill: boolean;
+  lastHitBy: number | null;
+}
+
+export interface ConversionType extends ComboType {
   openingType: string;
-  didKill: boolean;
 }
 
-export interface ComboType extends PlayerIndexedType, DurationType, DamageType {
-  moves: MoveLandedType[];
-  didKill: boolean;
-}
-
-export interface ActionCountsType extends PlayerIndexedType {
+export interface ActionCountsType {
+  playerIndex: number;
   wavedashCount: number;
   wavelandCount: number;
   airDodgeCount: number;
@@ -65,8 +64,20 @@ export interface ActionCountsType extends PlayerIndexedType {
   spotDodgeCount: number;
   ledgegrabCount: number;
   rollCount: number;
-  lCancelSuccessCount: number;
-  lCancelFailCount: number;
+  lCancelCount: {
+    success: number;
+    fail: number;
+  };
+  grabCount: {
+    success: number;
+    fail: number;
+  };
+  throwCount: {
+    up: number;
+    forward: number;
+    back: number;
+    down: number;
+  };
 }
 
 export interface InputCountsType {
@@ -77,7 +88,8 @@ export interface InputCountsType {
   total: number;
 }
 
-export interface OverallType extends PlayerIndexedType {
+export interface OverallType {
+  playerIndex: number;
   inputCounts: InputCountsType;
   conversionCount: number;
   totalDamage: number;
@@ -136,7 +148,13 @@ export enum State {
   FALL_FORWARD = 0x1e,
   FALL_BACKWARD = 0x1f,
   GRAB = 0xd4,
+  GRAB_WAIT = 0xd8,
+  PUMMEL = 0xd9,
   CLIFF_CATCH = 0xfc,
+  THROW_UP = 0xdd,
+  THROW_FORWARD = 0xdb,
+  THROW_DOWN = 0xde,
+  THROW_BACK = 0xdc,
   DAMAGE_FALL = 0x26,
 
   // Command Grabs
@@ -157,30 +175,19 @@ export const Timers = {
   COMBO_STRING_RESET_FRAMES: 45,
 };
 
-export function getSinglesPlayerPermutationsFromSettings(settings: GameStartType): PlayerIndexedType[] {
-  if (!settings || settings.players.length !== 2) {
-    // Only return opponent indices for singles
-    return [];
-  }
-
-  return [
-    {
-      playerIndex: settings.players[0].playerIndex,
-      opponentIndex: settings.players[1].playerIndex,
-    },
-    {
-      playerIndex: settings.players[1].playerIndex,
-      opponentIndex: settings.players[0].playerIndex,
-    },
-  ];
-}
-
-export function didLoseStock(frame: PostFrameUpdateType, prevFrame: PostFrameUpdateType): boolean {
+export function didLoseStock(
+  frame: PostFrameUpdateType | undefined,
+  prevFrame: PostFrameUpdateType | undefined,
+): boolean {
   if (!frame || !prevFrame) {
     return false;
   }
 
-  return prevFrame.stocksRemaining! - frame.stocksRemaining! > 0;
+  if (prevFrame.stocksRemaining === null || frame.stocksRemaining === null) {
+    return false;
+  }
+
+  return prevFrame.stocksRemaining - frame.stocksRemaining > 0;
 }
 
 export function isInControl(state: number): boolean {

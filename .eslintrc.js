@@ -10,13 +10,16 @@ module.exports = {
     ecmaVersion: 2018, // Allows for the parsing of modern ECMAScript features
     sourceType: "module", // Allows for the use of imports
   },
-  plugins: ["strict-booleans"],
+  settings: {
+    "import/resolver": {
+      typescript: {},
+    },
+  },
+  plugins: ["import", "simple-import-sort", "strict-booleans"],
   rules: {
-    // Sorry Jas but switch-case indentation messes with prettier :c
-    // and I think having prettier is worth it so disabling this for now.
-    // '@typescript-eslint/indent': ['error', 2, { SwitchCase: 0 }],
+    // Place to specify ESLint rules. Can be used to overwrite rules specified from the extended configs
+    // e.g. "@typescript-eslint/explicit-function-return-type": "off",
     "@typescript-eslint/no-use-before-define": "off",
-    "@typescript-eslint/explicit-member-accessibility": "warn",
     "@typescript-eslint/no-unused-vars": [
       "error",
       {
@@ -24,7 +27,16 @@ module.exports = {
         varsIgnorePattern: "^_",
       },
     ],
-    "object-shorthand": ["error", "never"],
+    "@typescript-eslint/explicit-module-boundary-types": "off",
+    "@typescript-eslint/explicit-member-accessibility": "error",
+    "import/no-default-export": "error",
+    "import/no-named-as-default-member": "off",
+    "simple-import-sort/imports": "warn",
+    "simple-import-sort/exports": "warn",
     "strict-booleans/no-nullable-numbers": "error",
+    "no-undef": "off",
+    "new-cap": "error",
+    curly: "error",
   },
+  ignorePatterns: ["/*.js"],
 };

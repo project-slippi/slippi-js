@@ -1,9 +1,8 @@
-import _ from "lodash";
+import { decode } from "@shelacek/ubjson";
 import fs from "fs";
 import iconv from "iconv-lite";
-import { decode } from "@shelacek/ubjson";
+import _ from "lodash";
 
-import { toHalfwidth } from "./fullwidth";
 import {
   Command,
   EventCallbackFunc,
@@ -12,6 +11,7 @@ import {
   PlayerType,
   SelfInducedSpeedsType,
 } from "../types";
+import { toHalfwidth } from "./fullwidth";
 
 export enum SlpInputSource {
   BUFFER = "buffer",
@@ -264,14 +264,37 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
         }
 
         // Nametag stuff
-        const nametagOffset = playerIndex * 0x10;
+        const nametagLength = 0x10;
+        const nametagOffset = playerIndex * nametagLength;
         const nametagStart = 0x161 + nametagOffset;
-        const nametagBuf = payload.slice(nametagStart, nametagStart + 16);
+        const nametagBuf = payload.slice(nametagStart, nametagStart + nametagLength);
         const nameTagString = iconv
           .decode(nametagBuf as Buffer, "Shift_JIS")
           .split("\0")
           .shift();
         const nametag = nameTagString ? toHalfwidth(nameTagString) : "";
+
+        // Display name
+        const displayNameLength = 0x1f;
+        const displayNameOffset = playerIndex * displayNameLength;
+        const displayNameStart = 0x1a5 + displayNameOffset;
+        const displayNameBuf = payload.slice(displayNameStart, displayNameStart + displayNameLength);
+        const displayNameString = iconv
+          .decode(displayNameBuf as Buffer, "Shift_JIS")
+          .split("\0")
+          .shift();
+        const displayName = displayNameString ? toHalfwidth(displayNameString) : "";
+
+        // Connect code
+        const connectCodeLength = 0xa;
+        const connectCodeOffset = playerIndex * connectCodeLength;
+        const connectCodeStart = 0x221 + connectCodeOffset;
+        const connectCodeBuf = payload.slice(connectCodeStart, connectCodeStart + connectCodeLength);
+        const connectCodeString = iconv
+          .decode(connectCodeBuf as Buffer, "Shift_JIS")
+          .split("\0")
+          .shift();
+        const connectCode = connectCodeString ? toHalfwidth(connectCodeString) : "";
 
         const offset = playerIndex * 0x24;
         return {
@@ -284,6 +307,8 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
           teamId: readUint8(view, 0x6e + offset),
           controllerFix: cfOption,
           nametag: nametag,
+          displayName: displayName,
+          connectCode: connectCode,
         };
       };
       return {

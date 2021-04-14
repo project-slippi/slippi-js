@@ -1,17 +1,44 @@
 import { SlippiGame } from "../src";
+import { didLoseStock } from "../src/stats/common";
+
+const expectedThrow = {
+  up: 1,
+  forward: 1,
+  back: 2,
+  down: 1,
+};
+
+const expectedGrab = {
+  success: 6,
+  fail: 2,
+};
 
 describe("when calculating stats", () => {
   it("should correctly calculate L cancel counts", () => {
     const game = new SlippiGame("slp/lCancel.slp");
     const stats = game.getStats();
-    const p1Success = stats.actionCounts[0].lCancelSuccessCount;
-    const p1Fail = stats.actionCounts[0].lCancelFailCount;
+    const p1Success = stats.actionCounts[0].lCancelCount.success;
+    const p1Fail = stats.actionCounts[0].lCancelCount.fail;
     expect(p1Success).toBe(3);
     expect(p1Fail).toBe(4);
-    const p2Success = stats.actionCounts[1].lCancelSuccessCount;
-    const p2Fail = stats.actionCounts[1].lCancelFailCount;
+    const p2Success = stats.actionCounts[1].lCancelCount.success;
+    const p2Fail = stats.actionCounts[1].lCancelCount.fail;
     expect(p2Success).toBe(5);
     expect(p2Fail).toBe(4);
+  });
+
+  it("should correctly calculate throw counts", () => {
+    const game = new SlippiGame("slp/throwGrab.slp");
+    const stats = game.getStats();
+    const p2Throws = stats.actionCounts[1].throwCount;
+    expect(p2Throws).toEqual(expectedThrow);
+  });
+
+  it("should correctly calculate grab counts", () => {
+    const game = new SlippiGame("slp/throwGrab.slp");
+    const stats = game.getStats();
+    const p2Grabs = stats.actionCounts[1].grabCount;
+    expect(p2Grabs).toEqual(expectedGrab);
   });
 
   describe("when calculating total damage done", () => {
@@ -22,7 +49,7 @@ describe("when calculating stats", () => {
       const yl = stats.overall[1];
       let totalDamagePuffDealt = 0;
       stats.conversions.forEach((conversion) => {
-        if (conversion.playerIndex === puff.playerIndex) {
+        if (conversion.lastHitBy === puff.playerIndex) {
           totalDamagePuffDealt += conversion.moves.reduce((total, move) => total + move.damage, 0);
         }
       });
@@ -42,15 +69,11 @@ describe("when calculating stats", () => {
       let totalDamagePichuDealt = 0;
       let icsDamageDealt = 0;
       stats.conversions.forEach((conversion) => {
-        switch (conversion.playerIndex) {
-          case pichu.playerIndex: {
-            totalDamagePichuDealt += conversion.moves.reduce((total, move) => total + move.damage, 0);
-            break;
-          }
-          case ics.playerIndex: {
-            icsDamageDealt += conversion.moves.reduce((total, move) => total + move.damage, 0);
-            break;
-          }
+        if (conversion.playerIndex === pichu.playerIndex) {
+          icsDamageDealt += conversion.moves.reduce((total, move) => total + move.damage, 0);
+        }
+        if (conversion.playerIndex === ics.playerIndex) {
+          totalDamagePichuDealt += conversion.moves.reduce((total, move) => total + move.damage, 0);
         }
       });
       expect(totalDamagePichuDealt).toBe(pichu.totalDamage);
@@ -70,10 +93,10 @@ describe("when calculating stats", () => {
       let totalDamageNessDealt = 0;
       let totalDamageFoxDealt = 0;
       stats.conversions.forEach((conversion) => {
-        if (conversion.playerIndex === ness.playerIndex) {
+        if (conversion.lastHitBy === ness.playerIndex) {
           totalDamageNessDealt += conversion.moves.reduce((total, move) => total + move.damage, 0);
         }
-        if (conversion.playerIndex === fox.playerIndex) {
+        if (conversion.lastHitBy === fox.playerIndex) {
           totalDamageFoxDealt += conversion.moves.reduce((total, move) => total + move.damage, 0);
         }
       });
@@ -85,5 +108,11 @@ describe("when calculating stats", () => {
       expect(fox.killCount).toBe(0);
       expect(fox.conversionCount).toBe(2);
     });
+  });
+});
+
+describe("when using common functions", () => {
+  it("should return false if required", () => {
+    expect(didLoseStock(undefined, undefined)).toEqual(false);
   });
 });
