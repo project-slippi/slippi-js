@@ -1,5 +1,5 @@
 import { EventEmitter } from "events";
-import last from "lodash/last";
+import { last } from "lodash";
 
 import { FrameEntryType, FramesType, GameStartType, PostFrameUpdateType } from "../types";
 import {
