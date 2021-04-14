@@ -64,8 +64,10 @@ export interface ActionCountsType {
   spotDodgeCount: number;
   ledgegrabCount: number;
   rollCount: number;
-  lCancelSuccessCount: number;
-  lCancelFailCount: number;
+  lCancelCount: {
+    success: number;
+    fail: number;
+  };
   grabCounts: {
     success: number;
     fail: number;

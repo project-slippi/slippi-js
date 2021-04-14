@@ -31,8 +31,10 @@ export class ActionsComputer implements StatComputer<ActionCountsType[]> {
         spotDodgeCount: 0,
         ledgegrabCount: 0,
         rollCount: 0,
-        lCancelSuccessCount: 0,
-        lCancelFailCount: 0,
+        lCancelCount: {
+          success: 0,
+          fail: 0,
+        },
         grabCounts: {
           success: 0,
           fail: 0,
@@ -167,8 +169,8 @@ function handleActionCompute(state: PlayerActionState, playerIndex: number, fram
   incrementCount("throwCounts.back", currentAnimation === State.THROW_BACK && newAnimation);
 
   if (isAerialAttack(currentAnimation)) {
-    incrementCount("lCancelSuccessCount", playerFrame.lCancelStatus === 1);
-    incrementCount("lCancelFailCount", playerFrame.lCancelStatus === 2);
+    incrementCount("lCancelCount.success", playerFrame.lCancelStatus === 1);
+    incrementCount("lCancelCount.fail", playerFrame.lCancelStatus === 2);
   }
 
   // Handles wavedash detection (and waveland)
