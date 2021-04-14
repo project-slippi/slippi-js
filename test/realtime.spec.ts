@@ -1,7 +1,8 @@
 import fs from "fs";
 import { Writable } from "stream";
 
-import SlippiGame, {
+import {
+  SlippiGame,
   Command,
   SlpStreamMode,
   SlpStream,
