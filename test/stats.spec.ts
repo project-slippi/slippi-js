@@ -111,8 +111,8 @@ describe("when calculating stats", () => {
   });
 });
 
-describe("when using common functions", () => {
-  it("should return false if required", () => {
+describe("when calculating stock information", () => {
+  it("should handle undefined values", () => {
     expect(didLoseStock(undefined, undefined)).toEqual(false);
   });
 });
