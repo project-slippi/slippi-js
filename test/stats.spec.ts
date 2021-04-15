@@ -1,4 +1,4 @@
-import { SlippiGame } from "../src";
+import { PostFrameUpdateType, SlippiGame } from "../src";
 import { didLoseStock } from "../src/stats/common";
 
 const expectedThrow = {
@@ -114,5 +114,8 @@ describe("when calculating stats", () => {
 describe("when calculating stock information", () => {
   it("should handle undefined values", () => {
     expect(didLoseStock(undefined, undefined)).toEqual(false);
+  });
+  it("should return false if stocksRemaining is null for this frame or the previous", () => {
+    expect(didLoseStock(<PostFrameUpdateType>{ stocksRemaining: null }, <PostFrameUpdateType>{})).toEqual(false);
   });
 });
