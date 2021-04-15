@@ -72,7 +72,7 @@ export class DolphinConnection extends EventEmitter implements Connection {
       },
       3,
       1337, // Data to send, not sure what this is or what this represents
-      (err: any, newPeer: any) => {
+      (err: Error, newPeer: Peer) => {
         if (err) {
           console.error(err);
           return;

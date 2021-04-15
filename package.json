@@ -46,9 +46,11 @@
   ],
   "dependencies": {
     "@shelacek/ubjson": "^1.0.1",
+    "@types/mitm": "^1.3.3",
     "enet": "^0.2.9",
     "iconv-lite": "^0.6.2",
     "lodash": "^4.17.19",
+    "mitm": "^1.7.1",
     "moment": "^2.27.0",
     "reconnect-core": "^1.3.0",
     "semver": "^7.3.2"
