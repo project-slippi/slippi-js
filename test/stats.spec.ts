@@ -112,10 +112,8 @@ describe("when calculating stats", () => {
 });
 
 describe("when calculating stock information", () => {
-  it("should handle undefined values", () => {
+  it("should handle invalid values", () => {
     expect(didLoseStock(undefined, undefined)).toEqual(false);
-  });
-  it("should return false if stocksRemaining is null for this frame or the previous", () => {
-    expect(didLoseStock(<PostFrameUpdateType>{ stocksRemaining: null }, <PostFrameUpdateType>{})).toEqual(false);
+    expect(didLoseStock({ stocksRemaining: null } as PostFrameUpdateType, {} as PostFrameUpdateType)).toEqual(false);
   });
 });
