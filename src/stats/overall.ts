@@ -58,25 +58,23 @@ export function generateOverallStats(
     let killCount = 0;
 
     // These are the conversions that we did on our opponents
-    // const opponentStocks = _.get(conversionsByPlayer, playerIndex) || [];
-    // const opponentEndedStocks = _.filter(opponentStocks, "endFrame");
+    originalConversions
+      // Filter down to conversions of our opponent
+      .filter((conversion) => conversion.playerIndex !== playerIndex)
+      .forEach((conversion) => {
+        conversionCount++;
 
-    originalConversions.reduce((accum, conversion) => {
-      if (conversion.playerIndex === playerIndex) {
-        return totalDamage;
-      }
-      conversionCount++;
-      if (conversion.moves.length > 1) {
-        successfulConversionCount++;
-      }
-      conversion.moves.forEach((move) => {
-        totalDamage += move.damage;
+        // We killed the opponent
         if (conversion.didKill && conversion.lastHitBy === playerIndex) {
           killCount += 1;
         }
+        if (conversion.moves.length > 1) {
+          successfulConversionCount++;
+        }
+        conversion.moves.forEach((move) => {
+          totalDamage += move.damage;
+        });
       });
-      return accum;
-    }, 0);
 
     return {
       playerIndex: playerIndex,
