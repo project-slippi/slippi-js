@@ -46,6 +46,14 @@ it("should correctly return metadata", () => {
   expect(metadata.playedOn).toBe("dolphin");
 });
 
+it("should correctly return file path", () => {
+  const game = new SlippiGame("slp/test.slp");
+  expect(game.getFilePath()).toBe("slp/test.slp");
+
+  const empty_game = new SlippiGame(new Buffer(""));
+  expect(empty_game.getFilePath()).toBe(null);
+});
+
 it("should be able to read incomplete SLP files", () => {
   const game = new SlippiGame("slp/incomplete.slp");
   const settings = game.getSettings();
