@@ -177,7 +177,8 @@ function handleConversionCompute(
 
     const playerDamageTaken = prevPlayerFrame ? calcDamageTaken(playerFrame, prevPlayerFrame) : 0;
     const lastHitBy = playerFrame.lastHitBy;
-    if (playerDamageTaken && lastHitBy !== null) {
+    const validLastHitBy = lastHitBy !== null && lastHitBy >= 0 && lastHitBy <= 3;
+    if (playerDamageTaken && lastHitBy !== null && validLastHitBy) {
       // Update who hit us last
       state.conversion.lastHitBy = lastHitBy;
 
