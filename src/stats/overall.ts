@@ -68,7 +68,7 @@ export function generateOverallStats(
         if (conversion.didKill && conversion.lastHitBy === playerIndex) {
           killCount += 1;
         }
-        if (conversion.moves.length > 1) {
+        if (conversion.moves.length > 1 && conversion.moves[0].playerIndex === playerIndex) {
           successfulConversionCount++;
         }
         conversion.moves.forEach((move) => {
