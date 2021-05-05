@@ -72,7 +72,9 @@ export function generateOverallStats(
           successfulConversionCount++;
         }
         conversion.moves.forEach((move) => {
-          totalDamage += move.damage;
+          if (move.playerIndex === playerIndex) {
+            totalDamage += move.damage;
+          }
         });
       });
 
