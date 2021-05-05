@@ -76,7 +76,9 @@ describe("when calculating stats", () => {
           totalDamagePichuDealt += conversion.moves.reduce((total, move) => total + move.damage, 0);
         }
       });
-      expect(totalDamagePichuDealt).toBe(pichu.totalDamage);
+      // Pichu should have done at least 32% damage
+      expect(pichu.totalDamage).toBeGreaterThanOrEqual(32);
+      expect(pichu.totalDamage).toBe(totalDamagePichuDealt);
       // Pichu's self-damage should not count towards its own total damage dealt
       expect(pichu.totalDamage).not.toBe(pichuStock.currentPercent + icsStock.currentPercent);
       expect(pichu.killCount).toBe(0);
