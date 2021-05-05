@@ -26,7 +26,9 @@ describe("when calculating conversions", () => {
         totalDamageBowserDealt += conversion.moves.reduce((total, move) => total + move.damage, 0);
       }
     });
-    expect(totalDamageBowserDealt).toBe(bowser.totalDamage);
+    // Bowser did around 63% to DK
+    expect(bowser.totalDamage).toBeGreaterThanOrEqual(63);
+    expect(bowser.totalDamage).toBe(totalDamageBowserDealt);
     expect(bowser.killCount).toBe(0);
     expect(bowser.conversionCount).toBe(3);
   });

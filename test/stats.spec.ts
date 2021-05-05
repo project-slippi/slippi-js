@@ -42,6 +42,24 @@ describe("when calculating stats", () => {
   });
 
   describe("when calculating total damage done", () => {
+    it("should include throw damage", () => {
+      const game = new SlippiGame("slp/throwGrab.slp");
+      const stats = game.getStats();
+      const falco = stats.overall[0];
+      const marth = stats.overall[1];
+      expect(marth.totalDamage).toBeGreaterThanOrEqual(75 + 120);
+      expect(falco.totalDamage).toBeGreaterThanOrEqual(117 + 153);
+    });
+
+    it("should include pummel damage", () => {
+      const game = new SlippiGame("slp/pummel.slp");
+      const stats = game.getStats();
+      const marth = stats.overall[0];
+      const sheik = stats.overall[1];
+      expect(marth.totalDamage).toBeGreaterThanOrEqual(14);
+      expect(sheik.totalDamage).toBeGreaterThanOrEqual(21);
+    });
+
     it("should ignore Blast Zone Magnifying Glass damage", () => {
       const game = new SlippiGame("slp/consistencyTest/Puff-MagnifyingGlass-10.slp");
       const stats = game.getStats();
@@ -102,7 +120,9 @@ describe("when calculating stats", () => {
           totalDamageFoxDealt += conversion.moves.reduce((total, move) => total + move.damage, 0);
         }
       });
-      expect(totalDamageNessDealt).toBe(ness.totalDamage);
+      // Ness did no damage to fox
+      expect(ness.totalDamage).toBe(0);
+      expect(ness.totalDamage).toBe(totalDamageNessDealt);
       expect(ness.killCount).toBe(0);
       expect(ness.conversionCount).toBe(0);
 
