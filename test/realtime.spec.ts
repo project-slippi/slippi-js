@@ -98,7 +98,13 @@ describe("when reading finalised frames from SlpParser", () => {
     const game = new SlippiGame(testFile);
     const metadata = game.getMetadata();
     expect(metadata).toBeDefined();
-    const lastFrame = metadata.lastFrame || game.getLatestFrame().frame;
+
+    let lastFrame;
+    if (metadata.lastFrame !== null) {
+      lastFrame = metadata.lastFrame;
+    } else {
+      lastFrame = game.getLatestFrame().frame;
+    }
     expect(lastFrame).toEqual(lastFinalizedFrame);
   });
 

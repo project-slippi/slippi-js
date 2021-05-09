@@ -112,8 +112,6 @@ const pipeAllEvents = function (
     const commandByteBuffer = new Uint8Array(1);
     fs.readSync(fd, commandByteBuffer, 0, 1, pos);
     const length = messageSizes[commandByteBuffer[0]] + 1;
-    const commandByte = commandByteBuffer[0];
-
     const buffer = new Uint8Array(length);
     fs.readSync(fd, buffer, 0, length, pos);
 
