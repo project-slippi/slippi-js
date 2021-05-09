@@ -17,12 +17,12 @@ describe("when calculating stats", () => {
   it("should correctly calculate L cancel counts", () => {
     const game = new SlippiGame("slp/lCancel.slp");
     const stats = game.getStats();
-    const p1Success = stats!.actionCounts[0].lCancelCount.success;
-    const p1Fail = stats!.actionCounts[0].lCancelCount.fail;
+    const p1Success = stats.actionCounts[0].lCancelCount.success;
+    const p1Fail = stats.actionCounts[0].lCancelCount.fail;
     expect(p1Success).toBe(3);
     expect(p1Fail).toBe(4);
-    const p2Success = stats!.actionCounts[1].lCancelCount.success;
-    const p2Fail = stats!.actionCounts[1].lCancelCount.fail;
+    const p2Success = stats.actionCounts[1].lCancelCount.success;
+    const p2Fail = stats.actionCounts[1].lCancelCount.fail;
     expect(p2Success).toBe(5);
     expect(p2Fail).toBe(4);
   });
@@ -30,14 +30,14 @@ describe("when calculating stats", () => {
   it("should correctly calculate throw counts", () => {
     const game = new SlippiGame("slp/throwGrab.slp");
     const stats = game.getStats();
-    const p2Throws = stats!.actionCounts[1].throwCount;
+    const p2Throws = stats.actionCounts[1].throwCount;
     expect(p2Throws).toEqual(expectedThrow);
   });
 
   it("should correctly calculate grab counts", () => {
     const game = new SlippiGame("slp/throwGrab.slp");
     const stats = game.getStats();
-    const p2Grabs = stats!.actionCounts[1].grabCount;
+    const p2Grabs = stats.actionCounts[1].grabCount;
     expect(p2Grabs).toEqual(expectedGrab);
   });
 
@@ -54,8 +54,8 @@ describe("when calculating stats", () => {
     it("should include pummel damage", () => {
       const game = new SlippiGame("slp/pummel.slp");
       const stats = game.getStats();
-      const marth = stats!.overall[0];
-      const sheik = stats!.overall[1];
+      const marth = stats.overall[0];
+      const sheik = stats.overall[1];
       expect(marth.totalDamage).toBeGreaterThanOrEqual(14);
       expect(sheik.totalDamage).toBeGreaterThanOrEqual(0);
     });
@@ -63,10 +63,10 @@ describe("when calculating stats", () => {
     it("should ignore Blast Zone Magnifying Glass damage", () => {
       const game = new SlippiGame("slp/consistencyTest/Puff-MagnifyingGlass-10.slp");
       const stats = game.getStats();
-      const puff = stats!.overall[0];
-      const yl = stats!.overall[1];
+      const puff = stats.overall[0];
+      const yl = stats.overall[1];
       let totalDamagePuffDealt = 0;
-      stats!.conversions.forEach((conversion) => {
+      stats.conversions.forEach((conversion) => {
         if (conversion.lastHitBy === puff.playerIndex) {
           totalDamagePuffDealt += conversion.moves.reduce((total, move) => total + move.damage, 0);
         }
@@ -80,13 +80,13 @@ describe("when calculating stats", () => {
     it("should ignore Pichu's self-damage", () => {
       const game = new SlippiGame("slp/consistencyTest/PichuVSelf-All-22.slp");
       const stats = game.getStats();
-      const pichu = stats!.overall[0];
-      const ics = stats!.overall[1];
-      const pichuStock = stats!.stocks.filter((s) => s.playerIndex === pichu.playerIndex)[0];
-      const icsStock = stats!.stocks.filter((s) => s.playerIndex === ics.playerIndex)[0];
+      const pichu = stats.overall[0];
+      const ics = stats.overall[1];
+      const pichuStock = stats.stocks.filter((s) => s.playerIndex === pichu.playerIndex)[0];
+      const icsStock = stats.stocks.filter((s) => s.playerIndex === ics.playerIndex)[0];
       let totalDamagePichuDealt = 0;
       let icsDamageDealt = 0;
-      stats!.conversions.forEach((conversion) => {
+      stats.conversions.forEach((conversion) => {
         if (conversion.playerIndex === pichu.playerIndex) {
           icsDamageDealt += conversion.moves.reduce((total, move) => total + move.damage, 0);
         }
@@ -108,11 +108,11 @@ describe("when calculating stats", () => {
     it("should ignore Ness' damage recovery", () => {
       const game = new SlippiGame("slp/consistencyTest/NessVFox-Absorb.slp");
       const stats = game.getStats();
-      const ness = stats!.overall[0];
-      const fox = stats!.overall[1];
+      const ness = stats.overall[0];
+      const fox = stats.overall[1];
       let totalDamageNessDealt = 0;
       let totalDamageFoxDealt = 0;
-      stats!.conversions.forEach((conversion) => {
+      stats.conversions.forEach((conversion) => {
         if (conversion.lastHitBy === ness.playerIndex) {
           totalDamageNessDealt += conversion.moves.reduce((total, move) => total + move.damage, 0);
         }
