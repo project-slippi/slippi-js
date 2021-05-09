@@ -10,7 +10,7 @@ const TIMEOUT_MS = 1000;
 describe("when ending SlpFileWriter", () => {
   it("should write data length to file", async () => {
     const { dataLength, newFilename } = runSlpFileWriter("slp/finalizedFrame.slp");
-    await new Promise((resolve) => {
+    await new Promise<void>((resolve) => {
       setTimeout(() => {
         const writtenDataLength = openSlpFile({ source: SlpInputSource.FILE, filePath: newFilename }).rawDataLength;
         fs.unlinkSync(newFilename);
@@ -24,7 +24,7 @@ describe("when ending SlpFileWriter", () => {
 
   it("should succeed if no display names or connect codes are available in game start", async () => {
     const { newFilename } = runSlpFileWriter("slp/finalizedFrame.slp");
-    await new Promise((resolve) => {
+    await new Promise<void>((resolve) => {
       setTimeout(() => {
         const players = new SlippiGame(newFilename).getMetadata().players;
         Object.keys(players).forEach((key) => {
@@ -42,7 +42,7 @@ describe("when ending SlpFileWriter", () => {
 
   it("should write display name and connect codes to metadata if available in game start", async () => {
     const { newFilename } = runSlpFileWriter("slp/displayNameAndConnectCodeInGameStart.slp");
-    await new Promise((resolve) => {
+    await new Promise<void>((resolve) => {
       setTimeout(() => {
         const players = new SlippiGame(newFilename).getMetadata().players;
         Object.keys(players).forEach((key) => {
