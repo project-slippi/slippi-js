@@ -1,6 +1,14 @@
 import _ from "lodash";
 
-import { ConversionType, InputCountsType, OverallType, PlayerIndexedType, RatioType, StockType } from "./common";
+import { GameStartType } from "../types";
+import {
+  ConversionType,
+  getSinglesPlayerPermutationsFromSettings,
+  InputCountsType,
+  OverallType,
+  RatioType,
+  StockType,
+} from "./common";
 import { PlayerInput } from "./inputs";
 
 interface ConversionsByPlayerByOpening {
@@ -10,7 +18,7 @@ interface ConversionsByPlayerByOpening {
 }
 
 export function generateOverallStats(
-  playerIndices: PlayerIndexedType[],
+  settings: GameStartType,
   inputs: PlayerInput[],
   stocks: StockType[],
   conversions: ConversionType[],
@@ -25,6 +33,7 @@ export function generateOverallStats(
 
   const gameMinutes = playableFrameCount / 3600;
 
+  const playerIndices = getSinglesPlayerPermutationsFromSettings(settings);
   const overall = playerIndices.map((indices) => {
     const playerIndex = indices.playerIndex;
     const opponentIndex = indices.opponentIndex;
