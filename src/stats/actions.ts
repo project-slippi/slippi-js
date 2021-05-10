@@ -1,7 +1,7 @@
 import _ from "lodash";
 
 import { FrameEntryType, GameStartType } from "../types";
-import { ActionCountsType, State } from "./common";
+import { ActionCountsType, getSinglesPlayerPermutationsFromSettings, PlayerIndexedType, State } from "./common";
 import { StatComputer } from "./stats";
 
 // Frame pattern that indicates a dash dance turn was executed
@@ -13,17 +13,16 @@ interface PlayerActionState {
 }
 
 export class ActionsComputer implements StatComputer<ActionCountsType[]> {
-  private playerIndices: number[] = [];
-  private state = new Map<number, PlayerActionState>();
+  private playerPermutations = new Array<PlayerIndexedType>();
+  private state = new Map<PlayerIndexedType, PlayerActionState>();
 
   public setup(settings: GameStartType): void {
-    // Reset the state
     this.state = new Map();
-
-    this.playerIndices = settings.players.map((p) => p.playerIndex);
-    this.playerIndices.forEach((playerIndex) => {
+    this.playerPermutations = getSinglesPlayerPermutationsFromSettings(settings);
+    this.playerPermutations.forEach((indices) => {
       const playerCounts: ActionCountsType = {
-        playerIndex,
+        playerIndex: indices.playerIndex,
+        opponentIndex: indices.opponentIndex,
         wavedashCount: 0,
         wavelandCount: 0,
         airDodgeCount: 0,
@@ -50,15 +49,15 @@ export class ActionsComputer implements StatComputer<ActionCountsType[]> {
         playerCounts: playerCounts,
         animations: [],
       };
-      this.state.set(playerIndex, playerState);
+      this.state.set(indices, playerState);
     });
   }
 
   public processFrame(frame: FrameEntryType): void {
-    this.playerIndices.forEach((index) => {
-      const state = this.state.get(index);
+    this.playerPermutations.forEach((indices) => {
+      const state = this.state.get(indices);
       if (state) {
-        handleActionCompute(state, index, frame);
+        handleActionCompute(state, indices, frame);
       }
     });
   }
@@ -123,8 +122,8 @@ function didStartLedgegrab(currentAnimation: State, previousAnimation: State): b
   return isCurrentlyGrabbingLedge && !wasPreviouslyGrabbingLedge;
 }
 
-function handleActionCompute(state: PlayerActionState, playerIndex: number, frame: FrameEntryType): void {
-  const playerFrame = frame.players[playerIndex]!.post;
+function handleActionCompute(state: PlayerActionState, indices: PlayerIndexedType, frame: FrameEntryType): void {
+  const playerFrame = frame.players[indices.playerIndex]!.post;
   const incrementCount = (field: string, condition: boolean): void => {
     if (!condition) {
       return;

@@ -1,7 +1,7 @@
 import _ from "lodash";
 
 import { FrameEntryType, FramesType, GameStartType } from "../types";
-import { didLoseStock, isDead, StockType } from "./common";
+import { didLoseStock, getSinglesPlayerPermutationsFromSettings, isDead, PlayerIndexedType, StockType } from "./common";
 import { StatComputer } from "./stats";
 
 interface StockState {
@@ -9,29 +9,29 @@ interface StockState {
 }
 
 export class StockComputer implements StatComputer<StockType[]> {
-  private state = new Map<number, StockState>();
-  private playerIndices: number[] = [];
-  private stocks: StockType[] = [];
+  private state = new Map<PlayerIndexedType, StockState>();
+  private playerPermutations = new Array<PlayerIndexedType>();
+  private stocks = new Array<StockType>();
 
   public setup(settings: GameStartType): void {
-    // Reset the state since it's a new game
+    // Reset state
     this.state = new Map();
-    this.playerIndices = settings.players.map((p) => p.playerIndex);
+    this.playerPermutations = getSinglesPlayerPermutationsFromSettings(settings);
     this.stocks = [];
 
-    this.playerIndices.forEach((index) => {
+    this.playerPermutations.forEach((indices) => {
       const playerState: StockState = {
         stock: null,
       };
-      this.state.set(index, playerState);
+      this.state.set(indices, playerState);
     });
   }
 
   public processFrame(frame: FrameEntryType, allFrames: FramesType): void {
-    this.playerIndices.forEach((index) => {
-      const state = this.state.get(index);
+    this.playerPermutations.forEach((indices) => {
+      const state = this.state.get(indices);
       if (state) {
-        handleStockCompute(allFrames, state, index, frame, this.stocks);
+        handleStockCompute(allFrames, state, indices, frame, this.stocks);
       }
     });
   }
@@ -44,14 +44,14 @@ export class StockComputer implements StatComputer<StockType[]> {
 function handleStockCompute(
   frames: FramesType,
   state: StockState,
-  playerIndex: number,
+  indices: PlayerIndexedType,
   frame: FrameEntryType,
   stocks: StockType[],
 ): void {
-  const playerFrame = frame.players[playerIndex]!.post;
+  const playerFrame = frame.players[indices.playerIndex]!.post;
   const currentFrameNumber = playerFrame.frame!;
   const prevFrameNumber = currentFrameNumber - 1;
-  const prevPlayerFrame = frames[prevFrameNumber] ? frames[prevFrameNumber].players[playerIndex]!.post : null;
+  const prevPlayerFrame = frames[prevFrameNumber] ? frames[prevFrameNumber].players[indices.playerIndex]!.post : null;
 
   // If there is currently no active stock, wait until the player is no longer spawning.
   // Once the player is no longer spawning, start the stock
@@ -62,7 +62,8 @@ function handleStockCompute(
     }
 
     state.stock = {
-      playerIndex,
+      playerIndex: indices.playerIndex,
+      opponentIndex: indices.opponentIndex,
       startFrame: currentFrameNumber,
       endFrame: null,
       startPercent: 0,
