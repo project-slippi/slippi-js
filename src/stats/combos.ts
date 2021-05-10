@@ -1,11 +1,12 @@
 import { EventEmitter } from "events";
-import { last } from "lodash";
+import _ from "lodash";
 
 import { FrameEntryType, FramesType, GameStartType, PostFrameUpdateType } from "../types";
 import {
   calcDamageTaken,
   ComboType,
   didLoseStock,
+  getSinglesPlayerPermutationsFromSettings,
   isCommandGrabbed,
   isDamaged,
   isDead,
@@ -13,6 +14,7 @@ import {
   isGrabbed,
   isTeching,
   MoveLandedType,
+  PlayerIndexedType,
   Timers,
 } from "./common";
 import { StatComputer } from "./stats";
@@ -32,9 +34,9 @@ interface ComboState {
 }
 
 export class ComboComputer extends EventEmitter implements StatComputer<ComboType[]> {
-  private playerIndices: number[] = [];
-  private combos: ComboType[] = [];
-  private state = new Map<number, ComboState>();
+  private playerPermutations = new Array<PlayerIndexedType>();
+  private state = new Map<PlayerIndexedType, ComboState>();
+  private combos = new Array<ComboType>();
   private settings: GameStartType | null = null;
 
   public setup(settings: GameStartType): void {
@@ -42,9 +44,9 @@ export class ComboComputer extends EventEmitter implements StatComputer<ComboTyp
     this.settings = settings;
     this.state = new Map();
     this.combos = [];
+    this.playerPermutations = getSinglesPlayerPermutationsFromSettings(settings);
 
-    this.playerIndices = settings.players.map((p) => p.playerIndex);
-    this.playerIndices.forEach((indices) => {
+    this.playerPermutations.forEach((indices) => {
       const playerState: ComboState = {
         combo: null,
         move: null,
@@ -57,15 +59,15 @@ export class ComboComputer extends EventEmitter implements StatComputer<ComboTyp
   }
 
   public processFrame(frame: FrameEntryType, allFrames: FramesType): void {
-    this.playerIndices.forEach((index) => {
-      const state = this.state.get(index);
+    this.playerPermutations.forEach((indices) => {
+      const state = this.state.get(indices);
       if (state) {
-        handleComboCompute(allFrames, state, index, frame, this.combos);
+        handleComboCompute(allFrames, state, indices, frame, this.combos);
 
         // Emit an event for the new combo
         if (state.event !== null) {
           this.emit(state.event, {
-            combo: last(this.combos),
+            combo: _.last(this.combos),
             settings: this.settings,
           });
           state.event = null;
@@ -82,19 +84,28 @@ export class ComboComputer extends EventEmitter implements StatComputer<ComboTyp
 function handleComboCompute(
   frames: FramesType,
   state: ComboState,
-  playerIndex: number,
+  indices: PlayerIndexedType,
   frame: FrameEntryType,
   combos: ComboType[],
 ): void {
   const currentFrameNumber = frame.frame;
-  const playerFrame = frame.players[playerIndex]!.post;
+  const playerFrame = frame.players[indices.playerIndex]!.post;
+  const opponentFrame = frame.players[indices.opponentIndex]!.post;
 
   const prevFrameNumber = currentFrameNumber - 1;
   let prevPlayerFrame: PostFrameUpdateType | null = null;
+  let prevOpponentFrame: PostFrameUpdateType | null = null;
 
   if (frames[prevFrameNumber]) {
-    prevPlayerFrame = frames[prevFrameNumber].players[playerIndex]!.post;
+    prevPlayerFrame = frames[prevFrameNumber].players[indices.playerIndex]!.post;
+    prevOpponentFrame = frames[prevFrameNumber].players[indices.opponentIndex]!.post;
   }
+
+  const oppActionStateId = opponentFrame.actionStateId!;
+  const opntIsDamaged = isDamaged(oppActionStateId);
+  const opntIsGrabbed = isGrabbed(oppActionStateId);
+  const opntIsCommandGrabbed = isCommandGrabbed(oppActionStateId);
+  const opntDamageTaken = prevOpponentFrame ? calcDamageTaken(opponentFrame, prevOpponentFrame) : 0;
 
   // Keep track of whether actionState changes after a hit. Used to compute move count
   // When purely using action state there was a bug where if you did two of the same
@@ -110,27 +121,21 @@ function handleComboCompute(
     state.lastHitAnimation = null;
   }
 
-  const playerActionStateId = playerFrame.actionStateId!;
-  const playerIsDamaged = isDamaged(playerActionStateId);
-  const playerIsGrabbed = isGrabbed(playerActionStateId);
-  const playerIsCommandGrabbed = isCommandGrabbed(playerActionStateId);
-
-  // If the player took damage and was put in some kind of stun this frame, either
+  // If opponent took damage and was put in some kind of stun this frame, either
   // start a combo or count the moves for the existing combo
-  if (playerIsDamaged || playerIsGrabbed || playerIsCommandGrabbed) {
+  if (opntIsDamaged || opntIsGrabbed || opntIsCommandGrabbed) {
     let comboStarted = false;
-
     if (!state.combo) {
       state.combo = {
-        playerIndex,
+        playerIndex: indices.playerIndex,
+        opponentIndex: indices.opponentIndex,
         startFrame: currentFrameNumber,
         endFrame: null,
-        startPercent: prevPlayerFrame ? prevPlayerFrame.percent ?? 0 : 0,
-        currentPercent: playerFrame.percent ?? 0,
+        startPercent: prevOpponentFrame ? prevOpponentFrame.percent ?? 0 : 0,
+        currentPercent: opponentFrame.percent ?? 0,
         endPercent: null,
         moves: [],
         didKill: false,
-        lastHitBy: null,
       };
 
       combos.push(state.combo);
@@ -139,22 +144,15 @@ function handleComboCompute(
       comboStarted = true;
     }
 
-    const playerDamageTaken = prevPlayerFrame ? calcDamageTaken(playerFrame, prevPlayerFrame) : 0;
-    const lastHitBy = playerFrame.lastHitBy;
-    const validLastHitBy = lastHitBy !== null && lastHitBy >= 0 && lastHitBy <= 3;
-    if (playerDamageTaken && lastHitBy !== null && validLastHitBy) {
-      // Update who hit us last
-      state.combo.lastHitBy = lastHitBy;
-
+    if (opntDamageTaken) {
       // If animation of last hit has been cleared that means this is a new move. This
       // prevents counting multiple hits from the same move such as fox's drill
       if (state.lastHitAnimation === null) {
         state.move = {
           frame: currentFrameNumber,
-          moveId: frame.players[lastHitBy]!.post!.lastAttackLanded!,
+          moveId: playerFrame.lastAttackLanded!,
           hitCount: 0,
           damage: 0,
-          playerIndex: lastHitBy,
         };
 
         state.combo.moves.push(state.move);
@@ -167,7 +165,7 @@ function handleComboCompute(
 
       if (state.move) {
         state.move.hitCount += 1;
-        state.move.damage += playerDamageTaken;
+        state.move.damage += opntDamageTaken;
       }
 
       // Store previous frame animation to consider the case of a trade, the previous
@@ -186,25 +184,18 @@ function handleComboCompute(
     return;
   }
 
-  const playerIsTeching = isTeching(playerActionStateId);
-  const playerIsDowned = isDown(playerActionStateId);
-  const playerDidLoseStock = prevPlayerFrame && didLoseStock(playerFrame, prevPlayerFrame);
-  const playerIsDying = isDead(playerActionStateId);
+  const opntIsTeching = isTeching(oppActionStateId);
+  const opntIsDowned = isDown(oppActionStateId);
+  const opntDidLoseStock = prevOpponentFrame && didLoseStock(opponentFrame, prevOpponentFrame);
+  const opntIsDying = isDead(oppActionStateId);
 
-  // Update percent if the player didn't lose stock
-  if (!playerDidLoseStock) {
-    state.combo.currentPercent = playerFrame.percent ?? 0;
+  // Update percent if opponent didn't lose stock
+  if (!opntDidLoseStock) {
+    state.combo.currentPercent = opponentFrame.percent ?? 0;
   }
 
-  if (
-    playerIsDamaged ||
-    playerIsGrabbed ||
-    playerIsCommandGrabbed ||
-    playerIsTeching ||
-    playerIsDowned ||
-    playerIsDying
-  ) {
-    // If the player got grabbed or damaged, reset the reset counter
+  if (opntIsDamaged || opntIsGrabbed || opntIsCommandGrabbed || opntIsTeching || opntIsDowned || opntIsDying) {
+    // If opponent got grabbed or damaged, reset the reset counter
     state.resetCounter = 0;
   } else {
     state.resetCounter += 1;
@@ -212,8 +203,8 @@ function handleComboCompute(
 
   let shouldTerminate = false;
 
-  // Termination condition 1 - player was killed
-  if (playerDidLoseStock) {
+  // Termination condition 1 - player kills opponent
+  if (opntDidLoseStock) {
     state.combo.didKill = true;
     shouldTerminate = true;
   }
@@ -226,7 +217,7 @@ function handleComboCompute(
   // If combo should terminate, mark the end states and add it to list
   if (shouldTerminate) {
     state.combo.endFrame = playerFrame.frame;
-    state.combo.endPercent = prevPlayerFrame ? prevPlayerFrame.percent ?? 0 : 0;
+    state.combo.endPercent = prevOpponentFrame ? prevOpponentFrame.percent ?? 0 : 0;
     state.event = ComboEvent.COMBO_END;
 
     state.combo = null;

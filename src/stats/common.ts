@@ -1,6 +1,6 @@
 import _ from "lodash";
 
-import { PostFrameUpdateType } from "../types";
+import { GameStartType, PostFrameUpdateType } from "../types";
 
 export interface StatsType {
   gameComplete: boolean;
@@ -19,6 +19,11 @@ export interface RatioType {
   ratio: number | null;
 }
 
+export interface PlayerIndexedType {
+  playerIndex: number;
+  opponentIndex: number;
+}
+
 export interface DurationType {
   startFrame: number;
   endFrame?: number | null;
@@ -30,8 +35,7 @@ export interface DamageType {
   endPercent?: number | null;
 }
 
-export interface StockType extends DurationType, DamageType {
-  playerIndex: number;
+export interface StockType extends PlayerIndexedType, DurationType, DamageType {
   count: number;
   deathAnimation?: number | null;
 }
@@ -41,22 +45,20 @@ export interface MoveLandedType {
   moveId: number;
   hitCount: number;
   damage: number;
-  playerIndex: number;
 }
 
-export interface ComboType extends DurationType, DamageType {
-  playerIndex: number;
+export interface ConversionType extends PlayerIndexedType, DurationType, DamageType {
+  moves: MoveLandedType[];
+  openingType: string;
+  didKill: boolean;
+}
+
+export interface ComboType extends PlayerIndexedType, DurationType, DamageType {
   moves: MoveLandedType[];
   didKill: boolean;
-  lastHitBy: number | null;
 }
 
-export interface ConversionType extends ComboType {
-  openingType: string;
-}
-
-export interface ActionCountsType {
-  playerIndex: number;
+export interface ActionCountsType extends PlayerIndexedType {
   wavedashCount: number;
   wavelandCount: number;
   airDodgeCount: number;
@@ -88,8 +90,7 @@ export interface InputCountsType {
   total: number;
 }
 
-export interface OverallType {
-  playerIndex: number;
+export interface OverallType extends PlayerIndexedType {
   inputCounts: InputCountsType;
   conversionCount: number;
   totalDamage: number;
@@ -175,19 +176,30 @@ export const Timers = {
   COMBO_STRING_RESET_FRAMES: 45,
 };
 
-export function didLoseStock(
-  frame: PostFrameUpdateType | undefined,
-  prevFrame: PostFrameUpdateType | undefined,
-): boolean {
+export function getSinglesPlayerPermutationsFromSettings(settings: GameStartType): PlayerIndexedType[] {
+  if (!settings || settings.players.length !== 2) {
+    // Only return opponent indices for singles
+    return [];
+  }
+
+  return [
+    {
+      playerIndex: settings.players[0].playerIndex,
+      opponentIndex: settings.players[1].playerIndex,
+    },
+    {
+      playerIndex: settings.players[1].playerIndex,
+      opponentIndex: settings.players[0].playerIndex,
+    },
+  ];
+}
+
+export function didLoseStock(frame: PostFrameUpdateType, prevFrame: PostFrameUpdateType): boolean {
   if (!frame || !prevFrame) {
     return false;
   }
 
-  if (prevFrame.stocksRemaining === null || frame.stocksRemaining === null) {
-    return false;
-  }
-
-  return prevFrame.stocksRemaining - frame.stocksRemaining > 0;
+  return prevFrame.stocksRemaining! - frame.stocksRemaining! > 0;
 }
 
 export function isInControl(state: number): boolean {

@@ -6,11 +6,13 @@ import {
   calcDamageTaken,
   ConversionType,
   didLoseStock,
+  getSinglesPlayerPermutationsFromSettings,
   isCommandGrabbed,
   isDamaged,
   isGrabbed,
   isInControl,
   MoveLandedType,
+  PlayerIndexedType,
   Timers,
 } from "./common";
 import { StatComputer } from "./stats";
@@ -29,9 +31,9 @@ interface MetadataType {
 }
 
 export class ConversionComputer extends EventEmitter implements StatComputer<ConversionType[]> {
-  private playerIndices: number[] = [];
-  private conversions: ConversionType[] = [];
-  private state = new Map<number, PlayerConversionState>();
+  private playerPermutations = new Array<PlayerIndexedType>();
+  private conversions = new Array<ConversionType>();
+  private state = new Map<PlayerIndexedType, PlayerConversionState>();
   private metadata: MetadataType;
   private settings: GameStartType | null = null;
 
@@ -43,31 +45,31 @@ export class ConversionComputer extends EventEmitter implements StatComputer<Con
   }
 
   public setup(settings: GameStartType): void {
-    // Reset the state since it's a new game
-    this.settings = settings;
-    this.playerIndices = settings.players.map((p) => p.playerIndex);
+    // Reset the state
+    this.playerPermutations = getSinglesPlayerPermutationsFromSettings(settings);
     this.conversions = [];
-    this.state = new Map<number, PlayerConversionState>();
+    this.state = new Map();
     this.metadata = {
       lastEndFrameByOppIdx: {},
     };
+    this.settings = settings;
 
-    this.playerIndices.forEach((index) => {
+    this.playerPermutations.forEach((indices) => {
       const playerState: PlayerConversionState = {
         conversion: null,
         move: null,
         resetCounter: 0,
         lastHitAnimation: null,
       };
-      this.state.set(index, playerState);
+      this.state.set(indices, playerState);
     });
   }
 
   public processFrame(frame: FrameEntryType, allFrames: FramesType): void {
-    this.playerIndices.forEach((index) => {
-      const state = this.state.get(index);
+    this.playerPermutations.forEach((indices) => {
+      const state = this.state.get(indices);
       if (state) {
-        const terminated = handleConversionCompute(allFrames, state, index, frame, this.conversions);
+        const terminated = handleConversionCompute(allFrames, state, indices, frame, this.conversions);
         if (terminated) {
           this.emit("CONVERSION", {
             combo: _.last(this.conversions),
@@ -107,12 +109,10 @@ export class ConversionComputer extends EventEmitter implements StatComputer<Con
           conversion.openingType = "trade";
           return;
         }
-        const lastMove = _.last(conversion.moves);
-        // If not trade, check the player endFrame
-        const playerEndFrame = this.metadata.lastEndFrameByOppIdx[
-          lastMove ? lastMove.playerIndex : conversion.playerIndex
-        ];
-        const isCounterAttack = playerEndFrame && playerEndFrame > conversion.startFrame;
+
+        // If not trade, check the opponent endFrame
+        const oppEndFrame = this.metadata.lastEndFrameByOppIdx[conversion.opponentIndex];
+        const isCounterAttack = oppEndFrame && oppEndFrame > conversion.startFrame;
         conversion.openingType = isCounterAttack ? "counter-attack" : "neutral-win";
       });
     });
@@ -122,19 +122,28 @@ export class ConversionComputer extends EventEmitter implements StatComputer<Con
 function handleConversionCompute(
   frames: FramesType,
   state: PlayerConversionState,
-  playerIndex: number,
+  indices: PlayerIndexedType,
   frame: FrameEntryType,
   conversions: ConversionType[],
 ): boolean {
   const currentFrameNumber = frame.frame;
-  const playerFrame: PostFrameUpdateType = frame.players[playerIndex]!.post;
+  const playerFrame: PostFrameUpdateType = frame.players[indices.playerIndex]!.post;
+  const opponentFrame = frame.players[indices.opponentIndex]!.post;
 
   const prevFrameNumber = currentFrameNumber - 1;
   let prevPlayerFrame: PostFrameUpdateType | null = null;
+  let prevOpponentFrame: PostFrameUpdateType | null = null;
 
   if (frames[prevFrameNumber]) {
-    prevPlayerFrame = frames[prevFrameNumber].players[playerIndex]!.post;
+    prevPlayerFrame = frames[prevFrameNumber].players[indices.playerIndex]!.post;
+    prevOpponentFrame = frames[prevFrameNumber].players[indices.opponentIndex]!.post;
   }
+
+  const oppActionStateId = opponentFrame.actionStateId!;
+  const opntIsDamaged = isDamaged(oppActionStateId);
+  const opntIsGrabbed = isGrabbed(oppActionStateId);
+  const opntIsCommandGrabbed = isCommandGrabbed(oppActionStateId);
+  const opntDamageTaken = prevOpponentFrame ? calcDamageTaken(opponentFrame, prevOpponentFrame) : 0;
 
   // Keep track of whether actionState changes after a hit. Used to compute move count
   // When purely using action state there was a bug where if you did two of the same
@@ -150,47 +159,35 @@ function handleConversionCompute(
     state.lastHitAnimation = null;
   }
 
-  const playerActionStateId = playerFrame.actionStateId!;
-  const playerIsDamaged = isDamaged(playerActionStateId);
-  const playerIsGrabbed = isGrabbed(playerActionStateId);
-  const playerIsCommandGrabbed = isCommandGrabbed(playerActionStateId);
-
-  // If the player took damage and was put in some kind of stun this frame, either
+  // If opponent took damage and was put in some kind of stun this frame, either
   // start a conversion or
-  if (playerIsDamaged || playerIsGrabbed || playerIsCommandGrabbed) {
+  if (opntIsDamaged || opntIsGrabbed || opntIsCommandGrabbed) {
     if (!state.conversion) {
       state.conversion = {
-        playerIndex,
+        playerIndex: indices.playerIndex,
+        opponentIndex: indices.opponentIndex,
         startFrame: currentFrameNumber,
         endFrame: null,
-        startPercent: prevPlayerFrame ? prevPlayerFrame.percent ?? 0 : 0,
-        currentPercent: playerFrame.percent ?? 0,
+        startPercent: prevOpponentFrame ? prevOpponentFrame.percent ?? 0 : 0,
+        currentPercent: opponentFrame.percent ?? 0,
         endPercent: null,
         moves: [],
         didKill: false,
         openingType: "unknown", // Will be updated later
-        lastHitBy: null,
       };
 
       conversions.push(state.conversion);
     }
 
-    const playerDamageTaken = prevPlayerFrame ? calcDamageTaken(playerFrame, prevPlayerFrame) : 0;
-    const lastHitBy = playerFrame.lastHitBy;
-    const validLastHitBy = lastHitBy !== null && lastHitBy >= 0 && lastHitBy <= 3;
-    if (playerDamageTaken && lastHitBy !== null && validLastHitBy) {
-      // Update who hit us last
-      state.conversion.lastHitBy = lastHitBy;
-
+    if (opntDamageTaken) {
       // If animation of last hit has been cleared that means this is a new move. This
       // prevents counting multiple hits from the same move such as fox's drill
       if (state.lastHitAnimation === null) {
         state.move = {
           frame: currentFrameNumber,
-          moveId: frame.players[lastHitBy]!.post!.lastAttackLanded!,
+          moveId: playerFrame.lastAttackLanded!,
           hitCount: 0,
           damage: 0,
-          playerIndex: lastHitBy,
         };
 
         state.conversion.moves.push(state.move);
@@ -198,7 +195,7 @@ function handleConversionCompute(
 
       if (state.move) {
         state.move.hitCount += 1;
-        state.move.damage += playerDamageTaken;
+        state.move.damage += opntDamageTaken;
       }
 
       // Store previous frame animation to consider the case of a trade, the previous
@@ -213,32 +210,32 @@ function handleConversionCompute(
     return false;
   }
 
-  const playerInControl = isInControl(playerActionStateId);
-  const playerDidLoseStock = prevPlayerFrame && didLoseStock(playerFrame, prevPlayerFrame);
+  const opntInControl = isInControl(oppActionStateId);
+  const opntDidLoseStock = prevOpponentFrame && didLoseStock(opponentFrame, prevOpponentFrame);
 
-  // Update percent if the player didn't lose stock
-  if (!playerDidLoseStock) {
-    state.conversion.currentPercent = playerFrame.percent ?? 0;
+  // Update percent if opponent didn't lose stock
+  if (!opntDidLoseStock) {
+    state.conversion.currentPercent = opponentFrame.percent ?? 0;
   }
 
-  if (playerIsDamaged || playerIsGrabbed || playerIsCommandGrabbed) {
-    // If the player got grabbed or damaged, reset the reset counter
+  if (opntIsDamaged || opntIsGrabbed || opntIsCommandGrabbed) {
+    // If opponent got grabbed or damaged, reset the reset counter
     state.resetCounter = 0;
   }
 
-  const shouldStartResetCounter = state.resetCounter === 0 && playerInControl;
+  const shouldStartResetCounter = state.resetCounter === 0 && opntInControl;
   const shouldContinueResetCounter = state.resetCounter > 0;
   if (shouldStartResetCounter || shouldContinueResetCounter) {
     // This will increment the reset timer under the following conditions:
-    // 1) if the player is being punishing but they have now entered an actionable state
-    // 2) if counter has already started counting meaning the player has entered actionable state
+    // 1) if we were punishing opponent but they have now entered an actionable state
+    // 2) if counter has already started counting meaning opponent has entered actionable state
     state.resetCounter += 1;
   }
 
   let shouldTerminate = false;
 
-  // Termination condition 1 - player was killed
-  if (playerDidLoseStock) {
+  // Termination condition 1 - player kills opponent
+  if (opntDidLoseStock) {
     state.conversion.didKill = true;
     shouldTerminate = true;
   }
@@ -251,7 +248,7 @@ function handleConversionCompute(
   // If conversion should terminate, mark the end states and add it to list
   if (shouldTerminate) {
     state.conversion.endFrame = playerFrame.frame;
-    state.conversion.endPercent = prevPlayerFrame ? prevPlayerFrame.percent ?? 0 : 0;
+    state.conversion.endPercent = prevOpponentFrame ? prevOpponentFrame.percent ?? 0 : 0;
 
     state.conversion = null;
     state.move = null;

@@ -5,6 +5,7 @@ import {
   ComboComputer,
   ConversionComputer,
   generateOverallStats,
+  getSinglesPlayerPermutationsFromSettings,
   InputComputer,
   StatOptions,
   Stats,
@@ -130,8 +131,9 @@ export class SlippiGame {
     const inputs = this.inputComputer.fetch();
     const stocks = this.stockComputer.fetch();
     const conversions = this.conversionComputer.fetch();
+    const indices = getSinglesPlayerPermutationsFromSettings(settings);
     const playableFrames = this.parser.getPlayableFrameCount();
-    const overall = generateOverallStats(settings, inputs, stocks, conversions, playableFrames);
+    const overall = generateOverallStats(indices, inputs, stocks, conversions, playableFrames);
 
     const stats = {
       lastFrame: this.parser.getLatestFrameNumber(),
