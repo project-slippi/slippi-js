@@ -7,7 +7,7 @@ describe("when calculating conversions", () => {
     const puff = stats.overall[0];
     let totalDamagePuffDealt = 0;
     stats.conversions.forEach((conversion) => {
-      if (conversion.playerIndex === puff.playerIndex) {
+      if (conversion.lastHitBy === puff.playerIndex) {
         totalDamagePuffDealt += conversion.moves.reduce((total, move) => total + move.damage, 0);
       }
     });
@@ -22,7 +22,7 @@ describe("when calculating conversions", () => {
     const bowser = stats.overall[0];
     let totalDamageBowserDealt = 0;
     stats.conversions.forEach((conversion) => {
-      if (conversion.playerIndex === bowser.playerIndex) {
+      if (conversion.lastHitBy === bowser.playerIndex) {
         totalDamageBowserDealt += conversion.moves.reduce((total, move) => total + move.damage, 0);
       }
     });
@@ -39,7 +39,7 @@ describe("when calculating conversions", () => {
     const falcon = stats.overall[0];
     let totalDamageFalconDealt = 0;
     stats.conversions.forEach((conversion) => {
-      if (conversion.playerIndex === falcon.playerIndex) {
+      if (conversion.lastHitBy === falcon.playerIndex) {
         totalDamageFalconDealt += conversion.moves.reduce((total, move) => total + move.damage, 0);
       }
     });
@@ -54,7 +54,7 @@ describe("when calculating conversions", () => {
     const ganon = stats.overall[0];
     let totalDamageGanonDealt = 0;
     stats.conversions.forEach((conversion) => {
-      if (conversion.playerIndex === ganon.playerIndex) {
+      if (conversion.lastHitBy === ganon.playerIndex) {
         totalDamageGanonDealt += conversion.moves.reduce((total, move) => total + move.damage, 0);
       }
     });
@@ -69,7 +69,7 @@ describe("when calculating conversions", () => {
     const kirby = stats.overall[0];
     let totalDamageKirbyDealt = 0;
     stats.conversions.forEach((conversion) => {
-      if (conversion.playerIndex === kirby.playerIndex) {
+      if (conversion.lastHitBy === kirby.playerIndex) {
         totalDamageKirbyDealt += conversion.moves.reduce((total, move) => total + move.damage, 0);
       }
     });
@@ -84,7 +84,7 @@ describe("when calculating conversions", () => {
     const yoshi = stats.overall[0];
     let totalDamageYoshiDealt = 0;
     stats.conversions.forEach((conversion) => {
-      if (conversion.playerIndex === yoshi.playerIndex) {
+      if (conversion.lastHitBy === yoshi.playerIndex) {
         totalDamageYoshiDealt += conversion.moves.reduce((total, move) => total + move.damage, 0);
       }
     });
@@ -99,7 +99,7 @@ describe("when calculating conversions", () => {
     const mewTwo = stats.overall[0];
     let totalDamageMewTwoDealt = 0;
     stats.conversions.forEach((conversion) => {
-      if (conversion.playerIndex === mewTwo.playerIndex) {
+      if (conversion.lastHitBy === mewTwo.playerIndex) {
         totalDamageMewTwoDealt += conversion.moves.reduce((total, move) => total + move.damage, 0);
       }
     });
