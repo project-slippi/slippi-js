@@ -1,6 +1,6 @@
-import _ from "lodash";
-// import path from 'path';
 import fs from "fs";
+import _ from "lodash";
+
 import { SlippiGame } from "../src";
 
 it("should correctly return game settings", () => {
@@ -90,8 +90,8 @@ it("should be able to read netplay names and codes", () => {
 
 it("should be able to read console nickname", () => {
   const game = new SlippiGame("slp/realtimeTest.slp");
-  const metadata = game.getMetadata().consoleNick;
-  expect(game.getMetadata().consoleNick).toBe("Day 1");
+  const nickName = game.getMetadata().consoleNick;
+  expect(nickName).toBe("Day 1");
 });
 
 it("should support PAL version", () => {

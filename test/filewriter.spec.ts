@@ -1,7 +1,8 @@
 import fs from "fs";
-import { openSlpFile, SlpInputSource } from "../src/utils/slpReader";
-import { SlpFileWriter, SlippiGame } from "../src";
 import { Writable } from "stream";
+
+import { SlippiGame, SlpFileWriter } from "../src";
+import { openSlpFile, SlpInputSource } from "../src/utils/slpReader";
 
 // On my machine, >100 is required to give the slpFile.ts "finish" callback time to execute.
 // I thought a 'yield' 0 ms setTimout would allow the callback to execute, but that's not the case.
@@ -112,7 +113,7 @@ const pipeAllEvents = function (
     const commandByteBuffer = new Uint8Array(1);
     fs.readSync(fd, commandByteBuffer, 0, 1, pos);
     const length = messageSizes[commandByteBuffer[0]] + 1;
-    const commandByte = commandByteBuffer[0];
+    // const commandByte = commandByteBuffer[0];
 
     const buffer = new Uint8Array(length);
     fs.readSync(fd, buffer, 0, length, pos);

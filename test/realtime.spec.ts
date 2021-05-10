@@ -2,19 +2,19 @@ import fs from "fs";
 import { Writable } from "stream";
 
 import {
-  SlippiGame,
   Command,
-  SlpStreamMode,
-  SlpStream,
-  Frames,
-  SlpCommandEventPayload,
-  SlpStreamEvent,
   FrameBookendType,
+  FrameEntryType,
+  Frames,
+  GameMode,
+  MAX_ROLLBACK_FRAMES,
+  SlippiGame,
+  SlpCommandEventPayload,
   SlpParser,
   SlpParserEvent,
-  FrameEntryType,
-  MAX_ROLLBACK_FRAMES,
-  GameMode,
+  SlpStream,
+  SlpStreamEvent,
+  SlpStreamMode,
 } from "../src";
 
 describe("when reading last finalised frame from SlpStream", () => {
@@ -98,7 +98,7 @@ describe("when reading finalised frames from SlpParser", () => {
     const game = new SlippiGame(testFile);
     const metadata = game.getMetadata();
     expect(metadata).toBeDefined();
-    const lastFrame = metadata.lastFrame || game.getLatestFrame().frame;
+    const lastFrame = metadata.lastFrame ?? game.getLatestFrame().frame;
     expect(lastFrame).toEqual(lastFinalizedFrame);
   });
 
