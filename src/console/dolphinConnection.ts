@@ -128,7 +128,10 @@ export class DolphinConnection extends EventEmitter implements Connection {
           this._handleReplayData(gameData);
           break;
         }
-        case DolphinMessageType.START_GAME:
+        case DolphinMessageType.START_GAME: {
+          this._updateCursor(message, dataString);
+          break;
+        }
         case DolphinMessageType.END_GAME: {
           this._updateCursor(message, dataString);
           break;
