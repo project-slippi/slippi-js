@@ -172,7 +172,7 @@ export class DolphinConnection extends EventEmitter implements Connection {
   ): void {
     const { cursor, next_cursor, dolphin_closed } = message;
 
-    if (dolphin_closed === true) {
+    if (dolphin_closed) {
       return;
     }
 
