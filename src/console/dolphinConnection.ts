@@ -122,7 +122,7 @@ export class DolphinConnection extends EventEmitter implements Connection {
             return;
           }
 
-          this._setCursorFromMessage(message, dataString);
+          this._updateCursor(message, dataString);
 
           const gameData = Buffer.from(payload, "base64");
           this._handleReplayData(gameData);
@@ -130,7 +130,7 @@ export class DolphinConnection extends EventEmitter implements Connection {
         }
         case DolphinMessageType.START_GAME:
         case DolphinMessageType.END_GAME: {
-          this._setCursorFromMessage(message, dataString);
+          this._updateCursor(message, dataString);
           break;
         }
       }
@@ -163,8 +163,12 @@ export class DolphinConnection extends EventEmitter implements Connection {
     }
   }
 
-  private _setCursorFromMessage(message: any, dataString: string): void {
-    const { cursor, next_cursor } = message;
+  private _updateCursor(message: any, dataString: string): void {
+    const { cursor, next_cursor, unclean_end } = message;
+
+    if (unclean_end === true) {
+      return;
+    }
 
     if (this.gameCursor !== cursor) {
       const err = new Error(
