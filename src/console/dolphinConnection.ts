@@ -114,7 +114,7 @@ export class DolphinConnection extends EventEmitter implements Connection {
           this.version = message.version;
           this.emit(ConnectionEvent.HANDSHAKE, this.getDetails());
           break;
-        case DolphinMessageType.GAME_EVENT:
+        case DolphinMessageType.GAME_EVENT: {
           const { payload, cursor } = message;
           if (!payload) {
             // We got a disconnection request
@@ -134,6 +134,21 @@ export class DolphinConnection extends EventEmitter implements Connection {
           this.gameCursor = message.next_cursor;
           this._handleReplayData(gameData);
           break;
+        }
+        case DolphinMessageType.START_GAME:
+        case DolphinMessageType.END_GAME: {
+          const { cursor } = message;
+
+          if (this.gameCursor !== cursor) {
+            const err = new Error(
+              `Unexpected game data cursor. Expected: ${this.gameCursor} but got: ${cursor}. Payload: ${dataString}`,
+            );
+            console.error(err);
+            this.emit(ConnectionEvent.ERROR, err);
+          }
+
+          this.gameCursor = message.next_cursor;
+        }
       }
     });
 
