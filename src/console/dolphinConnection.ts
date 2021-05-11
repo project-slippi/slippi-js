@@ -164,12 +164,12 @@ export class DolphinConnection extends EventEmitter implements Connection {
   }
 
   private _updateCursor(
-    message: { cursor: number; next_cursor: number; unclean_end: boolean | undefined },
+    message: { cursor: number; next_cursor: number; dolphin_closed?: boolean },
     dataString: string,
   ): void {
-    const { cursor, next_cursor, unclean_end } = message;
+    const { cursor, next_cursor, dolphin_closed } = message;
 
-    if (unclean_end === true) {
+    if (dolphin_closed === true) {
       return;
     }
 
