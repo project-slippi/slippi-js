@@ -105,6 +105,12 @@ export class DolphinConnection extends EventEmitter implements Connection {
 
       const dataString = data.toString("ascii");
       const message = JSON.parse(dataString);
+      const { dolphin_closed } = message;
+      if (dolphin_closed) {
+        // We got a disconnection request
+        this.disconnect();
+        return;
+      }
       this.emit(ConnectionEvent.MESSAGE, message);
       switch (message.type) {
         case DolphinMessageType.CONNECT_REPLY:
@@ -116,6 +122,7 @@ export class DolphinConnection extends EventEmitter implements Connection {
           break;
         case DolphinMessageType.GAME_EVENT: {
           const { payload } = message;
+          //TODO: remove after game start and end messages have been in stable Ishii for a bit
           if (!payload) {
             // We got a disconnection request
             this.disconnect();
@@ -166,15 +173,8 @@ export class DolphinConnection extends EventEmitter implements Connection {
     }
   }
 
-  private _updateCursor(
-    message: { cursor: number; next_cursor: number; dolphin_closed?: boolean },
-    dataString: string,
-  ): void {
-    const { cursor, next_cursor, dolphin_closed } = message;
-
-    if (dolphin_closed) {
-      return;
-    }
+  private _updateCursor(message: { cursor: number; next_cursor: number }, dataString: string): void {
+    const { cursor, next_cursor } = message;
 
     if (this.gameCursor !== cursor) {
       const err = new Error(
