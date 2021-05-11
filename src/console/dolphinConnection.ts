@@ -115,39 +115,23 @@ export class DolphinConnection extends EventEmitter implements Connection {
           this.emit(ConnectionEvent.HANDSHAKE, this.getDetails());
           break;
         case DolphinMessageType.GAME_EVENT: {
-          const { payload, cursor } = message;
+          const { payload } = message;
           if (!payload) {
             // We got a disconnection request
             this.disconnect();
             return;
           }
 
-          if (this.gameCursor !== cursor) {
-            const err = new Error(
-              `Unexpected game data cursor. Expected: ${this.gameCursor} but got: ${cursor}. Payload: ${dataString}`,
-            );
-            console.error(err);
-            this.emit(ConnectionEvent.ERROR, err);
-          }
+          this._setCursorFromMessage(message, dataString);
 
           const gameData = Buffer.from(payload, "base64");
-          this.gameCursor = message.next_cursor;
           this._handleReplayData(gameData);
           break;
         }
         case DolphinMessageType.START_GAME:
         case DolphinMessageType.END_GAME: {
-          const { cursor } = message;
-
-          if (this.gameCursor !== cursor) {
-            const err = new Error(
-              `Unexpected game data cursor. Expected: ${this.gameCursor} but got: ${cursor}. Payload: ${dataString}`,
-            );
-            console.error(err);
-            this.emit(ConnectionEvent.ERROR, err);
-          }
-
-          this.gameCursor = message.next_cursor;
+          this._setCursorFromMessage(message, dataString);
+          break;
         }
       }
     });
@@ -177,5 +161,19 @@ export class DolphinConnection extends EventEmitter implements Connection {
       this.connectionStatus = status;
       this.emit(ConnectionEvent.STATUS_CHANGE, this.connectionStatus);
     }
+  }
+
+  private _setCursorFromMessage(message: any, dataString: string): void {
+    const { cursor, next_cursor } = message;
+
+    if (this.gameCursor !== cursor) {
+      const err = new Error(
+        `Unexpected game data cursor. Expected: ${this.gameCursor} but got: ${cursor}. Payload: ${dataString}`,
+      );
+      console.error(err);
+      this.emit(ConnectionEvent.ERROR, err);
+    }
+
+    this.gameCursor = next_cursor;
   }
 }
