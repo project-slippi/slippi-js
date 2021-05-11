@@ -105,6 +105,12 @@ export class DolphinConnection extends EventEmitter implements Connection {
 
       const dataString = data.toString("ascii");
       const message = JSON.parse(dataString);
+      const { dolphin_closed } = message;
+      if (dolphin_closed) {
+        // We got a disconnection request
+        this.disconnect();
+        return;
+      }
       this.emit(ConnectionEvent.MESSAGE, message);
       switch (message.type) {
         case DolphinMessageType.CONNECT_REPLY:
@@ -114,26 +120,29 @@ export class DolphinConnection extends EventEmitter implements Connection {
           this.version = message.version;
           this.emit(ConnectionEvent.HANDSHAKE, this.getDetails());
           break;
-        case DolphinMessageType.GAME_EVENT:
-          const { payload, cursor } = message;
+        case DolphinMessageType.GAME_EVENT: {
+          const { payload } = message;
+          //TODO: remove after game start and end messages have been in stable Ishii for a bit
           if (!payload) {
             // We got a disconnection request
             this.disconnect();
             return;
           }
 
-          if (this.gameCursor !== cursor) {
-            const err = new Error(
-              `Unexpected game data cursor. Expected: ${this.gameCursor} but got: ${cursor}. Payload: ${dataString}`,
-            );
-            console.error(err);
-            this.emit(ConnectionEvent.ERROR, err);
-          }
+          this._updateCursor(message, dataString);
 
           const gameData = Buffer.from(payload, "base64");
-          this.gameCursor = message.next_cursor;
           this._handleReplayData(gameData);
           break;
+        }
+        case DolphinMessageType.START_GAME: {
+          this._updateCursor(message, dataString);
+          break;
+        }
+        case DolphinMessageType.END_GAME: {
+          this._updateCursor(message, dataString);
+          break;
+        }
       }
     });
 
@@ -162,5 +171,19 @@ export class DolphinConnection extends EventEmitter implements Connection {
       this.connectionStatus = status;
       this.emit(ConnectionEvent.STATUS_CHANGE, this.connectionStatus);
     }
+  }
+
+  private _updateCursor(message: { cursor: number; next_cursor: number }, dataString: string): void {
+    const { cursor, next_cursor } = message;
+
+    if (this.gameCursor !== cursor) {
+      const err = new Error(
+        `Unexpected game data cursor. Expected: ${this.gameCursor} but got: ${cursor}. Payload: ${dataString}`,
+      );
+      console.error(err);
+      this.emit(ConnectionEvent.ERROR, err);
+    }
+
+    this.gameCursor = next_cursor;
   }
 }
