@@ -180,7 +180,7 @@ export class DolphinConnection extends EventEmitter implements Connection {
       const err = new Error(
         `Unexpected game data cursor. Expected: ${this.gameCursor} but got: ${cursor}. Payload: ${dataString}`,
       );
-      console.error(err);
+      console.warn(err);
       this.emit(ConnectionEvent.ERROR, err);
     }
 
