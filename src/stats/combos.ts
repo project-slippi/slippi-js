@@ -150,11 +150,11 @@ function handleComboCompute(
       // prevents counting multiple hits from the same move such as fox's drill
       if (state.lastHitAnimation === null) {
         state.move = {
+          playerIndex: lastHitBy,
           frame: currentFrameNumber,
           moveId: frame.players[lastHitBy]!.post!.lastAttackLanded!,
           hitCount: 0,
           damage: 0,
-          playerIndex: lastHitBy,
         };
 
         state.combo.moves.push(state.move);

@@ -37,6 +37,7 @@ export interface StockType extends DurationType, DamageType {
 }
 
 export interface MoveLandedType {
+  playerIndex: number;
   frame: number;
   moveId: number;
   hitCount: number;
