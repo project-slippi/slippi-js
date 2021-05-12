@@ -127,8 +127,7 @@ function handleComboCompute(
     let comboStarted = false;
     if (!state.combo) {
       state.combo = {
-        playerIndex: indices.playerIndex,
-        opponentIndex: indices.opponentIndex,
+        playerIndex: indices.opponentIndex,
         startFrame: currentFrameNumber,
         endFrame: null,
         startPercent: prevOpponentFrame ? prevOpponentFrame.percent ?? 0 : 0,
@@ -136,6 +135,7 @@ function handleComboCompute(
         endPercent: null,
         moves: [],
         didKill: false,
+        lastHitBy: indices.playerIndex,
       };
 
       combos.push(state.combo);
@@ -149,6 +149,7 @@ function handleComboCompute(
       // prevents counting multiple hits from the same move such as fox's drill
       if (state.lastHitAnimation === null) {
         state.move = {
+          playerIndex: indices.playerIndex,
           frame: currentFrameNumber,
           moveId: playerFrame.lastAttackLanded!,
           hitCount: 0,

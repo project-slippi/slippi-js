@@ -111,7 +111,10 @@ export class ConversionComputer extends EventEmitter implements StatComputer<Con
         }
 
         // If not trade, check the opponent endFrame
-        const oppEndFrame = this.metadata.lastEndFrameByOppIdx[conversion.opponentIndex];
+        const lastMove = _.last(conversion.moves);
+        const oppEndFrame = this.metadata.lastEndFrameByOppIdx[
+          lastMove ? lastMove.playerIndex : conversion.playerIndex
+        ];
         const isCounterAttack = oppEndFrame && oppEndFrame > conversion.startFrame;
         conversion.openingType = isCounterAttack ? "counter-attack" : "neutral-win";
       });
@@ -164,8 +167,8 @@ function handleConversionCompute(
   if (opntIsDamaged || opntIsGrabbed || opntIsCommandGrabbed) {
     if (!state.conversion) {
       state.conversion = {
-        playerIndex: indices.playerIndex,
-        opponentIndex: indices.opponentIndex,
+        playerIndex: indices.opponentIndex,
+        lastHitBy: indices.playerIndex,
         startFrame: currentFrameNumber,
         endFrame: null,
         startPercent: prevOpponentFrame ? prevOpponentFrame.percent ?? 0 : 0,
@@ -184,6 +187,7 @@ function handleConversionCompute(
       // prevents counting multiple hits from the same move such as fox's drill
       if (state.lastHitAnimation === null) {
         state.move = {
+          playerIndex: indices.playerIndex,
           frame: currentFrameNumber,
           moveId: playerFrame.lastAttackLanded!,
           hitCount: 0,

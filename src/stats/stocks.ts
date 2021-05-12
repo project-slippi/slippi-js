@@ -63,7 +63,6 @@ function handleStockCompute(
 
     state.stock = {
       playerIndex: indices.playerIndex,
-      opponentIndex: indices.opponentIndex,
       startFrame: currentFrameNumber,
       endFrame: null,
       startPercent: 0,
