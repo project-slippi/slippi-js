@@ -42,7 +42,6 @@ export interface MoveLandedType {
   moveId: number;
   hitCount: number;
   damage: number;
-  playerIndex: number;
 }
 
 export interface ComboType extends DurationType, DamageType {
