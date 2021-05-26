@@ -64,13 +64,14 @@ One thing to note, when creating the `SlippiGame` object, be sure to enable `pro
 const game = new SlippiGame("path/to/your/slp/file", { processOnTheFly: true });
 ```
 
-An example script for how to do this is provided as part of this repo here: https://github.com/project-slippi/slippi-js/blob/master/scripts/realtimeFileReads.js
+An example script for how to do this is provided in the [examples](https://github.com/project-slippi/slippi-js/blob/master/examples/realtimeFileReads.js) folder.
 
-To use the above script, do the following:
+To use the example script:
 
-1. Open a terminal prompt in the folder containing the script file and the package.json file
-2. Run `yarn` to fetch the dependencies
-3. Run `node realtimeFileReads.js "C:\mirror\output\path"` replacing the path argument with where your connected console outputs replay files to
+1. Open a terminal prompt in root project folder
+2. Run `cd examples`
+3. Run `yarn install` to fetch the dependencies
+4. Run `node realtimeFileReads.js "C:\mirror\output\path"` replacing the path argument with where your connected console outputs replay files to
 
 At this point, you should see an output as you play games on the connected console.
 
