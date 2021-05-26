@@ -43,6 +43,16 @@ export class ActionsComputer implements StatComputer<ActionCountsType[]> {
           back: 0,
           down: 0,
         },
+        groundTechCount: {
+          backward: 0,
+          forward: 0,
+          neutral: 0,
+          fail: 0,
+        },
+        wallTechCount: {
+          success: 0,
+          fail: 0,
+        },
       };
       const playerState: PlayerActionState = {
         playerCounts: playerCounts,
@@ -64,6 +74,18 @@ export class ActionsComputer implements StatComputer<ActionCountsType[]> {
   public fetch(): ActionCountsType[] {
     return Array.from(this.state.values()).map((val) => val.playerCounts);
   }
+}
+
+function didWallTech(animation: State): boolean {
+  return animation === State.WALL_TECH;
+}
+
+function didMissWallTech(animation: State): boolean {
+  return animation === State.MISSED_WALL_TECH;
+}
+
+function didMissGroundTech(animation: State): boolean {
+  return animation === State.TECH_MISS_DOWN || animation === State.TECH_MISS_UP;
 }
 
 function isRolling(animation: State): boolean {
@@ -165,6 +187,17 @@ function handleActionCompute(state: PlayerActionState, indices: PlayerIndexedTyp
   incrementCount("throwCount.forward", currentAnimation === State.THROW_FORWARD && newAnimation);
   incrementCount("throwCount.down", currentAnimation === State.THROW_DOWN && newAnimation);
   incrementCount("throwCount.back", currentAnimation === State.THROW_BACK && newAnimation);
+
+  if (newAnimation) {
+    const didMissTech = didMissGroundTech(currentAnimation);
+    incrementCount("groundTechCount.fail", didMissTech);
+    incrementCount("groundTechCount.forward", currentAnimation === State.FORWARD_TECH);
+    incrementCount("groundTechCount.neutral", currentAnimation === State.NEUTRAL_TECH);
+    incrementCount("groundTechCount.backward", currentAnimation === State.BACKWARD_TECH);
+
+    incrementCount("wallTechCount.success", currentAnimation === State.WALL_TECH);
+    incrementCount("wallTechCount.fail", currentAnimation === State.MISSED_WALL_TECH);
+  }
 
   if (isAerialAttack(currentAnimation)) {
     incrementCount("lCancelCount.success", playerFrame.lCancelStatus === 1);

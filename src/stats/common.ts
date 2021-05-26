@@ -83,6 +83,16 @@ export interface ActionCountsType {
     back: number;
     down: number;
   };
+  groundTechCount: {
+    backward: number;
+    forward: number;
+    neutral: number;
+    fail: number;
+  };
+  wallTechCount: {
+    success: number;
+    fail: number;
+  };
 }
 
 export interface InputCountsType {
@@ -145,6 +155,11 @@ export enum State {
   GUARD_ON = 0xb2,
   TECH_MISS_UP = 0xb7,
   TECH_MISS_DOWN = 0xbf,
+  NEUTRAL_TECH = 0xc7,
+  FORWARD_TECH = 0xc8,
+  BACKWARD_TECH = 0xc9,
+  WALL_TECH = 0xca,
+  MISSED_WALL_TECH = 0xf7,
   DASH = 0x14,
   TURN = 0x12,
   LANDING_FALL_SPECIAL = 0x2b,

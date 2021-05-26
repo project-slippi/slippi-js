@@ -7,6 +7,12 @@ const expectedThrow = {
   back: 2,
   down: 1,
 };
+const expectedTech = {
+  backward: 2,
+  forward: 1,
+  neutral: 8,
+  fail: 4,
+};
 
 const expectedGrab = {
   success: 6,
@@ -130,6 +136,13 @@ describe("when calculating stats", () => {
       expect(fox.killCount).toBe(0);
       expect(fox.conversionCount).toBe(2);
     });
+  });
+
+  it("should count techs only a single time", () => {
+    const game = new SlippiGame("slp/techTest.slp");
+    const stats = game.getStats();
+    expect(stats?.actionCounts[1].groundTechCount).toEqual(expectedTech);
+    expect(stats?.actionCounts[1].wallTechCount).toEqual({ success: 0, fail: 0 });
   });
 });
 
