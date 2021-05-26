@@ -76,14 +76,6 @@ export class ActionsComputer implements StatComputer<ActionCountsType[]> {
   }
 }
 
-function didWallTech(animation: State): boolean {
-  return animation === State.WALL_TECH;
-}
-
-function didMissWallTech(animation: State): boolean {
-  return animation === State.MISSED_WALL_TECH;
-}
-
 function didMissGroundTech(animation: State): boolean {
   return animation === State.TECH_MISS_DOWN || animation === State.TECH_MISS_UP;
 }
