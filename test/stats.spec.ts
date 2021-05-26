@@ -131,6 +131,13 @@ describe("when calculating stats", () => {
       expect(fox.conversionCount).toBe(2);
     });
   });
+
+  it("should count techs only a single time", () => {
+    const game = new SlippiGame("slp/techTest.slp");
+    const stats = game.getStats();
+    expect(stats?.actionCounts[1].groundTechCount).toEqual({ backward: 2, forward: 1, neutral: 8, fail: 4 });
+    expect(stats?.actionCounts[1].wallTechCount).toEqual({ success: 0, fail: 0 });
+  });
 });
 
 describe("when calculating stock information", () => {
