@@ -160,7 +160,8 @@ export class ConsoleConnection extends EventEmitter implements Connection {
               rcvData: data,
             });
             client.destroy();
-            this.emit(ConnectionEvent.ERROR, err);
+            const errMsg = err.message || JSON.stringify(err);
+            this.emit(ConnectionEvent.ERROR, errMsg);
             return;
           }
           const messages = consoleComms.getMessages();
@@ -172,7 +173,8 @@ export class ConsoleConnection extends EventEmitter implements Connection {
             // Disconnect client to send another handshake message
             console.error(err);
             client.destroy();
-            this.emit(ConnectionEvent.ERROR, err);
+            const errMsg = err.message || JSON.stringify(err);
+            this.emit(ConnectionEvent.ERROR, errMsg);
           }
         });
 
@@ -220,9 +222,11 @@ export class ConsoleConnection extends EventEmitter implements Connection {
       // TODO: Connecting... forever
     });
 
-    connection.on("error", (error) => {
-      console.error(`Connection on port ${port} encountered an error.`, error);
-      this.emit(ConnectionEvent.ERROR);
+    connection.on("error", (err) => {
+      console.warn(`Connection on port ${port} encountered an error.`, err);
+
+      const errMsg = err.message || JSON.stringify(err);
+      this.emit(ConnectionEvent.ERROR, `Connection on port ${port} encountered an error.\n${errMsg}`);
     });
 
     this.connection = connection;
