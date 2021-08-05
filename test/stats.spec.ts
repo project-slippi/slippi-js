@@ -133,9 +133,13 @@ describe("when calculating stats", () => {
   });
 
   it("should count techs only a single time", () => {
-    const game = new SlippiGame("slp/techTest.slp");
+    const game = new SlippiGame("slp/techTester.slp");
+    const game2 = new SlippiGame("slp/facingDirection.slp");
     const stats = game.getStats();
-    expect(stats?.actionCounts[1].groundTechCount).toEqual({ backward: 2, forward: 1, neutral: 8, fail: 4 });
+    const stats2 = game2.getStats();
+    expect(stats?.actionCounts[0].groundTechCount).toEqual({ in: 4, away: 4, neutral: 4, fail: 4 });
+    // 3 of these tech aways are not facing the opponent
+    expect(stats2?.actionCounts[1].groundTechCount).toEqual({ in: 1, away: 4, neutral: 4, fail: 11 });
     expect(stats?.actionCounts[1].wallTechCount).toEqual({ success: 0, fail: 0 });
   });
 });

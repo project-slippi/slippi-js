@@ -84,8 +84,9 @@ export interface ActionCountsType {
     down: number;
   };
   groundTechCount: {
-    backward: number;
-    forward: number;
+    // tech away/in are in reference to the opponents position and not the stage
+    away: number;
+    in: number;
     neutral: number;
     fail: number;
   };

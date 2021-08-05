@@ -44,8 +44,9 @@ export class ActionsComputer implements StatComputer<ActionCountsType[]> {
           down: 0,
         },
         groundTechCount: {
-          backward: 0,
-          forward: 0,
+          // tech away/in are in reference to the opponents position and not the stage
+          away: 0,
+          in: 0,
           neutral: 0,
           fail: 0,
         },
@@ -137,6 +138,7 @@ function didStartLedgegrab(currentAnimation: State, previousAnimation: State): b
 
 function handleActionCompute(state: PlayerActionState, indices: PlayerIndexedType, frame: FrameEntryType): void {
   const playerFrame = frame.players[indices.playerIndex]!.post;
+  const opponentFrame = frame.players[indices.opponentIndex]!.post;
   const incrementCount = (field: string, condition: boolean): void => {
     if (!condition) {
       return;
@@ -183,9 +185,21 @@ function handleActionCompute(state: PlayerActionState, indices: PlayerIndexedTyp
   if (newAnimation) {
     const didMissTech = didMissGroundTech(currentAnimation);
     incrementCount("groundTechCount.fail", didMissTech);
-    incrementCount("groundTechCount.forward", currentAnimation === State.FORWARD_TECH);
+    let opponentDir = 1;
+    let facingOpponent = false;
+
+    if (playerFrame.positionX! > opponentFrame.positionX!) {
+      opponentDir = -1;
+    }
+    if (playerFrame.facingDirection == opponentDir) {
+      facingOpponent = true;
+    }
+
+    incrementCount("groundTechCount.in", currentAnimation === State.FORWARD_TECH && facingOpponent);
+    incrementCount("groundTechCount.in", currentAnimation === State.BACKWARD_TECH && !facingOpponent);
     incrementCount("groundTechCount.neutral", currentAnimation === State.NEUTRAL_TECH);
-    incrementCount("groundTechCount.backward", currentAnimation === State.BACKWARD_TECH);
+    incrementCount("groundTechCount.away", currentAnimation === State.BACKWARD_TECH && facingOpponent);
+    incrementCount("groundTechCount.away", currentAnimation === State.FORWARD_TECH && !facingOpponent);
 
     incrementCount("wallTechCount.success", currentAnimation === State.WALL_TECH);
     incrementCount("wallTechCount.fail", currentAnimation === State.MISSED_WALL_TECH);
