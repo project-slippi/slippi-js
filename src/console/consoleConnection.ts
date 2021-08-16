@@ -53,6 +53,7 @@ export type ConsoleConnectionOptions = typeof consoleConnectionOptions;
 export class ConsoleConnection extends EventEmitter implements Connection {
   private ipAddress: string;
   private port: number;
+  private isRealtime: boolean;
   private connectionStatus = ConnectionStatus.DISCONNECTED;
   private connDetails: ConnectionDetails = { ...defaultConnectionDetails };
   private client: net.Socket | null = null;
@@ -64,6 +65,7 @@ export class ConsoleConnection extends EventEmitter implements Connection {
     super();
     this.ipAddress = "0.0.0.0";
     this.port = Ports.DEFAULT;
+    this.isRealtime = false;
     this.options = Object.assign({}, consoleConnectionOptions, options);
   }
 
@@ -95,12 +97,14 @@ export class ConsoleConnection extends EventEmitter implements Connection {
    * Initiate a connection to the Wii or Slippi relay.
    * @param ip   The IP address of the Wii or Slippi relay.
    * @param port The port to connect to.
+   * @param isRealtime Optional. A flag to tell the Wii to send data as quickly as possible
    * @param timeout Optional. The timeout in milliseconds when attempting to connect
    *                to the Wii or relay.
    */
-  public connect(ip: string, port: number, timeout = DEFAULT_CONNECTION_TIMEOUT_MS): void {
+  public connect(ip: string, port: number, isRealtime = false, timeout = DEFAULT_CONNECTION_TIMEOUT_MS): void {
     this.ipAddress = ip;
     this.port = port;
+    this.isRealtime = isRealtime;
     this._connectOnPort(ip, port, timeout);
   }
 
@@ -196,6 +200,7 @@ export class ConsoleConnection extends EventEmitter implements Connection {
         const handshakeMsgOut = consoleComms.genHandshakeOut(
           this.connDetails.gameDataCursor as Uint8Array,
           this.connDetails.clientToken ?? 0,
+          this.isRealtime,
         );
 
         client.write(handshakeMsgOut);
