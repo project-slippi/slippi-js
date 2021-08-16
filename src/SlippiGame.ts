@@ -30,7 +30,7 @@ export class SlippiGame {
   private comboComputer: ComboComputer = new ComboComputer();
   private stockComputer: StockComputer = new StockComputer();
   private inputComputer: InputComputer = new InputComputer();
-  private statsComputer: Stats;
+  protected statsComputer: Stats;
 
   public constructor(input: string | Buffer | ArrayBuffer, opts?: StatOptions) {
     if (_.isString(input)) {
