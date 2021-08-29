@@ -228,6 +228,7 @@ export class ConsoleConnection extends EventEmitter implements Connection {
     connection.on("error", (err) => {
       console.warn(`Connection on port ${port} encountered an error.`, err);
 
+      this._setStatus(ConnectionStatus.DISCONNECTED);
       this.emit(ConnectionEvent.ERROR, `Connection on port ${port} encountered an error.\n${err}`);
     });
 
