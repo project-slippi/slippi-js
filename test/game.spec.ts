@@ -186,6 +186,14 @@ it("should support realtime parsing", () => {
   expect(data.metadata.playedOn).toBe("network");
 });
 
+it("should count rollback frames properly", () => {
+  const game = new SlippiGame("slp/rollbackFrameTest.slp");
+  const rollbackFrames = game.getRollbackFrames();
+  const rollbackLengths = rollbackFrames.lengths;
+  expect(rollbackFrames.count).toBe(4292);
+  expect(rollbackLengths.reduce((a, b) => a + b) / rollbackLengths.length).toBe(1.6877703499803383); // average rollback length check
+});
+
 // it('test speedReadTest', () => {
 //   const replayPath = "D:\\Slippi\\Tournament-Replays\\Smash-in-Wittenberg-5";
 

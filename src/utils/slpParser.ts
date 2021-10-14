@@ -14,7 +14,9 @@ import {
   ItemUpdateType,
   PostFrameUpdateType,
   PreFrameUpdateType,
+  RollbackFrames,
 } from "../types";
+import { RollbackCounter } from "./rollbackCounter";
 
 export const MAX_ROLLBACK_FRAMES = 7;
 
@@ -23,6 +25,7 @@ export enum SlpParserEvent {
   END = "end",
   FRAME = "frame", // Emitted for every frame
   FINALIZED_FRAME = "finalized-frame", // Emitted for only finalized frames
+  ROLLBACK_FRAME = "rollback-frame", // Emitted if a frame is being replaced
 }
 
 // If strict mode is on, we will do strict validation checking
@@ -37,6 +40,7 @@ export type SlpParserOptions = typeof defaultSlpParserOptions;
 
 export class SlpParser extends EventEmitter {
   private frames: FramesType = {};
+  private rollbackCounter: RollbackCounter = new RollbackCounter();
   private settings: GameStartType | null = null;
   private gameEnd: GameEndType | null = null;
   private latestFrameIndex: number | null = null;
@@ -122,6 +126,14 @@ export class SlpParser extends EventEmitter {
     return this.frames;
   }
 
+  public getRollbackFrames(): RollbackFrames {
+    return {
+      frames: this.rollbackCounter.getFrames(),
+      count: this.rollbackCounter.getCount(),
+      lengths: this.rollbackCounter.getLengths(),
+    };
+  }
+
   public getFrame(num: number): FrameEntryType | null {
     return this.frames[num] || null;
   }
@@ -179,6 +191,14 @@ export class SlpParser extends EventEmitter {
     const field = payload.isFollower ? "followers" : "players";
     const currentFrameNumber = payload.frame!;
     this.latestFrameIndex = currentFrameNumber;
+    if (location === "pre" && !payload.isFollower) {
+      const currentFrame = this.frames[currentFrameNumber];
+      const wasRolledback = this.rollbackCounter.checkIfRollbackFrame(currentFrame, payload.playerIndex!);
+      if (wasRolledback) {
+        // frame is about to be overwritten
+        this.emit(SlpParserEvent.ROLLBACK_FRAME, currentFrame);
+      }
+    }
     _.set(this.frames, [currentFrameNumber, field, payload.playerIndex!, location], payload);
     _.set(this.frames, [currentFrameNumber, "frame"], currentFrameNumber);
 

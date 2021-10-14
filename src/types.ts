@@ -173,3 +173,13 @@ export enum Frames {
 export interface FramesType {
   [frameIndex: number]: FrameEntryType;
 }
+
+export interface RollbackFramesType {
+  [frameIndex: number]: FrameEntryType[];
+}
+
+export interface RollbackFrames {
+  frames: RollbackFramesType;
+  count: number;
+  lengths: number[];
+}

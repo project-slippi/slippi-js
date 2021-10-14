@@ -12,7 +12,7 @@ import {
   StockComputer,
 } from "./stats";
 // Type imports
-import { FrameEntryType, FramesType, GameEndType, GameStartType, MetadataType } from "./types";
+import { FrameEntryType, FramesType, GameEndType, GameStartType, MetadataType, RollbackFrames } from "./types";
 import { SlpParser, SlpParserEvent } from "./utils/slpParser";
 import { closeSlpFile, getMetadata, iterateEvents, openSlpFile, SlpInputSource, SlpReadInput } from "./utils/slpReader";
 
@@ -116,6 +116,11 @@ export class SlippiGame {
   public getFrames(): FramesType {
     this._process();
     return this.parser.getFrames();
+  }
+
+  public getRollbackFrames(): RollbackFrames {
+    this._process();
+    return this.parser.getRollbackFrames();
   }
 
   public getStats(): StatsType | null {
