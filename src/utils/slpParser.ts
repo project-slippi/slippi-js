@@ -14,6 +14,8 @@ import {
   ItemUpdateType,
   PostFrameUpdateType,
   PreFrameUpdateType,
+  RollbackFrames,
+  RollbackFramesType,
 } from "../types";
 
 export const MAX_ROLLBACK_FRAMES = 7;
@@ -23,6 +25,7 @@ export enum SlpParserEvent {
   END = "end",
   FRAME = "frame", // Emitted for every frame
   FINALIZED_FRAME = "finalized-frame", // Emitted for only finalized frames
+  ROLLBACK_FRAME = "rollback-frame", // Emitted if a frame is being replaced
 }
 
 // If strict mode is on, we will do strict validation checking
@@ -37,6 +40,7 @@ export type SlpParserOptions = typeof defaultSlpParserOptions;
 
 export class SlpParser extends EventEmitter {
   private frames: FramesType = {};
+  private rollbackCounter: RollbackCounter = new RollbackCounter();
   private settings: GameStartType | null = null;
   private gameEnd: GameEndType | null = null;
   private latestFrameIndex: number | null = null;
@@ -122,6 +126,10 @@ export class SlpParser extends EventEmitter {
     return this.frames;
   }
 
+  public getRollbackFrames(): RollbackFrames {
+    return this.rollbackCounter.get();
+  }
+
   public getFrame(num: number): FrameEntryType | null {
     return this.frames[num] || null;
   }
@@ -179,6 +187,14 @@ export class SlpParser extends EventEmitter {
     const field = payload.isFollower ? "followers" : "players";
     const currentFrameNumber = payload.frame!;
     this.latestFrameIndex = currentFrameNumber;
+    if (location === "pre" && !payload.isFollower) {
+      const currentFrame = this.frames[currentFrameNumber];
+      const wasRolledback = this.rollbackCounter.checkIfRollbackFrame(currentFrame, payload.playerIndex!);
+      if (wasRolledback) {
+        // frame is about to be overwritten
+        this.emit(SlpParserEvent.ROLLBACK_FRAME, currentFrame);
+      }
+    }
     _.set(this.frames, [currentFrameNumber, field, payload.playerIndex!, location], payload);
     _.set(this.frames, [currentFrameNumber, "frame"], currentFrameNumber);
 
@@ -264,5 +280,44 @@ export class SlpParser extends EventEmitter {
       this.settingsComplete = true;
       this.emit(SlpParserEvent.SETTINGS, this.settings);
     }
+  }
+}
+
+class RollbackCounter {
+  private rollbackFrames: RollbackFramesType = {};
+  private rollbackFrameCount = 0;
+  private rollbackPlayerIdx: number | null = null; // for keeping track of rollbacks by following a single player
+  private lastFrameWasRollback = false;
+  private currentRollbackLength = 0;
+  private rollbackLengths: number[] = [];
+
+  public checkIfRollbackFrame(currentFrame: FrameEntryType | undefined, playerIdx: number) {
+    if (this.rollbackPlayerIdx === null) {
+      // we only want to follow a single player to avoid double counting. So we use whoever is on first.
+      this.rollbackPlayerIdx = playerIdx;
+    } else if (this.rollbackPlayerIdx !== playerIdx) {
+      return;
+    }
+
+    if (currentFrame) {
+      // frame already exists for currentFrameNumber so we must be rolling back
+      if (this.rollbackFrames[currentFrame.frame]) {
+        this.rollbackFrames[currentFrame.frame].push(currentFrame);
+      } else {
+        this.rollbackFrames[currentFrame.frame] = [currentFrame];
+      }
+      this.rollbackFrameCount++;
+      this.currentRollbackLength++;
+      this.lastFrameWasRollback = true;
+    } else if (this.lastFrameWasRollback) {
+      this.rollbackLengths.push(this.currentRollbackLength);
+      this.currentRollbackLength = 0;
+      this.lastFrameWasRollback = false;
+    }
+    return this.lastFrameWasRollback;
+  }
+
+  public get(): RollbackFrames {
+    return { frames: this.rollbackFrames, count: this.rollbackFrameCount, lengths: this.rollbackLengths };
   }
 }
