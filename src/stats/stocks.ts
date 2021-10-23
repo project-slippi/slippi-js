@@ -1,8 +1,9 @@
 import _ from "lodash";
 
-import { FrameEntryType, FramesType, GameStartType } from "../types";
-import { didLoseStock, getSinglesPlayerPermutationsFromSettings, isDead, PlayerIndexedType, StockType } from "./common";
-import { StatComputer } from "./stats";
+import type { FrameEntryType, FramesType, GameStartType } from "../types";
+import type { PlayerIndexedType, StockType } from "./common";
+import { didLoseStock, getSinglesPlayerPermutationsFromSettings, isDead } from "./common";
+import type { StatComputer } from "./stats";
 
 interface StockState {
   stock?: StockType | null;

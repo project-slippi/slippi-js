@@ -1,10 +1,15 @@
-import fs, { WriteStream } from "fs";
+import type { WriteStream } from "fs";
+import fs from "fs";
 import { forEach } from "lodash";
-import moment, { Moment } from "moment";
-import { Writable, WritableOptions } from "stream";
+import type { Moment } from "moment";
+import moment from "moment";
+import type { WritableOptions } from "stream";
+import { Writable } from "stream";
 
-import { Command, GameStartType, PostFrameUpdateType } from "../types";
-import { SlpCommandEventPayload, SlpStream, SlpStreamEvent, SlpStreamMode } from "./slpStream";
+import type { GameStartType, PostFrameUpdateType } from "../types";
+import { Command } from "../types";
+import type { SlpCommandEventPayload } from "./slpStream";
+import { SlpStream, SlpStreamEvent, SlpStreamMode } from "./slpStream";
 
 const DEFAULT_NICKNAME = "unknown";
 

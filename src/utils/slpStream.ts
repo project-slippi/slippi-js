@@ -1,7 +1,9 @@
-import { Writable, WritableOptions } from "stream";
+import type { WritableOptions } from "stream";
+import { Writable } from "stream";
 
 import { NETWORK_MESSAGE } from "../console";
-import { Command, EventPayloadTypes } from "../types";
+import type { EventPayloadTypes } from "../types";
+import { Command } from "../types";
 import { parseMessage } from "./slpReader";
 
 export enum SlpStreamMode {

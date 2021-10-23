@@ -1,8 +1,9 @@
 import _ from "lodash";
 
-import { FrameEntryType, GameStartType } from "../types";
-import { ActionCountsType, getSinglesPlayerPermutationsFromSettings, PlayerIndexedType, State } from "./common";
-import { StatComputer } from "./stats";
+import type { FrameEntryType, GameStartType } from "../types";
+import type { ActionCountsType, PlayerIndexedType } from "./common";
+import { getSinglesPlayerPermutationsFromSettings, State } from "./common";
+import type { StatComputer } from "./stats";
 
 // Frame pattern that indicates a dash dance turn was executed
 const dashDanceAnimations = [State.DASH, State.TURN, State.DASH];

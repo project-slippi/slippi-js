@@ -1,6 +1,7 @@
 import _ from "lodash";
 
-import { FrameEntryType, Frames, FramesType, GameStartType } from "../types";
+import type { FrameEntryType, FramesType, GameStartType } from "../types";
+import { Frames } from "../types";
 
 export interface StatComputer<T> {
   setup(settings: GameStartType): void;

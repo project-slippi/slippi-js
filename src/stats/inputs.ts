@@ -1,8 +1,10 @@
 import _ from "lodash";
 
-import { FrameEntryType, Frames, FramesType, GameStartType } from "../types";
-import { getSinglesPlayerPermutationsFromSettings, PlayerIndexedType } from "./common";
-import { StatComputer } from "./stats";
+import type { FrameEntryType, FramesType, GameStartType } from "../types";
+import { Frames } from "../types";
+import type { PlayerIndexedType } from "./common";
+import { getSinglesPlayerPermutationsFromSettings } from "./common";
+import type { StatComputer } from "./stats";
 
 enum JoystickRegion {
   DZ = 0,

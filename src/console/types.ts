@@ -1,4 +1,4 @@
-import { EventEmitter } from "events";
+import type { EventEmitter } from "events";
 
 export enum ConnectionEvent {
   CONNECT = "connect",
