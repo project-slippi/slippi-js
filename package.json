@@ -10,7 +10,7 @@
     "url": "https://github.com/JLaferri"
   },
   "engines": {
-    "node": ">=10"
+    "node": ">=14"
   },
   "files": [
     "dist"
