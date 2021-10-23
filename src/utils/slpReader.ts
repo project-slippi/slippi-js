@@ -3,14 +3,8 @@ import fs from "fs";
 import iconv from "iconv-lite";
 import _ from "lodash";
 
-import {
-  Command,
-  EventCallbackFunc,
-  EventPayloadTypes,
-  MetadataType,
-  PlayerType,
-  SelfInducedSpeedsType,
-} from "../types";
+import type { EventCallbackFunc, EventPayloadTypes, MetadataType, PlayerType, SelfInducedSpeedsType } from "../types";
+import { Command } from "../types";
 import { toHalfwidth } from "./fullwidth";
 
 export enum SlpInputSource {

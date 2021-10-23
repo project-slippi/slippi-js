@@ -29,6 +29,7 @@ module.exports = {
     ],
     "@typescript-eslint/explicit-module-boundary-types": "off",
     "@typescript-eslint/explicit-member-accessibility": "error",
+    "@typescript-eslint/consistent-type-imports": "warn",
     "import/no-default-export": "error",
     "import/no-named-as-default-member": "off",
     "simple-import-sort/imports": "warn",

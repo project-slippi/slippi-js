@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 declare module "enet" {
-  import { EventEmitter } from "events";
+  import type { EventEmitter } from "events";
 
   export const PACKET_FLAG: any;
   export class Packet {

@@ -1,8 +1,8 @@
 import _ from "lodash";
 
-import { GameStartType } from "../types";
-import { ConversionType, InputCountsType, OverallType, RatioType, StockType } from "./common";
-import { PlayerInput } from "./inputs";
+import type { GameStartType } from "../types";
+import type { ConversionType, InputCountsType, OverallType, RatioType, StockType } from "./common";
+import type { PlayerInput } from "./inputs";
 
 interface ConversionsByPlayerByOpening {
   [playerIndex: string]: {

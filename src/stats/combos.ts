@@ -1,10 +1,10 @@
 import { EventEmitter } from "events";
 import _ from "lodash";
 
-import { FrameEntryType, FramesType, GameStartType, PostFrameUpdateType } from "../types";
+import type { FrameEntryType, FramesType, GameStartType, PostFrameUpdateType } from "../types";
+import type { ComboType, MoveLandedType, PlayerIndexedType } from "./common";
 import {
   calcDamageTaken,
-  ComboType,
   didLoseStock,
   getSinglesPlayerPermutationsFromSettings,
   isCommandGrabbed,
@@ -13,11 +13,9 @@ import {
   isDown,
   isGrabbed,
   isTeching,
-  MoveLandedType,
-  PlayerIndexedType,
   Timers,
 } from "./common";
-import { StatComputer } from "./stats";
+import type { StatComputer } from "./stats";
 
 export enum ComboEvent {
   COMBO_START = "COMBO_START",

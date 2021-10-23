@@ -2,20 +2,18 @@ import { EventEmitter } from "events";
 import _ from "lodash";
 import semver from "semver";
 
-import {
-  Command,
+import type {
   FrameBookendType,
   FrameEntryType,
-  Frames,
   FramesType,
   GameEndType,
-  GameMode,
   GameStartType,
   ItemUpdateType,
   PostFrameUpdateType,
   PreFrameUpdateType,
   RollbackFrames,
 } from "../types";
+import { Command, Frames, GameMode } from "../types";
 import { RollbackCounter } from "./rollbackCounter";
 
 export const MAX_ROLLBACK_FRAMES = 7;

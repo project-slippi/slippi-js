@@ -1,21 +1,19 @@
 import { EventEmitter } from "events";
 import _ from "lodash";
 
-import { FrameEntryType, FramesType, GameStartType, PostFrameUpdateType } from "../types";
+import type { FrameEntryType, FramesType, GameStartType, PostFrameUpdateType } from "../types";
+import type { ConversionType, MoveLandedType, PlayerIndexedType } from "./common";
 import {
   calcDamageTaken,
-  ConversionType,
   didLoseStock,
   getSinglesPlayerPermutationsFromSettings,
   isCommandGrabbed,
   isDamaged,
   isGrabbed,
   isInControl,
-  MoveLandedType,
-  PlayerIndexedType,
   Timers,
 } from "./common";
-import { StatComputer } from "./stats";
+import type { StatComputer } from "./stats";
 
 interface PlayerConversionState {
   conversion: ConversionType | null;

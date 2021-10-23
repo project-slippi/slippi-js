@@ -1,6 +1,6 @@
 import _ from "lodash";
 
-import { GameStartType, PostFrameUpdateType } from "../types";
+import type { GameStartType, PostFrameUpdateType } from "../types";
 
 export interface StatsType {
   gameComplete: boolean;
