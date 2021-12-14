@@ -136,6 +136,18 @@ function handleComboCompute(
         lastHitBy: indices.playerIndex,
       };
 
+      if (opntIsGrabbed) {
+        const grabMove = {
+          playerIndex: indices.playerIndex,
+          frame: currentFrameNumber,
+          moveId: 0,
+          hitCount: 0,
+          damage: 0,
+        };
+
+        state.combo.moves.push(grabMove);
+      }
+
       combos.push(state.combo);
 
       // Track whether this is a new combo or not

@@ -192,6 +192,18 @@ function handleConversionCompute(
           damage: 0,
         };
 
+        if (opntIsGrabbed) {
+          const grabMove = {
+            playerIndex: indices.playerIndex,
+            frame: currentFrameNumber,
+            moveId: 0,
+            hitCount: 0,
+            damage: 0,
+          };
+
+          state.conversion.moves.push(grabMove);
+        }
+
         state.conversion.moves.push(state.move);
       }
 
