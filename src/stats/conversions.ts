@@ -192,7 +192,7 @@ function handleConversionCompute(
           damage: 0,
         };
 
-        if (opntIsGrabbed) {
+        if (opntIsGrabbed || opntIsCommandGrabbed) {
           const grabMove = {
             playerIndex: indices.playerIndex,
             frame: currentFrameNumber,

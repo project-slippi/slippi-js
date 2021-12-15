@@ -4,10 +4,18 @@ import { SlippiGame } from "../src/SlippiGame";
 
 describe("when calculating stats", () => {
   it("the correct move ids should be determined", () => {
-    let moveIdCounter = 2;
-
-    let game = new SlippiGame("slp/moveTest/id_2_to_21.slp");
+    let game = new SlippiGame("slp/moveTest/id_0.slp");
     let stats = game.getStats();
+
+    stats.conversions.forEach((c) => {
+      c.moves.forEach((m) => {
+        expect(m.moveId).toEqual(0);
+      });
+    });
+
+    let moveIdCounter = 2;
+    game = new SlippiGame("slp/moveTest/id_2_to_21.slp");
+    stats = game.getStats();
 
     stats.conversions.forEach((c) => {
       c.moves.forEach((m) => {
@@ -22,6 +30,8 @@ describe("when calculating stats", () => {
     expect(stats.conversions[1].moves[0].moveId).toEqual(moveIdCounter);
     moveIdCounter++;
 
+    // Lasers cause no hitstun and do not register as combo or conversion starters
+    // As such, this test case should be adjusted to not rely on those
     // Kirby-Fox
     game = new SlippiGame("slp/moveTest/id_23.slp");
     stats = game.getStats();
@@ -73,7 +83,7 @@ describe("when calculating stats", () => {
     // Kirby-IceClimbers
     game = new SlippiGame("slp/moveTest/id_31.slp");
     stats = game.getStats();
-    //expect(stats.conversions[1].moves[0].moveId).toEqual(moveIdCounter);
+    expect(stats.conversions[1].moves[0].moveId).toEqual(moveIdCounter);
     moveIdCounter++;
 
     // Kirby-Pikachu
@@ -89,7 +99,7 @@ describe("when calculating stats", () => {
     moveIdCounter++;
 
     // Kirby-Yoshi
-    // Unused - Kirby-Yoshi's Neutral Special is the same as a normal Neutral Special (18)
+    // Unused - Kirby-Yoshi's Neutral Special's id is the same as a normal Neutral Special (18)
     moveIdCounter++;
 
     // Kirby-Jigglypuff

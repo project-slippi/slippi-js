@@ -136,7 +136,7 @@ function handleComboCompute(
         lastHitBy: indices.playerIndex,
       };
 
-      if (opntIsGrabbed) {
+      if (opntIsGrabbed || opntIsCommandGrabbed) {
         const grabMove = {
           playerIndex: indices.playerIndex,
           frame: currentFrameNumber,
