@@ -12,10 +12,17 @@ export interface PlayerType {
   playerIndex: number;
   port: number;
   characterId: number | null;
-  characterColor: number | null;
-  startStocks: number | null;
   type: number | null;
+  startStocks: number | null;
+  characterColor: number | null;
+  teamShade: number | null;
+  handicap: number | null;
   teamId: number | null;
+  playerBitfield: number | null;
+  cpuLevel: number | null;
+  offenseRatio: number | null;
+  defenseRatio: number | null;
+  modelScale: number | null;
   controllerFix: string | null;
   nametag: string | null;
   displayName: string;
@@ -30,11 +37,34 @@ export enum GameMode {
 export interface GameStartType {
   slpVersion: string | null;
   isTeams: boolean | null;
+  gameInfo: GameInfo | null;
   isPAL: boolean | null;
   stageId: number | null;
   players: PlayerType[];
   scene: number | null;
   gameMode: GameMode | null;
+  randomSeed: number | null;
+  isFrozenPS: boolean | null;
+  minorScene: number | null;
+  majorScene: number | null;
+}
+
+export interface GameInfo {
+  gameBitfield1: number | null;
+  gameBitfield2: number | null;
+  gameBitfield3: number | null;
+  gameBitfield4: number | null;
+  bombRain: boolean | null;
+  itemSpawnBehavior: number | null;
+  selfDestructScoreValue: number | null;
+  stageId: number | null;
+  gameTimer: number | null;
+  itemSpawnBitfield1: number | null;
+  itemSpawnBitfield2: number | null;
+  itemSpawnBitfield3: number | null;
+  itemSpawnBitfield4: number | null;
+  itemSpawnBitfield5: number | null;
+  damageRatio: number | null;
 }
 
 export interface PreFrameUpdateType {
