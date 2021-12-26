@@ -346,17 +346,46 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
           playerIndex,
           port: playerIndex + 1,
           characterId: readUint8(view, 0x65 + offset),
-          characterColor: readUint8(view, 0x68 + offset),
-          startStocks: readUint8(view, 0x67 + offset),
           type: readUint8(view, 0x66 + offset),
+          startStocks: readUint8(view, 0x67 + offset),
+          characterColor: readUint8(view, 0x68 + offset),
+          teamShade: readUint8(view, 0x6c + offset),
+          handicap: readUint8(view, 0x6d + offset),
           teamId: readUint8(view, 0x6e + offset),
-          controllerFix,
-          nametag,
-          displayName,
-          connectCode,
-          userId,
+          playerBitfield: readUint8(view, 0x71 + offset),
+          cpuLevel: readUint8(view, 0x74 + offset),
+          offenseRatio: readFloat(view, 0x7d + offset),
+          defenseRatio: readFloat(view, 0x81 + offset),
+          modelScale: readFloat(view, 0x85 + offset),
+          controllerFix: cfOption,
+          nametag: nametag,
+          displayName: displayName,
+          connectCode: connectCode,
         };
       };
+
+      const getGameInfoBlock = (): GameInfoType => {
+        const offset = 0x5;
+
+        return {
+          gameBitfield1: readUint8(view, 0x0 + offset),
+          gameBitfield2: readUint8(view, 0x1 + offset),
+          gameBitfield3: readUint8(view, 0x2 + offset),
+          gameBitfield4: readUint8(view, 0x3 + offset),
+          bombRain: (readUint8(view, 0x6 + offset)! & 0xff) > 0 ? true : false,
+          itemSpawnBehavior: readInt8(view, 0xb + offset),
+          selfDestructScoreValue: readInt8(view, 0xc + offset),
+          stageId: readUint16(view, 0xe + offset),
+          gameTimer: readUint32(view, 0x10 + offset),
+          itemSpawnBitfield1: readUint8(view, 0x23 + offset),
+          itemSpawnBitfield2: readUint8(view, 0x24 + offset),
+          itemSpawnBitfield3: readUint8(view, 0x25 + offset),
+          itemSpawnBitfield4: readUint8(view, 0x26 + offset),
+          itemSpawnBitfield5: readUint8(view, 0x27 + offset),
+          damageRatio: readFloat(view, 0x30 + offset),
+        };
+      };
+
       return {
         slpVersion: `${readUint8(view, 0x1)}.${readUint8(view, 0x2)}.${readUint8(view, 0x3)}`,
         isTeams: readBool(view, 0xd),
@@ -366,6 +395,11 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
         scene: readUint8(view, 0x1a3),
         gameMode: readUint8(view, 0x1a4),
         language: readUint8(view, 0x2bd),
+        gameInfo: getGameInfoBlock(),
+        randomSeed: readUint32(view, 0x13d),
+        isFrozenPS: readBool(view, 0x1a2),
+        minorScene: readUint8(view, 0x1a3),
+        majorScene: readUint8(view, 0x1a4),
       };
     case Command.FRAME_START:
       return {

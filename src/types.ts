@@ -15,10 +15,17 @@ export interface PlayerType {
   playerIndex: number;
   port: number;
   characterId: number | null;
-  characterColor: number | null;
-  startStocks: number | null;
   type: number | null;
+  startStocks: number | null;
+  characterColor: number | null;
+  teamShade: number | null;
+  handicap: number | null;
   teamId: number | null;
+  playerBitfield: number | null;
+  cpuLevel: number | null;
+  offenseRatio: number | null;
+  defenseRatio: number | null;
+  modelScale: number | null;
   controllerFix: string | null;
   nametag: string | null;
   displayName: string;
@@ -28,7 +35,29 @@ export interface PlayerType {
 
 export enum GameMode {
   VS = 0x02,
+  CLASSIC = 0x03,
+  ADVENTURE = 0x04,
+  ALL_STAR = 0x05,
   ONLINE = 0x08,
+  CAMERA = 0x0a,
+  TARGET_TEST = 0x0f,
+  SUPER_SUDDEN_DEATH = 0x10,
+  INVISIBLE_MELEE = 0x11,
+  SLO_MO_MELEE = 0x12,
+  LIGHTNING_MELEE = 0x13,
+  TRAINING = 0x1c,
+  TINY_MELEE = 0x1d,
+  GIANT_MELEE = 0x1e,
+  STAMINA_MODE = 0x1f,
+  HOME_RUN_CONTEST = 0x20,
+  TEN_MAN_MELEE = 0x21,
+  HUNDRED_MAN_MELEE = 0x22,
+  THREE_MINUTE_MELEE = 0x23,
+  FIFTEEN_MINUTE_MELEE = 0x24,
+  ENDLESS_MELEE = 0x25,
+  CRUEL_MELEE = 0x26,
+  FIXED_CAMERA = 0x2a,
+  SINGLE_BUTTON = 0x2c,
 }
 
 export enum Language {
@@ -39,18 +68,41 @@ export enum Language {
 export interface GameStartType {
   slpVersion: string | null;
   isTeams: boolean | null;
+  gameInfo: GameInfoType | null;
   isPAL: boolean | null;
   stageId: number | null;
   players: PlayerType[];
   scene: number | null;
   gameMode: GameMode | null;
   language: Language | null;
+  randomSeed: number | null;
+  isFrozenPS: boolean | null;
+  minorScene: number | null;
+  majorScene: number | null;
 }
 
 export interface FrameStartType {
   frame: number | null;
   seed: number | null;
   sceneFrameCounter: number | null;
+}
+
+export interface GameInfoType {
+  gameBitfield1: number | null;
+  gameBitfield2: number | null;
+  gameBitfield3: number | null;
+  gameBitfield4: number | null;
+  bombRain: boolean | null;
+  itemSpawnBehavior: number | null;
+  selfDestructScoreValue: number | null;
+  stageId: number | null;
+  gameTimer: number | null;
+  itemSpawnBitfield1: number | null;
+  itemSpawnBitfield2: number | null;
+  itemSpawnBitfield3: number | null;
+  itemSpawnBitfield4: number | null;
+  itemSpawnBitfield5: number | null;
+  damageRatio: number | null;
 }
 
 export interface PreFrameUpdateType {
