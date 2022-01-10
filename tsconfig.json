@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "declaration": true,
-    "declarationDir": "./dist",
+    "declarationDir": "dist/types",
     "module": "esnext",
     "noImplicitAny": true,
     "moduleResolution": "node",
@@ -14,5 +14,5 @@
     "lib": ["esnext"]
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "test", "src/**/*.spec.ts"]
 }
