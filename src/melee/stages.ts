@@ -131,6 +131,110 @@ const stages: { [id: number]: StageInfo } = {
     id: Stage.FINAL_DESTINATION,
     name: "Final Destination",
   },
+  [Stage.TARGET_TEST_MARIO]: {
+    id: Stage.TARGET_TEST_MARIO,
+    name: "Target Test (Mario)",
+  },
+  [Stage.TARGET_TEST_CAPTAIN_FALCON]: {
+    id: Stage.TARGET_TEST_CAPTAIN_FALCON,
+    name: "Target Test (Captain Falcon)",
+  },
+  [Stage.TARGET_TEST_YOUNG_LINK]: {
+    id: Stage.TARGET_TEST_YOUNG_LINK,
+    name: "Target Test (Young Link)",
+  },
+  [Stage.TARGET_TEST_DONKEY_KONG]: {
+    id: Stage.TARGET_TEST_DONKEY_KONG,
+    name: "Target Test (Donkey Kong)",
+  },
+  [Stage.TARGET_TEST_DR_MARIO]: {
+    id: Stage.TARGET_TEST_DR_MARIO,
+    name: "Target Test (Dr. Mario)",
+  },
+  [Stage.TARGET_TEST_FALCO]: {
+    id: Stage.TARGET_TEST_FALCO,
+    name: "Target Test (Falco)",
+  },
+  [Stage.TARGET_TEST_FOX]: {
+    id: Stage.TARGET_TEST_FOX,
+    name: "Target Test (Fox)",
+  },
+  [Stage.TARGET_TEST_ICE_CLIMBERS]: {
+    id: Stage.TARGET_TEST_ICE_CLIMBERS,
+    name: "Target Test (Ice Climbers)",
+  },
+  [Stage.TARGET_TEST_KIRBY]: {
+    id: Stage.TARGET_TEST_KIRBY,
+    name: "Target Test (Kirby)",
+  },
+  [Stage.TARGET_TEST_BOWSER]: {
+    id: Stage.TARGET_TEST_BOWSER,
+    name: "Target Test (Bowser)",
+  },
+  [Stage.TARGET_TEST_LINK]: {
+    id: Stage.TARGET_TEST_LINK,
+    name: "Target Test (Link)",
+  },
+  [Stage.TARGET_TEST_LUIGI]: {
+    id: Stage.TARGET_TEST_LUIGI,
+    name: "Target Test (Luigi)",
+  },
+  [Stage.TARGET_TEST_MARTH]: {
+    id: Stage.TARGET_TEST_MARTH,
+    name: "Target Test (Marth)",
+  },
+  [Stage.TARGET_TEST_MEWTWO]: {
+    id: Stage.TARGET_TEST_MEWTWO,
+    name: "Target Test (Mewtwo)",
+  },
+  [Stage.TARGET_TEST_NESS]: {
+    id: Stage.TARGET_TEST_NESS,
+    name: "Target Test (Ness)",
+  },
+  [Stage.TARGET_TEST_PEACH]: {
+    id: Stage.TARGET_TEST_PEACH,
+    name: "Target Test (Peach)",
+  },
+  [Stage.TARGET_TEST_PICHU]: {
+    id: Stage.TARGET_TEST_PICHU,
+    name: "Target Test (Pichu)",
+  },
+  [Stage.TARGET_TEST_PIKACHU]: {
+    id: Stage.TARGET_TEST_PIKACHU,
+    name: "Target Test (Pikachu)",
+  },
+  [Stage.TARGET_TEST_JIGGLYPUFF]: {
+    id: Stage.TARGET_TEST_JIGGLYPUFF,
+    name: "Target Test (Jigglypuff)",
+  },
+  [Stage.TARGET_TEST_SAMUS]: {
+    id: Stage.TARGET_TEST_SAMUS,
+    name: "Target Test (Samus)",
+  },
+  [Stage.TARGET_TEST_SHEIK]: {
+    id: Stage.TARGET_TEST_SHEIK,
+    name: "Target Test (Sheik)",
+  },
+  [Stage.TARGET_TEST_YOSHI]: {
+    id: Stage.TARGET_TEST_YOSHI,
+    name: "Target Test (Yoshi)",
+  },
+  [Stage.TARGET_TEST_ZELDA]: {
+    id: Stage.TARGET_TEST_ZELDA,
+    name: "Target Test (Zelda)",
+  },
+  [Stage.TARGET_TEST_GAME_AND_WATCH]: {
+    id: Stage.TARGET_TEST_GAME_AND_WATCH,
+    name: "Target Test (Mr. Game & Watch)",
+  },
+  [Stage.TARGET_TEST_ROY]: {
+    id: Stage.TARGET_TEST_ROY,
+    name: "Target Test (Roy)",
+  },
+  [Stage.TARGET_TEST_GANONDORF]: {
+    id: Stage.TARGET_TEST_GANONDORF,
+    name: "Target Test (Ganondorf)",
+  },
 };
 
 export function getStageInfo(stageId: number): StageInfo {
