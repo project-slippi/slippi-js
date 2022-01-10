@@ -235,6 +235,10 @@ const stages: { [id: number]: StageInfo } = {
     id: Stage.TARGET_TEST_GANONDORF,
     name: "Target Test (Ganondorf)",
   },
+  [Stage.HOME_RUN_CONTEST]: {
+    id: Stage.HOME_RUN_CONTEST,
+    name: "Home-Run Contest",
+  },
 };
 
 export function getStageInfo(stageId: number): StageInfo {
