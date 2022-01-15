@@ -1,6 +1,6 @@
 import type { WriteStream } from "fs";
 import fs from "fs";
-import forEach from "lodash/forEach";
+import { forEach } from "lodash";
 import type { Moment } from "moment";
 import moment from "moment";
 import type { WritableOptions } from "stream";

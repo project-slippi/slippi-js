@@ -1,11 +1,4 @@
-import first from "lodash/first";
-import flatten from "lodash/flatten";
-import get from "lodash/get";
-import groupBy from "lodash/groupBy";
-import keyBy from "lodash/keyBy";
-import last from "lodash/last";
-import mapValues from "lodash/mapValues";
-import zip from "lodash/zip";
+import { first, flatten, get, groupBy, keyBy, last, mapValues, zip } from "lodash";
 
 import type { GameStartType } from "../types";
 import type { ConversionType, InputCountsType, OverallType, RatioType, StockType } from "./common";

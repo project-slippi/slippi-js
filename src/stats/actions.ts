@@ -1,9 +1,4 @@
-import get from "lodash/get";
-import isEqual from "lodash/isEqual";
-import keyBy from "lodash/keyBy";
-import last from "lodash/last";
-import set from "lodash/set";
-import size from "lodash/size";
+import { get, isEqual, keyBy, last, set, size } from "lodash";
 
 import type { FrameEntryType, GameStartType } from "../types";
 import type { ActionCountsType, PlayerIndexedType } from "./common";

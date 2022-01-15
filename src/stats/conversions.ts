@@ -1,9 +1,5 @@
 import { EventEmitter } from "events";
-import filter from "lodash/filter";
-import get from "lodash/get";
-import groupBy from "lodash/groupBy";
-import last from "lodash/last";
-import orderBy from "lodash/orderBy";
+import { filter, get, groupBy, last, orderBy } from "lodash";
 
 import type { FrameEntryType, FramesType, GameStartType, PostFrameUpdateType } from "../types";
 import type { ConversionType, MoveLandedType, PlayerIndexedType } from "./common";
