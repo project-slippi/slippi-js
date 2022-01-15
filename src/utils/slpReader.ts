@@ -1,7 +1,7 @@
 import { decode } from "@shelacek/ubjson";
 import fs from "fs";
 import iconv from "iconv-lite";
-import { mapValues } from "lodash";
+import mapValues from "lodash/mapValues";
 
 import type { EventCallbackFunc, EventPayloadTypes, MetadataType, PlayerType, SelfInducedSpeedsType } from "../types";
 import { Command } from "../types";

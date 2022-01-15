@@ -1,5 +1,7 @@
 import { EventEmitter } from "events";
-import { get, keyBy, set } from "lodash";
+import get from "lodash/get";
+import keyBy from "lodash/keyBy";
+import set from "lodash/set";
 import semver from "semver";
 
 import type {
