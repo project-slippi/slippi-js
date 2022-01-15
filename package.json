@@ -18,7 +18,12 @@
   ],
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
-  "types": "dist/types",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": "./dist/esm/index.js",
+    "./*": "./dist/esm/*/index.js"
+  },
+  "typings": "dist/esm/index.d.ts",
   "scripts": {
     "test": "jest --verbose",
     "coverage": "yarn run test --coverage",
