@@ -1,5 +1,3 @@
-import _ from "lodash";
-
 import type { FrameEntryType, FramesType, GameStartType } from "../types";
 import type { PlayerIndexedType, StockType } from "./common";
 import { didLoseStock, getSinglesPlayerPermutationsFromSettings, isDead } from "./common";

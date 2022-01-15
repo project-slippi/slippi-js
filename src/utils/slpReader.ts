@@ -1,7 +1,7 @@
 import { decode } from "@shelacek/ubjson";
 import fs from "fs";
 import iconv from "iconv-lite";
-import _ from "lodash";
+import { mapValues } from "lodash";
 
 import type { EventCallbackFunc, EventPayloadTypes, MetadataType, PlayerType, SelfInducedSpeedsType } from "../types";
 import { Command } from "../types";
@@ -210,7 +210,7 @@ export function iterateEvents(
   const stopReadingAt = slpFile.rawDataPosition + slpFile.rawDataLength;
 
   // Generate read buffers for each
-  const commandPayloadBuffers = _.mapValues(slpFile.messageSizes, (size) => new Uint8Array(size + 1));
+  const commandPayloadBuffers = mapValues(slpFile.messageSizes, (size) => new Uint8Array(size + 1));
 
   const commandByteBuffer = new Uint8Array(1);
   while (readPosition < stopReadingAt) {

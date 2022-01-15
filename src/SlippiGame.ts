@@ -1,5 +1,3 @@
-import _ from "lodash";
-
 import type { StatOptions, StatsType } from "./stats";
 import {
   ActionsComputer,
@@ -33,10 +31,10 @@ export class SlippiGame {
   protected statsComputer: Stats;
 
   public constructor(input: string | Buffer | ArrayBuffer, opts?: StatOptions) {
-    if (_.isString(input)) {
+    if (typeof input === "string") {
       this.input = {
         source: SlpInputSource.FILE,
-        filePath: input as string,
+        filePath: input,
       };
     } else if (input instanceof Buffer) {
       this.input = {
@@ -71,7 +69,7 @@ export class SlippiGame {
     });
   }
 
-  private _process(settingsOnly = false): void {
+  private rocess(settingsOnly = false): void {
     if (this.parser.getGameEnd() !== null) {
       return;
     }
@@ -99,27 +97,27 @@ export class SlippiGame {
    */
   public getSettings(): GameStartType | null {
     // Settings is only complete after post-frame update
-    this._process(true);
+    this.rocess(true);
     return this.parser.getSettings();
   }
 
   public getLatestFrame(): FrameEntryType | null {
-    this._process();
+    this.rocess();
     return this.parser.getLatestFrame();
   }
 
   public getGameEnd(): GameEndType | null {
-    this._process();
+    this.rocess();
     return this.parser.getGameEnd();
   }
 
   public getFrames(): FramesType {
-    this._process();
+    this.rocess();
     return this.parser.getFrames();
   }
 
   public getRollbackFrames(): RollbackFrames {
-    this._process();
+    this.rocess();
     return this.parser.getRollbackFrames();
   }
 
@@ -128,7 +126,7 @@ export class SlippiGame {
       return this.finalStats;
     }
 
-    this._process();
+    this.rocess();
 
     const settings = this.parser.getSettings();
     if (settings === null) {

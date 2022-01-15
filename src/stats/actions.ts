@@ -1,4 +1,4 @@
-import _ from "lodash";
+import { get, isEqual, keyBy, last, set, size } from "lodash";
 
 import type { FrameEntryType, GameStartType } from "../types";
 import type { ActionCountsType, PlayerIndexedType } from "./common";
@@ -143,7 +143,8 @@ function handleActionCompute(state: PlayerActionState, indices: PlayerIndexedTyp
       return;
     }
 
-    _.update(state.playerCounts, field, (n) => n + 1);
+    const current: number = get(state.playerCounts, field, 0);
+    set(state.playerCounts, field, current + 1);
   };
 
   // Manage animation state
@@ -156,7 +157,7 @@ function handleActionCompute(state: PlayerActionState, indices: PlayerIndexedTyp
   const newAnimation = currentAnimation !== prevAnimation;
 
   // Increment counts based on conditions
-  const didDashDance = _.isEqual(last3Frames, dashDanceAnimations);
+  const didDashDance = isEqual(last3Frames, dashDanceAnimations);
   incrementCount("dashDanceCount", didDashDance);
 
   const didRoll = didStartRoll(currentAnimation, prevAnimation);
@@ -202,7 +203,7 @@ function handleActionCompute(state: PlayerActionState, indices: PlayerIndexedTyp
 }
 
 function handleActionWavedash(counts: ActionCountsType, animations: State[]): void {
-  const currentAnimation = _.last(animations);
+  const currentAnimation = last(animations);
   const prevAnimation = animations[animations.length - 2];
 
   const isSpecialLanding = currentAnimation === State.LANDING_FALL_SPECIAL;
@@ -217,9 +218,9 @@ function handleActionWavedash(counts: ActionCountsType, animations: State[]): vo
   // We grab the last 8 frames here because that should be enough time to execute a
   // wavedash. This number could be tweaked if we find false negatives
   const recentFrames = animations.slice(-8);
-  const recentAnimations = _.keyBy(recentFrames, (animation) => animation);
+  const recentAnimations = keyBy(recentFrames, (animation) => animation);
 
-  if (_.size(recentAnimations) === 2 && recentAnimations[State.AIR_DODGE]) {
+  if (size(recentAnimations) === 2 && recentAnimations[State.AIR_DODGE]) {
     // If the only other animation is air dodge, this might be really late to the point
     // where it was actually an air dodge. Air dodge animation is really long
     return;

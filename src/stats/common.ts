@@ -1,5 +1,3 @@
-import _ from "lodash";
-
 import type { GameStartType, PostFrameUpdateType } from "../types";
 
 export interface StatsType {

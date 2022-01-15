@@ -1,5 +1,3 @@
-import _ from "lodash";
-
 import type { FrameEntryType, FramesType, GameStartType } from "../types";
 import { Frames } from "../types";
 import type { PlayerIndexedType } from "./common";

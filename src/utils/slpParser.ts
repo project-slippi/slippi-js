@@ -1,5 +1,5 @@
 import { EventEmitter } from "events";
-import _ from "lodash";
+import { get, keyBy, set } from "lodash";
 import semver from "semver";
 
 import type {
@@ -109,7 +109,7 @@ export class SlpParser extends EventEmitter {
     const allFrames = this.getFrames();
     const frameIndex = this.latestFrameIndex !== null ? this.latestFrameIndex : Frames.FIRST;
     const indexToUse = this.gameEnd ? frameIndex : frameIndex - 1;
-    return _.get(allFrames, indexToUse) || null;
+    return get(allFrames, indexToUse) || null;
   }
 
   public getSettings(): GameStartType | null {
@@ -167,7 +167,7 @@ export class SlpParser extends EventEmitter {
     // Finish calculating settings
     if (payload.frame! <= Frames.FIRST) {
       const playerIndex = payload.playerIndex!;
-      const playersByIndex = _.keyBy(this.settings!.players, "playerIndex");
+      const playersByIndex = keyBy(this.settings!.players, "playerIndex");
 
       switch (payload.internalCharacterId) {
         case 0x7:
@@ -197,8 +197,8 @@ export class SlpParser extends EventEmitter {
         this.emit(SlpParserEvent.ROLLBACK_FRAME, currentFrame);
       }
     }
-    _.set(this.frames, [currentFrameNumber, field, payload.playerIndex!, location], payload);
-    _.set(this.frames, [currentFrameNumber, "frame"], currentFrameNumber);
+    set(this.frames, [currentFrameNumber, field, payload.playerIndex!, location], payload);
+    set(this.frames, [currentFrameNumber, "frame"], currentFrameNumber);
 
     // If file is from before frame bookending, add frame to stats computer here. Does a little
     // more processing than necessary, but it works
@@ -208,7 +208,7 @@ export class SlpParser extends EventEmitter {
       // Finalize the previous frame since no bookending exists
       this._finalizeFrames(currentFrameNumber - 1);
     } else {
-      _.set(this.frames, [currentFrameNumber, "isTransferComplete"], false);
+      set(this.frames, [currentFrameNumber, "isTransferComplete"], false);
     }
   }
 
@@ -218,13 +218,13 @@ export class SlpParser extends EventEmitter {
     items.push(payload);
 
     // Set items with newest
-    _.set(this.frames, [currentFrameNumber, "items"], items);
+    set(this.frames, [currentFrameNumber, "items"], items);
   }
 
   private _handleFrameBookend(payload: FrameBookendType): void {
     const latestFinalizedFrame = payload.latestFinalizedFrame!;
     const currentFrameNumber = payload.frame!;
-    _.set(this.frames, [currentFrameNumber, "isTransferComplete"], true);
+    set(this.frames, [currentFrameNumber, "isTransferComplete"], true);
     // Fire off a normal frame event
     this.emit(SlpParserEvent.FRAME, this.frames[currentFrameNumber]);
 
