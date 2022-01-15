@@ -94,8 +94,5 @@
       "pre-commit": "pretty-quick --staged",
       "pre-push": "yarn lint --quiet"
     }
-  },
-  "resolutions": {
-    "lodash": "npm:lodash-es@^4.7.21"
   }
 }
