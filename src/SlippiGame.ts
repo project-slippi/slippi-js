@@ -69,7 +69,7 @@ export class SlippiGame {
     });
   }
 
-  private rocess(settingsOnly = false): void {
+  private _process(settingsOnly = false): void {
     if (this.parser.getGameEnd() !== null) {
       return;
     }
@@ -97,27 +97,27 @@ export class SlippiGame {
    */
   public getSettings(): GameStartType | null {
     // Settings is only complete after post-frame update
-    this.rocess(true);
+    this._process(true);
     return this.parser.getSettings();
   }
 
   public getLatestFrame(): FrameEntryType | null {
-    this.rocess();
+    this._process();
     return this.parser.getLatestFrame();
   }
 
   public getGameEnd(): GameEndType | null {
-    this.rocess();
+    this._process();
     return this.parser.getGameEnd();
   }
 
   public getFrames(): FramesType {
-    this.rocess();
+    this._process();
     return this.parser.getFrames();
   }
 
   public getRollbackFrames(): RollbackFrames {
-    this.rocess();
+    this._process();
     return this.parser.getRollbackFrames();
   }
 
@@ -126,7 +126,7 @@ export class SlippiGame {
       return this.finalStats;
     }
 
-    this.rocess();
+    this._process();
 
     const settings = this.parser.getSettings();
     if (settings === null) {
