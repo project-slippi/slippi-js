@@ -29,6 +29,8 @@
     "./package.json": "./package.json"
   },
   "scripts": {
+    "clean": "rimraf dist",
+    "prebuild": "yarn run clean",
     "start": "dts watch --target node",
     "build:check": "tsc --noEmit",
     "build": "tsc --noEmit && dts build --target node",
