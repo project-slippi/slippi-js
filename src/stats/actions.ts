@@ -153,7 +153,7 @@ function handleActionCompute(state: PlayerActionState, indices: PlayerIndexedTyp
 
   // Grab last 3 frames
   const last3Frames = state.animations.slice(-3);
-  const prevAnimation = last3Frames[last3Frames.length - 2];
+  const prevAnimation = last3Frames[last3Frames.length - 2] as number;
   const newAnimation = currentAnimation !== prevAnimation;
 
   // Increment counts based on conditions
@@ -204,7 +204,7 @@ function handleActionCompute(state: PlayerActionState, indices: PlayerIndexedTyp
 
 function handleActionWavedash(counts: ActionCountsType, animations: State[]): void {
   const currentAnimation = last(animations);
-  const prevAnimation = animations[animations.length - 2];
+  const prevAnimation = animations[animations.length - 2] as number;
 
   const isSpecialLanding = currentAnimation === State.LANDING_FALL_SPECIAL;
   const isAcceptablePrevious = isWavedashInitiationAnimation(prevAnimation);

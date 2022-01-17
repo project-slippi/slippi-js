@@ -198,12 +198,12 @@ export function getSinglesPlayerPermutationsFromSettings(settings: GameStartType
 
   return [
     {
-      playerIndex: settings.players[0].playerIndex,
-      opponentIndex: settings.players[1].playerIndex,
+      playerIndex: settings.players[0]!.playerIndex,
+      opponentIndex: settings.players[1]!.playerIndex,
     },
     {
-      playerIndex: settings.players[1].playerIndex,
-      opponentIndex: settings.players[0].playerIndex,
+      playerIndex: settings.players[1]!.playerIndex,
+      opponentIndex: settings.players[0]!.playerIndex,
     },
   ];
 }

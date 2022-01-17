@@ -171,10 +171,10 @@ export class SlpParser extends EventEmitter {
 
       switch (payload.internalCharacterId) {
         case 0x7:
-          playersByIndex[playerIndex].characterId = 0x13; // Sheik
+          playersByIndex[playerIndex]!.characterId = 0x13; // Sheik
           break;
         case 0x13:
-          playersByIndex[playerIndex].characterId = 0x12; // Zelda
+          playersByIndex[playerIndex]!.characterId = 0x12; // Zelda
           break;
       }
     }
@@ -214,7 +214,7 @@ export class SlpParser extends EventEmitter {
 
   private _handleItemUpdate(payload: ItemUpdateType): void {
     const currentFrameNumber = payload.frame!;
-    const items = this.frames[currentFrameNumber].items ?? [];
+    const items = this.frames[currentFrameNumber]?.items ?? [];
     items.push(payload);
 
     // Set items with newest

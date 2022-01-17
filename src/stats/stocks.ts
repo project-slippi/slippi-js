@@ -50,7 +50,7 @@ function handleStockCompute(
   const playerFrame = frame.players[indices.playerIndex]!.post;
   const currentFrameNumber = playerFrame.frame!;
   const prevFrameNumber = currentFrameNumber - 1;
-  const prevPlayerFrame = frames[prevFrameNumber] ? frames[prevFrameNumber].players[indices.playerIndex]!.post : null;
+  const prevPlayerFrame = frames[prevFrameNumber] ? frames[prevFrameNumber]!.players[indices.playerIndex]!.post : null;
 
   // If there is currently no active stock, wait until the player is no longer spawning.
   // Once the player is no longer spawning, start the stock

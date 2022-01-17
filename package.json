@@ -16,32 +16,32 @@
   "files": [
     "dist"
   ],
-  "main": "dist/cjs/index.js",
-  "module": "dist/esm/index.js",
+  "source": "./src/index.ts",
+  "main": "./dist/index.js",
+  "module": "./dist/index.esm.js",
+  "types": "./dist/index.d.ts",
   "exports": {
-    "./package.json": "./package.json",
-    ".": "./dist/esm/index.js",
-    "./*": "./dist/esm/*/index.js"
+    ".": {
+      "require": "./dist/index.js",
+      "import": "./dist/index.esm.js",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
   },
-  "typings": "dist/esm/index.d.ts",
   "scripts": {
-    "test": "jest --verbose",
-    "coverage": "yarn run test --coverage",
-    "postcoverage": "open-cli coverage/lcov-report/index.html",
-    "lint": "eslint \"src/**/*.ts\"",
-    "lint:fix": "yarn run lint --fix",
-    "clean": "rimraf dist",
-    "prebuild": "yarn run clean",
-    "build": "rollup -c",
-    "watch": "rollup -cw",
+    "start": "dts watch --target node",
+    "build:check": "tsc --noEmit",
+    "build": "tsc --noEmit && dts build --target node",
+    "test": "dts test --runInBand",
+    "test:cov": "dts test --runInBand --coverage",
+    "test:watch": "dts test --runInBand --watchAll --coverage",
+    "test:ci": "dts test --runInBand --ci --coverage",
+    "lint": "dts lint src",
+    "lint:fix": "dts lint src --fix",
     "patch": "npm version patch && npm publish",
     "minor": "npm version minor && npm publish",
     "major": "npm version major && npm publish",
     "prepublishOnly": "yarn run lint && yarn run test && yarn run build"
-  },
-  "jest": {
-    "testRegex": "/test/.*",
-    "testEnvironment": "node"
   },
   "keywords": [
     "slp-parser-js",
@@ -55,38 +55,29 @@
     "enet": "^0.2.9",
     "iconv-lite": "^0.6.2",
     "lodash": "^4.17.21",
+    "lodash-es": "^4.17.21",
     "moment": "^2.27.0",
     "reconnect-core": "^1.3.0",
     "semver": "^7.3.2"
   },
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^21.0.1",
-    "@rollup/plugin-node-resolve": "^8.1.0",
-    "@types/jest": "^24.0.18",
     "@types/lodash": "^4.14.178",
     "@types/node": "^12.7.3",
     "@types/reconnect-core": "^1.3.1",
     "@types/semver": "^6.0.2",
     "@typescript-eslint/eslint-plugin": "^5.1.0",
     "@typescript-eslint/parser": "^5.1.0",
-    "eslint": "^7.15.0",
-    "eslint-config-prettier": "^7.0.0",
-    "eslint-import-resolver-typescript": "^2.4.0",
+    "dts-cli": "^1.1.5",
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-prettier": "^3.2.0",
     "eslint-plugin-simple-import-sort": "^7.0.0",
     "eslint-plugin-strict-booleans": "^1.0.0",
     "husky": "^4.2.5",
-    "jest": "^26.6.3",
     "open-cli": "^5.0.0",
     "prettier": "^2.0.5",
     "pretty-quick": "^2.0.1",
     "rimraf": "^3.0.0",
-    "rollup": "^2.63.0",
-    "rollup-plugin-auto-external": "^2.0.0",
-    "rollup-plugin-terser": "^5.3.0",
-    "rollup-plugin-typescript2": "^0.27.1",
-    "ts-jest": "^26.5.1",
+    "tslib": "^2.3.1",
     "typescript": "^4.4.4"
   },
   "husky": {

@@ -95,8 +95,8 @@ function handleComboCompute(
   let prevOpponentFrame: PostFrameUpdateType | null = null;
 
   if (frames[prevFrameNumber]) {
-    prevPlayerFrame = frames[prevFrameNumber].players[indices.playerIndex]!.post;
-    prevOpponentFrame = frames[prevFrameNumber].players[indices.opponentIndex]!.post;
+    prevPlayerFrame = frames[prevFrameNumber]!.players[indices.playerIndex]!.post;
+    prevOpponentFrame = frames[prevFrameNumber]!.players[indices.opponentIndex]!.post;
   }
 
   const oppActionStateId = opponentFrame.actionStateId!;

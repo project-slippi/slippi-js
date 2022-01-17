@@ -146,7 +146,7 @@ export class SlpFile extends Writable {
 
         // Update character usage
         const prevPlayer = this.metadata.players[playerIndex!];
-        const characterUsage = prevPlayer.characterUsage;
+        const characterUsage = prevPlayer!.characterUsage;
         const curCharFrames = characterUsage[internalCharacterId!] || 0;
         const player = {
           ...prevPlayer,
@@ -155,7 +155,7 @@ export class SlpFile extends Writable {
             [internalCharacterId!]: curCharFrames + 1,
           },
         };
-        this.metadata.players[playerIndex!] = player;
+        (this.metadata.players as any)[playerIndex!] = player;
         break;
     }
   }

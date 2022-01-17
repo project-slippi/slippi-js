@@ -108,9 +108,8 @@ export class ConversionComputer extends EventEmitter implements StatComputer<Con
 
         // If not trade, check the opponent endFrame
         const lastMove = last(conversion.moves);
-        const oppEndFrame = this.metadata.lastEndFrameByOppIdx[
-          lastMove ? lastMove.playerIndex : conversion.playerIndex
-        ];
+        const oppEndFrame =
+          this.metadata.lastEndFrameByOppIdx[lastMove ? lastMove.playerIndex : conversion.playerIndex];
         const isCounterAttack = oppEndFrame && oppEndFrame > conversion.startFrame;
         conversion.openingType = isCounterAttack ? "counter-attack" : "neutral-win";
       });
@@ -134,8 +133,8 @@ function handleConversionCompute(
   let prevOpponentFrame: PostFrameUpdateType | null = null;
 
   if (frames[prevFrameNumber]) {
-    prevPlayerFrame = frames[prevFrameNumber].players[indices.playerIndex]!.post;
-    prevOpponentFrame = frames[prevFrameNumber].players[indices.opponentIndex]!.post;
+    prevPlayerFrame = frames[prevFrameNumber]!.players[indices.playerIndex]!.post;
+    prevOpponentFrame = frames[prevFrameNumber]!.players[indices.opponentIndex]!.post;
   }
 
   const oppActionStateId = opponentFrame.actionStateId!;

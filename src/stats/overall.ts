@@ -1,7 +1,7 @@
 import { first, flatten, get, groupBy, keyBy, last, mapValues, zip } from "lodash";
 
 import type { GameStartType } from "../types";
-import type { ConversionType, InputCountsType, OverallType, RatioType, StockType } from "./common";
+import type { ConversionType, InputCountsType, OverallType, RatioType } from "./common";
 import type { PlayerInput } from "./inputs";
 
 interface ConversionsByPlayerByOpening {
@@ -10,13 +10,17 @@ interface ConversionsByPlayerByOpening {
   };
 }
 
-export function generateOverallStats(
-  settings: GameStartType,
-  inputs: PlayerInput[],
-  stocks: StockType[],
-  conversions: ConversionType[],
-  playableFrameCount: number,
-): OverallType[] {
+export function generateOverallStats({
+  settings,
+  inputs,
+  conversions,
+  playableFrameCount,
+}: {
+  settings: GameStartType;
+  inputs: PlayerInput[];
+  conversions: ConversionType[];
+  playableFrameCount: number;
+}): OverallType[] {
   const inputsByPlayer = keyBy(inputs, "playerIndex");
   const originalConversions = conversions;
   const conversionsByPlayer = groupBy(conversions, (conv) => conv.moves[0]?.playerIndex);
@@ -68,7 +72,7 @@ export function generateOverallStats(
         if (conversion.didKill && conversion.lastHitBy === playerIndex) {
           killCount += 1;
         }
-        if (conversion.moves.length > 1 && conversion.moves[0].playerIndex === playerIndex) {
+        if (conversion.moves.length > 1 && conversion.moves[0]!.playerIndex === playerIndex) {
           successfulConversionCount++;
         }
         conversion.moves.forEach((move) => {
