@@ -107,4 +107,13 @@ describe("when calculating conversions", () => {
     expect(mewTwo.killCount).toBe(0);
     expect(mewTwo.conversionCount).toBe(1);
   });
+
+  it("should not create two conversions for 1 kirby neutral B", () => {
+    const game = new SlippiGame("slp/consistencyTest/KirbyVMario-nB.slp");
+    const stats = game.getStats();
+    const kirby = stats.overall[0];
+    const mario = stats.overall[1];
+    expect(kirby.conversionCount).toBe(1);
+    expect(mario.conversionCount).toBe(0);
+  });
 });
