@@ -262,7 +262,10 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
         const nametagOffset = playerIndex * nametagLength;
         const nametagStart = 0x161 + nametagOffset;
         const nametagBuf = payload.slice(nametagStart, nametagStart + nametagLength);
-        const nameTagString = iconv.decode(Buffer.from(nametagBuf), "Shift_JIS").split("\0").shift();
+        const nameTagString = iconv
+          .decode(nametagBuf as Buffer, "Shift_JIS")
+          .split("\0")
+          .shift();
         const nametag = nameTagString ? toHalfwidth(nameTagString) : "";
 
         // Display name
@@ -270,7 +273,10 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
         const displayNameOffset = playerIndex * displayNameLength;
         const displayNameStart = 0x1a5 + displayNameOffset;
         const displayNameBuf = payload.slice(displayNameStart, displayNameStart + displayNameLength);
-        const displayNameString = iconv.decode(Buffer.from(displayNameBuf), "Shift_JIS").split("\0").shift();
+        const displayNameString = iconv
+          .decode(displayNameBuf as Buffer, "Shift_JIS")
+          .split("\0")
+          .shift();
         const displayName = displayNameString ? toHalfwidth(displayNameString) : "";
 
         // Connect code
@@ -278,7 +284,10 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
         const connectCodeOffset = playerIndex * connectCodeLength;
         const connectCodeStart = 0x221 + connectCodeOffset;
         const connectCodeBuf = payload.slice(connectCodeStart, connectCodeStart + connectCodeLength);
-        const connectCodeString = iconv.decode(Buffer.from(connectCodeBuf), "Shift_JIS").split("\0").shift();
+        const connectCodeString = iconv
+          .decode(connectCodeBuf as Buffer, "Shift_JIS")
+          .split("\0")
+          .shift();
         const connectCode = connectCodeString ? toHalfwidth(connectCodeString) : "";
 
         const offset = playerIndex * 0x24;
