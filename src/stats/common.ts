@@ -184,9 +184,6 @@ export enum State {
 
   COMMAND_GRAB_RANGE2_START = 0x147,
   COMMAND_GRAB_RANGE2_END = 0x152,
-
-  COMMAND_GRAB_RANGE3_START = 0x177,
-  COMMAND_GRAB_RANGE3_END = 0x17e,
 }
 
 export const Timers = {
@@ -250,8 +247,7 @@ export function isGrabbed(state: number): boolean {
 export function isCommandGrabbed(state: number): boolean {
   return (
     ((state >= State.COMMAND_GRAB_RANGE1_START && state <= State.COMMAND_GRAB_RANGE1_END) ||
-      (state >= State.COMMAND_GRAB_RANGE2_START && state <= State.COMMAND_GRAB_RANGE2_END) ||
-      (state >= State.COMMAND_GRAB_RANGE3_START && state <= State.COMMAND_GRAB_RANGE3_END)) &&
+      (state >= State.COMMAND_GRAB_RANGE2_START && state <= State.COMMAND_GRAB_RANGE2_END)) &&
     state !== State.BARREL_WAIT
   );
 }
