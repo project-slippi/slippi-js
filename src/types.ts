@@ -24,7 +24,29 @@ export interface PlayerType {
 
 export enum GameMode {
   VS = 0x02,
+  CLASSIC = 0x03,
+  ADVENTURE = 0x04,
+  ALL_STAR = 0x05,
   ONLINE = 0x08,
+  CAMERA = 0x0a,
+  TARGET_TEST = 0x0f,
+  SUPER_SUDDEN_DEATH = 0x10,
+  INVISIBLE_MELEE = 0x11,
+  SLO_MO_MELEE = 0x12,
+  LIGHTNING_MELEE = 0x13,
+  TRAINING = 0x1c,
+  TINY_MELEE = 0x1d,
+  GIANT_MELEE = 0x1e,
+  STAMINA_MODE = 0x1f,
+  HOME_RUN_CONTEST = 0x20,
+  TEN_MAN_MELEE = 0x21,
+  HUNDRED_MAN_MELEE = 0x22,
+  THREE_MINUTE_MELEE = 0x23,
+  FIFTEEN_MINUTE_MELEE = 0x24,
+  ENDLESS_MELEE = 0x25,
+  CRUEL_MELEE = 0x26,
+  FIXED_CAMERA = 0x2a,
+  SINGLE_BUTTON = 0x2c,
 }
 
 export interface GameStartType {
