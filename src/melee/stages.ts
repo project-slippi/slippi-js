@@ -235,9 +235,313 @@ const stages: { [id: number]: StageInfo } = {
     id: Stage.TARGET_TEST_GANONDORF,
     name: "Target Test (Ganondorf)",
   },
+  [Stage.RACE_TO_THE_FINISH]: {
+    id: Stage.RACE_TO_THE_FINISH,
+    name: "Race to the Finish",
+  },
+  [Stage.GRAB_THE_TROPHIES]: {
+    id: Stage.GRAB_THE_TROPHIES,
+    name: "Grab the Trophies",
+  },
   [Stage.HOME_RUN_CONTEST]: {
     id: Stage.HOME_RUN_CONTEST,
     name: "Home-Run Contest",
+  },
+  [Stage.ALL_STAR_LOBBY]: {
+    id: Stage.ALL_STAR_LOBBY,
+    name: "All-Star Lobby",
+  },
+  [Stage.EVENT_ONE]: {
+    id: Stage.EVENT_ONE,
+    name: "Battlefield (Event #1)",
+  },
+  [Stage.EVENT_TWO]: {
+    id: Stage.EVENT_TWO,
+    name: "Kongo Jungle (Event #2)",
+  },
+  [Stage.EVENT_THREE]: {
+    id: Stage.EVENT_THREE,
+    name: "Princess Peach's Castle (Event #3)",
+  },
+  [Stage.EVENT_FOUR]: {
+    id: Stage.EVENT_FOUR,
+    name: "Yoshi's Story (Event #4)",
+  },
+  [Stage.EVENT_FIVE]: {
+    id: Stage.EVENT_FIVE,
+    name: "Onett (Event #5)",
+  },
+  [Stage.EVENT_SIX]: {
+    id: Stage.EVENT_SIX,
+    name: "Fountain of Dreams (Event #6)",
+  },
+  [Stage.EVENT_SEVEN]: {
+    id: Stage.EVENT_SEVEN,
+    name: "Pokémon Stadium (Event #7)",
+  },
+  [Stage.EVENT_EIGHT]: {
+    id: Stage.EVENT_EIGHT,
+    name: "Brinstar (Event #8)",
+  },
+  [Stage.EVENT_NINE]: {
+    id: Stage.EVENT_NINE,
+    name: "Great Bay (Event #9)",
+  },
+  [Stage.EVENT_TEN_PART_ONE]: {
+    id: Stage.EVENT_TEN_PART_ONE,
+    name: "Yoshi's Island (Event #10-1)",
+  },
+  [Stage.EVENT_TEN_PART_TWO]: {
+    id: Stage.EVENT_TEN_PART_TWO,
+    name: "Jungle Japes (Event #10-2)",
+  },
+  [Stage.EVENT_TEN_PART_THREE]: {
+    id: Stage.EVENT_TEN_PART_THREE,
+    name: "Yoshi's Story (Event #10-3)",
+  },
+  [Stage.EVENT_TEN_PART_FOUR]: {
+    id: Stage.EVENT_TEN_PART_FOUR,
+    name: "Princess Peach's Castle (Event #10-4)",
+  },
+  [Stage.EVENT_TEN_PART_FIVE]: {
+    id: Stage.EVENT_TEN_PART_FIVE,
+    name: "Rainbow Cruise (Event #10-5)",
+  },
+  [Stage.EVENT_ELEVEN]: {
+    id: Stage.EVENT_ELEVEN,
+    name: "Icicle Mountain (Event #11)",
+  },
+  [Stage.EVENT_TWELVE]: {
+    id: Stage.EVENT_TWELVE,
+    name: "Mute City (Event #12)",
+  },
+  [Stage.EVENT_THIRTEEN]: {
+    id: Stage.EVENT_THIRTEEN,
+    name: "Rainbow Cruise (Event #13)",
+  },
+  [Stage.EVENT_FOURTEEN]: {
+    id: Stage.EVENT_FOURTEEN,
+    name: "Goomba (Event #14)",
+  },
+  [Stage.EVENT_FIFTEEN]: {
+    id: Stage.EVENT_FIFTEEN,
+    name: "Fountain of Dreams (Event #15)",
+  },
+  [Stage.EVENT_SIXTEEN]: {
+    id: Stage.EVENT_SIXTEEN,
+    name: "Corneria (Event #16)",
+  },
+  [Stage.EVENT_SEVENTEEN]: {
+    id: Stage.EVENT_SEVENTEEN,
+    name: "Jungle Japes (Event #17)",
+  },
+  [Stage.EVENT_EIGHTEEN]: {
+    id: Stage.EVENT_EIGHTEEN,
+    name: "Temple (Event #18)",
+  },
+  [Stage.EVENT_NINETEEN]: {
+    id: Stage.EVENT_NINETEEN,
+    name: "Final Destination (Event #19)",
+  },
+  [Stage.EVENT_TWENTY_PART_ONE]: {
+    id: Stage.EVENT_TWENTY_PART_ONE,
+    name: "Brinstar (Event #20-1)",
+  },
+  [Stage.EVENT_TWENTY_PART_TWO]: {
+    id: Stage.EVENT_TWENTY_PART_TWO,
+    name: "Great Bay (Event #20-2)",
+  },
+  [Stage.EVENT_TWENTY_PART_THREE]: {
+    id: Stage.EVENT_TWENTY_PART_THREE,
+    name: "Temple (Event #20-3)",
+  },
+  [Stage.EVENT_TWENTY_PART_FOUR]: {
+    id: Stage.EVENT_TWENTY_PART_FOUR,
+    name: "Mute City (Event #20-4)",
+  },
+  [Stage.EVENT_TWENTY_PART_FIVE]: {
+    id: Stage.EVENT_TWENTY_PART_FIVE,
+    name: "Corneria (Event #20-5)",
+  },
+  [Stage.EVENT_TWENTY_ONE]: {
+    id: Stage.EVENT_TWENTY_ONE,
+    name: "Princess Peach's Castle (Event #21)",
+  },
+  [Stage.EVENT_TWENTY_TWO]: {
+    id: Stage.EVENT_TWENTY_TWO,
+    name: "Mushroom Kingdom II (Event #22)",
+  },
+  [Stage.EVENT_TWENTY_THREE]: {
+    id: Stage.EVENT_TWENTY_THREE,
+    name: "Venom (Event #23)",
+  },
+  [Stage.EVENT_TWENTY_FOUR]: {
+    id: Stage.EVENT_TWENTY_FOUR,
+    name: "Yoshi's Island (Event #24)",
+  },
+  [Stage.EVENT_TWENTY_FIVE]: {
+    id: Stage.EVENT_TWENTY_FIVE,
+    name: "Fourside (Event #25)",
+  },
+  [Stage.EVENT_TWENTY_SIX]: {
+    id: Stage.EVENT_TWENTY_SIX,
+    name: "Entei (Event #26)",
+  },
+  [Stage.EVENT_TWENTY_SEVEN]: {
+    id: Stage.EVENT_TWENTY_SEVEN,
+    name: "Brinstar Depths (Event #27)",
+  },
+  [Stage.EVENT_TWENTY_EIGHT]: {
+    id: Stage.EVENT_TWENTY_EIGHT,
+    name: "Green Greens (Event #28)",
+  },
+  [Stage.EVENT_TWENTY_NINE]: {
+    id: Stage.EVENT_TWENTY_NINE,
+    name: "Temple (Event #29)",
+  },
+  [Stage.EVENT_THIRTY_PART_ONE]: {
+    id: Stage.EVENT_THIRTY_PART_ONE,
+    name: "Fountain of Dreams (Event #30-1)",
+  },
+  [Stage.EVENT_THIRTY_PART_TWO]: {
+    id: Stage.EVENT_THIRTY_PART_TWO,
+    name: "Pokémon Stadium (Event #30-2)",
+  },
+  [Stage.EVENT_THIRTY_PART_THREE]: {
+    id: Stage.EVENT_THIRTY_PART_THREE,
+    name: "Onett (Event #30-3)",
+  },
+  [Stage.EVENT_THIRTY_PART_FOUR]: {
+    id: Stage.EVENT_THIRTY_PART_FOUR,
+    name: "Icicle Mountain (Event #30-4)",
+  },
+  [Stage.EVENT_THIRTY_ONE]: {
+    id: Stage.EVENT_THIRTY_ONE,
+    name: "Mushroom Kingdom (Event #31)",
+  },
+  [Stage.EVENT_THIRTY_TWO]: {
+    id: Stage.EVENT_THIRTY_TWO,
+    name: "Corneria (Event #32)",
+  },
+  [Stage.EVENT_THIRTY_THREE]: {
+    id: Stage.EVENT_THIRTY_THREE,
+    name: "F-Zero Grand Prix (Event #33)",
+  },
+  [Stage.EVENT_THIRTY_FOUR]: {
+    id: Stage.EVENT_THIRTY_FOUR,
+    name: "Great Bay (Event #34)",
+  },
+  [Stage.EVENT_THIRTY_FIVE]: {
+    id: Stage.EVENT_THIRTY_FIVE,
+    name: "Yoshi's Story (Event #35)",
+  },
+  [Stage.EVENT_THIRTY_SIX_PART_ONE]: {
+    id: Stage.EVENT_THIRTY_SIX_PART_ONE,
+    name: "Fourside (Event #36-1)",
+  },
+  [Stage.EVENT_THIRTY_SIX_PART_TWO]: {
+    id: Stage.EVENT_THIRTY_SIX_PART_TWO,
+    name: "Battlefield (Event #36-2)",
+  },
+  [Stage.EVENT_THIRTY_SEVEN]: {
+    id: Stage.EVENT_THIRTY_SEVEN,
+    name: "Battlefield (Event #37)",
+  },
+  [Stage.EVENT_THIRTY_EIGHT]: {
+    id: Stage.EVENT_THIRTY_EIGHT,
+    name: "Mushroom Kingdom II (Event #38)",
+  },
+  [Stage.EVENT_THIRTY_NINE]: {
+    id: Stage.EVENT_THIRTY_NINE,
+    name: "Pokémon Stadium (Event #39)",
+  },
+  [Stage.EVENT_FORTY_PART_ONE]: {
+    id: Stage.EVENT_FORTY_PART_ONE,
+    name: "Temple (Event #40-1)",
+  },
+  [Stage.EVENT_FORTY_PART_TWO]: {
+    id: Stage.EVENT_FORTY_PART_TWO,
+    name: "Mushroom Kingdom II (Event #40-2)",
+  },
+  [Stage.EVENT_FORTY_PART_THREE]: {
+    id: Stage.EVENT_FORTY_PART_THREE,
+    name: "Poké Floats (Event #40-3)",
+  },
+  [Stage.EVENT_FORTY_PART_FOUR]: {
+    id: Stage.EVENT_FORTY_PART_FOUR,
+    name: "Final Destination (Event #40-4)",
+  },
+  [Stage.EVENT_FORTY_PART_FIVE]: {
+    id: Stage.EVENT_FORTY_PART_FIVE,
+    name: "Flat Zone (Event #40-5)",
+  },
+  [Stage.EVENT_FORTY_ONE]: {
+    id: Stage.EVENT_FORTY_ONE,
+    name: "Temple (Event #41)",
+  },
+  [Stage.EVENT_FORTY_TWO]: {
+    id: Stage.EVENT_FORTY_TWO,
+    name: "Poké Floats (Event #42)",
+  },
+  [Stage.EVENT_FORTY_THREE]: {
+    id: Stage.EVENT_FORTY_THREE,
+    name: "Big Blue (Event #43)",
+  },
+  [Stage.EVENT_FORTY_FOUR]: {
+    id: Stage.EVENT_FORTY_FOUR,
+    name: "Battlefield (Event #44)",
+  },
+  [Stage.EVENT_FORTY_FIVE]: {
+    id: Stage.EVENT_FORTY_FIVE,
+    name: "Flat Zone (Event #45)",
+  },
+  [Stage.EVENT_FORTY_SIX]: {
+    id: Stage.EVENT_FORTY_SIX,
+    name: "Temple (Event #46)",
+  },
+  [Stage.EVENT_FORTY_SEVEN]: {
+    id: Stage.EVENT_FORTY_SEVEN,
+    name: "Majora's Mask (Event #47)",
+  },
+  [Stage.EVENT_FORTY_EIGHT]: {
+    id: Stage.EVENT_FORTY_EIGHT,
+    name: "Dream Land (Event #48)",
+  },
+  [Stage.EVENT_FORTY_NINE_PART_ONE]: {
+    id: Stage.EVENT_FORTY_NINE_PART_ONE,
+    name: "Mushroom Kingdom (Event #49-1)",
+  },
+  [Stage.EVENT_FORTY_NINE_PART_TWO]: {
+    id: Stage.EVENT_FORTY_NINE_PART_TWO,
+    name: "Venom (Event #49-2)",
+  },
+  [Stage.EVENT_FORTY_NINE_PART_THREE]: {
+    id: Stage.EVENT_FORTY_NINE_PART_THREE,
+    name: "Pokémon Stadium (Event #49-3)",
+  },
+  [Stage.EVENT_FORTY_NINE_PART_FOUR]: {
+    id: Stage.EVENT_FORTY_NINE_PART_FOUR,
+    name: "Great Bay (Event #49-4)",
+  },
+  [Stage.EVENT_FORTY_NINE_PART_FIVE]: {
+    id: Stage.EVENT_FORTY_NINE_PART_FIVE,
+    name: "Temple (Event #49-5)",
+  },
+  [Stage.EVENT_FORTY_NINE_PART_SIX]: {
+    id: Stage.EVENT_FORTY_NINE_PART_SIX,
+    name: "Final Destination (Event #49-6)",
+  },
+  [Stage.EVENT_FIFTY]: {
+    id: Stage.EVENT_FIFTY,
+    name: "Final Destination (Event #50)",
+  },
+  [Stage.EVENT_FIFTY_ONE]: {
+    id: Stage.EVENT_FIFTY_ONE,
+    name: "Final Destination (Event #51)",
+  },
+  [Stage.MULTI_MAN_MELEE]: {
+    id: Stage.MULTI_MAN_MELEE,
+    name: "Battlefield (Multi-Man Melee)",
   },
 };
 
