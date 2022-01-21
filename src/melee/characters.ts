@@ -213,7 +213,7 @@ const externalCharacters: CharacterInfo[] = [
     id: Character.POPO,
     name: "Popo",
     shortName: "SoPo",
-    colors: ["Default", "Green", "Orange", "Red"],
+    colors: ["Default"],
   },
 ];
 
