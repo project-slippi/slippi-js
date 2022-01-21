@@ -205,8 +205,8 @@ const externalCharacters: CharacterInfo[] = [
   },
   {
     id: Character.SANDBAG,
-    name: "Krohnos",
-    shortName: "K#0",
+    name: "Sandbag",
+    shortName: "Sandbag",
     colors: ["Default"],
   },
   {
