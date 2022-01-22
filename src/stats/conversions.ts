@@ -1,5 +1,5 @@
 import { EventEmitter } from "events";
-import _ from "lodash";
+import { filter, get, groupBy, last, orderBy } from "lodash";
 
 import type { FrameEntryType, FramesType, GameStartType, PostFrameUpdateType } from "../types";
 import type { ConversionType, MoveLandedType, PlayerIndexedType } from "./common";
@@ -70,7 +70,7 @@ export class ConversionComputer extends EventEmitter implements StatComputer<Con
         const terminated = handleConversionCompute(allFrames, state, indices, frame, this.conversions);
         if (terminated) {
           this.emit("CONVERSION", {
-            combo: _.last(this.conversions),
+            combo: last(this.conversions),
             settings: this.settings,
           });
         }
@@ -85,15 +85,13 @@ export class ConversionComputer extends EventEmitter implements StatComputer<Con
 
   private _populateConversionTypes(): void {
     // Post-processing step: set the openingTypes
-    const conversionsToHandle = _.filter(this.conversions, (conversion) => {
+    const conversionsToHandle = filter(this.conversions, (conversion) => {
       return conversion.openingType === "unknown";
     });
 
     // Group new conversions by startTime and sort
-    const sortedConversions: ConversionType[][] = _.chain(conversionsToHandle)
-      .groupBy("startFrame")
-      .orderBy((conversions) => _.get(conversions, [0, "startFrame"]))
-      .value();
+    const groupedConversions = groupBy(conversionsToHandle, "startFrame");
+    const sortedConversions = orderBy(groupedConversions, (conversions) => get(conversions, [0, "startFrame"]));
 
     // Set the opening types on the conversions we need to handle
     sortedConversions.forEach((conversions) => {
@@ -109,10 +107,9 @@ export class ConversionComputer extends EventEmitter implements StatComputer<Con
         }
 
         // If not trade, check the opponent endFrame
-        const lastMove = _.last(conversion.moves);
-        const oppEndFrame = this.metadata.lastEndFrameByOppIdx[
-          lastMove ? lastMove.playerIndex : conversion.playerIndex
-        ];
+        const lastMove = last(conversion.moves);
+        const oppEndFrame =
+          this.metadata.lastEndFrameByOppIdx[lastMove ? lastMove.playerIndex : conversion.playerIndex];
         const isCounterAttack = oppEndFrame && oppEndFrame > conversion.startFrame;
         conversion.openingType = isCounterAttack ? "counter-attack" : "neutral-win";
       });
@@ -136,8 +133,8 @@ function handleConversionCompute(
   let prevOpponentFrame: PostFrameUpdateType | null = null;
 
   if (frames[prevFrameNumber]) {
-    prevPlayerFrame = frames[prevFrameNumber].players[indices.playerIndex]!.post;
-    prevOpponentFrame = frames[prevFrameNumber].players[indices.opponentIndex]!.post;
+    prevPlayerFrame = frames[prevFrameNumber]!.players[indices.playerIndex]!.post;
+    prevOpponentFrame = frames[prevFrameNumber]!.players[indices.opponentIndex]!.post;
   }
 
   const oppActionStateId = opponentFrame.actionStateId!;

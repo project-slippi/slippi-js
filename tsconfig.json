@@ -1,18 +1,25 @@
 {
+  "include": ["src", "types"],
   "compilerOptions": {
-    "declaration": true,
-    "declarationDir": "./dist",
     "module": "esnext",
-    "noImplicitAny": true,
-    "moduleResolution": "node",
-    "outDir": "./dist",
-    "target": "es2018",
-    "esModuleInterop": true,
+    "lib": ["dom", "esnext"],
+    "importHelpers": true,
+    "declaration": true,
     "sourceMap": true,
+    "declarationMap": true,
+    "rootDir": "./src",
+    "declarationDir": "./dist",
     "strict": true,
     "strictNullChecks": true,
-    "lib": ["esnext"]
-  },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules"]
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "downlevelIteration": true
+  }
 }

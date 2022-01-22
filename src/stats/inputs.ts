@@ -1,5 +1,3 @@
-import _ from "lodash";
-
 import type { FrameEntryType, FramesType, GameStartType } from "../types";
 import { Frames } from "../types";
 import type { PlayerIndexedType } from "./common";
@@ -74,7 +72,7 @@ function handleInputCompute(
   const playerFrame = frame.players[indices.playerIndex]!.pre;
   const currentFrameNumber = playerFrame.frame!;
   const prevFrameNumber = currentFrameNumber - 1;
-  const prevPlayerFrame = frames[prevFrameNumber] ? frames[prevFrameNumber].players[indices.playerIndex]!.pre : null;
+  const prevPlayerFrame = frames[prevFrameNumber] ? frames[prevFrameNumber]!.players[indices.playerIndex]!.pre : null;
 
   if (currentFrameNumber < Frames.FIRST_PLAYABLE || !prevPlayerFrame) {
     // Don't count inputs until the game actually starts

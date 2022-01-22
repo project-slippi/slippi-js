@@ -1,5 +1,5 @@
 import { EventEmitter } from "events";
-import _ from "lodash";
+import { last } from "lodash";
 
 import type { FrameEntryType, FramesType, GameStartType, PostFrameUpdateType } from "../types";
 import type { ComboType, MoveLandedType, PlayerIndexedType } from "./common";
@@ -65,7 +65,7 @@ export class ComboComputer extends EventEmitter implements StatComputer<ComboTyp
         // Emit an event for the new combo
         if (state.event !== null) {
           this.emit(state.event, {
-            combo: _.last(this.combos),
+            combo: last(this.combos),
             settings: this.settings,
           });
           state.event = null;
@@ -95,8 +95,8 @@ function handleComboCompute(
   let prevOpponentFrame: PostFrameUpdateType | null = null;
 
   if (frames[prevFrameNumber]) {
-    prevPlayerFrame = frames[prevFrameNumber].players[indices.playerIndex]!.post;
-    prevOpponentFrame = frames[prevFrameNumber].players[indices.opponentIndex]!.post;
+    prevPlayerFrame = frames[prevFrameNumber]!.players[indices.playerIndex]!.post;
+    prevOpponentFrame = frames[prevFrameNumber]!.players[indices.opponentIndex]!.post;
   }
 
   const oppActionStateId = opponentFrame.actionStateId!;

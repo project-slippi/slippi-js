@@ -1,5 +1,3 @@
-import _ from "lodash";
-
 import type { StatOptions, StatsType } from "./stats";
 import {
   ActionsComputer,
@@ -33,10 +31,10 @@ export class SlippiGame {
   protected statsComputer: Stats;
 
   public constructor(input: string | Buffer | ArrayBuffer, opts?: StatOptions) {
-    if (_.isString(input)) {
+    if (typeof input === "string") {
       this.input = {
         source: SlpInputSource.FILE,
-        filePath: input as string,
+        filePath: input,
       };
     } else if (input instanceof Buffer) {
       this.input = {
@@ -140,12 +138,12 @@ export class SlippiGame {
     const inputs = this.inputComputer.fetch();
     const stocks = this.stockComputer.fetch();
     const conversions = this.conversionComputer.fetch();
-    const playableFrames = this.parser.getPlayableFrameCount();
-    const overall = generateOverallStats(settings, inputs, stocks, conversions, playableFrames);
+    const playableFrameCount = this.parser.getPlayableFrameCount();
+    const overall = generateOverallStats({ settings, inputs, conversions, playableFrameCount });
 
     const stats = {
       lastFrame: this.parser.getLatestFrameNumber(),
-      playableFrameCount: playableFrames,
+      playableFrameCount,
       stocks: stocks,
       conversions: conversions,
       combos: this.comboComputer.fetch(),

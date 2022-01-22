@@ -1,7 +1,7 @@
 import { decode } from "@shelacek/ubjson";
 import fs from "fs";
 import iconv from "iconv-lite";
-import _ from "lodash";
+import { mapValues } from "lodash";
 
 import type { EventCallbackFunc, EventPayloadTypes, MetadataType, PlayerType, SelfInducedSpeedsType } from "../types";
 import { Command } from "../types";
@@ -140,7 +140,7 @@ function getRawDataLength(ref: SlpRefType, position: number): number {
   const buffer = new Uint8Array(4);
   readRef(ref, buffer, 0, buffer.length, position - 4);
 
-  const rawDataLen = (buffer[0] << 24) | (buffer[1] << 16) | (buffer[2] << 8) | buffer[3];
+  const rawDataLen = (buffer[0]! << 24) | (buffer[1]! << 16) | (buffer[2]! << 8) | buffer[3]!;
   if (rawDataLen > 0) {
     // If this method manages to read a number, it's probably trustworthy
     return rawDataLen;
@@ -181,16 +181,16 @@ function getMessageSizes(
     return {};
   }
 
-  const payloadLength = buffer[1];
-  messageSizes[0x35] = payloadLength;
+  const payloadLength = buffer[1] as number;
+  (messageSizes[0x35] as any) = payloadLength;
 
   const messageSizesBuffer = new Uint8Array(payloadLength - 1);
   readRef(ref, messageSizesBuffer, 0, messageSizesBuffer.length, position + 2);
   for (let i = 0; i < payloadLength - 1; i += 3) {
-    const command = messageSizesBuffer[i];
+    const command = messageSizesBuffer[i] as number;
 
     // Get size of command
-    messageSizes[command] = (messageSizesBuffer[i + 1] << 8) | messageSizesBuffer[i + 2];
+    (messageSizes[command] as any) = (messageSizesBuffer[i + 1]! << 8) | messageSizesBuffer[i + 2]!;
   }
 
   return messageSizes;
@@ -210,12 +210,12 @@ export function iterateEvents(
   const stopReadingAt = slpFile.rawDataPosition + slpFile.rawDataLength;
 
   // Generate read buffers for each
-  const commandPayloadBuffers = _.mapValues(slpFile.messageSizes, (size) => new Uint8Array(size + 1));
+  const commandPayloadBuffers = mapValues(slpFile.messageSizes, (size) => new Uint8Array(size + 1));
 
   const commandByteBuffer = new Uint8Array(1);
   while (readPosition < stopReadingAt) {
     readRef(ref, commandByteBuffer, 0, 1, readPosition);
-    const commandByte = commandByteBuffer[0];
+    const commandByte = commandByteBuffer[0] as number;
     const buffer = commandPayloadBuffers[commandByte];
     if (buffer === undefined) {
       // If we don't have an entry for this command, return false to indicate failed read

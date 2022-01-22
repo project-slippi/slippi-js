@@ -19,7 +19,7 @@ export class RollbackCounter {
     if (currentFrame) {
       // frame already exists for currentFrameNumber so we must be rolling back
       if (this.rollbackFrames[currentFrame.frame]) {
-        this.rollbackFrames[currentFrame.frame].push(currentFrame);
+        this.rollbackFrames[currentFrame.frame]!.push(currentFrame);
       } else {
         this.rollbackFrames[currentFrame.frame] = [currentFrame];
       }

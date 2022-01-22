@@ -1,4 +1,4 @@
-import _ from "lodash";
+import { get } from "lodash";
 
 import type { FrameEntryType, FramesType, GameStartType } from "../types";
 import { Frames } from "../types";
@@ -71,13 +71,17 @@ export class Stats {
   }
 }
 
-function isCompletedFrame(players: number[], frame: FrameEntryType): boolean {
+function isCompletedFrame(players: number[], frame?: FrameEntryType): frame is FrameEntryType {
+  if (!frame) {
+    return false;
+  }
+
   // This function checks whether we have successfully received an entire frame.
   // It is not perfect because it does not wait for follower frames. Fortunately,
   // follower frames are not used for any stat calculations so this doesn't matter
   // for our purposes.
   for (const player of players) {
-    const playerPostFrame = _.get(frame, ["players", player, "post"]);
+    const playerPostFrame = get(frame, ["players", player, "post"]);
     if (!playerPostFrame) {
       return false;
     }

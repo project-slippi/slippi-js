@@ -37,7 +37,7 @@ jobs:
           yarn install
       - name: Run tests
         run: |
-          yarn run coverage
+          yarn run test:ci
       - name: Coveralls
         uses: coverallsapp/github-action@1.1.3
         with:
