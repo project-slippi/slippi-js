@@ -92,17 +92,22 @@ export interface GameInfoType {
   gameBitfield2: number | null;
   gameBitfield3: number | null;
   gameBitfield4: number | null;
-  bombRain: boolean | null;
+  bombRainEnabled: boolean | null;
   itemSpawnBehavior: number | null;
   selfDestructScoreValue: number | null;
-  stageId: number | null;
-  gameTimer: number | null;
+  startingTimerFrames: number | null;
   itemSpawnBitfield1: number | null;
   itemSpawnBitfield2: number | null;
   itemSpawnBitfield3: number | null;
   itemSpawnBitfield4: number | null;
   itemSpawnBitfield5: number | null;
   damageRatio: number | null;
+}
+
+export enum TimerType {
+  NONE = 0b00,
+  DECREASING = 0b10,
+  INCREASING = 0b11,
 }
 
 export interface PreFrameUpdateType {
