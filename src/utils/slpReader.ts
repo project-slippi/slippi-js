@@ -290,6 +290,16 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
           .shift();
         const connectCode = connectCodeString ? toHalfwidth(connectCodeString) : "";
 
+        const userIdLength = 0x1d;
+        const userIdOffset = playerIndex * userIdLength;
+        const userIdStart = 0x249 + userIdOffset;
+        const userIdBuf = payload.slice(userIdStart, userIdStart + userIdLength);
+        const userIdString = iconv
+          .decode(userIdBuf as Buffer, "utf8")
+          .split("\0")
+          .shift();
+        const userId = userIdString ?? "";
+
         const offset = playerIndex * 0x24;
         return {
           playerIndex: playerIndex,
@@ -303,6 +313,7 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
           nametag: nametag,
           displayName: displayName,
           connectCode: connectCode,
+          userId: userId,
         };
       };
       return {
