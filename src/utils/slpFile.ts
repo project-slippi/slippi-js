@@ -119,12 +119,12 @@ export class SlpFile extends Writable {
     switch (command) {
       case Command.GAME_START:
         const { players } = payload as GameStartType;
-        forEach(players, (player, i) => {
+        forEach(players, (player) => {
           if (player.type === 3) {
             return;
           }
 
-          this.metadata.players[i] = {
+          this.metadata.players[player.playerIndex] = {
             characterUsage: {},
             names: {
               netplay: player.displayName,
