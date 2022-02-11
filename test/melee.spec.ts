@@ -63,7 +63,7 @@ describe("when fetching move information", () => {
   });
 
   it("should handle unknown moves", () => {
-    expect(Melee.moves.getMoveInfo(69)).toEqual(unknownMove);
+    expect(Melee.moves.getMoveInfo(-1)).toEqual(unknownMove);
     expect(Melee.moves.UnknownMove).toEqual(unknownMove);
   });
 

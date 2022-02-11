@@ -11,6 +11,12 @@ export const UnknownMove: Move = {
 };
 
 const moves: { [id: number]: Move } = {
+  0: {
+    // This includes Grab, Grab Release, DK Cargo Grab, DK Cargo Grab Release, Barrel Cannon, and various Stage Hazards
+    id: 0,
+    name: "Grab",
+    shortName: "grab",
+  },
   1: {
     // This includes all thrown items, zair, luigi's taunt, samus bombs, etc
     id: 1,
@@ -161,6 +167,161 @@ const moves: { [id: number]: Move } = {
     id: 62,
     name: "Edge Attack",
     shortName: "edge",
+  },
+  63: {
+    id: 63,
+    name: "Beam Sword Jab",
+    shortName: "beamsword-jab",
+  },
+  64: {
+    id: 64,
+    name: "Beam Sword Tilt Attack",
+    shortName: "beamsword-tilt",
+  },
+  65: {
+    id: 65,
+    name: "Beam Sword Smash Attack",
+    shortName: "beamsword-smash",
+  },
+  66: {
+    id: 66,
+    name: "Beam Sword Dash Attack",
+    shortName: "beamsword-dash",
+  },
+  67: {
+    id: 67,
+    name: "Home Run Bat Jab",
+    shortName: "homerun-jab",
+  },
+  68: {
+    id: 68,
+    name: "Home Run Bat Tilt Attack",
+    shortName: "homerun-tilt",
+  },
+  69: {
+    id: 69,
+    name: "Home Run Bat Smash Attack",
+    shortName: "homerun-smash",
+  },
+  70: {
+    id: 70,
+    name: "Home Run Bat Dash Attack",
+    shortName: "homerun-dash",
+  },
+  71: {
+    id: 71,
+    name: "Parasol Jab",
+    shortName: "parasol-jab",
+  },
+  72: {
+    id: 72,
+    name: "Parasol Tilt Attack",
+    shortName: "parasol-tilt",
+  },
+  73: {
+    id: 73,
+    name: "Parasol Smash Attack",
+    shortName: "parasol-smash",
+  },
+  74: {
+    id: 74,
+    name: "Parasol Dash Attack",
+    shortName: "parasol-dash",
+  },
+  75: {
+    id: 75,
+    name: "Fan Jab",
+    shortName: "fan-jab",
+  },
+  76: {
+    id: 76,
+    name: "Fan Tilt Attack",
+    shortName: "fan-tilt",
+  },
+  77: {
+    id: 77,
+    name: "Fan Smash Attack",
+    shortName: "fan-smash",
+  },
+  78: {
+    id: 78,
+    name: "Fan Dash Attack",
+    shortName: "fan-dash",
+  },
+  79: {
+    id: 79,
+    name: "Star Rod Jab",
+    shortName: "starrod-jab",
+  },
+  80: {
+    id: 80,
+    name: "Star Rod Tilt Attack",
+    shortName: "starrod-tilt",
+  },
+  81: {
+    id: 81,
+    name: "Star Rod Smash Attack",
+    shortName: "starrod-smash",
+  },
+  82: {
+    id: 82,
+    name: "Star Rod Dash Attack",
+    shortName: "starrod-dash",
+  },
+  83: {
+    id: 83,
+    name: "Lip's Stick Jab",
+    shortName: "lipsstick-jab",
+  },
+  84: {
+    id: 84,
+    name: "Lip's Stick Tilt Attack",
+    shortName: "lipsstick-tilt",
+  },
+  85: {
+    id: 85,
+    name: "Lip's Stick Smash Attack",
+    shortName: "lipsstick-smash",
+  },
+  86: {
+    id: 86,
+    name: "Lip's Stick Dash Attack",
+    shortName: "lipsstick-dash",
+  },
+  87: {
+    id: 87,
+    name: "Open Parasol",
+    shortName: "open-parasol",
+  },
+  88: {
+    id: 88,
+    name: "Ray Gun Shoot",
+    shortName: "raygun-shoot",
+  },
+  89: {
+    id: 89,
+    name: "Fire Flower Shoot",
+    shortName: "fireflower-shoot",
+  },
+  90: {
+    id: 90,
+    name: "Screw Attack",
+    shortName: "screw-attack",
+  },
+  91: {
+    id: 91,
+    name: "Super Scope (Rapid)",
+    shortName: "super-scope-rapid",
+  },
+  92: {
+    id: 92,
+    name: "Super Scope (Charged)",
+    shortName: "super-scope-charged",
+  },
+  93: {
+    id: 93,
+    name: "Hammer",
+    shortName: "hammer",
   },
 };
 
