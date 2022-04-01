@@ -1,7 +1,7 @@
-import * as animations from "./animations";
-import * as characters from "./characters";
-import * as moves from "./moves";
-import * as stages from "./stages";
+import * as animations from "./animationUtils";
+import * as characters from "./characterUtils";
+import * as moves from "./moveUtils";
+import * as stages from "./stageUtils";
 
 export * from "./types";
 
