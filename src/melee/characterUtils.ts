@@ -19,6 +19,17 @@ export const UnknownCharacter: CharacterInfo = {
 
 type CharacterId = keyof typeof characters;
 
+export function getAllCharacters(): CharacterInfo[] {
+  return Object.entries(characters)
+    .map(([id, info]) => ({
+      id: parseInt(id, 10),
+      name: info.name,
+      shortName: info.shortName,
+      colors: info.colors,
+    }))
+    .sort((a, b) => a.id - b.id);
+}
+
 export function getCharacterInfo(externalCharacterId: number): CharacterInfo {
   const charInfo = characters[externalCharacterId as unknown as CharacterId];
   if (charInfo) {
