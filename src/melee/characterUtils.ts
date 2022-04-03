@@ -19,28 +19,35 @@ export const UnknownCharacter: CharacterInfo = {
 
 type CharacterId = keyof typeof characters;
 
+function generateCharacterInfo(
+  id: number,
+  info?: {
+    name: string;
+    shortName?: string;
+    colors: CharacterColor[];
+  },
+): CharacterInfo {
+  if (!info) {
+    return UnknownCharacter;
+  }
+
+  return {
+    id,
+    name: info.name,
+    shortName: info.shortName ?? info.name,
+    colors: info.colors,
+  };
+}
+
 export function getAllCharacters(): CharacterInfo[] {
   return Object.entries(characters)
-    .map(([id, info]) => ({
-      id: parseInt(id, 10),
-      name: info.name,
-      shortName: info.shortName,
-      colors: info.colors,
-    }))
+    .map(([id, info]) => generateCharacterInfo(parseInt(id, 10), info))
     .sort((a, b) => a.id - b.id);
 }
 
 export function getCharacterInfo(externalCharacterId: number): CharacterInfo {
   const charInfo = characters[externalCharacterId.toString() as CharacterId];
-  if (charInfo) {
-    return {
-      id: externalCharacterId,
-      name: charInfo.name,
-      shortName: charInfo.shortName,
-      colors: charInfo.colors,
-    };
-  }
-  return UnknownCharacter;
+  return generateCharacterInfo(externalCharacterId, charInfo);
 }
 
 export function getCharacterShortName(externalCharacterId: number): string {
