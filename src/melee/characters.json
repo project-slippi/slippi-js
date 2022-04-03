@@ -1,0 +1,167 @@
+{
+  "0": {
+    "name": "Captain Falcon",
+    "shortName": "Falcon",
+    "colors": ["Default", "Black", "Red", "White", "Green", "Blue"]
+  },
+  "1": {
+    "name": "Donkey Kong",
+    "shortName": "DK",
+    "colors": ["Default", "Black", "Red", "Blue", "Green"]
+  },
+  "2": {
+    "name": "Fox",
+    "shortName": "Fox",
+    "colors": ["Default", "Red", "Blue", "Green"]
+  },
+  "3": {
+    "name": "Mr. Game & Watch",
+    "shortName": "G&W",
+    "colors": ["Default", "Red", "Blue", "Green"]
+  },
+  "4": {
+    "name": "Kirby",
+    "shortName": "Kirby",
+    "colors": ["Default", "Yellow", "Blue", "Red", "Green", "White"]
+  },
+  "5": {
+    "name": "Bowser",
+    "shortName": "Bowser",
+    "colors": ["Default", "Red", "Blue", "Black"]
+  },
+  "6": {
+    "name": "Link",
+    "shortName": "Link",
+    "colors": ["Default", "Red", "Blue", "Black", "White"]
+  },
+  "7": {
+    "name": "Luigi",
+    "shortName": "Luigi",
+    "colors": ["Default", "White", "Blue", "Red"]
+  },
+  "8": {
+    "name": "Mario",
+    "shortName": "Mario",
+    "colors": ["Default", "Yellow", "Black", "Blue", "Green"]
+  },
+  "9": {
+    "name": "Marth",
+    "shortName": "Marth",
+    "colors": ["Default", "Red", "Green", "Black", "White"]
+  },
+  "10": {
+    "name": "Mewtwo",
+    "shortName": "Mewtwo",
+    "colors": ["Default", "Red", "Blue", "Green"]
+  },
+  "11": {
+    "name": "Ness",
+    "shortName": "Ness",
+    "colors": ["Default", "Yellow", "Blue", "Green"]
+  },
+  "12": {
+    "name": "Peach",
+    "shortName": "Peach",
+    "colors": ["Default", "Daisy", "White", "Blue", "Green"]
+  },
+  "13": {
+    "name": "Pikachu",
+    "shortName": "Pikachu",
+    "colors": ["Default", "Red", "Party Hat", "Cowboy Hat"]
+  },
+  "14": {
+    "name": "Ice Climbers",
+    "shortName": "ICs",
+    "colors": ["Default", "Green", "Orange", "Red"]
+  },
+  "15": {
+    "name": "Jigglypuff",
+    "shortName": "Puff",
+    "colors": ["Default", "Red", "Blue", "Headband", "Crown"]
+  },
+  "16": {
+    "name": "Samus",
+    "shortName": "Samus",
+    "colors": ["Default", "Pink", "Black", "Green", "Purple"]
+  },
+  "17": {
+    "name": "Yoshi",
+    "shortName": "Yoshi",
+    "colors": ["Default", "Red", "Blue", "Yellow", "Pink", "Cyan"]
+  },
+  "18": {
+    "name": "Zelda",
+    "shortName": "Zelda",
+    "colors": ["Default", "Red", "Blue", "Green", "White"]
+  },
+  "19": {
+    "name": "Sheik",
+    "shortName": "Sheik",
+    "colors": ["Default", "Red", "Blue", "Green", "White"]
+  },
+  "20": {
+    "name": "Falco",
+    "shortName": "Falco",
+    "colors": ["Default", "Red", "Blue", "Green"]
+  },
+  "21": {
+    "name": "Young Link",
+    "shortName": "YLink",
+    "colors": ["Default", "Red", "Blue", "White", "Black"]
+  },
+  "22": {
+    "name": "Dr. Mario",
+    "shortName": "Doc",
+    "colors": ["Default", "Red", "Blue", "Green", "Black"]
+  },
+  "23": {
+    "name": "Roy",
+    "shortName": "Roy",
+    "colors": ["Default", "Red", "Blue", "Green", "Yellow"]
+  },
+  "24": {
+    "name": "Pichu",
+    "shortName": "Pichu",
+    "colors": ["Default", "Red", "Blue", "Green"]
+  },
+  "25": {
+    "name": "Ganondorf",
+    "shortName": "Ganon",
+    "colors": ["Default", "Red", "Blue", "Green", "Purple"]
+  },
+  "26": {
+    "name": "Master Hand",
+    "shortName": "Master Hand",
+    "colors": ["Default"]
+  },
+  "27": {
+    "name": "Wireframe (Male)",
+    "shortName": "Wireframe (Male)",
+    "colors": ["Default"]
+  },
+  "28": {
+    "name": "Wireframe (Female)",
+    "shortName": "Wireframe (Female)",
+    "colors": ["Default"]
+  },
+  "29": {
+    "name": "Gigabowser",
+    "shortName": "Gigabowser",
+    "colors": ["Default"]
+  },
+  "30": {
+    "name": "Crazy Hand",
+    "shortName": "Crazy Hand",
+    "colors": ["Default"]
+  },
+  "31": {
+    "name": "Sandbag",
+    "shortName": "Sandbag",
+    "colors": ["Default"]
+  },
+  "32": {
+    "name": "Popo",
+    "shortName": "Popo",
+    "colors": ["Default"]
+  }
+}
