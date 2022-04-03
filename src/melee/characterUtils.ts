@@ -24,7 +24,7 @@ function generateCharacterInfo(
   info?: {
     name: string;
     shortName?: string;
-    colors: CharacterColor[];
+    colors?: CharacterColor[];
   },
 ): CharacterInfo {
   if (!info) {
@@ -35,19 +35,19 @@ function generateCharacterInfo(
     id,
     name: info.name,
     shortName: info.shortName ?? info.name,
-    colors: info.colors,
+    colors: [DEFAULT_COLOR, ...(info.colors ?? [])],
   };
 }
 
 export function getAllCharacters(): CharacterInfo[] {
   return Object.entries(characters)
-    .map(([id, info]) => generateCharacterInfo(parseInt(id, 10), info))
+    .map(([id, data]) => generateCharacterInfo(parseInt(id, 10), data))
     .sort((a, b) => a.id - b.id);
 }
 
 export function getCharacterInfo(externalCharacterId: number): CharacterInfo {
-  const charInfo = characters[externalCharacterId.toString() as CharacterId];
-  return generateCharacterInfo(externalCharacterId, charInfo);
+  const data = characters[externalCharacterId.toString() as CharacterId];
+  return generateCharacterInfo(externalCharacterId, data);
 }
 
 export function getCharacterShortName(externalCharacterId: number): string {
