@@ -13,7 +13,7 @@ export const UnknownStage: StageInfo = {
 type StageId = keyof typeof stageNames;
 
 export function getStageInfo(stageId: number): StageInfo {
-  const stageName = stageNames[stageId as unknown as StageId];
+  const stageName = stageNames[stageId.toString() as StageId];
   if (!stageName) {
     return UnknownStage;
   }

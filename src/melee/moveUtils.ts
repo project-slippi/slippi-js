@@ -15,7 +15,7 @@ export const UnknownMove: Move = {
 type MoveId = keyof typeof moveNames;
 
 export function getMoveInfo(moveId: number): Move {
-  const moveName = moveNames[moveId as unknown as MoveId];
+  const moveName = moveNames[moveId.toString() as MoveId];
   if (!moveName) {
     return UnknownMove;
   }

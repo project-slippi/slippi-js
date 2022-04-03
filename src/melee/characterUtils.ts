@@ -31,7 +31,7 @@ export function getAllCharacters(): CharacterInfo[] {
 }
 
 export function getCharacterInfo(externalCharacterId: number): CharacterInfo {
-  const charInfo = characters[externalCharacterId as unknown as CharacterId];
+  const charInfo = characters[externalCharacterId.toString() as CharacterId];
   if (charInfo) {
     return {
       id: externalCharacterId,
