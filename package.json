@@ -1,6 +1,6 @@
 {
   "name": "@slippi/slippi-js",
-  "version": "6.1.3",
+  "version": "6.2.0",
   "description": "Official Project Slippi Javascript SDK",
   "sideEffects": false,
   "license": "LGPL-3.0-or-later",
