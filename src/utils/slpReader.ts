@@ -98,12 +98,12 @@ export function openSlpFile(input: SlpReadInput): SlpFileType {
   const messageSizes = getMessageSizes(ref, rawDataPosition);
 
   return {
-    ref: ref,
-    rawDataPosition: rawDataPosition,
-    rawDataLength: rawDataLength,
-    metadataPosition: metadataPosition,
-    metadataLength: metadataLength,
-    messageSizes: messageSizes,
+    ref,
+    rawDataPosition,
+    rawDataLength,
+    metadataPosition,
+    metadataLength,
+    messageSizes,
   };
 }
 
@@ -248,13 +248,13 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
         const cfOffset = playerIndex * 0x8;
         const dashback = readUint32(view, 0x141 + cfOffset);
         const shieldDrop = readUint32(view, 0x145 + cfOffset);
-        let cfOption = "None";
+        let controllerFix = "None";
         if (dashback !== shieldDrop) {
-          cfOption = "Mixed";
+          controllerFix = "Mixed";
         } else if (dashback === 1) {
-          cfOption = "UCF";
+          controllerFix = "UCF";
         } else if (dashback === 2) {
-          cfOption = "Dween";
+          controllerFix = "Dween";
         }
 
         // Nametag stuff
@@ -302,18 +302,18 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
 
         const offset = playerIndex * 0x24;
         return {
-          playerIndex: playerIndex,
+          playerIndex,
           port: playerIndex + 1,
           characterId: readUint8(view, 0x65 + offset),
           characterColor: readUint8(view, 0x68 + offset),
           startStocks: readUint8(view, 0x67 + offset),
           type: readUint8(view, 0x66 + offset),
           teamId: readUint8(view, 0x6e + offset),
-          controllerFix: cfOption,
-          nametag: nametag,
-          displayName: displayName,
-          connectCode: connectCode,
-          userId: userId,
+          controllerFix,
+          nametag,
+          displayName,
+          connectCode,
+          userId,
         };
       };
       return {
