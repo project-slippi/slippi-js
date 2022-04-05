@@ -76,7 +76,7 @@
     "eslint-plugin-simple-import-sort": "^7.0.0",
     "eslint-plugin-strict-booleans": "^1.0.0",
     "husky": "^4.2.5",
-    "open-cli": "^5.0.0",
+    "open-cli": "^7.0.1",
     "prettier": "^2.0.5",
     "pretty-quick": "^2.0.1",
     "rimraf": "^3.0.0",
