@@ -52,6 +52,10 @@ describe("when fetching character information", () => {
     expect(Melee.characters.getCharacterColorName(foxCharacter.id, 0)).toEqual(foxCharacter.colors[0]);
   });
 
+  it("should return the default color if the color doesn't exist", () => {
+    expect(Melee.characters.getCharacterColorName(foxCharacter.id, 10)).toEqual(foxCharacter.colors[0]);
+  });
+
   it("should return an array of all characters", () => {
     expect(Melee.characters.getAllCharacters()[2]).toEqual(foxCharacter);
   });
