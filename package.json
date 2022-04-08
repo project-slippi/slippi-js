@@ -10,9 +10,6 @@
     "email": "jas.laferriere@gmail.com",
     "url": "https://github.com/JLaferri"
   },
-  "engines": {
-    "node": ">=14"
-  },
   "files": [
     "dist"
   ],
