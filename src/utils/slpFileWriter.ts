@@ -11,8 +11,8 @@ import { format } from "date-fns";
 /**
  * The default function to use for generating new SLP files.
  */
-function getNewFilePath(folder: string, d: Date): string {
-  return path.join(folder, `Game_${format(d, "yyyymmdd")}T${format(d, "HHmmss")}.slp`);
+function getNewFilePath(folder: string, date: Date): string {
+  return path.join(folder, `Game_${format(date, "yyyyMMdd")}T${format(date, "HHmmss")}.slp`);
 }
 
 export interface SlpFileWriterOptions extends Partial<SlpStreamSettings> {
