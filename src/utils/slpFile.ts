@@ -1,8 +1,6 @@
 import type { WriteStream } from "fs";
 import fs from "fs";
 import { forEach } from "lodash";
-import type { Moment } from "moment";
-import moment from "moment";
 import type { WritableOptions } from "stream";
 import { Writable } from "stream";
 
@@ -14,7 +12,7 @@ import { SlpStream, SlpStreamEvent, SlpStreamMode } from "./slpStream";
 const DEFAULT_NICKNAME = "unknown";
 
 export interface SlpFileMetadata {
-  startTime: Moment;
+  startTime: Date;
   lastFrame: number;
   players: {
     [playerIndex: number]: {
@@ -56,7 +54,7 @@ export class SlpFile extends Writable {
     this.filePath = filePath;
     this.metadata = {
       consoleNickname: DEFAULT_NICKNAME,
-      startTime: moment(),
+      startTime: new Date(),
       lastFrame: -124,
       players: {},
     };

@@ -1,5 +1,3 @@
-import type { Moment } from "moment";
-import moment from "moment";
 import path from "path";
 import type { WritableOptions } from "stream";
 
@@ -8,18 +6,20 @@ import { SlpFile } from "./slpFile";
 import type { SlpRawEventPayload, SlpStreamSettings } from "./slpStream";
 import { SlpStream, SlpStreamEvent } from "./slpStream";
 
+import { format } from "date-fns";
+
 /**
  * The default function to use for generating new SLP files.
  */
-function getNewFilePath(folder: string, m: Moment): string {
-  return path.join(folder, `Game_${m.format("YYYYMMDD")}T${m.format("HHmmss")}.slp`);
+function getNewFilePath(folder: string, date: Date): string {
+  return path.join(folder, `Game_${format(date, "yyyyMMdd")}T${format(date, "HHmmss")}.slp`);
 }
 
 export interface SlpFileWriterOptions extends Partial<SlpStreamSettings> {
   outputFiles: boolean;
   folderPath: string;
   consoleNickname: string;
-  newFilename: (folder: string, startTime: Moment) => string;
+  newFilename: (folder: string, startTime: Date) => string;
 }
 
 const defaultSettings: SlpFileWriterOptions = {
@@ -122,7 +122,7 @@ export class SlpFileWriter extends SlpStream {
   private _handleNewGame(): void {
     // Only create a new file if we're outputting files
     if (this.options.outputFiles) {
-      const filePath = this.options.newFilename(this.options.folderPath, moment());
+      const filePath = this.options.newFilename(this.options.folderPath, new Date());
       this.currentFile = new SlpFile(filePath, this);
       // console.log(`Creating new file at: ${filePath}`);
       this.emit(SlpFileWriterEvent.NEW_FILE, filePath);
