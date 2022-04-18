@@ -183,6 +183,10 @@ export enum State {
 
   COMMAND_GRAB_RANGE2_START = 0x147,
   COMMAND_GRAB_RANGE2_END = 0x152,
+
+    // Taunts
+  TAUNT_RIGHT = 0x108
+  TAUNT_LEFT = 0x109
 }
 
 export const Timers = {

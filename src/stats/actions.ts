@@ -30,6 +30,7 @@ export class ActionsComputer implements StatComputer<ActionCountsType[]> {
         spotDodgeCount: 0,
         ledgegrabCount: 0,
         rollCount: 0,
+        tauntCount: 0,
         lCancelCount: {
           success: 0,
           fail: 0,
@@ -137,6 +138,17 @@ function didStartLedgegrab(currentAnimation: State, previousAnimation: State): b
   return isCurrentlyGrabbingLedge && !wasPreviouslyGrabbingLedge;
 }
 
+function isTaunting(animation: State): boolean {
+  return animation === State.TAUNT_LEFT || animation === State.TAUNT_RIGHT;
+}
+
+function didStartTaunt(currentAnimation: State, previousAnimation: State): boolean {
+  const isCurrentlyTaunting = isTaunting(currentAnimation);
+  const wasPreviouslyTaunting = isTaunting(previousAnimation);
+
+  return isCurrentlyTaunting && !wasPreviouslyTaunting;
+}
+
 function handleActionCompute(state: PlayerActionState, indices: PlayerIndexedType, frame: FrameEntryType): void {
   const playerFrame = frame.players[indices.playerIndex]!.post;
   const opponentFrame = frame.players[indices.opponentIndex]!.post;
@@ -173,6 +185,9 @@ function handleActionCompute(state: PlayerActionState, indices: PlayerIndexedTyp
 
   const didGrabLedge = didStartLedgegrab(currentAnimation, prevAnimation);
   incrementCount("ledgegrabCount", didGrabLedge);
+
+  const didTuant = didStartTaunt(currentAnimation, prevAnimation);
+  incrementCount("tauntCount", didTuant);
 
   const didGrabSucceed = didStartGrabSuccess(currentAnimation, prevAnimation);
   incrementCount("grabCount.success", didGrabSucceed);
