@@ -12,6 +12,7 @@ import type {
   PlayerType,
   SelfInducedSpeedsType,
 } from "../types";
+import type { EventCallbackFunc, EventPayloadTypes, MetadataType, PlayerType, SelfInducedSpeedsType } from "../types";
 import { Command } from "../types";
 import { toHalfwidth } from "./fullwidth";
 
@@ -352,51 +353,56 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
           teamShade: readUint8(view, 0x6c + offset),
           handicap: readUint8(view, 0x6d + offset),
           teamId: readUint8(view, 0x6e + offset),
-          playerBitfield: readUint8(view, 0x71 + offset),
+          staminaMode: !!readUint8(view, 0x6c + playerIndex * 0x24, 0x01),
+          silentCharacter: !!readUint8(view, 0x6c + playerIndex * 0x24, 0x02),
+          lowGravity: !!readUint8(view, 0x6c + playerIndex * 0x24, 0x04),
+          invisible: !!readUint8(view, 0x6c + playerIndex * 0x24, 0x08),
+          blackStockIcon: !!readUint8(view, 0x6c + playerIndex * 0x24, 0x10),
+          metal: !!readUint8(view, 0x6c + playerIndex * 0x24, 0x20),
+          startOnAngelPlatform: !!readUint8(view, 0x6c + playerIndex * 0x24, 0x40),
+          rumbleEnabled: !!readUint8(view, 0x6c + playerIndex * 0x24, 0x80),
           cpuLevel: readUint8(view, 0x74 + offset),
           offenseRatio: readFloat(view, 0x7d + offset),
           defenseRatio: readFloat(view, 0x81 + offset),
           modelScale: readFloat(view, 0x85 + offset),
-          controllerFix: cfOption,
+          controllerFix: controllerFix,
           nametag: nametag,
           displayName: displayName,
           connectCode: connectCode,
+          userId: userId,
         };
       };
 
-      const getGameInfoBlock = (): GameInfoType => {
-        const offset = 0x5;
+      const getEnabledItems = (): number => {
+        const offsets = [0x1, 0x100, 0x10000, 0x1000000, 0x100000000];
+        const enabledItems = offsets.reduce((acc, offset) => {
+          const byte = readUint8(view, 0x29) as number;
+          return acc + byte * offset;
+        }, 0);
 
-        return {
-          gameBitfield1: readUint8(view, 0x0 + offset),
-          gameBitfield2: readUint8(view, 0x1 + offset),
-          gameBitfield3: readUint8(view, 0x2 + offset),
-          gameBitfield4: readUint8(view, 0x3 + offset),
-          bombRainEnabled: (readUint8(view, 0x6 + offset)! & 0xff) > 0 ? true : false,
-          itemSpawnBehavior: readInt8(view, 0xb + offset),
-          selfDestructScoreValue: readInt8(view, 0xc + offset),
-          stageId: readUint16(view, 0xe + offset),
-          startingTimerFrames: readUint32(view, 0x10 + offset),
-          itemSpawnBitfield1: readUint8(view, 0x23 + offset),
-          itemSpawnBitfield2: readUint8(view, 0x24 + offset),
-          itemSpawnBitfield3: readUint8(view, 0x25 + offset),
-          itemSpawnBitfield4: readUint8(view, 0x26 + offset),
-          itemSpawnBitfield5: readUint8(view, 0x27 + offset),
-          damageRatio: readFloat(view, 0x30 + offset),
-        };
+        return enabledItems;
       };
 
       return {
         slpVersion: `${readUint8(view, 0x1)}.${readUint8(view, 0x2)}.${readUint8(view, 0x3)}`,
+        timerType: readUint8(view, 0x5, 0x03),
+        gameMode: readUint8(view, 0x5, 0xe0),
+        friendlyFireEnabled: !!readUint8(view, 0x6, 0x01),
+        bombRainEnabled: !!readInt8(view, 0xb),
         isTeams: readBool(view, 0xd),
-        isPAL: readBool(view, 0x1a1),
+        itemSpawnBehavior: readInt8(view, 0x10),
+        selfDestructScoreValue: readInt8(view, 0x11),
         stageId: readUint16(view, 0x13),
+        startingTimerSeconds: readUint32(view, 0x15),
+        enabledItems: getEnabledItems(),
+        damageRatio: readFloat(view, 0x35),
         players: [0, 1, 2, 3].map(getPlayerObject),
         scene: readUint8(view, 0x1a3),
         gameMode: readUint8(view, 0x1a4),
         language: readUint8(view, 0x2bd),
         gameInfo: getGameInfoBlock(),
         randomSeed: readUint32(view, 0x13d),
+        isPAL: readBool(view, 0x1a1),
         isFrozenPS: readBool(view, 0x1a2),
         minorScene: readUint8(view, 0x1a3),
         majorScene: readUint8(view, 0x1a4),
@@ -407,6 +413,7 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
         seed: readUint32(view, 0x5),
         sceneFrameCounter: readUint32(view, 0x9),
       };
+
     case Command.PRE_FRAME_UPDATE:
       return {
         frame: readInt32(view, 0x1),
@@ -580,12 +587,12 @@ function readUint16(view: DataView, offset: number): number | null {
   return view.getUint16(offset);
 }
 
-function readUint8(view: DataView, offset: number): number | null {
+function readUint8(view: DataView, offset: number, bitmask = 0xff): number | null {
   if (!canReadFromView(view, offset, 1)) {
     return null;
   }
 
-  return view.getUint8(offset);
+  return view.getUint8(offset) & bitmask;
 }
 
 function readBool(view: DataView, offset: number): boolean | null {

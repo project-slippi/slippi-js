@@ -3,6 +3,7 @@ import { get, keyBy, set } from "lodash";
 import semver from "semver";
 
 import type {
+  EnabledItemsType,
   FrameBookendType,
   FrameEntryType,
   FrameStartType,
@@ -15,7 +16,8 @@ import type {
   PreFrameUpdateType,
   RollbackFrames,
 } from "../types";
-import { Command, Frames, GameMode } from "../types";
+import { EnabledItemType, ItemSpawnBehaviorType } from "../types";
+import { Command, Frames, GameModeType } from "../types";
 import { RollbackCounter } from "./rollbackCounter";
 
 export const MAX_ROLLBACK_FRAMES = 7;
@@ -123,6 +125,24 @@ export class SlpParser extends EventEmitter {
 
   public getSettings(): GameStartType | null {
     return this.settingsComplete ? this.settings : null;
+  }
+
+  public getItems(): EnabledItemsType | null {
+    if (this.settings?.itemSpawnBehavior == ItemSpawnBehaviorType.OFF) {
+      return null;
+    }
+
+    const itemBitfield = this.settings?.enabledItems;
+    const enabledItems = {} as EnabledItemsType;
+    enabledItems.items = [];
+
+    for (let i = 0; i < 40; i++) {
+      if (Math.floor((itemBitfield as number) / 2 ** i) & 1) {
+        enabledItems.items.push(EnabledItemType[2 ** i] as string);
+      }
+    }
+
+    return enabledItems;
   }
 
   public getGameEnd(): GameEndType | null {
@@ -252,7 +272,7 @@ export class SlpParser extends EventEmitter {
     this.emit(SlpParserEvent.FRAME, this.frames[currentFrameNumber]);
 
     // Finalize frames if necessary
-    const validLatestFrame = this.settings!.gameMode === GameMode.ONLINE;
+    const validLatestFrame = this.settings!.gameMode === GameModeType.ONLINE;
     if (validLatestFrame && latestFinalizedFrame >= Frames.FIRST) {
       // Ensure valid latestFinalizedFrame
       if (this.options.strict && latestFinalizedFrame < currentFrameNumber - MAX_ROLLBACK_FRAMES) {

@@ -19,6 +19,15 @@ import type {
   PlacementType,
   RollbackFrames,
 } from "./types";
+import type {
+  EnabledItemsType,
+  FrameEntryType,
+  FramesType,
+  GameEndType,
+  GameStartType,
+  MetadataType,
+  RollbackFrames,
+} from "./types";
 import { SlpParser, SlpParserEvent } from "./utils/slpParser";
 import type { SlpReadInput } from "./utils/slpReader";
 import { closeSlpFile, getMetadata, iterateEvents, openSlpFile, SlpInputSource } from "./utils/slpReader";
@@ -108,6 +117,11 @@ export class SlippiGame {
     // Settings is only complete after post-frame update
     this._process(() => this.parser.getSettings() !== null);
     return this.parser.getSettings();
+  }
+
+  public getItems(): EnabledItemsType | null {
+    this._process();
+    return this.parser.getItems();
   }
 
   public getLatestFrame(): FrameEntryType | null {

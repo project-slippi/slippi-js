@@ -21,7 +21,14 @@ export interface PlayerType {
   teamShade: number | null;
   handicap: number | null;
   teamId: number | null;
-  playerBitfield: number | null;
+  staminaMode: boolean | null;
+  silentCharacter: boolean | null;
+  invisible: boolean | null;
+  lowGravity: boolean | null;
+  blackStockIcon: boolean | null;
+  metal: boolean | null;
+  startOnAngelPlatform: boolean | null;
+  rumbleEnabled: boolean | null;
   cpuLevel: number | null;
   offenseRatio: number | null;
   defenseRatio: number | null;
@@ -33,7 +40,7 @@ export interface PlayerType {
   userId: string;
 }
 
-export enum GameMode {
+export enum GameModeType {
   VS = 0x02,
   CLASSIC = 0x03,
   ADVENTURE = 0x04,
@@ -67,15 +74,23 @@ export enum Language {
 
 export interface GameStartType {
   slpVersion: string | null;
+  timerType: TimerType | null;
+  gameMode: GameModeType | null;
+  friendlyFireEnabled: boolean | null;
+  bombRainEnabled: boolean | null;
   isTeams: boolean | null;
-  gameInfo: GameInfoType | null;
-  isPAL: boolean | null;
+  itemSpawnBehavior: ItemSpawnBehaviorType | null;
+  selfDestructScoreValue: number | null;
   stageId: number | null;
+  startingTimerSeconds: number | null;
+  enabledItems: number | null;
+  damageRatio: number | null;
   players: PlayerType[];
   scene: number | null;
   gameMode: GameMode | null;
   language: Language | null;
   randomSeed: number | null;
+  isPAL: boolean | null;
   isFrozenPS: boolean | null;
   minorScene: number | null;
   majorScene: number | null;
@@ -108,6 +123,63 @@ export enum TimerType {
   NONE = 0b00,
   DECREASING = 0b10,
   INCREASING = 0b11,
+}
+
+export enum ItemSpawnBehaviorType {
+  OFF = 0xff,
+  VERY_LOW = 0x00,
+  LOW = 0x01,
+  MEDIUM = 0x02,
+  HIGH = 0x03,
+  VERY_HIGH = 0x04,
+}
+
+export enum EnabledItemType {
+  METAL_BOX = 2 ** 0,
+  CLOAKING_DEVICE = 2 ** 1,
+  POKEBALL = 2 ** 2,
+  // Bits 4 through 8 of item bitfield 1 are unknown
+  UNKNOWN_ITEM_BIT_4 = 2 ** 3,
+  UNKNOWN_ITEM_BIT_5 = 2 ** 4,
+  UNKNOWN_ITEM_BIT_6 = 2 ** 5,
+  UNKNOWN_ITEM_BIT_7 = 2 ** 6,
+  UNKNOWN_ITEM_BIT_8 = 2 ** 7,
+  FAN = 2 ** 8,
+  FIRE_FLOWER = 2 ** 9,
+  SUPER_MUSHROOM = 2 ** 10,
+  POISON_MUSHROOM = 2 ** 11,
+  HAMMER = 2 ** 12,
+  WARP_STAR = 2 ** 13,
+  SCREW_ATTACK = 2 ** 14,
+  BUNNY_HOOD = 2 ** 15,
+  RAY_GUN = 2 ** 16,
+  FREEZIE = 2 ** 17,
+  FOOD = 2 ** 18,
+  MOTION_SENSOR_BOMB = 2 ** 19,
+  FLIPPER = 2 ** 20,
+  SUPER_SCOPE = 2 ** 21,
+  STAR_ROD = 2 ** 22,
+  LIPS_STICK = 2 ** 23,
+  HEART_CONTAINER = 2 ** 24,
+  MAXIM_TOMATO = 2 ** 25,
+  STARMAN = 2 ** 26,
+  HOME_RUN_BAT = 2 ** 27,
+  BEAM_SWORD = 2 ** 28,
+  PARASOL = 2 ** 29,
+  GREEN_SHELL = 2 ** 30,
+  RED_SHELL = 2 ** 31,
+  CAPSULE = 2 ** 32,
+  BOX = 2 ** 33,
+  BARREL = 2 ** 34,
+  EGG = 2 ** 35,
+  PARTY_BALL = 2 ** 36,
+  BARREL_CANNON = 2 ** 37,
+  BOMB_OMB = 2 ** 38,
+  MR_SATURN = 2 ** 39,
+}
+
+export interface EnabledItemsType {
+  items: string[] | null;
 }
 
 export interface PreFrameUpdateType {
