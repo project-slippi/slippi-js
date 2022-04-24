@@ -9,6 +9,7 @@ import {
   StockComputer,
 } from "./stats";
 import type {
+  EnabledItemsType,
   EventCallbackFunc,
   FrameEntryType,
   FramesType,
@@ -17,15 +18,6 @@ import type {
   GeckoListType,
   MetadataType,
   PlacementType,
-  RollbackFrames,
-} from "./types";
-import type {
-  EnabledItemsType,
-  FrameEntryType,
-  FramesType,
-  GameEndType,
-  GameStartType,
-  MetadataType,
   RollbackFrames,
 } from "./types";
 import { SlpParser, SlpParserEvent } from "./utils/slpParser";

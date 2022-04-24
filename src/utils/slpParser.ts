@@ -38,6 +38,9 @@ const defaultSlpParserOptions = {
   strict: false,
 };
 
+// There are 5 bytes of item bitfields that can be enabled
+const itemSettingsBitCount = 40;
+
 export type SlpParserOptions = typeof defaultSlpParserOptions;
 
 export class SlpParser extends EventEmitter {
@@ -128,7 +131,7 @@ export class SlpParser extends EventEmitter {
   }
 
   public getItems(): EnabledItemsType | null {
-    if (this.settings?.itemSpawnBehavior == ItemSpawnBehaviorType.OFF) {
+    if (this.settings?.itemSpawnBehavior === ItemSpawnBehaviorType.OFF) {
       return null;
     }
 
@@ -136,7 +139,7 @@ export class SlpParser extends EventEmitter {
     const enabledItems = {} as EnabledItemsType;
     enabledItems.items = [];
 
-    for (let i = 0; i < 40; i++) {
+    for (let i = 0; i < itemSettingsBitCount; i++) {
       if (Math.floor((itemBitfield as number) / 2 ** i) & 1) {
         enabledItems.items.push(EnabledItemType[2 ** i] as string);
       }

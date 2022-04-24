@@ -6,13 +6,13 @@ import { mapValues } from "lodash";
 import type {
   EventCallbackFunc,
   EventPayloadTypes,
+  GameInfoType,
   GeckoCodeType,
   MetadataType,
   PlacementType,
   PlayerType,
   SelfInducedSpeedsType,
 } from "../types";
-import type { EventCallbackFunc, EventPayloadTypes, MetadataType, PlayerType, SelfInducedSpeedsType } from "../types";
 import { Command } from "../types";
 import { toHalfwidth } from "./fullwidth";
 
@@ -205,6 +205,38 @@ function getMessageSizes(
   return messageSizes;
 }
 
+function getEnabledItems(view: DataView): number {
+  const offsets = [0x1, 0x100, 0x10000, 0x1000000, 0x100000000];
+  const enabledItems = offsets.reduce((acc, offset) => {
+    const byte = readUint8(view, 0x29) as number;
+    return acc + byte * offset;
+  }, 0);
+
+  return enabledItems;
+}
+
+function getGameInfoBlock(view: DataView): GameInfoType {
+  const offset = 0x5;
+
+  return {
+    gameBitfield1: readUint8(view, 0x0 + offset),
+    gameBitfield2: readUint8(view, 0x1 + offset),
+    gameBitfield3: readUint8(view, 0x2 + offset),
+    gameBitfield4: readUint8(view, 0x3 + offset),
+    bombRainEnabled: (readUint8(view, 0x6 + offset)! & 0xff) > 0 ? true : false,
+    itemSpawnBehavior: readInt8(view, 0xb + offset),
+    selfDestructScoreValue: readInt8(view, 0xc + offset),
+    //stageId: readUint16(view, 0xe + offset),
+    //gameTimer: readUint32(view, 0x10 + offset),
+    itemSpawnBitfield1: readUint8(view, 0x23 + offset),
+    itemSpawnBitfield2: readUint8(view, 0x24 + offset),
+    itemSpawnBitfield3: readUint8(view, 0x25 + offset),
+    itemSpawnBitfield4: readUint8(view, 0x26 + offset),
+    itemSpawnBitfield5: readUint8(view, 0x27 + offset),
+    damageRatio: readFloat(view, 0x30 + offset),
+  } as GameInfoType;
+}
+
 /**
  * Iterates through slp events and parses payloads
  */
@@ -353,34 +385,24 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
           teamShade: readUint8(view, 0x6c + offset),
           handicap: readUint8(view, 0x6d + offset),
           teamId: readUint8(view, 0x6e + offset),
-          staminaMode: !!readUint8(view, 0x6c + playerIndex * 0x24, 0x01),
-          silentCharacter: !!readUint8(view, 0x6c + playerIndex * 0x24, 0x02),
-          lowGravity: !!readUint8(view, 0x6c + playerIndex * 0x24, 0x04),
-          invisible: !!readUint8(view, 0x6c + playerIndex * 0x24, 0x08),
-          blackStockIcon: !!readUint8(view, 0x6c + playerIndex * 0x24, 0x10),
-          metal: !!readUint8(view, 0x6c + playerIndex * 0x24, 0x20),
-          startOnAngelPlatform: !!readUint8(view, 0x6c + playerIndex * 0x24, 0x40),
-          rumbleEnabled: !!readUint8(view, 0x6c + playerIndex * 0x24, 0x80),
+          staminaMode: Boolean(readUint8(view, 0x6c + playerIndex * 0x24, 0x01)),
+          silentCharacter: Boolean(readUint8(view, 0x6c + playerIndex * 0x24, 0x02)),
+          lowGravity: Boolean(readUint8(view, 0x6c + playerIndex * 0x24, 0x04)),
+          invisible: Boolean(readUint8(view, 0x6c + playerIndex * 0x24, 0x08)),
+          blackStockIcon: Boolean(readUint8(view, 0x6c + playerIndex * 0x24, 0x10)),
+          metal: Boolean(readUint8(view, 0x6c + playerIndex * 0x24, 0x20)),
+          startOnAngelPlatform: Boolean(readUint8(view, 0x6c + playerIndex * 0x24, 0x40)),
+          rumbleEnabled: Boolean(readUint8(view, 0x6c + playerIndex * 0x24, 0x80)),
           cpuLevel: readUint8(view, 0x74 + offset),
           offenseRatio: readFloat(view, 0x7d + offset),
           defenseRatio: readFloat(view, 0x81 + offset),
           modelScale: readFloat(view, 0x85 + offset),
-          controllerFix: controllerFix,
-          nametag: nametag,
-          displayName: displayName,
-          connectCode: connectCode,
-          userId: userId,
+          controllerFix,
+          nametag,
+          displayName,
+          connectCode,
+          userId,
         };
-      };
-
-      const getEnabledItems = (): number => {
-        const offsets = [0x1, 0x100, 0x10000, 0x1000000, 0x100000000];
-        const enabledItems = offsets.reduce((acc, offset) => {
-          const byte = readUint8(view, 0x29) as number;
-          return acc + byte * offset;
-        }, 0);
-
-        return enabledItems;
       };
 
       return {
@@ -394,18 +416,16 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
         selfDestructScoreValue: readInt8(view, 0x11),
         stageId: readUint16(view, 0x13),
         startingTimerSeconds: readUint32(view, 0x15),
-        enabledItems: getEnabledItems(),
+        enabledItems: getEnabledItems(view),
         damageRatio: readFloat(view, 0x35),
         players: [0, 1, 2, 3].map(getPlayerObject),
-        scene: readUint8(view, 0x1a3),
-        gameMode: readUint8(view, 0x1a4),
+        minorScene: readUint8(view, 0x1a3),
+        majorScene: readUint8(view, 0x1a4),
         language: readUint8(view, 0x2bd),
-        gameInfo: getGameInfoBlock(),
+        gameInfoBlock: getGameInfoBlock(view),
         randomSeed: readUint32(view, 0x13d),
         isPAL: readBool(view, 0x1a1),
         isFrozenPS: readBool(view, 0x1a2),
-        minorScene: readUint8(view, 0x1a3),
-        majorScene: readUint8(view, 0x1a4),
       };
     case Command.FRAME_START:
       return {
