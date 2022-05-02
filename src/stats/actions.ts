@@ -98,7 +98,7 @@ export class ActionsComputer implements StatComputer<ActionCountsType[]> {
   }
 }
 
-function didMissGroundTech(animation: State): boolean {
+function isMissGroundTech(animation: State): boolean {
   return animation === State.TECH_MISS_DOWN || animation === State.TECH_MISS_UP;
 }
 
@@ -200,8 +200,7 @@ function handleActionCompute(state: PlayerActionState, indices: PlayerIndexedTyp
   incrementCount("throwCount.back", currentAnimation === State.THROW_BACK);
 
   // Techs
-  const didMissTech = didMissGroundTech(currentAnimation);
-  incrementCount("groundTechCount.fail", didMissTech);
+  incrementCount("groundTechCount.fail", isMissGroundTech(currentAnimation));
   let opponentDir = 1;
   let facingOpponent = false;
 
