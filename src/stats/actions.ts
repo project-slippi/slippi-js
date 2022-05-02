@@ -11,6 +11,7 @@ const dashDanceAnimations = [State.DASH, State.TURN, State.DASH];
 interface PlayerActionState {
   playerCounts: ActionCountsType;
   animations: number[];
+  actionFrameCounters: number[];
 }
 
 export class ActionsComputer implements StatComputer<ActionCountsType[]> {
@@ -33,6 +34,24 @@ export class ActionsComputer implements StatComputer<ActionCountsType[]> {
         lCancelCount: {
           success: 0,
           fail: 0,
+        },
+        attackCount: {
+          jab1: 0,
+          jab2: 0,
+          jab3: 0,
+          jabm: 0,
+          dash: 0,
+          ftilt: 0,
+          utilt: 0,
+          dtilt: 0,
+          fsmash: 0,
+          usmash: 0,
+          dsmash: 0,
+          nair: 0,
+          fair: 0,
+          bair: 0,
+          uair: 0,
+          dair: 0,
         },
         grabCount: {
           success: 0,
@@ -59,6 +78,7 @@ export class ActionsComputer implements StatComputer<ActionCountsType[]> {
       const playerState: PlayerActionState = {
         playerCounts: playerCounts,
         animations: [],
+        actionFrameCounters: [],
       };
       this.state.set(indices, playerState);
     });
@@ -86,17 +106,6 @@ function isRolling(animation: State): boolean {
   return animation === State.ROLL_BACKWARD || animation === State.ROLL_FORWARD;
 }
 
-function didStartRoll(currentAnimation: number, previousAnimation: number): boolean {
-  const isCurrentlyRolling = isRolling(currentAnimation);
-  const wasPreviouslyRolling = isRolling(previousAnimation);
-
-  return isCurrentlyRolling && !wasPreviouslyRolling;
-}
-
-function isSpotDodging(animation: State): boolean {
-  return animation === State.SPOT_DODGE;
-}
-
 function didStartGrabSuccess(currentAnimation: State, previousAnimation: State): boolean {
   return previousAnimation === State.GRAB && currentAnimation <= State.GRAB_WAIT && currentAnimation > State.GRAB;
 }
@@ -104,37 +113,16 @@ function didStartGrabFail(currentAnimation: State, previousAnimation: State): bo
   return previousAnimation === State.GRAB && (currentAnimation > State.GRAB_WAIT || currentAnimation < State.GRAB);
 }
 
-function didStartSpotDodge(currentAnimation: State, previousAnimation: State): boolean {
-  const isCurrentlyDodging = isSpotDodging(currentAnimation);
-  const wasPreviouslyDodging = isSpotDodging(previousAnimation);
-
-  return isCurrentlyDodging && !wasPreviouslyDodging;
-}
-
-function isAirDodging(animation: State): boolean {
-  return animation === State.AIR_DODGE;
-}
-
-function didStartAirDodge(currentAnimation: State, previousAnimation: State): boolean {
-  const isCurrentlyDodging = isAirDodging(currentAnimation);
-  const wasPreviouslyDodging = isAirDodging(previousAnimation);
-
-  return isCurrentlyDodging && !wasPreviouslyDodging;
-}
-
-function isGrabbingLedge(animation: State): boolean {
-  return animation === State.CLIFF_CATCH;
-}
-
 function isAerialAttack(animation: State): boolean {
   return animation >= State.AERIAL_ATTACK_START && animation <= State.AERIAL_ATTACK_END;
 }
 
-function didStartLedgegrab(currentAnimation: State, previousAnimation: State): boolean {
-  const isCurrentlyGrabbingLedge = isGrabbingLedge(currentAnimation);
-  const wasPreviouslyGrabbingLedge = isGrabbingLedge(previousAnimation);
+function isForwardTilt(animation: State): boolean {
+  return animation >= State.ATTACK_FTILT_START && animation <= State.ATTACK_FTILT_END;
+}
 
-  return isCurrentlyGrabbingLedge && !wasPreviouslyGrabbingLedge;
+function isForwardSmash(animation: State): boolean {
+  return animation >= State.ATTACK_FSMASH_START && animation <= State.ATTACK_FSMASH_END;
 }
 
 function handleActionCompute(state: PlayerActionState, indices: PlayerIndexedType, frame: FrameEntryType): void {
@@ -152,39 +140,56 @@ function handleActionCompute(state: PlayerActionState, indices: PlayerIndexedTyp
   // Manage animation state
   const currentAnimation = playerFrame.actionStateId!;
   state.animations.push(currentAnimation);
+  const currentFrameCounter = playerFrame.actionStateCounter!;
+  state.actionFrameCounters.push(currentFrameCounter);
 
   // Grab last 3 frames
   const last3Frames = state.animations.slice(-3);
   const prevAnimation = last3Frames[last3Frames.length - 2] as number;
-  const newAnimation = currentAnimation !== prevAnimation;
+  const prevFrameCounter = state.actionFrameCounters[-2] as number;
+
+  // New action if new animation or frame counter goes back down (repeated action)
+  const isNewAction =
+    currentAnimation !== prevAnimation ||
+    (currentAnimation === prevAnimation && prevFrameCounter > currentFrameCounter);
 
   // Increment counts based on conditions
   const didDashDance = isEqual(last3Frames, dashDanceAnimations);
   incrementCount("dashDanceCount", didDashDance);
 
-  const didRoll = didStartRoll(currentAnimation, prevAnimation);
-  incrementCount("rollCount", didRoll);
-
-  const didSpotDodge = didStartSpotDodge(currentAnimation, prevAnimation);
-  incrementCount("spotDodgeCount", didSpotDodge);
-
-  const didAirDodge = didStartAirDodge(currentAnimation, prevAnimation);
-  incrementCount("airDodgeCount", didAirDodge);
-
-  const didGrabLedge = didStartLedgegrab(currentAnimation, prevAnimation);
-  incrementCount("ledgegrabCount", didGrabLedge);
+  incrementCount("rollCount", isRolling(currentAnimation) && isNewAction);
+  incrementCount("spotDodgeCount", currentAnimation === State.SPOT_DODGE && isNewAction);
+  incrementCount("airDodgeCount", currentAnimation === State.AIR_DODGE && isNewAction);
+  incrementCount("ledgegrabCount", currentAnimation === State.CLIFF_CATCH && isNewAction);
 
   const didGrabSucceed = didStartGrabSuccess(currentAnimation, prevAnimation);
   incrementCount("grabCount.success", didGrabSucceed);
   const didGrabFail = didStartGrabFail(currentAnimation, prevAnimation);
   incrementCount("grabCount.fail", didGrabFail);
 
-  incrementCount("throwCount.up", currentAnimation === State.THROW_UP && newAnimation);
-  incrementCount("throwCount.forward", currentAnimation === State.THROW_FORWARD && newAnimation);
-  incrementCount("throwCount.down", currentAnimation === State.THROW_DOWN && newAnimation);
-  incrementCount("throwCount.back", currentAnimation === State.THROW_BACK && newAnimation);
+  incrementCount("attackCount.jab1", currentAnimation === State.ATTACK_JAB1 && isNewAction);
+  incrementCount("attackCount.jab2", currentAnimation === State.ATTACK_JAB2 && isNewAction);
+  incrementCount("attackCount.jab3", currentAnimation === State.ATTACK_JAB3 && isNewAction);
+  incrementCount("attackCount.jabm", currentAnimation === State.ATTACK_JABM && isNewAction);
+  incrementCount("attackCount.dash", currentAnimation === State.ATTACK_DASH && isNewAction);
+  incrementCount("attackCount.ftilt", isForwardTilt(currentAnimation) && isNewAction);
+  incrementCount("attackCount.utilt", currentAnimation === State.ATTACK_UTILT && isNewAction);
+  incrementCount("attackCount.dtilt", currentAnimation === State.ATTACK_DTILT && isNewAction);
+  incrementCount("attackCount.fsmash", isForwardSmash(currentAnimation) && isNewAction);
+  incrementCount("attackCount.usmash", currentAnimation === State.ATTACK_USMASH && isNewAction);
+  incrementCount("attackCount.dsmash", currentAnimation === State.ATTACK_DSMASH && isNewAction);
+  incrementCount("attackCount.nair", currentAnimation === State.AERIAL_NAIR && isNewAction);
+  incrementCount("attackCount.fair", currentAnimation === State.AERIAL_FAIR && isNewAction);
+  incrementCount("attackCount.bair", currentAnimation === State.AERIAL_BAIR && isNewAction);
+  incrementCount("attackCount.uair", currentAnimation === State.AERIAL_UAIR && isNewAction);
+  incrementCount("attackCount.dair", currentAnimation === State.AERIAL_DAIR && isNewAction);
 
-  if (newAnimation) {
+  incrementCount("throwCount.up", currentAnimation === State.THROW_UP && isNewAction);
+  incrementCount("throwCount.forward", currentAnimation === State.THROW_FORWARD && isNewAction);
+  incrementCount("throwCount.down", currentAnimation === State.THROW_DOWN && isNewAction);
+  incrementCount("throwCount.back", currentAnimation === State.THROW_BACK && isNewAction);
+
+  if (isNewAction) {
     const didMissTech = didMissGroundTech(currentAnimation);
     incrementCount("groundTechCount.fail", didMissTech);
     let opponentDir = 1;
