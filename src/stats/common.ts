@@ -189,6 +189,7 @@ export enum State {
   FALL_FORWARD = 0x1e,
   FALL_BACKWARD = 0x1f,
   GRAB = 0xd4,
+  DASH_GRAB = 0xd6,
   GRAB_WAIT = 0xd8,
   PUMMEL = 0xd9,
   CLIFF_CATCH = 0xfc,

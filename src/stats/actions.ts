@@ -106,11 +106,13 @@ function isRolling(animation: State): boolean {
   return animation === State.ROLL_BACKWARD || animation === State.ROLL_FORWARD;
 }
 
-function didStartGrabSuccess(currentAnimation: State, previousAnimation: State): boolean {
-  return previousAnimation === State.GRAB && currentAnimation <= State.GRAB_WAIT && currentAnimation > State.GRAB;
+function isGrabAction(animation: State): boolean {
+  // Includes Grab pull, wait, pummel, and throws
+  return animation > State.GRAB && animation <= State.THROW_DOWN && animation !== State.DASH_GRAB;
 }
-function didStartGrabFail(currentAnimation: State, previousAnimation: State): boolean {
-  return previousAnimation === State.GRAB && (currentAnimation > State.GRAB_WAIT || currentAnimation < State.GRAB);
+
+function isGrabbing(animation: State): boolean {
+  return animation === State.GRAB || animation === State.DASH_GRAB;
 }
 
 function isAerialAttack(animation: State): boolean {
@@ -153,64 +155,69 @@ function handleActionCompute(state: PlayerActionState, indices: PlayerIndexedTyp
     currentAnimation !== prevAnimation ||
     (currentAnimation === prevAnimation && prevFrameCounter > currentFrameCounter);
 
+  if (!isNewAction) {
+    return;
+  }
+
   // Increment counts based on conditions
   const didDashDance = isEqual(last3Frames, dashDanceAnimations);
   incrementCount("dashDanceCount", didDashDance);
 
-  incrementCount("rollCount", isRolling(currentAnimation) && isNewAction);
-  incrementCount("spotDodgeCount", currentAnimation === State.SPOT_DODGE && isNewAction);
-  incrementCount("airDodgeCount", currentAnimation === State.AIR_DODGE && isNewAction);
-  incrementCount("ledgegrabCount", currentAnimation === State.CLIFF_CATCH && isNewAction);
+  incrementCount("rollCount", isRolling(currentAnimation));
+  incrementCount("spotDodgeCount", currentAnimation === State.SPOT_DODGE);
+  incrementCount("airDodgeCount", currentAnimation === State.AIR_DODGE);
+  incrementCount("ledgegrabCount", currentAnimation === State.CLIFF_CATCH);
 
-  const didGrabSucceed = didStartGrabSuccess(currentAnimation, prevAnimation);
-  incrementCount("grabCount.success", didGrabSucceed);
-  const didGrabFail = didStartGrabFail(currentAnimation, prevAnimation);
-  incrementCount("grabCount.fail", didGrabFail);
-
-  incrementCount("attackCount.jab1", currentAnimation === State.ATTACK_JAB1 && isNewAction);
-  incrementCount("attackCount.jab2", currentAnimation === State.ATTACK_JAB2 && isNewAction);
-  incrementCount("attackCount.jab3", currentAnimation === State.ATTACK_JAB3 && isNewAction);
-  incrementCount("attackCount.jabm", currentAnimation === State.ATTACK_JABM && isNewAction);
-  incrementCount("attackCount.dash", currentAnimation === State.ATTACK_DASH && isNewAction);
-  incrementCount("attackCount.ftilt", isForwardTilt(currentAnimation) && isNewAction);
-  incrementCount("attackCount.utilt", currentAnimation === State.ATTACK_UTILT && isNewAction);
-  incrementCount("attackCount.dtilt", currentAnimation === State.ATTACK_DTILT && isNewAction);
-  incrementCount("attackCount.fsmash", isForwardSmash(currentAnimation) && isNewAction);
-  incrementCount("attackCount.usmash", currentAnimation === State.ATTACK_USMASH && isNewAction);
-  incrementCount("attackCount.dsmash", currentAnimation === State.ATTACK_DSMASH && isNewAction);
-  incrementCount("attackCount.nair", currentAnimation === State.AERIAL_NAIR && isNewAction);
-  incrementCount("attackCount.fair", currentAnimation === State.AERIAL_FAIR && isNewAction);
-  incrementCount("attackCount.bair", currentAnimation === State.AERIAL_BAIR && isNewAction);
-  incrementCount("attackCount.uair", currentAnimation === State.AERIAL_UAIR && isNewAction);
-  incrementCount("attackCount.dair", currentAnimation === State.AERIAL_DAIR && isNewAction);
-
-  incrementCount("throwCount.up", currentAnimation === State.THROW_UP && isNewAction);
-  incrementCount("throwCount.forward", currentAnimation === State.THROW_FORWARD && isNewAction);
-  incrementCount("throwCount.down", currentAnimation === State.THROW_DOWN && isNewAction);
-  incrementCount("throwCount.back", currentAnimation === State.THROW_BACK && isNewAction);
-
-  if (isNewAction) {
-    const didMissTech = didMissGroundTech(currentAnimation);
-    incrementCount("groundTechCount.fail", didMissTech);
-    let opponentDir = 1;
-    let facingOpponent = false;
-
-    if (playerFrame.positionX! > opponentFrame.positionX!) {
-      opponentDir = -1;
-    }
-    if (playerFrame.facingDirection == opponentDir) {
-      facingOpponent = true;
-    }
-
-    incrementCount("groundTechCount.in", currentAnimation === State.FORWARD_TECH && facingOpponent);
-    incrementCount("groundTechCount.in", currentAnimation === State.BACKWARD_TECH && !facingOpponent);
-    incrementCount("groundTechCount.neutral", currentAnimation === State.NEUTRAL_TECH);
-    incrementCount("groundTechCount.away", currentAnimation === State.BACKWARD_TECH && facingOpponent);
-    incrementCount("groundTechCount.away", currentAnimation === State.FORWARD_TECH && !facingOpponent);
-
-    incrementCount("wallTechCount.success", currentAnimation === State.WALL_TECH);
-    incrementCount("wallTechCount.fail", currentAnimation === State.MISSED_WALL_TECH);
+  // Grabs
+  incrementCount("grabCount.success", isGrabbing(prevAnimation) && isGrabAction(currentAnimation));
+  incrementCount("grabCount.fail", isGrabbing(prevAnimation) && !isGrabAction(currentAnimation));
+  if (currentAnimation === State.DASH_GRAB && prevAnimation === State.ATTACK_DASH) {
+    state.playerCounts.attackCount.dash -= 1; // subtract from dash attack if boost grab
   }
+
+  // Basic attacks
+  incrementCount("attackCount.jab1", currentAnimation === State.ATTACK_JAB1);
+  incrementCount("attackCount.jab2", currentAnimation === State.ATTACK_JAB2);
+  incrementCount("attackCount.jab3", currentAnimation === State.ATTACK_JAB3);
+  incrementCount("attackCount.jabm", currentAnimation === State.ATTACK_JABM);
+  incrementCount("attackCount.dash", currentAnimation === State.ATTACK_DASH);
+  incrementCount("attackCount.ftilt", isForwardTilt(currentAnimation));
+  incrementCount("attackCount.utilt", currentAnimation === State.ATTACK_UTILT);
+  incrementCount("attackCount.dtilt", currentAnimation === State.ATTACK_DTILT);
+  incrementCount("attackCount.fsmash", isForwardSmash(currentAnimation));
+  incrementCount("attackCount.usmash", currentAnimation === State.ATTACK_USMASH);
+  incrementCount("attackCount.dsmash", currentAnimation === State.ATTACK_DSMASH);
+  incrementCount("attackCount.nair", currentAnimation === State.AERIAL_NAIR);
+  incrementCount("attackCount.fair", currentAnimation === State.AERIAL_FAIR);
+  incrementCount("attackCount.bair", currentAnimation === State.AERIAL_BAIR);
+  incrementCount("attackCount.uair", currentAnimation === State.AERIAL_UAIR);
+  incrementCount("attackCount.dair", currentAnimation === State.AERIAL_DAIR);
+
+  // Throws
+  incrementCount("throwCount.up", currentAnimation === State.THROW_UP);
+  incrementCount("throwCount.forward", currentAnimation === State.THROW_FORWARD);
+  incrementCount("throwCount.down", currentAnimation === State.THROW_DOWN);
+  incrementCount("throwCount.back", currentAnimation === State.THROW_BACK);
+
+  // Techs
+  const didMissTech = didMissGroundTech(currentAnimation);
+  incrementCount("groundTechCount.fail", didMissTech);
+  let opponentDir = 1;
+  let facingOpponent = false;
+
+  if (playerFrame.positionX! > opponentFrame.positionX!) {
+    opponentDir = -1;
+  }
+  if (playerFrame.facingDirection == opponentDir) {
+    facingOpponent = true;
+  }
+  incrementCount("groundTechCount.in", currentAnimation === State.FORWARD_TECH && facingOpponent);
+  incrementCount("groundTechCount.in", currentAnimation === State.BACKWARD_TECH && !facingOpponent);
+  incrementCount("groundTechCount.neutral", currentAnimation === State.NEUTRAL_TECH);
+  incrementCount("groundTechCount.away", currentAnimation === State.BACKWARD_TECH && facingOpponent);
+  incrementCount("groundTechCount.away", currentAnimation === State.FORWARD_TECH && !facingOpponent);
+  incrementCount("wallTechCount.success", currentAnimation === State.WALL_TECH);
+  incrementCount("wallTechCount.fail", currentAnimation === State.MISSED_WALL_TECH);
 
   if (isAerialAttack(currentAnimation)) {
     incrementCount("lCancelCount.success", playerFrame.lCancelStatus === 1);

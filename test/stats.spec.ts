@@ -9,8 +9,8 @@ const expectedThrow = {
 };
 
 const expectedGrab = {
-  success: 6,
-  fail: 2,
+  success: 7,
+  fail: 3,
 };
 
 describe("when calculating stats", () => {
