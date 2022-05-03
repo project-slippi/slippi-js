@@ -27,6 +27,53 @@ describe("when calculating stats", () => {
     expect(p2Fail).toBe(4);
   });
 
+  it("should count repeat actions properly", () => {
+    const game = new SlippiGame("slp/actionEdgeCases.slp");
+    const stats = game.getStats();
+    const p1Bairs = stats.actionCounts[0].attackCount.bair;
+    const p1SpotDodge = stats.actionCounts[0].spotDodgeCount;
+    expect(p1Bairs).toBe(8);
+    expect(p1SpotDodge).toBe(4);
+  });
+
+  it("should count angled attacks properly", () => {
+    const game = new SlippiGame("slp/actionEdgeCases.slp");
+    const stats = game.getStats();
+    const p1Ftilts = stats.actionCounts[0].attackCount.ftilt;
+    const p1Fsmashes = stats.actionCounts[0].attackCount.fsmash;
+    expect(p1Ftilts).toBe(3);
+    expect(p1Fsmashes).toBe(3);
+  });
+
+  it("should count jabs properly", () => {
+    const game = new SlippiGame("slp/actionEdgeCases.slp");
+    const stats = game.getStats();
+    const p1Jab1s = stats.actionCounts[0].attackCount.jab1;
+    const p1Jab2s = stats.actionCounts[0].attackCount.jab2;
+    const p1Jab3s = stats.actionCounts[0].attackCount.jab3;
+    const p1Jabms = stats.actionCounts[0].attackCount.jabm;
+    expect(p1Jab1s).toBe(4);
+    expect(p1Jab2s).toBe(3);
+    expect(p1Jab3s).toBe(2);
+    expect(p1Jabms).toBe(1);
+  });
+
+  it("should count grabs even if frame perfect throw", () => {
+    const game = new SlippiGame("slp/actionEdgeCases.slp");
+    const stats = game.getStats();
+    const p1GrabSuccess = stats.actionCounts[0].grabCount.success;
+    const p1GrabFail = stats.actionCounts[0].grabCount.fail;
+    expect(p1GrabSuccess).toBe(4);
+    expect(p1GrabFail).toBe(1);
+  });
+
+  it("should count dash attacks correctly despite boost grabs", () => {
+    const game = new SlippiGame("slp/actionEdgeCases.slp");
+    const stats = game.getStats();
+    const p1DashAttack = stats.actionCounts[0].attackCount.dash;
+    expect(p1DashAttack).toBe(2);
+  });
+
   it("should correctly calculate throw counts", () => {
     const game = new SlippiGame("slp/throwGrab.slp");
     const stats = game.getStats();
