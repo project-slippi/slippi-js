@@ -148,7 +148,7 @@ function handleActionCompute(state: PlayerActionState, indices: PlayerIndexedTyp
   // Grab last 3 frames
   const last3Frames = state.animations.slice(-3);
   const prevAnimation = last3Frames[last3Frames.length - 2] as number;
-  const prevFrameCounter = state.actionFrameCounters[-2] as number;
+  const prevFrameCounter = state.actionFrameCounters[state.actionFrameCounters.length - 2] as number;
 
   // New action if new animation or frame counter goes back down (repeated action)
   const isNewAction =
