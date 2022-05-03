@@ -45,6 +45,41 @@ describe("when calculating stats", () => {
     expect(p1Fsmashes).toBe(3);
   });
 
+  it("should count gnw weird moveset correctly", () => {
+    const game = new SlippiGame("slp/gnwActions.slp");
+    const stats = game.getStats();
+    const p1Jab1s = stats.actionCounts[0].attackCount.jab1;
+    const p1Jabms = stats.actionCounts[0].attackCount.jabm;
+    const p1Ftilts = stats.actionCounts[0].attackCount.ftilt;
+    const p1Utilts = stats.actionCounts[0].attackCount.utilt;
+    const p1Dtilts = stats.actionCounts[0].attackCount.dtilt;
+    const p1Fsmashes = stats.actionCounts[0].attackCount.fsmash;
+    const p1Usmashes = stats.actionCounts[0].attackCount.usmash;
+    const p1Dsmashes = stats.actionCounts[0].attackCount.dsmash;
+    const p1Nairs = stats.actionCounts[0].attackCount.nair;
+    const p1Fairs = stats.actionCounts[0].attackCount.fair;
+    const p1Bairs = stats.actionCounts[0].attackCount.bair;
+    const p1Uairs = stats.actionCounts[0].attackCount.uair;
+    const p1Dairs = stats.actionCounts[0].attackCount.dair;
+    const p1LCancelSuccess = stats.actionCounts[0].lCancelCount.success;
+    const p1LCancelFail = stats.actionCounts[0].lCancelCount.fail;
+    expect(p1Jab1s).toBe(2);
+    expect(p1Jabms).toBe(1);
+    expect(p1Ftilts).toBe(1);
+    expect(p1Utilts).toBe(1);
+    expect(p1Dtilts).toBe(1);
+    expect(p1Fsmashes).toBe(1);
+    expect(p1Usmashes).toBe(1);
+    expect(p1Dsmashes).toBe(1);
+    expect(p1Nairs).toBe(1);
+    expect(p1Fairs).toBe(1);
+    expect(p1Bairs).toBe(1);
+    expect(p1Uairs).toBe(1);
+    expect(p1Dairs).toBe(1);
+    expect(p1LCancelSuccess).toBe(2);
+    expect(p1LCancelFail).toBe(0);
+  });
+
   it("should count jabs properly", () => {
     const game = new SlippiGame("slp/actionEdgeCases.slp");
     const stats = game.getStats();

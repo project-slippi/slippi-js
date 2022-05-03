@@ -193,6 +193,17 @@ function handleActionCompute(state: PlayerActionState, indices: PlayerIndexedTyp
   incrementCount("attackCount.uair", currentAnimation === State.AERIAL_UAIR);
   incrementCount("attackCount.dair", currentAnimation === State.AERIAL_DAIR);
 
+  // GnW is weird and has unique IDs for some moves
+  if (playerFrame.internalCharacterId === 0x18) {
+    incrementCount("attackCount.jab1", currentAnimation === State.GNW_JAB1);
+    incrementCount("attackCount.jabm", currentAnimation === State.GNW_JABM);
+    incrementCount("attackCount.dtilt", currentAnimation === State.GNW_DTILT);
+    incrementCount("attackCount.fsmash", currentAnimation === State.GNW_FSMASH);
+    incrementCount("attackCount.nair", currentAnimation === State.GNW_NAIR);
+    incrementCount("attackCount.bair", currentAnimation === State.GNW_BAIR);
+    incrementCount("attackCount.uair", currentAnimation === State.GNW_UAIR);
+  }
+
   // Throws
   incrementCount("throwCount.up", currentAnimation === State.THROW_UP);
   incrementCount("throwCount.forward", currentAnimation === State.THROW_FORWARD);

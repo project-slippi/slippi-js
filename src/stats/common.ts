@@ -213,6 +213,15 @@ export enum State {
   AERIAL_UAIR = 0x44,
   AERIAL_DAIR = 0x45,
 
+  // Weird GnW IDs
+  GNW_JAB1 = 0x155,
+  GNW_JABM = 0x156,
+  GNW_DTILT = 0x159,
+  GNW_FSMASH = 0x15a,
+  GNW_NAIR = 0x15b,
+  GNW_BAIR = 0x15c,
+  GNW_UAIR = 0x15d,
+
   // Command Grabs
   BARREL_WAIT = 0x125,
   COMMAND_GRAB_RANGE1_START = 0x10a,
