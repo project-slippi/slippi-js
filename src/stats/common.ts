@@ -71,6 +71,24 @@ export interface ActionCountsType {
     success: number;
     fail: number;
   };
+  attackCount: {
+    jab1: number;
+    jab2: number;
+    jab3: number;
+    jabm: number;
+    dash: number;
+    ftilt: number;
+    utilt: number;
+    dtilt: number;
+    fsmash: number;
+    usmash: number;
+    dsmash: number;
+    nair: number;
+    fair: number;
+    bair: number;
+    uair: number;
+    dair: number;
+  };
   grabCount: {
     success: number;
     fail: number;
@@ -142,6 +160,10 @@ export enum State {
   GROUND_ATTACK_END = 0x40,
   AERIAL_ATTACK_START = 0x41,
   AERIAL_ATTACK_END = 0x4a,
+  ATTACK_FTILT_START = 0x33,
+  ATTACK_FTILT_END = 0x37,
+  ATTACK_FSMASH_START = 0x3a,
+  ATTACK_FSMASH_END = 0x3e,
 
   // Animation ID specific
   ROLL_FORWARD = 0xe9,
@@ -167,6 +189,7 @@ export enum State {
   FALL_FORWARD = 0x1e,
   FALL_BACKWARD = 0x1f,
   GRAB = 0xd4,
+  DASH_GRAB = 0xd6,
   GRAB_WAIT = 0xd8,
   PUMMEL = 0xd9,
   CLIFF_CATCH = 0xfc,
@@ -175,6 +198,29 @@ export enum State {
   THROW_DOWN = 0xde,
   THROW_BACK = 0xdc,
   DAMAGE_FALL = 0x26,
+  ATTACK_JAB1 = 0x2c,
+  ATTACK_JAB2 = 0x2d,
+  ATTACK_JAB3 = 0x2e,
+  ATTACK_JABM = 0x2f,
+  ATTACK_DASH = 0x32,
+  ATTACK_UTILT = 0x38,
+  ATTACK_DTILT = 0x39,
+  ATTACK_USMASH = 0x3f,
+  ATTACK_DSMASH = 0x40,
+  AERIAL_NAIR = 0x41,
+  AERIAL_FAIR = 0x42,
+  AERIAL_BAIR = 0x43,
+  AERIAL_UAIR = 0x44,
+  AERIAL_DAIR = 0x45,
+
+  // Weird GnW IDs
+  GNW_JAB1 = 0x155,
+  GNW_JABM = 0x156,
+  GNW_DTILT = 0x159,
+  GNW_FSMASH = 0x15a,
+  GNW_NAIR = 0x15b,
+  GNW_BAIR = 0x15c,
+  GNW_UAIR = 0x15d,
 
   // Command Grabs
   BARREL_WAIT = 0x125,

@@ -35,6 +35,12 @@ it("should correctly return stats", () => {
   expect(stats.actionCounts[0].wavelandCount).toBe(1);
   expect(stats.actionCounts[0].airDodgeCount).toBe(3);
 
+  // Test attack counts
+  expect(stats.actionCounts[0].attackCount.ftilt).toBe(3);
+  expect(stats.actionCounts[0].attackCount.dash).toBe(1);
+  expect(stats.actionCounts[0].attackCount.fsmash).toBe(4);
+  expect(stats.actionCounts[0].attackCount.bair).toBe(4);
+
   // Test overall
   expect(stats.overall[0].inputCounts.total).toBe(494);
 });
