@@ -151,9 +151,7 @@ function handleActionCompute(state: PlayerActionState, indices: PlayerIndexedTyp
   const prevFrameCounter = state.actionFrameCounters[state.actionFrameCounters.length - 2] as number;
 
   // New action if new animation or frame counter goes back down (repeated action)
-  const isNewAction =
-    currentAnimation !== prevAnimation ||
-    (currentAnimation === prevAnimation && prevFrameCounter > currentFrameCounter);
+  const isNewAction = currentAnimation !== prevAnimation || prevFrameCounter > currentFrameCounter;
 
   if (!isNewAction) {
     return;
@@ -211,16 +209,13 @@ function handleActionCompute(state: PlayerActionState, indices: PlayerIndexedTyp
   incrementCount("throwCount.back", currentAnimation === State.THROW_BACK);
 
   // Techs
-  incrementCount("groundTechCount.fail", isMissGroundTech(currentAnimation));
   let opponentDir = 1;
-  let facingOpponent = false;
-
   if (playerFrame.positionX! > opponentFrame.positionX!) {
     opponentDir = -1;
   }
-  if (playerFrame.facingDirection == opponentDir) {
-    facingOpponent = true;
-  }
+  const facingOpponent = playerFrame.facingDirection == opponentDir;
+
+  incrementCount("groundTechCount.fail", isMissGroundTech(currentAnimation));
   incrementCount("groundTechCount.in", currentAnimation === State.FORWARD_TECH && facingOpponent);
   incrementCount("groundTechCount.in", currentAnimation === State.BACKWARD_TECH && !facingOpponent);
   incrementCount("groundTechCount.neutral", currentAnimation === State.NEUTRAL_TECH);
