@@ -13,8 +13,8 @@ it("should correctly return game settings", () => {
 });
 
 it("should correctly return stats", () => {
-  const game = new SlippiGame("slp/test.slp");
-  const stats = game.getStats();
+  let game = new SlippiGame("slp/test.slp");
+  let stats = game.getStats();
   expect(stats.lastFrame).toBe(3694);
 
   // Test stocks
@@ -43,6 +43,23 @@ it("should correctly return stats", () => {
 
   // Test overall
   expect(stats.overall[0].inputCounts.total).toBe(494);
+
+  // Test Placements
+  expect(stats.placements).toHaveLength(4);
+  // Expect empty placements
+  expect(stats.placements[0].position).toBe(null);
+  expect(stats.placements[1].position).toBe(null);
+  expect(stats.placements[2].position).toBe(null);
+  expect(stats.placements[3].position).toBe(null);
+
+  // Test Placements
+  game = new SlippiGame("slp/placementsTest/ffa_1p2p_winner_2p.slp");
+  stats = game.getStats();
+  expect(stats.placements).toHaveLength(4);
+  expect(stats.placements[0].position).toBe(1); // player in port 1 is on second place
+  expect(stats.placements[0].playerIndex).toBe(0);
+  expect(stats.placements[1].position).toBe(0); // player in port 2 is on first place
+  expect(stats.placements[1].playerIndex).toBe(1);
 });
 
 it("should correctly return metadata", () => {
@@ -207,6 +224,97 @@ it("should count rollback frames properly", () => {
   const rollbackLengths = rollbackFrames.lengths;
   expect(rollbackFrames.count).toBe(4292);
   expect(rollbackLengths.reduce((a, b) => a + b) / rollbackLengths.length).toBe(1.6877703499803383); // average rollback length check
+});
+
+it("should find Winners properly", () => {
+  let game = new SlippiGame("slp/placementsTest/ffa_1p2p_winner_2p.slp");
+  let placements = game.getWinners();
+  expect(placements).toHaveLength(1);
+  expect(placements[0]?.playerIndex).toBe(1);
+  expect(placements[0]?.position).toBe(0);
+
+  game = new SlippiGame("slp/placementsTest/teams_time_p3_redVSp1p2_blueVSp4_green_winner_blue.slp");
+  placements = game.getWinners();
+  expect(placements).toHaveLength(2);
+  expect(placements[0]?.playerIndex).toBe(0);
+  expect(placements[0]?.position).toBe(3);
+  expect(placements[0]?.teamId).toBe(1);
+  expect(placements[1]?.playerIndex).toBe(1);
+  expect(placements[1]?.position).toBe(0);
+  expect(placements[1]?.teamId).toBe(1);
+});
+
+it("should parse placements properly", () => {
+  let game = new SlippiGame("slp/placementsTest/ffa_1p2p3p_winner_3p.slp");
+  let placements = game.getGameEnd().placements;
+  expect(placements).toBeDefined();
+  expect(placements).toHaveLength(4);
+
+  expect(placements[0]?.playerIndex).toBe(0);
+  expect(placements[1]?.playerIndex).toBe(1);
+  expect(placements[2]?.playerIndex).toBe(2);
+  expect(placements[3]?.playerIndex).toBe(3);
+
+  expect(placements[0]?.position).toBe(1); // Expect player 1 to be on second place
+  expect(placements[1]?.position).toBe(2); // Expect player 2 to be on third place
+  expect(placements[2]?.position).toBe(0); // Expect player 3 to be first place
+  expect(placements[3]?.position).toBe(null); // Expect player 4 to not be present
+
+  game = new SlippiGame("slp/placementsTest/ffa_1p2p4p_winner_4p.slp");
+  placements = game.getGameEnd().placements;
+  expect(placements).toBeDefined();
+  expect(placements).toHaveLength(4);
+
+  expect(placements[0]?.playerIndex).toBe(0);
+  expect(placements[1]?.playerIndex).toBe(1);
+  expect(placements[2]?.playerIndex).toBe(2);
+  expect(placements[3]?.playerIndex).toBe(3);
+
+  expect(placements[0]?.position).toBe(1); // Expect player 1 to be on second place
+  expect(placements[1]?.position).toBe(2); // Expect player 2 to be on third place
+  expect(placements[2]?.position).toBe(null); // Expect player 3 to not be present
+  expect(placements[3]?.position).toBe(0); // Expect player 4 to be first place
+
+  game = new SlippiGame("slp/placementsTest/teams_p1p2_blueVSp4_green_winner_green.slp");
+  placements = game.getGameEnd().placements;
+  expect(placements).toBeDefined();
+  expect(placements).toHaveLength(4);
+
+  expect(placements[0]?.playerIndex).toBe(0);
+  expect(placements[1]?.playerIndex).toBe(1);
+  expect(placements[2]?.playerIndex).toBe(2);
+  expect(placements[3]?.playerIndex).toBe(3);
+
+  expect(placements[0]?.position).toBe(1); // Expect player 1 to be on second place
+  expect(placements[1]?.position).toBe(2); // Expect player 2 to be on third place
+  expect(placements[2]?.position).toBe(null); // Expect player 3 to not be present
+  expect(placements[3]?.position).toBe(0); // Expect player 4 to be first place
+
+  expect(placements[0]?.teamId).toBe(1); // Expect player 1 to be on team blue
+  expect(placements[1]?.teamId).toBe(1); // Expect player 2 to be on team blue
+  expect(placements[2]?.teamId).toBe(null); // Expect player 3 to not be present
+  expect(placements[3]?.teamId).toBe(2); // Expect player 4 to be on team green
+
+  // Based on scores (time), not stock
+  game = new SlippiGame("slp/placementsTest/teams_time_p3_redVSp1p2_blueVSp4_green_winner_blue.slp");
+  placements = game.getGameEnd().placements;
+  expect(placements).toBeDefined();
+  expect(placements).toHaveLength(4);
+
+  expect(placements[0]?.playerIndex).toBe(0);
+  expect(placements[1]?.playerIndex).toBe(1);
+  expect(placements[2]?.playerIndex).toBe(2);
+  expect(placements[3]?.playerIndex).toBe(3);
+
+  expect(placements[0]?.position).toBe(3); // Expect player 1 to be on fourth place
+  expect(placements[1]?.position).toBe(0); // Expect player 2 to be on first place
+  expect(placements[2]?.position).toBe(1); // Expect player 3 to be on second place
+  expect(placements[3]?.position).toBe(2); // Expect player 4 to be on third place
+
+  expect(placements[0]?.teamId).toBe(1); // Expect player 1 to be on team blue
+  expect(placements[1]?.teamId).toBe(1); // Expect player 2 to be on team blue
+  expect(placements[2]?.teamId).toBe(0); // Expect player 3 to be on team red
+  expect(placements[3]?.teamId).toBe(2); // Expect player 4 to be on team green
 });
 
 // it('test speedReadTest', () => {

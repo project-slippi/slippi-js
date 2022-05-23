@@ -8,6 +8,7 @@ import type {
   EventPayloadTypes,
   GeckoCodeType,
   MetadataType,
+  PlacementType,
   PlayerType,
   SelfInducedSpeedsType,
 } from "../types";
@@ -453,9 +454,39 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
         latestFinalizedFrame: readInt32(view, 0x5),
       };
     case Command.GAME_END:
+      const getPlacementObject = (playerIndex: number): PlacementType => {
+        const data = readUint8(view, 0x3 + playerIndex);
+
+        // return an empty placement
+        if ((!data || data == 0xff) && data != 0) {
+          return {
+            playerIndex: playerIndex,
+            teamId: null,
+            position: null,
+          };
+        }
+
+        // Separate TP by first extracting the team ID
+        // for the position move it back left and XOR
+        // i.e:
+        // Team:
+        // 0xTP >> 4 => 0xT
+        // Position:
+        // 0xT << 4 => 0xT0
+        // 0xT0 XOR 0xTP => 0xP
+
+        const teamId = data >> 4;
+
+        return {
+          playerIndex: playerIndex,
+          teamId: teamId,
+          position: (teamId << 4) ^ data,
+        };
+      };
       return {
         gameEndMethod: readUint8(view, 0x1),
         lrasInitiatorIndex: readInt8(view, 0x2),
+        placements: [0, 1, 2, 3].map(getPlacementObject),
       };
     case Command.GECKO_LIST:
       const codes: GeckoCodeType[] = [];

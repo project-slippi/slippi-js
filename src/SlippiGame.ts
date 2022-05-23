@@ -8,7 +8,6 @@ import {
   Stats,
   StockComputer,
 } from "./stats";
-// Type imports
 import type {
   EventCallbackFunc,
   FrameEntryType,
@@ -17,6 +16,7 @@ import type {
   GameStartType,
   GeckoListType,
   MetadataType,
+  PlacementType,
   RollbackFrames,
 } from "./types";
 import { SlpParser, SlpParserEvent } from "./utils/slpParser";
@@ -155,6 +155,9 @@ export class SlippiGame {
     const playableFrameCount = this.parser.getPlayableFrameCount();
     const overall = generateOverallStats({ settings, inputs, conversions, playableFrameCount });
 
+    const gameEnd = this.parser.getGameEnd();
+    const isGameComplete = gameEnd !== null;
+
     const stats = {
       lastFrame: this.parser.getLatestFrameNumber(),
       playableFrameCount,
@@ -163,10 +166,11 @@ export class SlippiGame {
       combos: this.comboComputer.fetch(),
       actionCounts: this.actionsComputer.fetch(),
       overall: overall,
-      gameComplete: this.parser.getGameEnd() !== null,
+      gameComplete: isGameComplete,
+      placements: gameEnd ? gameEnd.placements : null,
     };
 
-    if (this.parser.getGameEnd() !== null) {
+    if (isGameComplete) {
       // If the game is complete, store a cached version of stats because it should not
       // change anymore. Ideally the statsCompuer.process and fetch functions would simply do no
       // work in this case instead but currently the conversions fetch function,
@@ -193,5 +197,30 @@ export class SlippiGame {
     }
 
     return this.input.filePath ?? null;
+  }
+
+  public getWinners(): (PlacementType | null)[] | null {
+    this._process();
+
+    const gameEnd = this.getGameEnd();
+    if (!gameEnd) {
+      return null;
+    }
+
+    const placements = gameEnd.placements;
+    if (!placements) {
+      return null;
+    }
+
+    const firstPosition = placements.find((placement) => placement?.position == 0);
+    if (!firstPosition) {
+      return null;
+    }
+
+    if (this.getSettings()?.isTeams) {
+      return placements.filter((placement) => placement?.teamId == firstPosition.teamId);
+    }
+
+    return [firstPosition];
   }
 }

@@ -137,6 +137,13 @@ export interface FrameBookendType {
 export interface GameEndType {
   gameEndMethod: number | null;
   lrasInitiatorIndex: number | null;
+  placements: PlacementType[] | null;
+}
+
+export interface PlacementType {
+  playerIndex: number | null;
+  teamId: number | null;
+  position: number | null;
 }
 
 export interface GeckoListType {
