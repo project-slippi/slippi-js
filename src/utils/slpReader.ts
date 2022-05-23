@@ -3,9 +3,18 @@ import fs from "fs";
 import iconv from "iconv-lite";
 import { mapValues } from "lodash";
 
-import type { EventCallbackFunc, EventPayloadTypes, MetadataType, PlayerType, SelfInducedSpeedsType } from "../types";
+import type {
+  EventCallbackFunc,
+  EventPayloadTypes,
+  GameEndType,
+  MetadataType,
+  PlayerType,
+  SelfInducedSpeedsType,
+} from "../types";
 import { Command } from "../types";
 import { toHalfwidth } from "./fullwidth";
+
+const METADATA_OFFSET = 10;
 
 export enum SlpInputSource {
   BUFFER = "buffer",
@@ -29,6 +38,8 @@ export interface SlpFileType {
   messageSizes: {
     [command: number]: number;
   };
+  gameEndPosition: number;
+  gameEndLength: number;
 }
 
 export interface SlpFileSourceRef {
@@ -93,9 +104,12 @@ export function openSlpFile(input: SlpReadInput): SlpFileType {
 
   const rawDataPosition = getRawDataPosition(ref);
   const rawDataLength = getRawDataLength(ref, rawDataPosition);
-  const metadataPosition = rawDataPosition + rawDataLength + 10; // remove metadata string
+  const metadataPosition = rawDataPosition + rawDataLength + METADATA_OFFSET; // remove metadata string
   const metadataLength = getMetadataLength(ref, metadataPosition);
   const messageSizes = getMessageSizes(ref, rawDataPosition);
+
+  const gameEndLength = (messageSizes[Command.GAME_END] || 0) + 1;
+  const gameEndPosition = rawDataPosition + rawDataLength - gameEndLength;
 
   return {
     ref,
@@ -104,6 +118,8 @@ export function openSlpFile(input: SlpReadInput): SlpFileType {
     metadataPosition,
     metadataLength,
     messageSizes,
+    gameEndPosition,
+    gameEndLength,
   };
 }
 
@@ -494,4 +510,21 @@ export function getMetadata(slpFile: SlpFileType): MetadataType | null {
 
   // $FlowFixMe
   return metadata;
+}
+
+export function getGameEnd(slpFile: SlpFileType): GameEndType | null {
+  if (slpFile.gameEndLength <= 0 || !slpFile.gameEndPosition) {
+    // This will happen on a severed incomplete file
+    return null;
+  }
+
+  const buffer = new Uint8Array(slpFile.gameEndLength);
+  const start = slpFile.gameEndPosition;
+
+  readRef(slpFile.ref, buffer, 0, slpFile.gameEndLength, start);
+  const command = buffer[0];
+  if (command !== Command.GAME_END) {
+    return null;
+  }
+  return parseMessage(command, buffer) as GameEndType;
 }

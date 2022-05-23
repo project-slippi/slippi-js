@@ -100,6 +100,22 @@ it("should be able to read console nickname", () => {
   expect(nickName).toBe("Day 1");
 });
 
+it("should be able to read game end without processing whole file 0.1.0", () => {
+  const game = new SlippiGame("slp/test.slp");
+  const gameEnd = game.getGameEnd();
+
+  expect(gameEnd.gameEndMethod).toBe(3); // Resolved
+  expect(gameEnd.lrasInitiatorIndex).toBe(null);
+});
+
+it("should be able to read game end without processing whole file v2", () => {
+  const game = new SlippiGame("slp/v2/test.slp");
+  const gameEnd = game.getGameEnd();
+
+  expect(gameEnd.gameEndMethod).toBe(1); // Time!
+  expect(gameEnd.lrasInitiatorIndex).toBe(-1);
+});
+
 it("should support PAL version", () => {
   const palGame = new SlippiGame("slp/pal.slp");
   const ntscGame = new SlippiGame("slp/ntsc.slp");

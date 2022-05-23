@@ -10,9 +10,10 @@ import {
 } from "./stats";
 // Type imports
 import type { FrameEntryType, FramesType, GameEndType, GameStartType, MetadataType, RollbackFrames } from "./types";
+import { Command } from "./types";
 import { SlpParser, SlpParserEvent } from "./utils/slpParser";
 import type { SlpReadInput } from "./utils/slpReader";
-import { closeSlpFile, getMetadata, iterateEvents, openSlpFile, SlpInputSource } from "./utils/slpReader";
+import { closeSlpFile, getGameEnd, getMetadata, iterateEvents, openSlpFile, SlpInputSource } from "./utils/slpReader";
 
 /**
  * Slippi Game class that wraps a file
@@ -107,8 +108,17 @@ export class SlippiGame {
   }
 
   public getGameEnd(): GameEndType | null {
-    this._process();
-    return this.parser.getGameEnd();
+    const currentGameEnd = this.parser.getGameEnd();
+    if (currentGameEnd) {
+      return currentGameEnd;
+    }
+
+    const slpfile = openSlpFile(this.input);
+    const gameEnd = getGameEnd(slpfile);
+    this.parser.handleCommand(Command.GAME_END, gameEnd);
+    closeSlpFile(slpfile);
+
+    return gameEnd;
   }
 
   public getFrames(): FramesType {
