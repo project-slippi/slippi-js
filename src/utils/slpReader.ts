@@ -326,6 +326,12 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
         gameMode: readUint8(view, 0x1a4),
         language: readUint8(view, 0x2bd),
       };
+    case Command.FRAME_START:
+      return {
+        frame: readInt32(view, 0x1),
+        seed: readUint32(view, 0x5),
+        sceneFrameCounter: readUint32(view, 0x9),
+      };
     case Command.PRE_FRAME_UPDATE:
       return {
         frame: readInt32(view, 0x1),

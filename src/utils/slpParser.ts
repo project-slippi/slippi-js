@@ -8,6 +8,7 @@ import type {
   FramesType,
   GameEndType,
   GameStartType,
+  FrameStartType,
   ItemUpdateType,
   PostFrameUpdateType,
   PreFrameUpdateType,
@@ -56,6 +57,9 @@ export class SlpParser extends EventEmitter {
     switch (command) {
       case Command.GAME_START:
         this._handleGameStart(payload as GameStartType);
+        break;
+      case Command.FRAME_START:
+        this._handleFrameStart(payload as FrameStartType);
         break;
       case Command.POST_FRAME_UPDATE:
         // We need to handle the post frame update first since that
@@ -157,6 +161,13 @@ export class SlpParser extends EventEmitter {
     if (payload.slpVersion && semver.gte(payload.slpVersion, "1.6.0")) {
       this._completeSettings();
     }
+  }
+
+  private _handleFrameStart(payload: FrameStartType): void {
+    const currentFrameNumber = payload.frame!;
+
+    // Set items with newest
+    set(this.frames, [currentFrameNumber, "start"], payload);
   }
 
   private _handlePostFrameUpdate(payload: PostFrameUpdateType): void {

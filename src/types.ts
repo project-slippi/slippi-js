@@ -4,6 +4,7 @@ export enum Command {
   PRE_FRAME_UPDATE = 0x37,
   POST_FRAME_UPDATE = 0x38,
   GAME_END = 0x39,
+  FRAME_START = 0x3a,
   ITEM_UPDATE = 0x3b,
   FRAME_BOOKEND = 0x3c,
 }
@@ -42,6 +43,12 @@ export interface GameStartType {
   scene: number | null;
   gameMode: GameMode | null;
   language: Language | null;
+}
+
+export interface FrameStartType {
+  frame: number | null;
+  seed: number | null;
+  sceneFrameCounter: number | null;
 }
 
 export interface PreFrameUpdateType {
@@ -149,6 +156,7 @@ export interface MetadataType {
 
 export type EventPayloadTypes =
   | GameStartType
+  | FrameStartType
   | PreFrameUpdateType
   | PostFrameUpdateType
   | ItemUpdateType
@@ -159,6 +167,7 @@ export type EventCallbackFunc = (command: Command, payload?: EventPayloadTypes |
 
 export interface FrameEntryType {
   frame: number;
+  start?: FrameStartType;
   players: {
     [playerIndex: number]: {
       pre: PreFrameUpdateType;
