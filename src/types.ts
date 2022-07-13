@@ -28,6 +28,11 @@ export enum GameMode {
   ONLINE = 0x08,
 }
 
+export enum Language {
+  JAPANESE = 0,
+  ENGLISH = 1,
+}
+
 export interface GameStartType {
   slpVersion: string | null;
   isTeams: boolean | null;
@@ -36,6 +41,7 @@ export interface GameStartType {
   players: PlayerType[];
   scene: number | null;
   gameMode: GameMode | null;
+  language: Language | null;
 }
 
 export interface PreFrameUpdateType {
@@ -82,6 +88,8 @@ export interface PostFrameUpdateType {
   lCancelStatus: number | null;
   hurtboxCollisionState: number | null;
   selfInducedSpeeds: SelfInducedSpeedsType | null;
+  hitlagRemaining: number | null;
+  animationIndex: number | null;
 }
 
 export interface SelfInducedSpeedsType {

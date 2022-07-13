@@ -324,6 +324,7 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
         players: [0, 1, 2, 3].map(getPlayerObject),
         scene: readUint8(view, 0x1a3),
         gameMode: readUint8(view, 0x1a4),
+        language: readUint8(view, 0x2bd),
       };
     case Command.PRE_FRAME_UPDATE:
       return {
@@ -377,6 +378,8 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
         lCancelStatus: readUint8(view, 0x33),
         hurtboxCollisionState: readUint8(view, 0x34),
         selfInducedSpeeds: selfInducedSpeeds,
+        hitlagRemaining: readFloat(view, 0x49),
+        animationIndex: readUint32(view, 0x4d),
       };
     case Command.ITEM_UPDATE:
       return {
