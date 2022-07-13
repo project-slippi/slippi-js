@@ -16,8 +16,11 @@ export class RollbackCounter {
       return;
     }
 
-    if (currentFrame) {
+    if (currentFrame && currentFrame.players) {
       // frame already exists for currentFrameNumber so we must be rolling back
+      // Note: We detect during PreFrameUpdate, but new versions have a
+      // FrameStart command that has already initialized the frame, so we must
+      // check for player data too.
       if (this.rollbackFrames[currentFrame.frame]) {
         this.rollbackFrames[currentFrame.frame]!.push(currentFrame);
       } else {

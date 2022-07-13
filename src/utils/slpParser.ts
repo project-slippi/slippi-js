@@ -166,7 +166,6 @@ export class SlpParser extends EventEmitter {
   private _handleFrameStart(payload: FrameStartType): void {
     const currentFrameNumber = payload.frame!;
 
-    // Set items with newest
     set(this.frames, [currentFrameNumber, "start"], payload);
   }
 
