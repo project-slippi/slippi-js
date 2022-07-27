@@ -201,16 +201,10 @@ function handleActionCompute(state: PlayerActionState, indices: PlayerIndexedTyp
     incrementCount("attackCount.uair", currentAnimation === State.GNW_UAIR);
   }
 
-  // Peach is weird and has unique IDs for some moves
-  // if (playerFrame.internalCharacterId === /* Peach ID */) {
-  //   incrementCount("attackCount.jab1", currentAnimation === State.GNW_JAB1);
-  //   incrementCount("attackCount.jabm", currentAnimation === State.GNW_JABM);
-  //   incrementCount("attackCount.dtilt", currentAnimation === State.GNW_DTILT);
-  //   incrementCount("attackCount.fsmash", currentAnimation === State.GNW_FSMASH);
-  //   incrementCount("attackCount.nair", currentAnimation === State.GNW_NAIR);
-  //   incrementCount("attackCount.bair", currentAnimation === State.GNW_BAIR);
-  //   incrementCount("attackCount.uair", currentAnimation === State.GNW_UAIR);
-  // }
+  // Peach is also weird and has a unique ID for her fsmash
+  if (playerFrame.internalCharacterId === 0x09) {
+    incrementCount("attackCount.fsmash", currentAnimation === State.PEACH_FSMASH);
+  }
 
   // Throws
   incrementCount("throwCount.up", currentAnimation === State.THROW_UP);
