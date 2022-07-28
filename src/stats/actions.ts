@@ -202,6 +202,7 @@ function handleActionCompute(state: PlayerActionState, indices: PlayerIndexedTyp
   }
 
   // Peach is also weird and has a unique ID for her fsmash
+  // FSMASH1 = Golf Club, FSMASH2 = Frying Pan, FSMASH3 = Tennis Racket
   if (playerFrame.internalCharacterId === 0x09) {
     incrementCount("attackCount.fsmash", currentAnimation === State.PEACH_FSMASH1);
     incrementCount("attackCount.fsmash", currentAnimation === State.PEACH_FSMASH2);
