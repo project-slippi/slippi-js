@@ -1,3 +1,4 @@
+import { format } from "date-fns";
 import path from "path";
 import type { WritableOptions } from "stream";
 
@@ -5,8 +6,6 @@ import { Command } from "../types";
 import { SlpFile } from "./slpFile";
 import type { SlpRawEventPayload, SlpStreamSettings } from "./slpStream";
 import { SlpStream, SlpStreamEvent } from "./slpStream";
-
-import { format } from "date-fns";
 
 /**
  * The default function to use for generating new SLP files.
