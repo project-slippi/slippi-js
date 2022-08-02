@@ -224,6 +224,13 @@ describe("when calculating stats", () => {
     expect(stats2?.actionCounts[1].groundTechCount).toEqual({ in: 1, away: 4, neutral: 4, fail: 11 });
     expect(stats?.actionCounts[1].wallTechCount).toEqual({ success: 0, fail: 0 });
   });
+
+  it("should count peach fsmash correctly", () => {
+    const game = new SlippiGame("slp/peachFsmash.slp");
+    const stats = game.getStats();
+    const p1Fsmashes = stats?.actionCounts[0].attackCount.fsmash;
+    expect(p1Fsmashes).toBe(4);
+  });
 });
 
 describe("when calculating stock information", () => {
