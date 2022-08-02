@@ -222,6 +222,12 @@ export enum State {
   GNW_BAIR = 0x15c,
   GNW_UAIR = 0x15d,
 
+  // Peach FSMASH ID
+  // FSMASH1 = Golf Club, FSMASH2 = Frying Pan, FSMASH3 = Tennis Racket
+  PEACH_FSMASH1 = 0x15d,
+  PEACH_FSMASH2 = 0x15e,
+  PEACH_FSMASH3 = 0x15f,
+
   // Command Grabs
   BARREL_WAIT = 0x125,
   COMMAND_GRAB_RANGE1_START = 0x10a,

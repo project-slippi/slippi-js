@@ -201,6 +201,14 @@ function handleActionCompute(state: PlayerActionState, indices: PlayerIndexedTyp
     incrementCount("attackCount.uair", currentAnimation === State.GNW_UAIR);
   }
 
+  // Peach is also weird and has a unique ID for her fsmash
+  // FSMASH1 = Golf Club, FSMASH2 = Frying Pan, FSMASH3 = Tennis Racket
+  if (playerFrame.internalCharacterId === 0x09) {
+    incrementCount("attackCount.fsmash", currentAnimation === State.PEACH_FSMASH1);
+    incrementCount("attackCount.fsmash", currentAnimation === State.PEACH_FSMASH2);
+    incrementCount("attackCount.fsmash", currentAnimation === State.PEACH_FSMASH3);
+  }
+
   // Throws
   incrementCount("throwCount.up", currentAnimation === State.THROW_UP);
   incrementCount("throwCount.forward", currentAnimation === State.THROW_FORWARD);
