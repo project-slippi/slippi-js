@@ -142,7 +142,6 @@ export interface GameEndType {
 
 export interface PlacementType {
   playerIndex: number | null;
-  teamId: number | null;
   position: number | null;
 }
 

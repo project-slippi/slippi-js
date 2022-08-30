@@ -213,12 +213,21 @@ export class SlippiGame {
     }
 
     const firstPosition = placements.find((placement) => placement?.position == 0);
-    if (!firstPosition) {
+    if (!firstPosition || firstPosition.playerIndex === null) {
       return null;
     }
 
-    if (this.getSettings()?.isTeams) {
-      return placements.filter((placement) => placement?.teamId == firstPosition.teamId);
+    const settings = this.getSettings();
+    if (settings?.isTeams) {
+      const winningTeam = settings.players.find((player) => player.playerIndex === firstPosition.playerIndex)?.teamId;
+      return placements.filter((placement) => {
+        if (placement.playerIndex === null) {
+          return false;
+        }
+
+        const teamId = settings.players.find((player) => player.playerIndex === placement.playerIndex)?.teamId;
+        return teamId === winningTeam;
+      });
     }
 
     return [firstPosition];
