@@ -213,7 +213,7 @@ export class SlippiGame {
     }
 
     const firstPosition = placements.find((placement) => placement?.position == 0);
-    if (!firstPosition || firstPosition.playerIndex === null) {
+    if (!firstPosition) {
       return null;
     }
 
@@ -221,10 +221,6 @@ export class SlippiGame {
     if (settings?.isTeams) {
       const winningTeam = settings.players.find((player) => player.playerIndex === firstPosition.playerIndex)?.teamId;
       return placements.filter((placement) => {
-        if (placement.playerIndex === null) {
-          return false;
-        }
-
         const teamId = settings.players.find((player) => player.playerIndex === placement.playerIndex)?.teamId;
         return teamId === winningTeam;
       });

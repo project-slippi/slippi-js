@@ -141,7 +141,7 @@ export interface GameEndType {
 }
 
 export interface PlacementType {
-  playerIndex: number | null;
+  playerIndex: number;
   position: number | null;
 }
 
