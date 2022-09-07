@@ -136,9 +136,12 @@ it("should be able to support reading from an array buffer input", () => {
 });
 
 it("should extract gecko list", () => {
-  const game = new SlippiGame("slp/finalizedFrame.slp");
+  // This code will contain every code listed here:
+  // https://github.com/project-slippi/slippi-ssbm-asm/blob/adf85d157dbc1cbeff1e81d4d2d2ec83cad61852/Output/InjectionLists/list_netplay.json
+  const game = new SlippiGame("slp/geckoCodes.slp");
   const geckoList = game.getGeckoList();
-  console.log(geckoList.codes.length);
+  expect(geckoList?.codes.length).toBe(457);
+  expect(geckoList?.codes?.[0]?.address).toBe(0x8015ee98);
 });
 
 it("should support realtime parsing", () => {

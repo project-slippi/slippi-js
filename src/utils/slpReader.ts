@@ -462,7 +462,7 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
       while (pos < payload.length) {
         const word1 = readUint32(view, pos) ?? 0;
         const codetype = (word1 >> 24) & 0xfe;
-        const address = (word1 & 0x01ffffff) | 0x80000000;
+        const address = (word1 & 0x01ffffff) + 0x80000000;
 
         let offset = 8; // Default code length, most codes are this length
         if (codetype === 0xc0 || codetype === 0xc2) {
