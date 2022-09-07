@@ -9,6 +9,7 @@ import type {
   FramesType,
   GameEndType,
   GameStartType,
+  GeckoListType,
   ItemUpdateType,
   PostFrameUpdateType,
   PreFrameUpdateType,
@@ -46,6 +47,7 @@ export class SlpParser extends EventEmitter {
   private settingsComplete = false;
   private lastFinalizedFrame = Frames.FIRST - 1;
   private options: SlpParserOptions;
+  private geckoList: GeckoListType | null = null;
 
   public constructor(options?: Partial<SlpParserOptions>) {
     super();
@@ -78,6 +80,9 @@ export class SlpParser extends EventEmitter {
         break;
       case Command.GAME_END:
         this._handleGameEnd(payload as GameEndType);
+        break;
+      case Command.GECKO_LIST:
+        this._handleGeckoList(payload as GeckoListType);
         break;
     }
   }
@@ -138,6 +143,14 @@ export class SlpParser extends EventEmitter {
 
   public getFrame(num: number): FrameEntryType | null {
     return this.frames[num] || null;
+  }
+
+  public getGeckoList(): GeckoListType | null {
+    return this.geckoList;
+  }
+
+  private _handleGeckoList(payload: GeckoListType): void {
+    this.geckoList = payload;
   }
 
   private _handleGameEnd(payload: GameEndType): void {

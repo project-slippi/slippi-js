@@ -135,6 +135,12 @@ it("should be able to support reading from an array buffer input", () => {
   expect(_.last(settings.players).characterId).toBe(0xe);
 });
 
+it("should extract gecko list", () => {
+  const game = new SlippiGame("slp/finalizedFrame.slp");
+  const geckoList = game.getGeckoList();
+  console.log(geckoList.codes.length);
+});
+
 it("should support realtime parsing", () => {
   const fullData = fs.readFileSync("slp/realtimeTest.slp");
   const buf = Buffer.alloc(100e6); // Allocate 100 MB of space

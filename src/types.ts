@@ -1,4 +1,5 @@
 export enum Command {
+  SPLIT_MESSAGE = 0x10,
   MESSAGE_SIZES = 0x35,
   GAME_START = 0x36,
   PRE_FRAME_UPDATE = 0x37,
@@ -7,6 +8,7 @@ export enum Command {
   FRAME_START = 0x3a,
   ITEM_UPDATE = 0x3b,
   FRAME_BOOKEND = 0x3c,
+  GECKO_LIST = 0x3d,
 }
 
 export interface PlayerType {
@@ -136,6 +138,17 @@ export interface GameEndType {
   lrasInitiatorIndex: number | null;
 }
 
+export interface GeckoListType {
+  codes: GeckoCodeType[];
+  contents: Uint8Array;
+}
+
+export interface GeckoCodeType {
+  type: number | null;
+  address: number | null;
+  contents: Uint8Array;
+}
+
 export interface MetadataType {
   startAt?: string | null;
   playedOn?: string | null;
@@ -161,7 +174,8 @@ export type EventPayloadTypes =
   | PostFrameUpdateType
   | ItemUpdateType
   | FrameBookendType
-  | GameEndType;
+  | GameEndType
+  | GeckoListType;
 
 export type EventCallbackFunc = (command: Command, payload?: EventPayloadTypes | null) => boolean;
 

@@ -3,7 +3,14 @@ import fs from "fs";
 import iconv from "iconv-lite";
 import { mapValues } from "lodash";
 
-import type { EventCallbackFunc, EventPayloadTypes, MetadataType, PlayerType, SelfInducedSpeedsType } from "../types";
+import type {
+  EventCallbackFunc,
+  EventPayloadTypes,
+  GeckoCodeType,
+  MetadataType,
+  PlayerType,
+  SelfInducedSpeedsType,
+} from "../types";
 import { Command } from "../types";
 import { toHalfwidth } from "./fullwidth";
 
@@ -211,12 +218,13 @@ export function iterateEvents(
 
   // Generate read buffers for each
   const commandPayloadBuffers = mapValues(slpFile.messageSizes, (size) => new Uint8Array(size + 1));
+  let splitMessageBuffer = new Uint8Array(0);
 
   const commandByteBuffer = new Uint8Array(1);
   while (readPosition < stopReadingAt) {
     readRef(ref, commandByteBuffer, 0, 1, readPosition);
-    const commandByte = commandByteBuffer[0] as number;
-    const buffer = commandPayloadBuffers[commandByte];
+    let commandByte = (commandByteBuffer[0] as number) ?? 0;
+    let buffer = commandPayloadBuffers[commandByte];
     if (buffer === undefined) {
       // If we don't have an entry for this command, return false to indicate failed read
       return readPosition;
@@ -227,6 +235,36 @@ export function iterateEvents(
     }
 
     readRef(ref, buffer, 0, buffer.length, readPosition);
+    if (commandByte === Command.SPLIT_MESSAGE) {
+      // Here we have a split message, we will collect data from them until the last
+      // message of the list is received
+      const view = new DataView(buffer.buffer);
+      const size = readUint16(view, 0x201) ?? 512;
+      const isLastMessage = readBool(view, 0x204);
+      const internalCommand = readUint8(view, 0x203) ?? 0;
+
+      // If this is the first message, initialize the splitMessageBuffer
+      // with the internal command byte because our parseMessage function
+      // seems to expect a command byte at the start
+      if (splitMessageBuffer.length === 0) {
+        splitMessageBuffer = new Uint8Array(1);
+        splitMessageBuffer[0] = internalCommand;
+      }
+
+      // Collect new data into splitMessageBuffer
+      const appendBuf = buffer.slice(0x1, 0x1 + size);
+      const mergedBuf = new Uint8Array(splitMessageBuffer.length + appendBuf.length);
+      mergedBuf.set(splitMessageBuffer);
+      mergedBuf.set(appendBuf, splitMessageBuffer.length);
+      splitMessageBuffer = mergedBuf;
+
+      if (isLastMessage) {
+        commandByte = splitMessageBuffer[0] ?? 0;
+        buffer = splitMessageBuffer;
+        splitMessageBuffer = new Uint8Array(0);
+      }
+    }
+
     const parsedPayload = parseMessage(commandByte, buffer);
     const shouldStop = callback(commandByte, parsedPayload);
     if (shouldStop) {
@@ -415,6 +453,38 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
       return {
         gameEndMethod: readUint8(view, 0x1),
         lrasInitiatorIndex: readInt8(view, 0x2),
+      };
+    case Command.GECKO_LIST:
+      const codes: GeckoCodeType[] = [];
+      let pos = 1;
+      while (pos < payload.length) {
+        const word1 = readUint32(view, pos) ?? 0;
+        const codetype = (word1 >> 24) & 0xfe;
+        const address = (word1 & 0x01ffffff) | 0x80000000;
+
+        let offset = 8; // Default code length, most codes are this length
+        if (codetype === 0xc0 || codetype === 0xc2) {
+          const lineCount = readUint32(view, pos + 4) ?? 0;
+          offset = 8 + lineCount * 8;
+        } else if (codetype === 0x06) {
+          const byteLen = readUint32(view, pos + 4) ?? 0;
+          offset = 8 + ((byteLen + 7) & 0xfffffff8);
+        } else if (codetype === 0x08) {
+          offset = 16;
+        }
+
+        codes.push({
+          type: codetype,
+          address: address,
+          contents: payload.slice(pos, pos + offset),
+        });
+
+        pos += offset;
+      }
+
+      return {
+        contents: payload.slice(1),
+        codes: codes,
       };
     default:
       return null;
