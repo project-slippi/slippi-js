@@ -234,6 +234,8 @@ export function iterateEvents(
       return readPosition;
     }
 
+    const advanceAmount = buffer.length;
+
     readRef(ref, buffer, 0, buffer.length, readPosition);
     if (commandByte === Command.SPLIT_MESSAGE) {
       // Here we have a split message, we will collect data from them until the last
@@ -271,7 +273,7 @@ export function iterateEvents(
       break;
     }
 
-    readPosition += buffer.length;
+    readPosition += advanceAmount;
   }
 
   return readPosition;
