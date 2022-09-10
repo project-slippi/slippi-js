@@ -9,7 +9,16 @@ import {
   StockComputer,
 } from "./stats";
 // Type imports
-import type { FrameEntryType, FramesType, GameEndType, GameStartType, MetadataType, RollbackFrames } from "./types";
+import type {
+  EventCallbackFunc,
+  FrameEntryType,
+  FramesType,
+  GameEndType,
+  GameStartType,
+  GeckoListType,
+  MetadataType,
+  RollbackFrames,
+} from "./types";
 import { SlpParser, SlpParserEvent } from "./utils/slpParser";
 import type { SlpReadInput } from "./utils/slpReader";
 import { closeSlpFile, getMetadata, iterateEvents, openSlpFile, SlpInputSource } from "./utils/slpReader";
@@ -69,7 +78,7 @@ export class SlippiGame {
     });
   }
 
-  private _process(settingsOnly = false): void {
+  private _process(shouldStop: EventCallbackFunc = () => false): void {
     if (this.parser.getGameEnd() !== null) {
       return;
     }
@@ -84,7 +93,7 @@ export class SlippiGame {
           return false;
         }
         this.parser.handleCommand(command, payload);
-        return settingsOnly && this.parser.getSettings() !== null;
+        return shouldStop(command, payload);
       },
       this.readPosition,
     );
@@ -97,7 +106,7 @@ export class SlippiGame {
    */
   public getSettings(): GameStartType | null {
     // Settings is only complete after post-frame update
-    this._process(true);
+    this._process(() => this.parser.getSettings() !== null);
     return this.parser.getSettings();
   }
 
@@ -119,6 +128,11 @@ export class SlippiGame {
   public getRollbackFrames(): RollbackFrames {
     this._process();
     return this.parser.getRollbackFrames();
+  }
+
+  public getGeckoList(): GeckoListType | null {
+    this._process(() => this.parser.getGeckoList() !== null);
+    return this.parser.getGeckoList();
   }
 
   public getStats(): StatsType | null {
