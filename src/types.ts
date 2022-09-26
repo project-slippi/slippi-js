@@ -71,6 +71,7 @@ export interface PreFrameUpdateType {
   physicalButtons: number | null;
   physicalLTrigger: number | null;
   physicalRTrigger: number | null;
+  rawJoystickX: number | null;
   percent: number | null;
 }
 

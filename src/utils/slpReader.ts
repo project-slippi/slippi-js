@@ -391,6 +391,7 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
         physicalButtons: readUint16(view, 0x31),
         physicalLTrigger: readFloat(view, 0x33),
         physicalRTrigger: readFloat(view, 0x37),
+        rawJoystickX: readInt8(view, 0x3b),
         percent: readFloat(view, 0x3c),
       };
     case Command.POST_FRAME_UPDATE:
