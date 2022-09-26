@@ -9,6 +9,7 @@ export * from "./types";
 export * from "./utils/slpFile";
 export * from "./utils/slpFileWriter";
 export * from "./utils/slpParser";
+export * from "./utils/slpReader";
 export * from "./utils/slpStream";
 
 // Console networking
