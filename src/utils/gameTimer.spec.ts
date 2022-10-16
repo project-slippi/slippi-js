@@ -1,31 +1,38 @@
-import { TimerType } from "..";
+import { TimerType } from "../types";
 import { frameToGameTimer } from "./gameTimer";
 
 describe("when calculating the in-game timer", () => {
-  it("should calculate the timer correctly when increasing", () => {
-    const increasing_settings = {
+  it("should return unknown if no starting timer is provided", () => {
+    const gameTimer = frameToGameTimer(1234, {
+      timerType: TimerType.DECREASING,
+      startingTimerSeconds: null,
+    });
+    expect(gameTimer).toBe("Unknown");
+  });
+
+  it("should support increasing timers", () => {
+    const gameTimer = frameToGameTimer(2014, {
       timerType: TimerType.INCREASING,
       startingTimerSeconds: 0,
-    };
-
-    expect(frameToGameTimer(2014, increasing_settings)).toBe("00:33.57");
+    });
+    expect(gameTimer).toBe("00:33.57");
   });
 
-  it("should calculate the timer correctly when the limit is hit", () => {
-    const limit_settings = {
+  it("should support decreasing timers", () => {
+    const gameTimer = frameToGameTimer(4095, {
       timerType: TimerType.DECREASING,
       startingTimerSeconds: 180,
-    };
+    });
 
-    expect(frameToGameTimer(10800, limit_settings)).toBe("00:00.00");
+    expect(gameTimer).toBe("01:51.76");
   });
 
-  it("should calculate the timer correctly when decreasing", () => {
-    const decreasing_settings = {
+  it("should support when the exact limit is hit", () => {
+    const gameTimer = frameToGameTimer(10800, {
       timerType: TimerType.DECREASING,
       startingTimerSeconds: 180,
-    };
+    });
 
-    expect(frameToGameTimer(4095, decreasing_settings)).toBe("01:51.76");
+    expect(gameTimer).toBe("00:00.00");
   });
 });
