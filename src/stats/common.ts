@@ -9,7 +9,7 @@ export interface StatsType {
   combos: ComboType[];
   actionCounts: ActionCountsType[];
   overall: OverallType[];
-  placements: PlacementType[] | null;
+  placements: PlacementType[];
 }
 
 export interface RatioType {

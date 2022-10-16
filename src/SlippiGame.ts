@@ -167,7 +167,7 @@ export class SlippiGame {
       actionCounts: this.actionsComputer.fetch(),
       overall: overall,
       gameComplete,
-      placements: gameEnd ? gameEnd.placements : null,
+      placements: gameEnd ? gameEnd.placements : [],
     };
 
     if (gameComplete) {
