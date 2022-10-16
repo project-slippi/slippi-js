@@ -199,22 +199,22 @@ export class SlippiGame {
     return this.input.filePath ?? null;
   }
 
-  public getWinners(): (PlacementType | null)[] | null {
+  public getWinners(): PlacementType[] {
     this._process();
 
     const gameEnd = this.getGameEnd();
     if (!gameEnd) {
-      return null;
+      return [];
     }
 
     const placements = gameEnd.placements;
     if (!placements) {
-      return null;
+      return [];
     }
 
-    const firstPosition = placements.find((placement) => placement?.position == 0);
+    const firstPosition = placements.find((placement) => placement?.position === 0);
     if (!firstPosition) {
-      return null;
+      return [];
     }
 
     const settings = this.getSettings();

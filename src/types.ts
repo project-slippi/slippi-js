@@ -137,7 +137,7 @@ export interface FrameBookendType {
 export interface GameEndType {
   gameEndMethod: number | null;
   lrasInitiatorIndex: number | null;
-  placements: PlacementType[] | null;
+  placements: PlacementType[];
 }
 
 export interface PlacementType {
