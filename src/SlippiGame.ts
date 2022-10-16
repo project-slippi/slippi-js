@@ -219,9 +219,9 @@ export class SlippiGame {
 
     const settings = this.getSettings();
     if (settings?.isTeams) {
-      const winningTeam = settings.players.find((player) => player.playerIndex === firstPosition.playerIndex)?.teamId;
+      const winningTeam = settings.players.find(({ playerIndex }) => playerIndex === firstPosition.playerIndex)?.teamId;
       return placements.filter((placement) => {
-        const teamId = settings.players.find((player) => player.playerIndex === placement.playerIndex)?.teamId;
+        const teamId = settings.players.find(({ playerIndex }) => playerIndex === placement.playerIndex)?.teamId;
         return teamId === winningTeam;
       });
     }
