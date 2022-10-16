@@ -9,7 +9,6 @@ import {
   StockComputer,
 } from "./stats";
 import type {
-  EnabledItemsType,
   EventCallbackFunc,
   FrameEntryType,
   FramesType,
@@ -111,7 +110,7 @@ export class SlippiGame {
     return this.parser.getSettings();
   }
 
-  public getItems(): EnabledItemsType | null {
+  public getItems(): string[] | null {
     this._process();
     return this.parser.getItems();
   }

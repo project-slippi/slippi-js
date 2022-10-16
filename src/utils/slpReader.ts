@@ -207,9 +207,9 @@ function getMessageSizes(
 
 function getEnabledItems(view: DataView): number {
   const offsets = [0x1, 0x100, 0x10000, 0x1000000, 0x100000000];
-  const enabledItems = offsets.reduce((acc, offset) => {
-    const byte = readUint8(view, 0x29) as number;
-    return acc + byte * offset;
+  const enabledItems = offsets.reduce((acc, byteOffset, index) => {
+    const byte = readUint8(view, 0x28 + index) as number;
+    return acc + byte * byteOffset;
   }, 0);
 
   return enabledItems;
@@ -410,16 +410,13 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
         timerType: readUint8(view, 0x5, 0x03),
         gameMode: readUint8(view, 0x5, 0xe0),
         friendlyFireEnabled: !!readUint8(view, 0x6, 0x01),
-        bombRainEnabled: !!readInt8(view, 0xb),
         isTeams: readBool(view, 0xd),
-        itemSpawnBehavior: readInt8(view, 0x10),
-        selfDestructScoreValue: readInt8(view, 0x11),
+        itemSpawnBehavior: readUint8(view, 0x10),
         stageId: readUint16(view, 0x13),
         startingTimerSeconds: readUint32(view, 0x15),
         enabledItems: getEnabledItems(view),
-        damageRatio: readFloat(view, 0x35),
         players: [0, 1, 2, 3].map(getPlayerObject),
-        minorScene: readUint8(view, 0x1a3),
+        scene: readUint8(view, 0x1a3),
         majorScene: readUint8(view, 0x1a4),
         language: readUint8(view, 0x2bd),
         gameInfoBlock: getGameInfoBlock(view),

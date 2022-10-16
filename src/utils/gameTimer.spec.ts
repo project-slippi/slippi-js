@@ -1,4 +1,4 @@
-import { GameStartType, TimerType } from "..";
+import { TimerType } from "..";
 import { frameToGameTimer } from "./gameTimer";
 
 describe("when calculating the in-game timer", () => {
@@ -6,7 +6,7 @@ describe("when calculating the in-game timer", () => {
     const increasing_settings = {
       timerType: TimerType.INCREASING,
       startingTimerSeconds: 0,
-    } as GameStartType;
+    };
 
     expect(frameToGameTimer(2014, increasing_settings)).toBe("00:33.57");
   });
@@ -15,7 +15,7 @@ describe("when calculating the in-game timer", () => {
     const limit_settings = {
       timerType: TimerType.DECREASING,
       startingTimerSeconds: 180,
-    } as GameStartType;
+    };
 
     expect(frameToGameTimer(10800, limit_settings)).toBe("00:00.00");
   });
@@ -24,7 +24,7 @@ describe("when calculating the in-game timer", () => {
     const decreasing_settings = {
       timerType: TimerType.DECREASING,
       startingTimerSeconds: 180,
-    } as GameStartType;
+    };
 
     expect(frameToGameTimer(4095, decreasing_settings)).toBe("01:51.76");
   });

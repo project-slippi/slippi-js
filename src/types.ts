@@ -40,7 +40,7 @@ export interface PlayerType {
   userId: string;
 }
 
-export enum GameModeType {
+export enum GameMode {
   VS = 0x02,
   ONLINE = 0x08,
   TARGET_TEST = 0x0f,
@@ -55,18 +55,15 @@ export enum Language {
 export interface GameStartType {
   slpVersion: string | null;
   timerType: TimerType | null;
-  gameMode: GameModeType | null;
+  gameMode: GameMode | null;
   friendlyFireEnabled: boolean | null;
-  bombRainEnabled: boolean | null;
   isTeams: boolean | null;
-  itemSpawnBehavior: ItemSpawnBehaviorType | null;
-  selfDestructScoreValue: number | null;
   stageId: number | null;
   startingTimerSeconds: number | null;
+  itemSpawnBehavior: ItemSpawnType | null;
   enabledItems: number | null;
-  damageRatio: number | null;
   players: PlayerType[];
-  minorScene: number | null;
+  scene: number | null;
   majorScene: number | null;
   language: Language | null;
   gameInfoBlock: GameInfoType | null;
@@ -87,9 +84,7 @@ export interface GameInfoType {
   gameBitfield3: number | null;
   gameBitfield4: number | null;
   bombRainEnabled: boolean | null;
-  itemSpawnBehavior: number | null;
   selfDestructScoreValue: number | null;
-  startingTimerFrames: number | null;
   itemSpawnBitfield1: number | null;
   itemSpawnBitfield2: number | null;
   itemSpawnBitfield3: number | null;
@@ -104,7 +99,7 @@ export enum TimerType {
   INCREASING = 0b11,
 }
 
-export enum ItemSpawnBehaviorType {
+export enum ItemSpawnType {
   OFF = 0xff,
   VERY_LOW = 0x00,
   LOW = 0x01,
@@ -155,10 +150,6 @@ export enum EnabledItemType {
   BARREL_CANNON = 2 ** 37,
   BOMB_OMB = 2 ** 38,
   MR_SATURN = 2 ** 39,
-}
-
-export interface EnabledItemsType {
-  items: string[] | null;
 }
 
 export interface PreFrameUpdateType {

@@ -3,7 +3,6 @@ import { get, keyBy, set } from "lodash";
 import semver from "semver";
 
 import type {
-  EnabledItemsType,
   FrameBookendType,
   FrameEntryType,
   FrameStartType,
@@ -16,8 +15,8 @@ import type {
   PreFrameUpdateType,
   RollbackFrames,
 } from "../types";
-import { EnabledItemType, ItemSpawnBehaviorType } from "../types";
-import { Command, Frames, GameModeType } from "../types";
+import { EnabledItemType, ItemSpawnType } from "../types";
+import { Command, Frames, GameMode } from "../types";
 import { RollbackCounter } from "./rollbackCounter";
 
 export const MAX_ROLLBACK_FRAMES = 7;
@@ -130,18 +129,19 @@ export class SlpParser extends EventEmitter {
     return this.settingsComplete ? this.settings : null;
   }
 
-  public getItems(): EnabledItemsType | null {
-    if (this.settings?.itemSpawnBehavior === ItemSpawnBehaviorType.OFF) {
+  public getItems(): string[] | null {
+    if (this.settings?.itemSpawnBehavior === ItemSpawnType.OFF) {
       return null;
     }
 
     const itemBitfield = this.settings?.enabledItems;
-    const enabledItems = {} as EnabledItemsType;
-    enabledItems.items = [];
+    const enabledItems = [] as string[];
 
+    // Ideally we would be able to do this with bitshifting instead, but javascript
+    // truncates numbers after 32 bits when doing bitwise operations
     for (let i = 0; i < itemSettingsBitCount; i++) {
       if (Math.floor((itemBitfield as number) / 2 ** i) & 1) {
-        enabledItems.items.push(EnabledItemType[2 ** i] as string);
+        enabledItems.push(EnabledItemType[2 ** i] as string);
       }
     }
 
@@ -275,7 +275,7 @@ export class SlpParser extends EventEmitter {
     this.emit(SlpParserEvent.FRAME, this.frames[currentFrameNumber]);
 
     // Finalize frames if necessary
-    const validLatestFrame = this.settings!.gameMode === GameModeType.ONLINE;
+    const validLatestFrame = this.settings!.gameMode === GameMode.ONLINE;
     if (validLatestFrame && latestFinalizedFrame >= Frames.FIRST) {
       // Ensure valid latestFinalizedFrame
       if (this.options.strict && latestFinalizedFrame < currentFrameNumber - MAX_ROLLBACK_FRAMES) {
