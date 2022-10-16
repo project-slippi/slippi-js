@@ -231,17 +231,6 @@ describe("when calculating stats", () => {
     const p1Fsmashes = stats?.actionCounts[0].attackCount.fsmash;
     expect(p1Fsmashes).toBe(4);
   });
-
-  it("should return player placings", () => {
-    // Test Placements
-    const game = new SlippiGame("slp/placementsTest/ffa_1p2p_winner_2p.slp");
-    const placements = game.getStats()!.placements!;
-    expect(placements).toHaveLength(4);
-    expect(placements[0].position).toBe(1); // player in port 1 is on second place
-    expect(placements[0].playerIndex).toBe(0);
-    expect(placements[1].position).toBe(0); // player in port 2 is on first place
-    expect(placements[1].playerIndex).toBe(1);
-  });
 });
 
 describe("when calculating stock information", () => {

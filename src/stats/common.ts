@@ -1,4 +1,4 @@
-import type { GameStartType, PlacementType, PostFrameUpdateType } from "../types";
+import type { GameStartType, PostFrameUpdateType } from "../types";
 
 export interface StatsType {
   gameComplete: boolean;
@@ -9,7 +9,6 @@ export interface StatsType {
   combos: ComboType[];
   actionCounts: ActionCountsType[];
   overall: OverallType[];
-  placements: PlacementType[];
 }
 
 export interface RatioType {

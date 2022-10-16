@@ -158,7 +158,7 @@ export class SlippiGame {
     const gameEnd = this.parser.getGameEnd();
     const gameComplete = gameEnd !== null;
 
-    const stats = {
+    const stats: StatsType = {
       lastFrame: this.parser.getLatestFrameNumber(),
       playableFrameCount,
       stocks: stocks,
@@ -167,7 +167,6 @@ export class SlippiGame {
       actionCounts: this.actionsComputer.fetch(),
       overall: overall,
       gameComplete,
-      placements: gameEnd ? gameEnd.placements : [],
     };
 
     if (gameComplete) {

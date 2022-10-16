@@ -5,7 +5,7 @@ import { SlippiGame } from "../src";
 describe("when determining placings", () => {
   it("should return empty placings for older slp files", () => {
     const game = new SlippiGame("slp/test.slp");
-    const placements = game.getStats()!.placements!;
+    const placements = game.getGameEnd()!.placements!;
     // Test Placements
     expect(placements).toHaveLength(4);
     // Expect empty placements
@@ -16,15 +16,25 @@ describe("when determining placings", () => {
   });
 
   describe("when the game mode is Free for All", () => {
-    it("should determine the winner for 2 player games", () => {
+    it("should find the winner", () => {
       const game = new SlippiGame("slp/placementsTest/ffa_1p2p_winner_2p.slp");
-      const placements = game.getWinners();
-      expect(placements).toHaveLength(1);
-      expect(placements[0].playerIndex).toBe(1);
-      expect(placements[0].position).toBe(0);
+      const winners = game.getWinners();
+      expect(winners).toHaveLength(1);
+      expect(winners[0].playerIndex).toBe(1);
+      expect(winners[0].position).toBe(0);
     });
 
-    it("should determine the winner for 3 player games", () => {
+    it("should return placings for 2 player games", () => {
+      const game = new SlippiGame("slp/placementsTest/ffa_1p2p_winner_2p.slp");
+      const placements = game.getGameEnd()!.placements!;
+      expect(placements).toHaveLength(4);
+      expect(placements[0].position).toBe(1); // player in port 1 is on second place
+      expect(placements[0].playerIndex).toBe(0);
+      expect(placements[1].position).toBe(0); // player in port 2 is on first place
+      expect(placements[1].playerIndex).toBe(1);
+    });
+
+    it("should return placings for 3 player games", () => {
       let game = new SlippiGame("slp/placementsTest/ffa_1p2p3p_winner_3p.slp");
       let placements = game.getGameEnd()?.placements!;
       expect(placements).toBeDefined();
@@ -58,21 +68,23 @@ describe("when determining placings", () => {
   });
 
   describe("when the game mode is Teams", () => {
-    it("should find winners in teams", () => {
-      let game = new SlippiGame("slp/placementsTest/teams_time_p3_redVSp1p2_blueVSp4_green_winner_blue.slp");
-      let settings = game.getSettings()!;
-      let placements = game.getWinners();
-      expect(placements).toHaveLength(2);
-      expect(placements[0].playerIndex).toBe(0);
-      expect(placements[0].position).toBe(1);
+    it("should return all winners", () => {
+      const game = new SlippiGame("slp/placementsTest/teams_time_p3_redVSp1p2_blueVSp4_green_winner_blue.slp");
+      const settings = game.getSettings()!;
+      const winners = game.getWinners();
+      expect(winners).toHaveLength(2);
+      expect(winners[0].playerIndex).toBe(0);
+      expect(winners[0].position).toBe(1);
       expect(settings.players[0]?.teamId).toBe(1);
-      expect(placements[1].playerIndex).toBe(1);
-      expect(placements[1].position).toBe(0);
+      expect(winners[1].playerIndex).toBe(1);
+      expect(winners[1].position).toBe(0);
       expect(settings.players[1].teamId).toBe(1);
+    });
 
-      game = new SlippiGame("slp/placementsTest/teams_p1p2_blueVSp4_green_winner_green.slp");
-      settings = game.getSettings()!;
-      placements = game.getGameEnd()?.placements!;
+    it("should return the correct placings", () => {
+      const game = new SlippiGame("slp/placementsTest/teams_p1p2_blueVSp4_green_winner_green.slp");
+      const settings = game.getSettings()!;
+      const placements = game.getGameEnd()?.placements!;
       expect(placements).toBeDefined();
       expect(placements).toHaveLength(4);
 
@@ -86,12 +98,12 @@ describe("when determining placings", () => {
       expect(placements[2].position).toBe(-1); // Expect player 3 to not be present
       expect(placements[3].position).toBe(0); // Expect player 4 to be first place
 
-      expect(settings?.players[0]?.teamId).toBe(1); // Expect player 1 to be on team blue
-      expect(settings?.players[1]?.teamId).toBe(1); // Expect player 2 to be on team blue
-      expect(settings?.players[2]?.teamId).toBe(2); // Expect player 4 to be on team green
+      expect(settings.players[0].teamId).toBe(1); // Expect player 1 to be on team blue
+      expect(settings.players[1].teamId).toBe(1); // Expect player 2 to be on team blue
+      expect(settings.players[2].teamId).toBe(2); // Expect player 4 to be on team green
     });
 
-    it("should calculate placings in time mode", () => {
+    it("should return placings in timed mode", () => {
       // Based on scores (time), not stock
       const game = new SlippiGame("slp/placementsTest/teams_time_p3_redVSp1p2_blueVSp4_green_winner_blue.slp");
       const settings = game.getSettings()!;
