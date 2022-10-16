@@ -207,10 +207,6 @@ export class SlippiGame {
     }
 
     const placements = gameEnd.placements;
-    if (!placements) {
-      return [];
-    }
-
     const firstPosition = placements.find((placement) => placement?.position === 0);
     if (!firstPosition) {
       return [];
