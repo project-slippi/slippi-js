@@ -156,7 +156,7 @@ export class SlippiGame {
     const overall = generateOverallStats({ settings, inputs, conversions, playableFrameCount });
 
     const gameEnd = this.parser.getGameEnd();
-    const isGameComplete = gameEnd !== null;
+    const gameComplete = gameEnd !== null;
 
     const stats = {
       lastFrame: this.parser.getLatestFrameNumber(),
@@ -166,11 +166,11 @@ export class SlippiGame {
       combos: this.comboComputer.fetch(),
       actionCounts: this.actionsComputer.fetch(),
       overall: overall,
-      gameComplete: isGameComplete,
+      gameComplete,
       placements: gameEnd ? gameEnd.placements : null,
     };
 
-    if (isGameComplete) {
+    if (gameComplete) {
       // If the game is complete, store a cached version of stats because it should not
       // change anymore. Ideally the statsCompuer.process and fetch functions would simply do no
       // work in this case instead but currently the conversions fetch function,
