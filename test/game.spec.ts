@@ -45,18 +45,6 @@ it("should correctly return stats", () => {
   expect(stats.overall[0].inputCounts.total).toBe(494);
 });
 
-it("should return empty placings for older slp files", () => {
-  const game = new SlippiGame("slp/test.slp");
-  const placements = game.getStats()!.placements!;
-  // Test Placements
-  expect(placements).toHaveLength(4);
-  // Expect empty placements
-  expect(placements[0].position).toBe(null);
-  expect(placements[1].position).toBe(null);
-  expect(placements[2].position).toBe(null);
-  expect(placements[3].position).toBe(null);
-});
-
 it("should correctly return metadata", () => {
   const game = new SlippiGame("slp/test.slp");
   const metadata = game.getMetadata()!;

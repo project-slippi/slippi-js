@@ -3,6 +3,18 @@ import _ from "lodash";
 import { SlippiGame } from "../src";
 
 describe("when determining placings", () => {
+  it("should return empty placings for older slp files", () => {
+    const game = new SlippiGame("slp/test.slp");
+    const placements = game.getStats()!.placements!;
+    // Test Placements
+    expect(placements).toHaveLength(4);
+    // Expect empty placements
+    expect(placements[0].position).toBe(null);
+    expect(placements[1].position).toBe(null);
+    expect(placements[2].position).toBe(null);
+    expect(placements[3].position).toBe(null);
+  });
+
   describe("when the game mode is Free for All", () => {
     it("should determine the winner for 2 player games", () => {
       const game = new SlippiGame("slp/placementsTest/ffa_1p2p_winner_2p.slp");
