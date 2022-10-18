@@ -129,19 +129,19 @@ export class SlpParser extends EventEmitter {
     return this.settingsComplete ? this.settings : null;
   }
 
-  public getItems(): string[] | null {
+  public getItems(): EnabledItemType[] | null {
     if (this.settings?.itemSpawnBehavior === ItemSpawnType.OFF) {
       return null;
     }
 
     const itemBitfield = this.settings?.enabledItems;
-    const enabledItems = [] as string[];
+    const enabledItems = [] as EnabledItemType[];
 
     // Ideally we would be able to do this with bitshifting instead, but javascript
     // truncates numbers after 32 bits when doing bitwise operations
     for (let i = 0; i < itemSettingsBitCount; i++) {
       if (Math.floor((itemBitfield as number) / 2 ** i) & 1) {
-        enabledItems.push(EnabledItemType[2 ** i] as string);
+        enabledItems.push(2 ** i);
       }
     }
 
