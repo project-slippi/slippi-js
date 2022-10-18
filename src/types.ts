@@ -55,7 +55,7 @@ export enum Language {
 export interface GameStartType {
   slpVersion: string | null;
   timerType: TimerType | null;
-  gameMode: GameMode | null;
+  inGameMode: number | null;
   friendlyFireEnabled: boolean | null;
   isTeams: boolean | null;
   stageId: number | null;
@@ -64,7 +64,7 @@ export interface GameStartType {
   enabledItems: number | null;
   players: PlayerType[];
   scene: number | null;
-  majorScene: number | null;
+  gameMode: GameMode | null;
   language: Language | null;
   gameInfoBlock: GameInfoType | null;
   randomSeed: number | null;

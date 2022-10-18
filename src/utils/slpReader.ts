@@ -408,7 +408,7 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
       return {
         slpVersion: `${readUint8(view, 0x1)}.${readUint8(view, 0x2)}.${readUint8(view, 0x3)}`,
         timerType: readUint8(view, 0x5, 0x03),
-        gameMode: readUint8(view, 0x5, 0xe0),
+        inGameMode: readUint8(view, 0x5, 0xe0),
         friendlyFireEnabled: !!readUint8(view, 0x6, 0x01),
         isTeams: readBool(view, 0xd),
         itemSpawnBehavior: readUint8(view, 0x10),
@@ -417,7 +417,7 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
         enabledItems: getEnabledItems(view),
         players: [0, 1, 2, 3].map(getPlayerObject),
         scene: readUint8(view, 0x1a3),
-        majorScene: readUint8(view, 0x1a4),
+        gameMode: readUint8(view, 0x1a4),
         language: readUint8(view, 0x2bd),
         gameInfoBlock: getGameInfoBlock(view),
         randomSeed: readUint32(view, 0x13d),
