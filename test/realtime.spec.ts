@@ -31,7 +31,7 @@ describe("when reading last finalised frame from SlpStream", () => {
     // The game mode should be online
     const game = new SlippiGame(testFile);
     const settings = game.getSettings();
-    expect(settings.majorScene).toEqual(GameMode.ONLINE);
+    expect(settings?.gameMode).toEqual(GameMode.ONLINE);
 
     stream.on(SlpStreamEvent.COMMAND, (data: SlpCommandEventPayload) => {
       parser.handleCommand(data.command, data.payload);
