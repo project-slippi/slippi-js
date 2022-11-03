@@ -17,8 +17,11 @@ import type {
 } from "../types";
 import { EnabledItemType, ItemSpawnType } from "../types";
 import { Command, Frames, GameMode } from "../types";
+import { exists } from "./exists";
 import { RollbackCounter } from "./rollbackCounter";
 
+// There are 5 bytes of item bitfields that can be enabled
+const itemSettingsBitCount = 40;
 export const MAX_ROLLBACK_FRAMES = 7;
 
 export enum SlpParserEvent {
@@ -36,9 +39,6 @@ export enum SlpParserEvent {
 const defaultSlpParserOptions = {
   strict: false,
 };
-
-// There are 5 bytes of item bitfields that can be enabled
-const itemSettingsBitCount = 40;
 
 export type SlpParserOptions = typeof defaultSlpParserOptions;
 
@@ -135,12 +135,16 @@ export class SlpParser extends EventEmitter {
     }
 
     const itemBitfield = this.settings?.enabledItems;
-    const enabledItems = [] as EnabledItemType[];
+    if (!exists(itemBitfield)) {
+      return null;
+    }
+
+    const enabledItems: EnabledItemType[] = [];
 
     // Ideally we would be able to do this with bitshifting instead, but javascript
     // truncates numbers after 32 bits when doing bitwise operations
     for (let i = 0; i < itemSettingsBitCount; i++) {
-      if (Math.floor((itemBitfield as number) / 2 ** i) & 1) {
+      if (Math.floor(itemBitfield / 2 ** i) & 1) {
         enabledItems.push(2 ** i);
       }
     }
