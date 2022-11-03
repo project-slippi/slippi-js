@@ -22,6 +22,7 @@ import type {
 } from "./types";
 import { SlpParser, SlpParserEvent } from "./utils/slpParser";
 import type { SlpReadInput } from "./utils/slpReader";
+import { getGameEnd } from "./utils/slpReader";
 import { closeSlpFile, getMetadata, iterateEvents, openSlpFile, SlpInputSource } from "./utils/slpReader";
 
 /**
@@ -205,9 +206,7 @@ export class SlippiGame {
   }
 
   public getWinners(): PlacementType[] {
-    this._process();
-
-    const gameEnd = this.getGameEnd();
+    const gameEnd = getGameEnd(this.input);
     if (!gameEnd) {
       return [];
     }
