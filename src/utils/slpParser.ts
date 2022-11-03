@@ -21,7 +21,7 @@ import { exists } from "./exists";
 import { RollbackCounter } from "./rollbackCounter";
 
 // There are 5 bytes of item bitfields that can be enabled
-const itemSettingsBitCount = 40;
+const ITEM_SETTINGS_BIT_COUNT = 40;
 export const MAX_ROLLBACK_FRAMES = 7;
 
 export enum SlpParserEvent {
@@ -143,7 +143,7 @@ export class SlpParser extends EventEmitter {
 
     // Ideally we would be able to do this with bitshifting instead, but javascript
     // truncates numbers after 32 bits when doing bitwise operations
-    for (let i = 0; i < itemSettingsBitCount; i++) {
+    for (let i = 0; i < ITEM_SETTINGS_BIT_COUNT; i++) {
       if (Math.floor(itemBitfield / 2 ** i) & 1) {
         enabledItems.push(2 ** i);
       }
