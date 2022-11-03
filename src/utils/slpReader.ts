@@ -268,7 +268,7 @@ export function iterateEvents(
     }
 
     const parsedPayload = parseMessage(commandByte, buffer);
-    const shouldStop = callback(commandByte, parsedPayload);
+    const shouldStop = callback(commandByte, parsedPayload, buffer);
     if (shouldStop) {
       break;
     }

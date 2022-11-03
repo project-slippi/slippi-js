@@ -178,7 +178,11 @@ export type EventPayloadTypes =
   | GameEndType
   | GeckoListType;
 
-export type EventCallbackFunc = (command: Command, payload?: EventPayloadTypes | null) => boolean;
+export type EventCallbackFunc = (
+  command: Command,
+  payload?: EventPayloadTypes | null,
+  buffer?: Uint8Array | null,
+) => boolean;
 
 export interface FrameEntryType {
   frame: number;
