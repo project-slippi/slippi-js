@@ -6,6 +6,7 @@ export * from "./stats";
 export * from "./types";
 
 // Utils
+export * from "./utils/gameTimer";
 export * from "./utils/slpFile";
 export * from "./utils/slpFileWriter";
 export * from "./utils/slpParser";

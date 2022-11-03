@@ -6,8 +6,10 @@ import { mapValues } from "lodash";
 import type {
   EventCallbackFunc,
   EventPayloadTypes,
+  GameInfoType,
   GeckoCodeType,
   MetadataType,
+  PlacementType,
   PlayerType,
   SelfInducedSpeedsType,
 } from "../types";
@@ -203,6 +205,38 @@ function getMessageSizes(
   return messageSizes;
 }
 
+function getEnabledItems(view: DataView): number {
+  const offsets = [0x1, 0x100, 0x10000, 0x1000000, 0x100000000];
+  const enabledItems = offsets.reduce((acc, byteOffset, index) => {
+    const byte = readUint8(view, 0x28 + index) as number;
+    return acc + byte * byteOffset;
+  }, 0);
+
+  return enabledItems;
+}
+
+function getGameInfoBlock(view: DataView): GameInfoType {
+  const offset = 0x5;
+
+  return {
+    gameBitfield1: readUint8(view, 0x0 + offset),
+    gameBitfield2: readUint8(view, 0x1 + offset),
+    gameBitfield3: readUint8(view, 0x2 + offset),
+    gameBitfield4: readUint8(view, 0x3 + offset),
+    bombRainEnabled: (readUint8(view, 0x6 + offset)! & 0xff) > 0 ? true : false,
+    itemSpawnBehavior: readInt8(view, 0xb + offset),
+    selfDestructScoreValue: readInt8(view, 0xc + offset),
+    //stageId: readUint16(view, 0xe + offset),
+    //gameTimer: readUint32(view, 0x10 + offset),
+    itemSpawnBitfield1: readUint8(view, 0x23 + offset),
+    itemSpawnBitfield2: readUint8(view, 0x24 + offset),
+    itemSpawnBitfield3: readUint8(view, 0x25 + offset),
+    itemSpawnBitfield4: readUint8(view, 0x26 + offset),
+    itemSpawnBitfield5: readUint8(view, 0x27 + offset),
+    damageRatio: readFloat(view, 0x30 + offset),
+  } as GameInfoType;
+}
+
 /**
  * Iterates through slp events and parses payloads
  */
@@ -345,10 +379,24 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
           playerIndex,
           port: playerIndex + 1,
           characterId: readUint8(view, 0x65 + offset),
-          characterColor: readUint8(view, 0x68 + offset),
-          startStocks: readUint8(view, 0x67 + offset),
           type: readUint8(view, 0x66 + offset),
+          startStocks: readUint8(view, 0x67 + offset),
+          characterColor: readUint8(view, 0x68 + offset),
+          teamShade: readUint8(view, 0x6c + offset),
+          handicap: readUint8(view, 0x6d + offset),
           teamId: readUint8(view, 0x6e + offset),
+          staminaMode: Boolean(readUint8(view, 0x6c + playerIndex * 0x24, 0x01)),
+          silentCharacter: Boolean(readUint8(view, 0x6c + playerIndex * 0x24, 0x02)),
+          lowGravity: Boolean(readUint8(view, 0x6c + playerIndex * 0x24, 0x04)),
+          invisible: Boolean(readUint8(view, 0x6c + playerIndex * 0x24, 0x08)),
+          blackStockIcon: Boolean(readUint8(view, 0x6c + playerIndex * 0x24, 0x10)),
+          metal: Boolean(readUint8(view, 0x6c + playerIndex * 0x24, 0x20)),
+          startOnAngelPlatform: Boolean(readUint8(view, 0x6c + playerIndex * 0x24, 0x40)),
+          rumbleEnabled: Boolean(readUint8(view, 0x6c + playerIndex * 0x24, 0x80)),
+          cpuLevel: readUint8(view, 0x74 + offset),
+          offenseRatio: readFloat(view, 0x7d + offset),
+          defenseRatio: readFloat(view, 0x81 + offset),
+          modelScale: readFloat(view, 0x85 + offset),
           controllerFix,
           nametag,
           displayName,
@@ -356,15 +404,25 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
           userId,
         };
       };
+
       return {
         slpVersion: `${readUint8(view, 0x1)}.${readUint8(view, 0x2)}.${readUint8(view, 0x3)}`,
+        timerType: readUint8(view, 0x5, 0x03),
+        inGameMode: readUint8(view, 0x5, 0xe0),
+        friendlyFireEnabled: !!readUint8(view, 0x6, 0x01),
         isTeams: readBool(view, 0xd),
-        isPAL: readBool(view, 0x1a1),
+        itemSpawnBehavior: readUint8(view, 0x10),
         stageId: readUint16(view, 0x13),
+        startingTimerSeconds: readUint32(view, 0x15),
+        enabledItems: getEnabledItems(view),
         players: [0, 1, 2, 3].map(getPlayerObject),
         scene: readUint8(view, 0x1a3),
         gameMode: readUint8(view, 0x1a4),
         language: readUint8(view, 0x2bd),
+        gameInfoBlock: getGameInfoBlock(view),
+        randomSeed: readUint32(view, 0x13d),
+        isPAL: readBool(view, 0x1a1),
+        isFrozenPS: readBool(view, 0x1a2),
       };
     case Command.FRAME_START:
       return {
@@ -372,6 +430,7 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
         seed: readUint32(view, 0x5),
         sceneFrameCounter: readUint32(view, 0x9),
       };
+
     case Command.PRE_FRAME_UPDATE:
       return {
         frame: readInt32(view, 0x1),
@@ -453,9 +512,15 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
         latestFinalizedFrame: readInt32(view, 0x5),
       };
     case Command.GAME_END:
+      const placements = [0, 1, 2, 3].map((playerIndex): PlacementType => {
+        const position = readInt8(view, 0x3 + playerIndex);
+        return { playerIndex, position };
+      });
+
       return {
         gameEndMethod: readUint8(view, 0x1),
         lrasInitiatorIndex: readInt8(view, 0x2),
+        placements,
       };
     case Command.GECKO_LIST:
       const codes: GeckoCodeType[] = [];
@@ -539,12 +604,12 @@ function readUint16(view: DataView, offset: number): number | null {
   return view.getUint16(offset);
 }
 
-function readUint8(view: DataView, offset: number): number | null {
+function readUint8(view: DataView, offset: number, bitmask = 0xff): number | null {
   if (!canReadFromView(view, offset, 1)) {
     return null;
   }
 
-  return view.getUint8(offset);
+  return view.getUint8(offset) & bitmask;
 }
 
 function readBool(view: DataView, offset: number): boolean | null {

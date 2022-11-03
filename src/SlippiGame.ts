@@ -8,8 +8,8 @@ import {
   Stats,
   StockComputer,
 } from "./stats";
-// Type imports
 import type {
+  EnabledItemType,
   EventCallbackFunc,
   FrameEntryType,
   FramesType,
@@ -17,6 +17,7 @@ import type {
   GameStartType,
   GeckoListType,
   MetadataType,
+  PlacementType,
   RollbackFrames,
 } from "./types";
 import { SlpParser, SlpParserEvent } from "./utils/slpParser";
@@ -110,6 +111,11 @@ export class SlippiGame {
     return this.parser.getSettings();
   }
 
+  public getItems(): EnabledItemType[] | null {
+    this._process();
+    return this.parser.getItems();
+  }
+
   public getLatestFrame(): FrameEntryType | null {
     this._process();
     return this.parser.getLatestFrame();
@@ -155,7 +161,10 @@ export class SlippiGame {
     const playableFrameCount = this.parser.getPlayableFrameCount();
     const overall = generateOverallStats({ settings, inputs, conversions, playableFrameCount });
 
-    const stats = {
+    const gameEnd = this.parser.getGameEnd();
+    const gameComplete = gameEnd !== null;
+
+    const stats: StatsType = {
       lastFrame: this.parser.getLatestFrameNumber(),
       playableFrameCount,
       stocks: stocks,
@@ -163,10 +172,10 @@ export class SlippiGame {
       combos: this.comboComputer.fetch(),
       actionCounts: this.actionsComputer.fetch(),
       overall: overall,
-      gameComplete: this.parser.getGameEnd() !== null,
+      gameComplete,
     };
 
-    if (this.parser.getGameEnd() !== null) {
+    if (gameComplete) {
       // If the game is complete, store a cached version of stats because it should not
       // change anymore. Ideally the statsCompuer.process and fetch functions would simply do no
       // work in this case instead but currently the conversions fetch function,
@@ -193,5 +202,31 @@ export class SlippiGame {
     }
 
     return this.input.filePath ?? null;
+  }
+
+  public getWinners(): PlacementType[] {
+    this._process();
+
+    const gameEnd = this.getGameEnd();
+    if (!gameEnd) {
+      return [];
+    }
+
+    const placements = gameEnd.placements;
+    const firstPosition = placements.find((placement) => placement?.position === 0);
+    if (!firstPosition) {
+      return [];
+    }
+
+    const settings = this.getSettings();
+    if (settings?.isTeams) {
+      const winningTeam = settings.players.find(({ playerIndex }) => playerIndex === firstPosition.playerIndex)?.teamId;
+      return placements.filter((placement) => {
+        const teamId = settings.players.find(({ playerIndex }) => playerIndex === placement.playerIndex)?.teamId;
+        return teamId === winningTeam;
+      });
+    }
+
+    return [firstPosition];
   }
 }
