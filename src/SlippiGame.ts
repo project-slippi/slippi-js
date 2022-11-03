@@ -122,7 +122,11 @@ export class SlippiGame {
     return this.parser.getLatestFrame();
   }
 
-  public getGameEnd(): GameEndType | null {
+  public getGameEnd(options: { skipProcessing?: boolean } = {}): GameEndType | null {
+    if (options?.skipProcessing) {
+      return getGameEnd(this.input);
+    }
+
     this._process();
     return this.parser.getGameEnd();
   }
