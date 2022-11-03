@@ -1,7 +1,7 @@
 import _ from "lodash";
 
 import { SlippiGame } from "../src";
-import { getGameEnd, SlpInputSource } from "../src/utils/slpReader";
+import { closeSlpFile, getGameEnd, openSlpFile, SlpInputSource } from "../src/utils/slpReader";
 
 describe("when reading game end directly", () => {
   it("should return the same game end object", () => {
@@ -59,5 +59,8 @@ describe("when reading game end directly", () => {
 });
 
 function getManualGameEnd(filePath: string) {
-  return getGameEnd({ source: SlpInputSource.FILE, filePath });
+  const slpfile = openSlpFile({ source: SlpInputSource.FILE, filePath });
+  const gameEnd = getGameEnd(slpfile);
+  closeSlpFile(slpfile);
+  return gameEnd;
 }

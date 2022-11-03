@@ -645,37 +645,28 @@ export function getMetadata(slpFile: SlpFileType): MetadataType | null {
   return metadata;
 }
 
-export function getGameEnd(input: SlpReadInput): GameEndType | null {
-  let slpFile: SlpFileType | undefined;
-
-  try {
-    slpFile = openSlpFile(input);
-    const { rawDataPosition, rawDataLength, messageSizes } = slpFile;
-    const gameEndSize = messageSizes[Command.GAME_END];
-    if (!exists(gameEndSize)) {
-      return null;
-    }
-
-    // Subtract one to account for command byte
-    const gameEndPosition = rawDataPosition + rawDataLength - gameEndSize - 1;
-
-    // Add one to include command byte in payload
-    const buffer = new Uint8Array(gameEndSize + 1);
-    readRef(slpFile.ref, buffer, 0, buffer.length, gameEndPosition);
-    if (buffer[0] !== Command.GAME_END) {
-      // This isn't even a game end payload
-      return null;
-    }
-
-    const gameEndMessage = parseMessage(Command.GAME_END, buffer);
-    if (!gameEndMessage) {
-      return null;
-    }
-
-    return gameEndMessage as GameEndType;
-  } catch (err) {
+export function getGameEnd(slpFile: SlpFileType): GameEndType | null {
+  const { rawDataPosition, rawDataLength, messageSizes } = slpFile;
+  const gameEndPayloadSize = messageSizes[Command.GAME_END];
+  if (!exists(gameEndPayloadSize) || gameEndPayloadSize <= 0) {
     return null;
-  } finally {
-    slpFile && closeSlpFile(slpFile);
   }
+
+  // Add one to account for command byte
+  const gameEndSize = gameEndPayloadSize + 1;
+  const gameEndPosition = rawDataPosition + rawDataLength - gameEndSize;
+
+  const buffer = new Uint8Array(gameEndSize);
+  readRef(slpFile.ref, buffer, 0, buffer.length, gameEndPosition);
+  if (buffer[0] !== Command.GAME_END) {
+    // This isn't even a game end payload
+    return null;
+  }
+
+  const gameEndMessage = parseMessage(Command.GAME_END, buffer);
+  if (!gameEndMessage) {
+    return null;
+  }
+
+  return gameEndMessage as GameEndType;
 }
