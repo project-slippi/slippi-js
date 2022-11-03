@@ -9,6 +9,7 @@ import {
   StockComputer,
 } from "./stats";
 import type {
+  EnabledItemType,
   EventCallbackFunc,
   FrameEntryType,
   FramesType,
@@ -108,6 +109,11 @@ export class SlippiGame {
     // Settings is only complete after post-frame update
     this._process(() => this.parser.getSettings() !== null);
     return this.parser.getSettings();
+  }
+
+  public getItems(): EnabledItemType[] | null {
+    this._process();
+    return this.parser.getItems();
   }
 
   public getLatestFrame(): FrameEntryType | null {
