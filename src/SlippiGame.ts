@@ -22,7 +22,7 @@ import type {
 } from "./types";
 import { SlpParser, SlpParserEvent } from "./utils/slpParser";
 import type { SlpReadInput } from "./utils/slpReader";
-import { closeSlpFile, getMetadata, iterateEvents, openSlpFile, SlpInputSource } from "./utils/slpReader";
+import { closeSlpFile, getGameEnd, getMetadata, iterateEvents, openSlpFile, SlpInputSource } from "./utils/slpReader";
 
 /**
  * Slippi Game class that wraps a file
@@ -121,7 +121,15 @@ export class SlippiGame {
     return this.parser.getLatestFrame();
   }
 
-  public getGameEnd(): GameEndType | null {
+  public getGameEnd(options: { skipProcessing?: boolean } = {}): GameEndType | null {
+    if (options?.skipProcessing) {
+      // Read game end block directly
+      const slpfile = openSlpFile(this.input);
+      const gameEnd = getGameEnd(slpfile);
+      closeSlpFile(slpfile);
+      return gameEnd;
+    }
+
     this._process();
     return this.parser.getGameEnd();
   }
@@ -205,9 +213,7 @@ export class SlippiGame {
   }
 
   public getWinners(): PlacementType[] {
-    this._process();
-
-    const gameEnd = this.getGameEnd();
+    const gameEnd = this.getGameEnd({ skipProcessing: true });
     if (!gameEnd) {
       return [];
     }

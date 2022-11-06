@@ -6,6 +6,7 @@ import { mapValues } from "lodash";
 import type {
   EventCallbackFunc,
   EventPayloadTypes,
+  GameEndType,
   GameInfoType,
   GeckoCodeType,
   MetadataType,
@@ -14,6 +15,7 @@ import type {
   SelfInducedSpeedsType,
 } from "../types";
 import { Command } from "../types";
+import { exists } from "./exists";
 import { toHalfwidth } from "./fullwidth";
 
 export enum SlpInputSource {
@@ -641,4 +643,30 @@ export function getMetadata(slpFile: SlpFileType): MetadataType | null {
 
   // $FlowFixMe
   return metadata;
+}
+
+export function getGameEnd(slpFile: SlpFileType): GameEndType | null {
+  const { ref, rawDataPosition, rawDataLength, messageSizes } = slpFile;
+  const gameEndPayloadSize = messageSizes[Command.GAME_END];
+  if (!exists(gameEndPayloadSize) || gameEndPayloadSize <= 0) {
+    return null;
+  }
+
+  // Add one to account for command byte
+  const gameEndSize = gameEndPayloadSize + 1;
+  const gameEndPosition = rawDataPosition + rawDataLength - gameEndSize;
+
+  const buffer = new Uint8Array(gameEndSize);
+  readRef(ref, buffer, 0, buffer.length, gameEndPosition);
+  if (buffer[0] !== Command.GAME_END) {
+    // This isn't even a game end payload
+    return null;
+  }
+
+  const gameEndMessage = parseMessage(Command.GAME_END, buffer);
+  if (!gameEndMessage) {
+    return null;
+  }
+
+  return gameEndMessage as GameEndType;
 }
