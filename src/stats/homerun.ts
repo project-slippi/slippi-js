@@ -7,10 +7,6 @@ import type { StatComputer } from "./stats";
 export class HomerunComputer extends EventEmitter implements StatComputer<number> {
   private gameDistance = 0;
 
-  public constructor() {
-    super();
-  }
-
   public setup(): void {
     // Reset the state
     this.gameDistance = 0;
