@@ -9,6 +9,8 @@ export interface StatsType {
   combos: ComboType[];
   actionCounts: ActionCountsType[];
   overall: OverallType[];
+  targetBreaks: TargetBreakType[] | null;
+  homerunDistance: number | null;
 }
 
 export interface RatioType {
@@ -52,6 +54,13 @@ export interface ComboType extends DurationType, DamageType {
   moves: MoveLandedType[];
   didKill: boolean;
   lastHitBy: number | null;
+}
+
+export interface TargetBreakType {
+  spawnId: number;
+  frameDestroyed: number | null;
+  positionX: number;
+  positionY: number;
 }
 
 export interface ConversionType extends ComboType {
