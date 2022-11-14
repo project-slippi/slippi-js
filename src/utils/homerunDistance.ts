@@ -16,7 +16,7 @@ export function positionToHomeRunDistance(distance: number, units: "feet" | "met
     Math.round(Math.pow(2, 23 - Math.floor(Math.log2(interimValue1))) * interimValue1) /
     Math.pow(2, 23 - Math.floor(Math.log2(interimValue1)));
 
-  let distanceFeet =
+  const distanceFeet =
     Math.max(
       Math.floor(
         Math.round(Math.pow(2, 23 - Math.floor(Math.log2(interimValue2 * 10))) * interimValue2 * 10) /
