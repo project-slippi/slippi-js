@@ -1,10 +1,10 @@
 import { EventEmitter } from "events";
 
 import type { FrameEntryType, FramesType } from "../types";
-import { positionToHomerunDistance } from "../utils/homerunDistance";
+import { positionToHomeRunDistance } from "../utils/homeRunDistance";
 import type { StatComputer } from "./stats";
 
-export class HomerunComputer extends EventEmitter implements StatComputer<number> {
+export class HomeRunComputer extends EventEmitter implements StatComputer<number> {
   private gameDistance = 0;
 
   public setup(): void {
@@ -23,7 +23,7 @@ export class HomerunComputer extends EventEmitter implements StatComputer<number
   }
 
   public fetch(): number {
-    return positionToHomerunDistance(this.gameDistance);
+    return positionToHomeRunDistance(this.gameDistance);
   }
 }
 

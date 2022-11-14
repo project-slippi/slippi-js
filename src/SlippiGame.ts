@@ -1,5 +1,5 @@
 import type { StatOptions, StatsType } from "./stats";
-import { HomerunComputer, TargetBreakComputer } from "./stats";
+import { HomeRunComputer as HomeRunComputer, TargetBreakComputer } from "./stats";
 import {
   ActionsComputer,
   ComboComputer,
@@ -41,7 +41,7 @@ export class SlippiGame {
   private stockComputer: StockComputer = new StockComputer();
   private inputComputer: InputComputer = new InputComputer();
   private targetBreakComputer: TargetBreakComputer = new TargetBreakComputer();
-  private homerunComputer: HomerunComputer = new HomerunComputer();
+  private homeRunComputer: HomeRunComputer = new HomeRunComputer();
   protected statsComputer: Stats;
 
   public constructor(input: string | Buffer | ArrayBuffer, opts?: StatOptions) {
@@ -73,7 +73,7 @@ export class SlippiGame {
       this.inputComputer,
       this.stockComputer,
       this.targetBreakComputer,
-      this.homerunComputer,
+      this.homeRunComputer,
     );
     this.parser = new SlpParser();
     this.parser.on(SlpParserEvent.SETTINGS, (settings) => {
@@ -189,9 +189,9 @@ export class SlippiGame {
       gameComplete,
       targetBreaks: settings.gameMode === GameMode.TARGET_TEST ? this.targetBreakComputer.fetch() : null,
       // homerun distance depends on the language setting (not NTSC/PAL) and JPN has not been implemented
-      homerunDistance:
+      homeRunDistance:
         settings.gameMode === GameMode.HOME_RUN_CONTEST && settings.language !== Language.JAPANESE
-          ? this.homerunComputer.fetch()
+          ? this.homeRunComputer.fetch()
           : null,
     };
 

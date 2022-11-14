@@ -1,7 +1,7 @@
 // Returns the recorded homerun distance in FEET given the in-game position of the sandbag.
 // The conversion from internal game units to feet and meters is not currently perfectly understood.
 // As such, homerun distance is currently an approximation of the recorded value for some extremely large values.
-export function positionToHomerunDistance(distance: number): number {
+export function positionToHomeRunDistance(distance: number, units: "feet" | "meters" = "feet"): number {
   // In NTSC vs. PAL, meters are different sizes
   const feetModeConversionFactor = 0.952462;
   //const metersModeConversionFactor = 1.04167;
@@ -16,11 +16,16 @@ export function positionToHomerunDistance(distance: number): number {
     Math.round(Math.pow(2, 23 - Math.floor(Math.log2(interimValue1))) * interimValue1) /
     Math.pow(2, 23 - Math.floor(Math.log2(interimValue1)));
 
-  const recordedDistance =
-    Math.floor(
-      Math.round(Math.pow(2, 23 - Math.floor(Math.log2(interimValue2 * 10))) * interimValue2 * 10) /
-        Math.pow(2, 23 - Math.floor(Math.log2(interimValue2 * 10))),
-    ) / 10;
+  let distanceFeet =
+    Math.max(
+      Math.floor(
+        Math.round(Math.pow(2, 23 - Math.floor(Math.log2(interimValue2 * 10))) * interimValue2 * 10) /
+          Math.pow(2, 23 - Math.floor(Math.log2(interimValue2 * 10))),
+      ) / 10,
+      0,
+    ) || 0;
 
-  return recordedDistance > 0 ? recordedDistance : 0;
+  const distanceMeters = Math.round(distanceFeet * 3.04788);
+
+  return units === "feet" ? distanceFeet : distanceMeters;
 }

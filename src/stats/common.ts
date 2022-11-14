@@ -10,7 +10,7 @@ export interface StatsType {
   actionCounts: ActionCountsType[];
   overall: OverallType[];
   targetBreaks: TargetBreakType[] | null;
-  homerunDistance: number | null;
+  homeRunDistance: number | null;
 }
 
 export interface RatioType {
