@@ -1,5 +1,5 @@
-import type { StatOptions, StatsType } from "./stats";
-import { HomeRunComputer as HomeRunComputer, TargetBreakComputer } from "./stats";
+import type { StadiumStatsType, StatOptions, StatsType } from "./stats";
+import { TargetBreakComputer } from "./stats";
 import {
   ActionsComputer,
   ComboComputer,
@@ -22,6 +22,7 @@ import type {
   RollbackFrames,
 } from "./types";
 import { GameMode, Language } from "./types";
+import { positionToHomeRunDistance } from "./utils/homeRunDistance";
 import { SlpParser, SlpParserEvent } from "./utils/slpParser";
 import type { SlpReadInput } from "./utils/slpReader";
 import { closeSlpFile, getGameEnd, getMetadata, iterateEvents, openSlpFile, SlpInputSource } from "./utils/slpReader";
@@ -41,7 +42,6 @@ export class SlippiGame {
   private stockComputer: StockComputer = new StockComputer();
   private inputComputer: InputComputer = new InputComputer();
   private targetBreakComputer: TargetBreakComputer = new TargetBreakComputer();
-  private homeRunComputer: HomeRunComputer = new HomeRunComputer();
   protected statsComputer: Stats;
 
   public constructor(input: string | Buffer | ArrayBuffer, opts?: StatOptions) {
@@ -73,7 +73,6 @@ export class SlippiGame {
       this.inputComputer,
       this.stockComputer,
       this.targetBreakComputer,
-      this.homeRunComputer,
     );
     this.parser = new SlpParser();
     this.parser.on(SlpParserEvent.SETTINGS, (settings) => {
@@ -187,12 +186,6 @@ export class SlippiGame {
       actionCounts: this.actionsComputer.fetch(),
       overall: overall,
       gameComplete,
-      targetBreaks: settings.gameMode === GameMode.TARGET_TEST ? this.targetBreakComputer.fetch() : null,
-      // homerun distance depends on the language setting (not NTSC/PAL) and JPN has not been implemented
-      homeRunDistance:
-        settings.gameMode === GameMode.HOME_RUN_CONTEST && settings.language !== Language.JAPANESE
-          ? this.homeRunComputer.fetch()
-          : null,
     };
 
     if (gameComplete) {
@@ -204,6 +197,41 @@ export class SlippiGame {
     }
 
     return stats;
+  }
+
+  public getStadiumStats(): StadiumStatsType | null {
+    this._process();
+
+    const settings = this.parser.getSettings();
+    if (settings === null) {
+      return null;
+    }
+
+    const latestFrame = this.parser.getLatestFrame();
+    const players = latestFrame?.players;
+
+    if (!players) {
+      return null;
+    }
+
+    let sandbag = null;
+    for (let i = 0; i < settings.players.length; i++) {
+      sandbag = players[i]?.post.internalCharacterId === 32 ? players[i]?.post : null;
+    }
+
+    const stadiumStats: StadiumStatsType = {
+      targetBreaks: settings.gameMode === GameMode.TARGET_TEST ? this.targetBreakComputer.fetch() : null,
+      // homerun distance depends on the language setting (not NTSC/PAL) and JPN has not been implemented
+      homeRunDistance:
+        settings.gameMode === GameMode.HOME_RUN_CONTEST && sandbag
+          ? positionToHomeRunDistance(
+              sandbag.positionX ?? 0,
+              settings.language === Language.ENGLISH ? "feet" : "meters",
+            )
+          : null,
+    };
+
+    return stadiumStats;
   }
 
   public getMetadata(): MetadataType | null {

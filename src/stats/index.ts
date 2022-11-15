@@ -2,7 +2,6 @@ export { ActionsComputer } from "./actions";
 export { ComboComputer } from "./combos";
 export * from "./common";
 export { ConversionComputer } from "./conversions";
-export { HomeRunComputer } from "./homeRun";
 export { InputComputer } from "./inputs";
 export { generateOverallStats } from "./overall";
 export { StatComputer, StatOptions, Stats } from "./stats";

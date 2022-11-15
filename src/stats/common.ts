@@ -9,6 +9,9 @@ export interface StatsType {
   combos: ComboType[];
   actionCounts: ActionCountsType[];
   overall: OverallType[];
+}
+
+export interface StadiumStatsType {
   targetBreaks: TargetBreakType[] | null;
   homeRunDistance: number | null;
 }
