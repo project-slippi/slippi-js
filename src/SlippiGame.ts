@@ -43,6 +43,7 @@ export class SlippiGame {
   private inputComputer: InputComputer = new InputComputer();
   private targetBreakComputer: TargetBreakComputer = new TargetBreakComputer();
   protected statsComputer: Stats;
+  protected stadiumStatsComputer: Stats;
 
   public constructor(input: string | Buffer | ArrayBuffer, opts?: StatOptions) {
     if (typeof input === "string") {
@@ -72,15 +73,22 @@ export class SlippiGame {
       this.conversionComputer,
       this.inputComputer,
       this.stockComputer,
-      this.targetBreakComputer,
     );
+
+    // Set up stadium stats calculation
+    this.stadiumStatsComputer = new Stats(opts);
+    this.stadiumStatsComputer.register(this.targetBreakComputer);
+
     this.parser = new SlpParser();
     this.parser.on(SlpParserEvent.SETTINGS, (settings) => {
       this.statsComputer.setup(settings);
+      this.stadiumStatsComputer.setup(settings);
     });
+
     // Use finalized frames for stats computation
     this.parser.on(SlpParserEvent.FINALIZED_FRAME, (frame: FrameEntryType) => {
       this.statsComputer.addFrame(frame);
+      this.stadiumStatsComputer.addFrame(frame);
     });
   }
 
@@ -213,6 +221,8 @@ export class SlippiGame {
     if (!players) {
       return null;
     }
+
+    this.stadiumStatsComputer.process();
 
     let sandbag = null;
     for (let i = 0; i < settings.players.length; i++) {
