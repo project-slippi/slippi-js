@@ -1,31 +1,23 @@
-// Returns the recorded homerun distance in FEET given the in-game position of the sandbag.
-// The conversion from internal game units to feet and meters is not currently perfectly understood.
-// As such, homerun distance is currently an approximation of the recorded value for some extremely large values.
 export function positionToHomeRunDistance(distance: number, units: "feet" | "meters" = "feet"): number {
   // In NTSC vs. PAL, meters are different sizes
   const feetModeConversionFactor = 0.952462;
-  //const metersModeConversionFactor = 1.04167;
+  const metersModeConversionFactor = 1.04167;
+  let score = 0;
 
-  const metersInFeedMode = (distance - 71 * feetModeConversionFactor) / 10;
-  const magicConversionFactor = 30.4787998199462;
-  const score = Math.round(metersInFeedMode * 100);
+  if (units === "feet") {
+    score = 10 * Math.floor(distance - 70 * feetModeConversionFactor);
+    // convert to float32
+    score = Math.fround(score);
+    score = Math.floor((score / 30.4788) * 10) / 10;
+  } else {
+    score = 10 * Math.floor(distance - 70 * metersModeConversionFactor);
+    // convert to float32
+    score = Math.fround(score);
+    score = Math.floor((score / 100) * 10) / 10;
+  }
 
-  const interimValue1 = score / magicConversionFactor;
+  // round to 1 decimal
+  score = Math.round(score * 10) / 10;
 
-  const interimValue2 =
-    Math.round(Math.pow(2, 23 - Math.floor(Math.log2(interimValue1))) * interimValue1) /
-    Math.pow(2, 23 - Math.floor(Math.log2(interimValue1)));
-
-  const distanceFeet =
-    Math.max(
-      Math.floor(
-        Math.round(Math.pow(2, 23 - Math.floor(Math.log2(interimValue2 * 10))) * interimValue2 * 10) /
-          Math.pow(2, 23 - Math.floor(Math.log2(interimValue2 * 10))),
-      ) / 10,
-      0,
-    ) || 0;
-
-  const distanceMeters = Math.round(distanceFeet * 3.04788);
-
-  return units === "feet" ? distanceFeet : distanceMeters;
+  return Math.max(0, score);
 }
