@@ -209,6 +209,15 @@ it("should count rollback frames properly", () => {
   expect(rollbackLengths.reduce((a, b) => a + b) / rollbackLengths.length).toBe(1.6877703499803383); // average rollback length check
 });
 
+it("should return the correct match info", () => {
+  const game = new SlippiGame("slp/ranked_game1_tiebreak.slp");
+  const settings = game.getSettings();
+  const matchInfo = settings?.matchInfo;
+  expect(matchInfo?.gameIndex).toBe(1);
+  expect(matchInfo?.tiebreakerIndex).toBe(1);
+  expect(matchInfo?.matchId).toBe("mode.ranked-2022-12-20T05:36:47.50-0");
+});
+
 // it('test speedReadTest', () => {
 //   const replayPath = "D:\\Slippi\\Tournament-Replays\\Smash-in-Wittenberg-5";
 
