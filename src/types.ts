@@ -70,6 +70,13 @@ export interface GameStartType {
   randomSeed: number | null;
   isPAL: boolean | null;
   isFrozenPS: boolean | null;
+  matchInfo: MatchInfo | null;
+}
+
+interface MatchInfo {
+  matchId: string | null;
+  gameIndex: number | null;
+  tiebreakerIndex: number | null;
 }
 
 export interface FrameStartType {
