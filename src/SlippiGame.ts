@@ -211,7 +211,7 @@ export class SlippiGame {
     this._process();
 
     const settings = this.parser.getSettings();
-    if (settings === null) {
+    if (!settings) {
       return null;
     }
 
