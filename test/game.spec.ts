@@ -209,28 +209,33 @@ it("should count rollback frames properly", () => {
   expect(rollbackLengths.reduce((a, b) => a + b) / rollbackLengths.length).toBe(1.6877703499803383); // average rollback length check
 });
 
-it("should return the correct match info", () => {
-  let game = new SlippiGame("slp/ranked_game1_tiebreak.slp");
-  let settings = game.getSettings();
-  let matchInfo = settings?.matchInfo;
-  expect(matchInfo?.gameIndex).toBe(1);
-  expect(matchInfo?.tiebreakerIndex).toBe(1);
-  expect(matchInfo?.matchId).toBe("mode.ranked-2022-12-20T05:36:47.50-0");
+describe("when reading match info", () => {
+  it("should return the correct match info for ranked", () => {
+    const game = new SlippiGame("slp/ranked_game1_tiebreak.slp");
+    const settings = game.getSettings();
+    const matchInfo = settings?.matchInfo;
+    expect(matchInfo?.gameIndex).toBe(1);
+    expect(matchInfo?.tiebreakerIndex).toBe(1);
+    expect(matchInfo?.matchId).toBe("mode.ranked-2022-12-20T05:36:47.50-0");
+  });
 
-  game = new SlippiGame("slp/unranked.slp");
-  settings = game.getSettings();
-  matchInfo = settings?.matchInfo;
-  expect(matchInfo?.gameIndex).toBe(1);
-  expect(matchInfo?.tiebreakerIndex).toBe(0);
-  expect(matchInfo?.matchId).toBe("mode.unranked-2022-12-20T06:52:39.18-0");
+  it("should return the correct match info for unranked", () => {
+    const game = new SlippiGame("slp/unranked.slp");
+    const settings = game.getSettings();
+    const matchInfo = settings?.matchInfo;
+    expect(matchInfo?.gameIndex).toBe(1);
+    expect(matchInfo?.tiebreakerIndex).toBe(0);
+    expect(matchInfo?.matchId).toBe("mode.unranked-2022-12-20T06:52:39.18-0");
+  });
 
-  // old replay case
-  game = new SlippiGame("slp/geckoCodes.slp");
-  settings = game.getSettings();
-  matchInfo = settings?.matchInfo;
-  expect(matchInfo?.gameIndex).toBe(null);
-  expect(matchInfo?.tiebreakerIndex).toBe(null);
-  expect(matchInfo?.matchId).toBe("");
+  it("should return null values for old replays", () => {
+    const game = new SlippiGame("slp/geckoCodes.slp");
+    const settings = game.getSettings();
+    const matchInfo = settings?.matchInfo;
+    expect(matchInfo?.gameIndex).toBe(null);
+    expect(matchInfo?.tiebreakerIndex).toBe(null);
+    expect(matchInfo?.matchId).toBe("");
+  });
 });
 
 // it('test speedReadTest', () => {

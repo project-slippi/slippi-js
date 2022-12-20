@@ -18,7 +18,6 @@ describe("when reading game end directly", () => {
     const manualGameEnd = getManualGameEnd("slp/placementsTest/ffa_1p2p_winner_2p.slp")!;
     const placements = manualGameEnd.placements!;
     expect(placements).toHaveLength(4);
-    console.log(JSON.stringify(placements));
     expect(placements[0].position).toBe(1); // player in port 1 is on second place
     expect(placements[0].playerIndex).toBe(0);
     expect(placements[1].position).toBe(0); // player in port 2 is on first place
