@@ -210,12 +210,27 @@ it("should count rollback frames properly", () => {
 });
 
 it("should return the correct match info", () => {
-  const game = new SlippiGame("slp/ranked_game1_tiebreak.slp");
-  const settings = game.getSettings();
-  const matchInfo = settings?.matchInfo;
+  let game = new SlippiGame("slp/ranked_game1_tiebreak.slp");
+  let settings = game.getSettings();
+  let matchInfo = settings?.matchInfo;
   expect(matchInfo?.gameIndex).toBe(1);
   expect(matchInfo?.tiebreakerIndex).toBe(1);
   expect(matchInfo?.matchId).toBe("mode.ranked-2022-12-20T05:36:47.50-0");
+
+  game = new SlippiGame("slp/unranked.slp");
+  settings = game.getSettings();
+  matchInfo = settings?.matchInfo;
+  expect(matchInfo?.gameIndex).toBe(1);
+  expect(matchInfo?.tiebreakerIndex).toBe(0);
+  expect(matchInfo?.matchId).toBe("mode.unranked-2022-12-20T06:52:39.18-0");
+
+  // old replay case
+  game = new SlippiGame("slp/geckoCodes.slp");
+  settings = game.getSettings();
+  matchInfo = settings?.matchInfo;
+  expect(matchInfo?.gameIndex).toBe(null);
+  expect(matchInfo?.tiebreakerIndex).toBe(null);
+  expect(matchInfo?.matchId).toBe("");
 });
 
 // it('test speedReadTest', () => {
