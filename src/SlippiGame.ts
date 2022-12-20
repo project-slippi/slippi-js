@@ -170,7 +170,7 @@ export class SlippiGame {
     this._process();
 
     const settings = this.parser.getSettings();
-    if (settings === null) {
+    if (!settings) {
       return null;
     }
 
@@ -224,24 +224,32 @@ export class SlippiGame {
 
     this.stadiumStatsComputer.process();
 
-    let sandbag = null;
-    for (let i = 0; i < settings.players.length; i++) {
-      sandbag = players[i]?.post.internalCharacterId === 32 ? players[i]?.post : null;
+    switch (settings.gameMode) {
+      case GameMode.TARGET_TEST:
+        return {
+          type: "target-test",
+          targetBreaks: this.targetBreakComputer.fetch(),
+        };
+      case GameMode.HOME_RUN_CONTEST:
+        let sandbagLastFrame = null;
+        for (let i = 0; i < settings.players.length; i++) {
+          sandbagLastFrame = players[i]?.post.internalCharacterId === 32 ? players[i]?.post : null;
+        }
+
+        if (!sandbagLastFrame) {
+          return null;
+        }
+
+        const units = settings.language === Language.ENGLISH ? "feet" : "meters";
+
+        return {
+          type: "home-run-contest",
+          distance: positionToHomeRunDistance(sandbagLastFrame.positionX ?? 0, units),
+          units,
+        };
+      default:
+        return null;
     }
-
-    const stadiumStats: StadiumStatsType = {
-      targetBreaks: settings.gameMode === GameMode.TARGET_TEST ? this.targetBreakComputer.fetch() : null,
-      // homerun distance depends on the language setting (not NTSC/PAL) and JPN has not been implemented
-      homeRunDistance:
-        settings.gameMode === GameMode.HOME_RUN_CONTEST && sandbag
-          ? positionToHomeRunDistance(
-              sandbag.positionX ?? 0,
-              settings.language === Language.ENGLISH ? "feet" : "meters",
-            )
-          : null,
-    };
-
-    return stadiumStats;
   }
 
   public getMetadata(): MetadataType | null {

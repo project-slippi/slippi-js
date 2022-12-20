@@ -11,17 +11,17 @@ export interface StatsType {
   overall: OverallType[];
 }
 
-export type StadiumStatsType = HomeRunContestResultType | TargetTestResultType; 
+export type StadiumStatsType = HomeRunContestResultType | TargetTestResultType;
 
 export interface TargetTestResultType {
-  type: 'target-test',
+  type: "target-test";
   targetBreaks: TargetBreakType[];
 }
 
 export interface HomeRunContestResultType {
-  type: 'home-run-contest',
+  type: "home-run-contest";
   distance: number;
-  units: 'feet' | 'meters';
+  units: "feet" | "meters";
 }
 
 export interface RatioType {
