@@ -407,6 +407,15 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
         };
       };
 
+      const matchIdLength = 51;
+      const matchIdStart = 0x2be;
+      const matchIdBuf = payload.slice(matchIdStart, matchIdStart + matchIdLength);
+      const matchIdString = iconv
+        .decode(matchIdBuf as Buffer, "utf8")
+        .split("\0")
+        .shift();
+      const matchId = matchIdString ?? "";
+
       return {
         slpVersion: `${readUint8(view, 0x1)}.${readUint8(view, 0x2)}.${readUint8(view, 0x3)}`,
         timerType: readUint8(view, 0x5, 0x03),
@@ -425,6 +434,11 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
         randomSeed: readUint32(view, 0x13d),
         isPAL: readBool(view, 0x1a1),
         isFrozenPS: readBool(view, 0x1a2),
+        matchInfo: {
+          matchId,
+          gameIndex: readUint32(view, 0x2f1),
+          tiebreakerIndex: readUint32(view, 0x2f5),
+        },
       };
     case Command.FRAME_START:
       return {

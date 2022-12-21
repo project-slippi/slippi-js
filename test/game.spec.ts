@@ -209,6 +209,42 @@ it("should count rollback frames properly", () => {
   expect(rollbackLengths.reduce((a, b) => a + b) / rollbackLengths.length).toBe(1.6877703499803383); // average rollback length check
 });
 
+describe("when reading match info", () => {
+  it("should return the correct match info for ranked", () => {
+    const game = new SlippiGame("slp/ranked_game1_tiebreak.slp");
+    const settings = game.getSettings();
+    const matchInfo = settings?.matchInfo;
+    expect(matchInfo?.gameIndex).toBe(1);
+    expect(matchInfo?.tiebreakerIndex).toBe(1);
+    expect(matchInfo?.matchId).toBe("mode.ranked-2022-12-20T05:36:47.50-0");
+  });
+
+  it("should return the correct match info for unranked across multiple games", () => {
+    const game1 = new SlippiGame("slp/unranked_game1.slp");
+    const settingsGame1 = game1.getSettings();
+    const matchInfoGame1 = settingsGame1?.matchInfo;
+    expect(matchInfoGame1?.gameIndex).toBe(1);
+    expect(matchInfoGame1?.tiebreakerIndex).toBe(0);
+    expect(matchInfoGame1?.matchId).toBe("mode.unranked-2022-12-21T02:26:27.50-0");
+
+    const game2 = new SlippiGame("slp/unranked_game2.slp");
+    const settingsGame2 = game2.getSettings();
+    const matchInfoGame2 = settingsGame2?.matchInfo;
+    expect(matchInfoGame2?.gameIndex).toBe(2);
+    expect(matchInfoGame2?.tiebreakerIndex).toBe(0);
+    expect(matchInfoGame2?.matchId).toBe(matchInfoGame1?.matchId);
+  });
+
+  it("should return null values for old replays", () => {
+    const game = new SlippiGame("slp/geckoCodes.slp");
+    const settings = game.getSettings();
+    const matchInfo = settings?.matchInfo;
+    expect(matchInfo?.gameIndex).toBe(null);
+    expect(matchInfo?.tiebreakerIndex).toBe(null);
+    expect(matchInfo?.matchId).toBe("");
+  });
+});
+
 // it('test speedReadTest', () => {
 //   const replayPath = "D:\\Slippi\\Tournament-Replays\\Smash-in-Wittenberg-5";
 
