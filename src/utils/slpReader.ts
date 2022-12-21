@@ -436,8 +436,8 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
         isFrozenPS: readBool(view, 0x1a2),
         matchInfo: {
           matchId,
-          gameIndex: readUint32(view, 0x2f1),
-          tiebreakerIndex: readUint32(view, 0x2f5),
+          gameNum: readUint32(view, 0x2f1),
+          tiebreakerNum: readUint32(view, 0x2f5),
         },
       };
     case Command.FRAME_START:
