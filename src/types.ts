@@ -75,8 +75,8 @@ export interface GameStartType {
 
 interface MatchInfo {
   matchId: string | null;
-  gameNum: number | null;
-  tiebreakerNum: number | null;
+  gameNumber: number | null;
+  tiebreakerNumber: number | null;
 }
 
 export interface FrameStartType {
