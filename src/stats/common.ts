@@ -11,6 +11,19 @@ export interface StatsType {
   overall: OverallType[];
 }
 
+export type StadiumStatsType = HomeRunContestResultType | TargetTestResultType;
+
+export interface TargetTestResultType {
+  type: "target-test";
+  targetBreaks: TargetBreakType[];
+}
+
+export interface HomeRunContestResultType {
+  type: "home-run-contest";
+  distance: number;
+  units: "feet" | "meters";
+}
+
 export interface RatioType {
   count: number;
   total: number;
@@ -52,6 +65,13 @@ export interface ComboType extends DurationType, DamageType {
   moves: MoveLandedType[];
   didKill: boolean;
   lastHitBy: number | null;
+}
+
+export interface TargetBreakType {
+  spawnId: number;
+  frameDestroyed: number | null;
+  positionX: number;
+  positionY: number;
 }
 
 export interface ConversionType extends ComboType {

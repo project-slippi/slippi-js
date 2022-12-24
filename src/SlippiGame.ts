@@ -1,4 +1,5 @@
-import type { StatOptions, StatsType } from "./stats";
+import type { StadiumStatsType, StatOptions, StatsType } from "./stats";
+import { TargetBreakComputer } from "./stats";
 import {
   ActionsComputer,
   ComboComputer,
@@ -20,6 +21,8 @@ import type {
   PlacementType,
   RollbackFrames,
 } from "./types";
+import { GameMode } from "./types";
+import { extractDistanceInfoFromFrame } from "./utils/homeRunDistance";
 import { SlpParser, SlpParserEvent } from "./utils/slpParser";
 import type { SlpReadInput } from "./utils/slpReader";
 import { closeSlpFile, getGameEnd, getMetadata, iterateEvents, openSlpFile, SlpInputSource } from "./utils/slpReader";
@@ -38,6 +41,7 @@ export class SlippiGame {
   private comboComputer: ComboComputer = new ComboComputer();
   private stockComputer: StockComputer = new StockComputer();
   private inputComputer: InputComputer = new InputComputer();
+  private targetBreakComputer: TargetBreakComputer = new TargetBreakComputer();
   protected statsComputer: Stats;
 
   public constructor(input: string | Buffer | ArrayBuffer, opts?: StatOptions) {
@@ -68,11 +72,14 @@ export class SlippiGame {
       this.conversionComputer,
       this.inputComputer,
       this.stockComputer,
+      this.targetBreakComputer,
     );
+
     this.parser = new SlpParser();
     this.parser.on(SlpParserEvent.SETTINGS, (settings) => {
       this.statsComputer.setup(settings);
     });
+
     // Use finalized frames for stats computation
     this.parser.on(SlpParserEvent.FINALIZED_FRAME, (frame: FrameEntryType) => {
       this.statsComputer.addFrame(frame);
@@ -157,7 +164,7 @@ export class SlippiGame {
     this._process();
 
     const settings = this.parser.getSettings();
-    if (settings === null) {
+    if (!settings) {
       return null;
     }
 
@@ -192,6 +199,45 @@ export class SlippiGame {
     }
 
     return stats;
+  }
+
+  public getStadiumStats(): StadiumStatsType | null {
+    this._process();
+
+    const settings = this.parser.getSettings();
+    if (!settings) {
+      return null;
+    }
+
+    const latestFrame = this.parser.getLatestFrame();
+    const players = latestFrame?.players;
+
+    if (!players) {
+      return null;
+    }
+
+    this.statsComputer.process();
+
+    switch (settings.gameMode) {
+      case GameMode.TARGET_TEST:
+        return {
+          type: "target-test",
+          targetBreaks: this.targetBreakComputer.fetch(),
+        };
+      case GameMode.HOME_RUN_CONTEST:
+        const distanceInfo = extractDistanceInfoFromFrame(settings, latestFrame);
+        if (!distanceInfo) {
+          return null;
+        }
+
+        return {
+          type: "home-run-contest",
+          distance: distanceInfo.distance,
+          units: distanceInfo.units,
+        };
+      default:
+        return null;
+    }
   }
 
   public getMetadata(): MetadataType | null {

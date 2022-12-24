@@ -3,6 +3,7 @@ import { get, keyBy, set } from "lodash";
 import semver from "semver";
 
 import type {
+  EnabledItemType,
   FrameBookendType,
   FrameEntryType,
   FrameStartType,
@@ -15,7 +16,7 @@ import type {
   PreFrameUpdateType,
   RollbackFrames,
 } from "../types";
-import { EnabledItemType, ItemSpawnType } from "../types";
+import { ItemSpawnType } from "../types";
 import { Command, Frames, GameMode } from "../types";
 import { exists } from "./exists";
 import { RollbackCounter } from "./rollbackCounter";
