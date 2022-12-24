@@ -1,5 +1,6 @@
 import type { FrameEntryType, FramesType, GameStartType } from "../types";
 import { Frames, GameMode } from "../types";
+import { exists } from "../utils/exists";
 import type { TargetBreakType } from "./common";
 import type { StatComputer } from "./stats";
 
@@ -29,7 +30,7 @@ export class TargetBreakComputer implements StatComputer<TargetBreakType[]> {
   }
 }
 
-function handleTargetBreak(frames: FramesType, frame: FrameEntryType, targetBreaks: TargetBreakType[]): boolean {
+function handleTargetBreak(frames: FramesType, frame: FrameEntryType, targetBreaks: TargetBreakType[]) {
   const currentFrameNumber = frame.frame;
   const prevFrameNumber = currentFrameNumber - 1;
 
@@ -47,25 +48,19 @@ function handleTargetBreak(frames: FramesType, frame: FrameEntryType, targetBrea
     });
   }
 
-  const currentTargets = frames[currentFrameNumber]?.items?.filter((item) => item.typeId === TARGET_ITEM_TYPE_ID);
-  const previousTargets = frames[prevFrameNumber]?.items?.filter((item) => item.typeId === TARGET_ITEM_TYPE_ID);
+  const currentTargets = frames[currentFrameNumber]?.items?.filter((item) => item.typeId === TARGET_ITEM_TYPE_ID) ?? [];
+  const previousTargets = frames[prevFrameNumber]?.items?.filter((item) => item.typeId === TARGET_ITEM_TYPE_ID) ?? [];
 
-  const currentTargetIds = currentTargets?.map((item) => item.spawnId) ?? [];
-  const previousTargetIds = previousTargets?.map((item) => item.spawnId) ?? [];
+  const currentTargetIds = currentTargets.map((item) => item.spawnId).filter(exists);
+  const previousTargetIds = previousTargets.map((item) => item.spawnId).filter(exists);
 
   // Check if any targets were destroyed
-  const brokenTargetIds = previousTargetIds?.filter((id) => !currentTargetIds?.includes(id));
-
-  if (brokenTargetIds.length > 0) {
-    brokenTargetIds.forEach((id) => {
-      // Update the target break
-      const targetBreak = targetBreaks.find((targetBreak) => targetBreak.spawnId === id);
-      if (targetBreak) {
-        targetBreak.frameDestroyed = currentFrameNumber;
-      }
-    });
-    return true;
-  }
-
-  return false;
+  const brokenTargetIds = previousTargetIds.filter((id) => !currentTargetIds.includes(id));
+  brokenTargetIds.forEach((id) => {
+    // Update the target break
+    const targetBreak = targetBreaks.find((targetBreak) => targetBreak.spawnId === id);
+    if (targetBreak) {
+      targetBreak.frameDestroyed = currentFrameNumber;
+    }
+  });
 }

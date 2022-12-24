@@ -11,22 +11,25 @@ type HomeRunDistanceUnits = "feet" | "meters";
 
 export function positionToHomeRunDistance(distance: number, units: HomeRunDistanceUnits = "feet"): number {
   let score = 0;
-
-  if (units === "feet") {
-    score = 10 * Math.floor(distance - 70 * FEET_CONVERSION_FACTOR);
-    // convert to float32
-    score = Math.fround(score);
-    score = Math.floor((score / 30.4788) * 10) / 10;
-  } else {
-    score = 10 * Math.floor(distance - 70 * METERS_CONVERSION_FACTOR);
-    // convert to float32
-    score = Math.fround(score);
-    score = Math.floor((score / 100) * 10) / 10;
+  switch (units) {
+    case "feet":
+      score = 10 * Math.floor(distance - 70 * FEET_CONVERSION_FACTOR);
+      // convert to float32
+      score = Math.fround(score);
+      score = Math.floor((score / 30.4788) * 10) / 10;
+      break;
+    case "meters":
+      score = 10 * Math.floor(distance - 70 * METERS_CONVERSION_FACTOR);
+      // convert to float32
+      score = Math.fround(score);
+      score = Math.floor((score / 100) * 10) / 10;
+      break;
+    default:
+      throw new Error(`Unsupported units: ${units}`);
   }
 
   // round to 1 decimal
   score = Math.round(score * 10) / 10;
-
   return Math.max(0, score);
 }
 
@@ -46,8 +49,9 @@ export function extractDistanceInfoFromFrame(
   // Technically we should check if the replay is PAL but we don't yet support
   // stadium replays in PAL.
   const units: HomeRunDistanceUnits = settings.language === Language.JAPANESE ? "meters" : "feet";
+  const distance = positionToHomeRunDistance(sandbagLastFrame.post.positionX ?? 0, units);
   return {
-    distance: positionToHomeRunDistance(sandbagLastFrame.post.positionX ?? 0, units),
+    distance,
     units,
   };
 }
