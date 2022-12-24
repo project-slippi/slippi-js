@@ -21,8 +21,8 @@ import type {
   PlacementType,
   RollbackFrames,
 } from "./types";
-import { GameMode, Language } from "./types";
-import { positionToHomeRunDistance } from "./utils/homeRunDistance";
+import { GameMode } from "./types";
+import { extractDistanceInfoFromFrame } from "./utils/homeRunDistance";
 import { SlpParser, SlpParserEvent } from "./utils/slpParser";
 import type { SlpReadInput } from "./utils/slpReader";
 import { closeSlpFile, getGameEnd, getMetadata, iterateEvents, openSlpFile, SlpInputSource } from "./utils/slpReader";
@@ -72,10 +72,8 @@ export class SlippiGame {
       this.conversionComputer,
       this.inputComputer,
       this.stockComputer,
+      this.targetBreakComputer,
     );
-
-    // Set up stadium stats calculation
-    this.statsComputer.register(this.targetBreakComputer);
 
     this.parser = new SlpParser();
     this.parser.on(SlpParserEvent.SETTINGS, (settings) => {
@@ -227,21 +225,15 @@ export class SlippiGame {
           targetBreaks: this.targetBreakComputer.fetch(),
         };
       case GameMode.HOME_RUN_CONTEST:
-        let sandbagLastFrame = null;
-        for (let i = 0; i < settings.players.length; i++) {
-          sandbagLastFrame = players[i]?.post.internalCharacterId === 32 ? players[i]?.post : null;
-        }
-
-        if (!sandbagLastFrame) {
+        const distanceInfo = extractDistanceInfoFromFrame(settings, latestFrame);
+        if (!distanceInfo) {
           return null;
         }
 
-        const units = (settings.language ?? Language.ENGLISH) === Language.ENGLISH ? "feet" : "meters";
-
         return {
           type: "home-run-contest",
-          distance: positionToHomeRunDistance(sandbagLastFrame.positionX ?? 0, units),
-          units,
+          distance: distanceInfo.distance,
+          units: distanceInfo.units,
         };
       default:
         return null;

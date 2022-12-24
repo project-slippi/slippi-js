@@ -2,7 +2,7 @@ import { EventEmitter } from "events";
 import { last } from "lodash";
 
 import type { FrameEntryType, FramesType, GameStartType } from "../types";
-import { GameMode } from "../types";
+import { Frames, GameMode } from "../types";
 import type { TargetBreakType } from "./common";
 import type { StatComputer } from "./stats";
 
@@ -12,10 +12,6 @@ const TARGET_ITEM_TYPE_ID = 209;
 export class TargetBreakComputer extends EventEmitter implements StatComputer<TargetBreakType[]> {
   private targetBreaks = new Array<TargetBreakType>();
   private isTargetTestGame = false;
-
-  public constructor() {
-    super();
-  }
 
   public setup(settings: GameStartType): void {
     // Reset the state
@@ -29,9 +25,9 @@ export class TargetBreakComputer extends EventEmitter implements StatComputer<Ta
     }
 
     const targetBreak = handleTargetBreak(allFrames, frame, this.targetBreaks);
-    if (targetBreak) {
-      this.emit("TARGET BREAK", {
-        targetBreaks: last(this.targetBreaks),
+    if (targetBreak && this.targetBreaks.length > 0) {
+      this.emit("TARGET_BREAK", {
+        targetBreak: last(this.targetBreaks) as TargetBreakType,
       });
     }
   }
@@ -46,8 +42,8 @@ function handleTargetBreak(frames: FramesType, frame: FrameEntryType, targetBrea
   const prevFrameNumber = currentFrameNumber - 1;
 
   // Add all targets on the first frame
-  if (currentFrameNumber === -123) {
-    const targets = frames[-123]?.items?.filter((item) => item.typeId === TARGET_ITEM_TYPE_ID) ?? [];
+  if (currentFrameNumber === Frames.FIRST) {
+    const targets = frames[Frames.FIRST]?.items?.filter((item) => item.typeId === TARGET_ITEM_TYPE_ID) ?? [];
 
     targets.forEach((target) => {
       targetBreaks.push({
@@ -55,7 +51,7 @@ function handleTargetBreak(frames: FramesType, frame: FrameEntryType, targetBrea
         frameDestroyed: null,
         positionX: target.positionX as number,
         positionY: target.positionY as number,
-      } as TargetBreakType);
+      });
     });
   }
 
