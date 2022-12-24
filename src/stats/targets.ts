@@ -1,6 +1,3 @@
-import { EventEmitter } from "events";
-import { last } from "lodash";
-
 import type { FrameEntryType, FramesType, GameStartType } from "../types";
 import { Frames, GameMode } from "../types";
 import type { TargetBreakType } from "./common";
@@ -9,7 +6,7 @@ import type { StatComputer } from "./stats";
 // The Target item's in-game ID
 const TARGET_ITEM_TYPE_ID = 209;
 
-export class TargetBreakComputer extends EventEmitter implements StatComputer<TargetBreakType[]> {
+export class TargetBreakComputer implements StatComputer<TargetBreakType[]> {
   private targetBreaks = new Array<TargetBreakType>();
   private isTargetTestGame = false;
 
@@ -24,12 +21,7 @@ export class TargetBreakComputer extends EventEmitter implements StatComputer<Ta
       return;
     }
 
-    const targetBreak = handleTargetBreak(allFrames, frame, this.targetBreaks);
-    if (targetBreak && this.targetBreaks.length > 0) {
-      this.emit("TARGET_BREAK", {
-        targetBreak: last(this.targetBreaks) as TargetBreakType,
-      });
-    }
+    handleTargetBreak(allFrames, frame, this.targetBreaks);
   }
 
   public fetch(): TargetBreakType[] {
