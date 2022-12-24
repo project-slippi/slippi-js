@@ -1,7 +1,7 @@
 import { EventEmitter } from "events";
 import { last } from "lodash";
 
-import type { FrameEntryType, FramesType } from "../types";
+import { FrameEntryType, FramesType, GameMode, GameStartType } from "../types";
 import type { TargetBreakType } from "./common";
 import type { StatComputer } from "./stats";
 
@@ -10,17 +10,23 @@ const TARGET_ITEM_TYPE_ID = 209;
 
 export class TargetBreakComputer extends EventEmitter implements StatComputer<TargetBreakType[]> {
   private targetBreaks = new Array<TargetBreakType>();
+  private isTargetTestGame: boolean = false;
 
   public constructor() {
     super();
   }
 
-  public setup(): void {
+  public setup(settings: GameStartType): void {
     // Reset the state
     this.targetBreaks = [];
+    this.isTargetTestGame = settings.gameMode === GameMode.TARGET_TEST;
   }
 
   public processFrame(frame: FrameEntryType, allFrames: FramesType): void {
+    if (!this.isTargetTestGame) {
+      return;
+    }
+
     const targetBreak = handleTargetBreak(allFrames, frame, this.targetBreaks);
     if (targetBreak) {
       this.emit("TARGET BREAK", {

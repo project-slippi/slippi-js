@@ -43,7 +43,6 @@ export class SlippiGame {
   private inputComputer: InputComputer = new InputComputer();
   private targetBreakComputer: TargetBreakComputer = new TargetBreakComputer();
   protected statsComputer: Stats;
-  protected stadiumStatsComputer: Stats;
 
   public constructor(input: string | Buffer | ArrayBuffer, opts?: StatOptions) {
     if (typeof input === "string") {
@@ -76,19 +75,16 @@ export class SlippiGame {
     );
 
     // Set up stadium stats calculation
-    this.stadiumStatsComputer = new Stats(opts);
-    this.stadiumStatsComputer.register(this.targetBreakComputer);
+    this.statsComputer.register(this.targetBreakComputer);
 
     this.parser = new SlpParser();
     this.parser.on(SlpParserEvent.SETTINGS, (settings) => {
       this.statsComputer.setup(settings);
-      this.stadiumStatsComputer.setup(settings);
     });
 
     // Use finalized frames for stats computation
     this.parser.on(SlpParserEvent.FINALIZED_FRAME, (frame: FrameEntryType) => {
       this.statsComputer.addFrame(frame);
-      this.stadiumStatsComputer.addFrame(frame);
     });
   }
 
@@ -222,7 +218,7 @@ export class SlippiGame {
       return null;
     }
 
-    this.stadiumStatsComputer.process();
+    this.statsComputer.process();
 
     switch (settings.gameMode) {
       case GameMode.TARGET_TEST:
@@ -240,7 +236,7 @@ export class SlippiGame {
           return null;
         }
 
-        const units = settings.language === Language.ENGLISH ? "feet" : "meters";
+        const units = (settings.language ?? Language.ENGLISH) === Language.ENGLISH ? "feet" : "meters";
 
         return {
           type: "home-run-contest",

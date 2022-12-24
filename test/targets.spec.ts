@@ -8,4 +8,11 @@ describe("when processing break the target replays", () => {
 
     expect(targetsBroken).toEqual(10);
   });
+
+  it("should correctly skip processing for non-HRC replays", () => {
+    const game = new SlippiGame("./slp/facingDirection.slp");
+    const stadiumStats = game.getStadiumStats() as TargetTestResultType;
+
+    expect(stadiumStats).toBeNull();
+  });
 });
