@@ -1,7 +1,8 @@
 import { EventEmitter } from "events";
 import { last } from "lodash";
 
-import { FrameEntryType, FramesType, GameMode, GameStartType } from "../types";
+import type { FrameEntryType, FramesType, GameStartType } from "../types";
+import { GameMode } from "../types";
 import type { TargetBreakType } from "./common";
 import type { StatComputer } from "./stats";
 
@@ -10,7 +11,7 @@ const TARGET_ITEM_TYPE_ID = 209;
 
 export class TargetBreakComputer extends EventEmitter implements StatComputer<TargetBreakType[]> {
   private targetBreaks = new Array<TargetBreakType>();
-  private isTargetTestGame: boolean = false;
+  private isTargetTestGame = false;
 
   public constructor() {
     super();
