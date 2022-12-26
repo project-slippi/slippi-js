@@ -1,4 +1,5 @@
-import type { GameStartType, PostFrameUpdateType } from "../types";
+import type { GameStartType, PostFrameUpdateType, FrameType } from "../types";
+import Stage from "../melee/types.ts";
 
 export interface StatsType {
   gameComplete: boolean;
@@ -321,6 +322,46 @@ export function isCommandGrabbed(state: number): boolean {
       (state >= State.COMMAND_GRAB_RANGE2_START && state <= State.COMMAND_GRAB_RANGE2_END)) &&
     state !== State.BARREL_WAIT
   );
+}
+
+export function isOffstage(position:Array, currStage: number): boolean {
+  let stageBounds = [0, 0]
+  switch(currStage.name){
+    case Stage.FOUNTAIN_OF_DREAMS:
+      stageBounds = [-64, 64]
+      break;
+    case Stage.YOSHIS_STORY:
+      stageBounds = [-56, 56]
+      break;
+    case Stage.DREAMLAND:
+      stageBounds = [-73, 73]
+      break;
+    case Stage.POKEMON_STADIUM:
+      stageBounds = [-88, 88]
+      break;
+    case Stage.BATTLEFIELD:
+      stageBounds = [-67, 67]
+      break;
+    case Stage.FINAL_DESTINATION:
+      stageBounds = [-89, 89]
+      break;
+    default:
+      return false;
+  }
+
+  if(position[0] > stageBounds[0] && position[0] < stageBounds[1]){
+    return true;
+  }
+  else return false;
+
+}
+
+export function isDodging(state:number):boolean { //not the greatest term, but captures rolling, spot dodging, and air dodging
+  return state == State.ROLL_FORWARD || state == State.ROLL_BACKWARD || state == State.AIR_DODGE || state == State.SPOT_DODGE;
+}
+
+export function isShielding(state:number):boolean {
+  return state >= State.GUARD_START && state <= State.GUARD_END;
 }
 
 export function isDead(state: number): boolean {

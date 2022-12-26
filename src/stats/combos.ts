@@ -7,6 +7,9 @@ import {
   calcDamageTaken,
   didLoseStock,
   getSinglesPlayerPermutationsFromSettings,
+  isOffstage,
+  isDodging,
+  isShielding,
   isCommandGrabbed,
   isDamaged,
   isDead,
@@ -187,14 +190,19 @@ function handleComboCompute(
   const opntIsDowned = isDown(oppActionStateId);
   const opntDidLoseStock = prevOpponentFrame && didLoseStock(opponentFrame, prevOpponentFrame);
   const opntIsDying = isDead(oppActionStateId);
+  const opntPosition = [opponentFrame.positionX, opponentFrame.positionY]
+  const opntIsOffstage = isOffstage(opntPosition, settings.stageId);
+  const opntIsDodging = isDodging(oppActionStateId);
+  const opntIsShielding = isShielding(oppActionStateId);
 
   // Update percent if opponent didn't lose stock
   if (!opntDidLoseStock) {
     state.combo.currentPercent = opponentFrame.percent ?? 0;
   }
 
-  if (opntIsDamaged || opntIsGrabbed || opntIsCommandGrabbed || opntIsTeching || opntIsDowned || opntIsDying) {
+  if (opntIsDamaged || opntIsGrabbed || opntIsCommandGrabbed || opntIsTeching || opntIsDowned || opntIsDying || opntIsOffstage || opntIsDodging || isShielding) {
     // If opponent got grabbed or damaged, reset the reset counter
+    //Additionally, reset if opponent is offstage, in shield, or rolling/spot dodging/air dodging
     state.resetCounter = 0;
   } else {
     state.resetCounter += 1;
