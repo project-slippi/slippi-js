@@ -185,6 +185,10 @@ export enum State {
   ATTACK_FTILT_END = 0x37,
   ATTACK_FSMASH_START = 0x3a,
   ATTACK_FSMASH_END = 0x3e,
+  GUARD_BREAK_START = 0xcd,
+  GUARD_BREAK_END = 0xd3,
+  DODGE_START = 0xe9,
+  DODGE_END = 0xec,
 
   // Animation ID specific
   ROLL_FORWARD = 0xe9,
@@ -349,7 +353,7 @@ export function isOffstage(position:Array, currStage: number): boolean {
       return false;
   }
 
-  if(position[0] > stageBounds[0] && position[0] < stageBounds[1]){
+  if(position[0] < stageBounds[0] && position[0] > stageBounds[1]){
     return true;
   }
   else return false;
@@ -357,7 +361,7 @@ export function isOffstage(position:Array, currStage: number): boolean {
 }
 
 export function isDodging(state:number):boolean { //not the greatest term, but captures rolling, spot dodging, and air dodging
-  return state == State.ROLL_FORWARD || state == State.ROLL_BACKWARD || state == State.AIR_DODGE || state == State.SPOT_DODGE;
+  return state >= State.DODGE_START && state <= State.DODGE_END;
 }
 
 export function isShielding(state:number):boolean {
@@ -373,4 +377,8 @@ export function calcDamageTaken(frame: PostFrameUpdateType, prevFrame: PostFrame
   const prevPercent = prevFrame.percent ?? 0;
 
   return percent - prevPercent;
+}
+
+export function isShieldBroken(state:number):boolean{
+  return state >= State.GUARD_BREAK_START && state <= State.GUARD_BREAK_END;
 }
