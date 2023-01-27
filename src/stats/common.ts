@@ -321,8 +321,8 @@ export function isCommandGrabbed(state: number): boolean {
   );
 }
 
-export function isOffstage(position: Array<number | null>, currStage: number | null): boolean {
-  if (position == null || currStage == null) {
+export function isOffstage(position: Array<number | null>, currStage?: number | null): boolean {
+  if (!position || !currStage) {
     return false;
   }
 

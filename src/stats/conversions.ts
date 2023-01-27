@@ -74,7 +74,14 @@ export class ConversionComputer extends EventEmitter implements StatComputer<Con
     this.playerPermutations.forEach((indices) => {
       const state = this.state.get(indices);
       if (state) {
-        const terminated = handleConversionCompute(allFrames, state, indices, frame, this.conversions, this.settings);
+        const terminated = handleConversionCompute(
+          allFrames,
+          state,
+          indices,
+          frame,
+          this.conversions,
+          this.settings?.stageId,
+        );
         if (terminated) {
           this.emit("CONVERSION", {
             combo: last(this.conversions),
@@ -130,7 +137,7 @@ function handleConversionCompute(
   indices: PlayerIndexedType,
   frame: FrameEntryType,
   conversions: ConversionType[],
-  settings: GameStartType | null,
+  stageId: number | null | undefined,
 ): boolean {
   const currentFrameNumber = frame.frame;
   const playerFrame: PostFrameUpdateType = frame.players[indices.playerIndex]!.post;
@@ -219,7 +226,7 @@ function handleConversionCompute(
 
   const opntDidLoseStock = prevOpponentFrame && didLoseStock(opponentFrame, prevOpponentFrame);
   const opntPosition = [opponentFrame.positionX, opponentFrame.positionY];
-  const opntIsOffstage = isOffstage(opntPosition, settings!.stageId);
+  const opntIsOffstage = isOffstage(opntPosition, stageId);
   const opntIsDodging = isDodging(oppActionStateId);
   const opntIsShielding = isShielding(oppActionStateId);
   const opntIsTeching = isTeching(oppActionStateId);
