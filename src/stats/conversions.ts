@@ -225,6 +225,8 @@ function handleConversionCompute(
   }
 
   const opntDidLoseStock = prevOpponentFrame && didLoseStock(opponentFrame, prevOpponentFrame);
+  const playerDidLoseStock = prevPlayerFrame && didLoseStock(playerFrame, prevPlayerFrame);
+
   const opntPosition = [opponentFrame.positionX, opponentFrame.positionY];
   const opntIsOffstage = isOffstage(opntPosition, stageId);
   const opntIsDodging = isDodging(oppActionStateId);
@@ -261,8 +263,8 @@ function handleConversionCompute(
 
   let shouldTerminate = false;
 
-  // Termination condition 1 - player kills opponent
-  if (opntDidLoseStock) {
+  // Termination condition 1 - player kills opponent or opponent kills player
+  if (opntDidLoseStock || playerDidLoseStock) {
     state.conversion.didKill = true;
     shouldTerminate = true;
   }
