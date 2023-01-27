@@ -2,15 +2,22 @@ import { EventEmitter } from "events";
 import { filter, get, groupBy, last, orderBy } from "lodash";
 
 import type { FrameEntryType, FramesType, GameStartType, PostFrameUpdateType } from "../types";
-import type { ConversionType, MoveLandedType, PlayerIndexedType } from "./common";
+import { ConversionType, MoveLandedType, PlayerIndexedType } from "./common";
 import {
   calcDamageTaken,
   didLoseStock,
   getSinglesPlayerPermutationsFromSettings,
+  isShielding,
+  isShieldBroken,
+  isDodging,
+  isTeching,
+  isOffstage,
+  isDead,
+  isDown,
+  isLedgeAction,
   isCommandGrabbed,
   isDamaged,
   isGrabbed,
-  isInControl,
   Timers,
 } from "./common";
 import type { StatComputer } from "./stats";
@@ -67,7 +74,7 @@ export class ConversionComputer extends EventEmitter implements StatComputer<Con
     this.playerPermutations.forEach((indices) => {
       const state = this.state.get(indices);
       if (state) {
-        const terminated = handleConversionCompute(allFrames, state, indices, frame, this.conversions);
+        const terminated = handleConversionCompute(allFrames, state, indices, frame, this.conversions, this.settings);
         if (terminated) {
           this.emit("CONVERSION", {
             combo: last(this.conversions),
@@ -123,6 +130,7 @@ function handleConversionCompute(
   indices: PlayerIndexedType,
   frame: FrameEntryType,
   conversions: ConversionType[],
+  settings: GameStartType | null,
 ): boolean {
   const currentFrameNumber = frame.frame;
   const playerFrame: PostFrameUpdateType = frame.players[indices.playerIndex]!.post;
@@ -158,7 +166,7 @@ function handleConversionCompute(
   }
 
   // If opponent took damage and was put in some kind of stun this frame, either
-  // start a conversion or
+  // start a conversion or continue the current conversion
   if (opntIsDamaged || opntIsGrabbed || opntIsCommandGrabbed) {
     if (!state.conversion) {
       state.conversion = {
@@ -209,25 +217,38 @@ function handleConversionCompute(
     return false;
   }
 
-  const opntInControl = isInControl(oppActionStateId);
   const opntDidLoseStock = prevOpponentFrame && didLoseStock(opponentFrame, prevOpponentFrame);
+  const opntPosition = [opponentFrame.positionX, opponentFrame.positionY];
+  const opntIsOffstage = isOffstage(opntPosition, settings!.stageId);
+  const opntIsDodging = isDodging(oppActionStateId);
+  const opntIsShielding = isShielding(oppActionStateId);
+  const opntIsTeching = isTeching(oppActionStateId);
+  const opntIsDowned = isDown(oppActionStateId);
+  const opntIsShieldBroken = isShieldBroken(oppActionStateId);
+  const opntIsDying = isDead(oppActionStateId);
+  const opntIsLedgeAction = isLedgeAction(oppActionStateId);
 
   // Update percent if opponent didn't lose stock
   if (!opntDidLoseStock) {
     state.conversion.currentPercent = opponentFrame.percent ?? 0;
   }
 
-  if (opntIsDamaged || opntIsGrabbed || opntIsCommandGrabbed) {
+  if (
+    opntIsDamaged ||
+    opntIsGrabbed ||
+    opntIsCommandGrabbed ||
+    opntIsTeching ||
+    opntIsDowned ||
+    opntIsDying ||
+    opntIsOffstage ||
+    opntIsDodging ||
+    opntIsShielding ||
+    opntIsShieldBroken ||
+    opntIsLedgeAction
+  ) {
     // If opponent got grabbed or damaged, reset the reset counter
     state.resetCounter = 0;
-  }
-
-  const shouldStartResetCounter = state.resetCounter === 0 && opntInControl;
-  const shouldContinueResetCounter = state.resetCounter > 0;
-  if (shouldStartResetCounter || shouldContinueResetCounter) {
-    // This will increment the reset timer under the following conditions:
-    // 1) if we were punishing opponent but they have now entered an actionable state
-    // 2) if counter has already started counting meaning opponent has entered actionable state
+  } else {
     state.resetCounter += 1;
   }
 

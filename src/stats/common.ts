@@ -1,5 +1,5 @@
-import type { GameStartType, PostFrameUpdateType, FrameType } from "../types";
-import Stage from "../melee/types.ts";
+import type { GameStartType, PostFrameUpdateType } from "../types";
+import { Stage } from "../melee/types";
 
 export interface StatsType {
   gameComplete: boolean;
@@ -175,6 +175,8 @@ export enum State {
   TECH_END = 0xcc,
   DYING_START = 0x0,
   DYING_END = 0xa,
+  LEDGE_ACTION_START = 0xfc,
+  LEDGE_ACTION_END = 0x107,
   CONTROLLED_JUMP_START = 0x18,
   CONTROLLED_JUMP_END = 0x22,
   GROUND_ATTACK_START = 0x2c,
@@ -294,15 +296,6 @@ export function didLoseStock(frame: PostFrameUpdateType, prevFrame: PostFrameUpd
   return prevFrame.stocksRemaining! - frame.stocksRemaining! > 0;
 }
 
-export function isInControl(state: number): boolean {
-  const ground = state >= State.GROUNDED_CONTROL_START && state <= State.GROUNDED_CONTROL_END;
-  const squat = state >= State.SQUAT_START && state <= State.SQUAT_END;
-  const groundAttack = state > State.GROUND_ATTACK_START && state <= State.GROUND_ATTACK_END;
-  const isGrab = state === State.GRAB;
-  // TODO: Add grounded b moves?
-  return ground || squat || groundAttack || isGrab;
-}
-
 export function isTeching(state: number): boolean {
   return state >= State.TECH_START && state <= State.TECH_END;
 }
@@ -328,43 +321,43 @@ export function isCommandGrabbed(state: number): boolean {
   );
 }
 
-export function isOffstage(position:Array, currStage: number): boolean {
-  let stageBounds = [0, 0]
-  switch(currStage.name){
+export function isOffstage(position: Array<number | null>, currStage: number | null): boolean {
+  if (position == null || currStage == null) {
+    return false;
+  }
+
+  let stageBounds = [0, 0];
+  switch (currStage) {
     case Stage.FOUNTAIN_OF_DREAMS:
-      stageBounds = [-64, 64]
+      stageBounds = [-64, 64];
       break;
     case Stage.YOSHIS_STORY:
-      stageBounds = [-56, 56]
+      stageBounds = [-56, 56];
       break;
     case Stage.DREAMLAND:
-      stageBounds = [-73, 73]
+      stageBounds = [-73, 73];
       break;
     case Stage.POKEMON_STADIUM:
-      stageBounds = [-88, 88]
+      stageBounds = [-88, 88];
       break;
     case Stage.BATTLEFIELD:
-      stageBounds = [-67, 67]
+      stageBounds = [-67, 67];
       break;
     case Stage.FINAL_DESTINATION:
-      stageBounds = [-89, 89]
+      stageBounds = [-89, 89];
       break;
     default:
       return false;
   }
-
-  if(position[0] < stageBounds[0] && position[0] > stageBounds[1]){
-    return true;
-  }
-  else return false;
-
+  return position[0]! < stageBounds[0]! && position[0]! > stageBounds[1]!;
 }
 
-export function isDodging(state:number):boolean { //not the greatest term, but captures rolling, spot dodging, and air dodging
+export function isDodging(state: number): boolean {
+  //not the greatest term, but captures rolling, spot dodging, and air dodging
   return state >= State.DODGE_START && state <= State.DODGE_END;
 }
 
-export function isShielding(state:number):boolean {
+export function isShielding(state: number): boolean {
   return state >= State.GUARD_START && state <= State.GUARD_END;
 }
 
@@ -372,13 +365,17 @@ export function isDead(state: number): boolean {
   return state >= State.DYING_START && state <= State.DYING_END;
 }
 
+export function isShieldBroken(state: number): boolean {
+  return state >= State.GUARD_BREAK_START && state <= State.GUARD_BREAK_END;
+}
+
+export function isLedgeAction(state: number): boolean {
+  return state >= State.LEDGE_ACTION_START && state <= State.LEDGE_ACTION_END;
+}
+
 export function calcDamageTaken(frame: PostFrameUpdateType, prevFrame: PostFrameUpdateType): number {
   const percent = frame.percent ?? 0;
   const prevPercent = prevFrame.percent ?? 0;
 
   return percent - prevPercent;
-}
-
-export function isShieldBroken(state:number):boolean{
-  return state >= State.GUARD_BREAK_START && state <= State.GUARD_BREAK_END;
 }
