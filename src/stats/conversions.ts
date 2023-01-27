@@ -2,7 +2,7 @@ import { EventEmitter } from "events";
 import { filter, get, groupBy, last, orderBy } from "lodash";
 
 import type { FrameEntryType, FramesType, GameStartType, PostFrameUpdateType } from "../types";
-import { ConversionType, MoveLandedType, PlayerIndexedType } from "./common";
+import type { ConversionType, MoveLandedType, PlayerIndexedType } from "./common";
 import {
   calcDamageTaken,
   didLoseStock,
