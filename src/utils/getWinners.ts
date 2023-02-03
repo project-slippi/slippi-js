@@ -26,15 +26,15 @@ export function getWinners(
     return [];
   }
 
-  const firstPosition = placements.find((placement) => placement?.position === 0);
+  const firstPosition = placements.find((placement) => placement.position === 0);
   if (!firstPosition) {
     return [];
   }
 
-  if (isTeams) {
-    const winningTeam = players.find(({ playerIndex }) => playerIndex === firstPosition.playerIndex)?.teamId;
+  const winningTeam = players.find(({ playerIndex }) => playerIndex === firstPosition.playerIndex)?.teamId ?? null;
+  if (isTeams && exists(winningTeam)) {
     return placements.filter((placement) => {
-      const teamId = players.find(({ playerIndex }) => playerIndex === placement.playerIndex)?.teamId;
+      const teamId = players.find(({ playerIndex }) => playerIndex === placement.playerIndex)?.teamId ?? null;
       return teamId === winningTeam;
     });
   }
