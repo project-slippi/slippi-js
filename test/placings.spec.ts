@@ -15,6 +15,17 @@ describe("when determining placings", () => {
     expect(placements[3].position).toBe(null);
   });
 
+  describe("when handling LRAS", () => {
+    it("should award the winner to the non-LRAS player", () => {
+      const game = new SlippiGame("slp/unranked_game1.slp");
+      const gameEnd = game.getGameEnd()!;
+      const winners = game.getWinners();
+      expect(winners).toHaveLength(1);
+      expect(winners[0].playerIndex).not.toEqual(gameEnd.lrasInitiatorIndex);
+      expect(winners[0].playerIndex).toEqual(1);
+    });
+  });
+
   describe("when the game mode is Free for All", () => {
     it("should find the winner", () => {
       const game = new SlippiGame("slp/placementsTest/ffa_1p2p_winner_2p.slp");
