@@ -22,6 +22,7 @@ import type {
   RollbackFrames,
 } from "./types";
 import { GameMode } from "./types";
+import { getWinners } from "./utils/getWinners";
 import { extractDistanceInfoFromFrame } from "./utils/homeRunDistance";
 import { SlpParser, SlpParserEvent } from "./utils/slpParser";
 import type { SlpReadInput } from "./utils/slpReader";
@@ -260,25 +261,10 @@ export class SlippiGame {
 
   public getWinners(): PlacementType[] {
     const gameEnd = this.getGameEnd({ skipProcessing: true });
-    if (!gameEnd) {
-      return [];
-    }
-
-    const placements = gameEnd.placements;
-    const firstPosition = placements.find((placement) => placement?.position === 0);
-    if (!firstPosition) {
-      return [];
-    }
-
     const settings = this.getSettings();
-    if (settings?.isTeams) {
-      const winningTeam = settings.players.find(({ playerIndex }) => playerIndex === firstPosition.playerIndex)?.teamId;
-      return placements.filter((placement) => {
-        const teamId = settings.players.find(({ playerIndex }) => playerIndex === placement.playerIndex)?.teamId;
-        return teamId === winningTeam;
-      });
+    if (!gameEnd || !settings) {
+      return [];
     }
-
-    return [firstPosition];
+    return getWinners(gameEnd, settings);
   }
 }

@@ -240,8 +240,17 @@ export interface FrameBookendType {
   latestFinalizedFrame: number | null;
 }
 
+export enum GameEndMethod {
+  UNRESOLVED = 0,
+  RESOLVED = 3,
+  // The following options are only returned in version 2.0.0 onwards
+  TIME = 1,
+  GAME = 2,
+  NO_CONTEST = 7,
+}
+
 export interface GameEndType {
-  gameEndMethod: number | null;
+  gameEndMethod: GameEndMethod | null;
   lrasInitiatorIndex: number | null;
   placements: PlacementType[];
 }
