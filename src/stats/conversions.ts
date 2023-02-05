@@ -264,8 +264,12 @@ function handleConversionCompute(
   let shouldTerminate = false;
 
   // Termination condition 1 - player kills opponent or opponent kills player
-  if (opntDidLoseStock || playerDidLoseStock) {
+  if (opntDidLoseStock) {
     state.conversion.didKill = true;
+    shouldTerminate = true;
+  }
+
+  if (playerDidLoseStock) {
     shouldTerminate = true;
   }
 
