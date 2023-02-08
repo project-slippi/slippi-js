@@ -191,6 +191,8 @@ export enum State {
   GUARD_BREAK_END = 0xd3,
   DODGE_START = 0xe9,
   DODGE_END = 0xec,
+  FALL_SPECIAL_START = 0x23,
+  FALL_SPECIAL_END = 0x25,
 
   // Animation ID specific
   ROLL_FORWARD = 0xe9,
@@ -321,9 +323,18 @@ export function isCommandGrabbed(state: number): boolean {
   );
 }
 
-export function isOffstage(position: Array<number | null>, currStage?: number | null): boolean {
-  if (!position || !currStage) {
+export function isOffstage(
+  position: (number | null)[],
+  isAirborne: boolean | null,
+  currStage?: number | null,
+): boolean {
+  if (!position || !currStage || isAirborne === false) {
+    //if isAirborne is null, run the check anyway for backwards compatibility
     return false;
+  }
+  //-5 is below the main part of all legal stages. Just ignore the X value if the player is at or below this
+  if (position[1]! <= -5) {
+    return true;
   }
 
   let stageBounds = [0, 0];
@@ -371,6 +382,64 @@ export function isShieldBroken(state: number): boolean {
 
 export function isLedgeAction(state: number): boolean {
   return state >= State.LEDGE_ACTION_START && state <= State.LEDGE_ACTION_END;
+}
+
+export function isMaybeJuggled(
+  position: (number | null)[],
+  isAirborne: boolean | null,
+  currStage?: number | null,
+): boolean {
+  if (!position || !currStage || !isAirborne) {
+    return false;
+  }
+
+  let stageBounds = 0;
+
+  switch (currStage) {
+    case Stage.FOUNTAIN_OF_DREAMS:
+      stageBounds = 42;
+      break;
+    case Stage.YOSHIS_STORY:
+      stageBounds = 41;
+      break;
+    case Stage.DREAMLAND:
+      stageBounds = 51;
+      break;
+    case Stage.POKEMON_STADIUM:
+      //similar side plat heights to yoshi's, so we can steal the top plat height as well
+      stageBounds = 41;
+      break;
+    case Stage.BATTLEFIELD:
+      stageBounds = 54;
+      break;
+    case Stage.FINAL_DESTINATION:
+      //No plats, so we'll just use a lower-than-average value
+      stageBounds = 10; // or 45
+      break;
+    default:
+      return false;
+  }
+  return position[1]! >= stageBounds!;
+}
+
+export function isSpecialFall(state: number): boolean {
+  return state >= State.FALL_SPECIAL_START && state <= State.FALL_SPECIAL_END;
+}
+
+export function isUpBLag(state: number, prevState: number | null | undefined): boolean {
+  if (!state || !prevState) {
+    return false;
+  }
+  //allows resetting timer for land_fall_special without triggering due to wavedash/waveland
+  //specifically useful for up b's like sheik's that have a unique animation id for ~40 frames of the endlag
+  //rather than just going straight into fall_special -> land_fall_special
+  return (
+    state == State.LANDING_FALL_SPECIAL &&
+    prevState != State.LANDING_FALL_SPECIAL &&
+    prevState != State.ACTION_KNEE_BEND &&
+    prevState != State.AIR_DODGE &&
+    (prevState <= State.CONTROLLED_JUMP_START || prevState >= State.CONTROLLED_JUMP_END)
+  );
 }
 
 export function calcDamageTaken(frame: PostFrameUpdateType, prevFrame: PostFrameUpdateType): number {
