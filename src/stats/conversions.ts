@@ -18,6 +18,9 @@ import {
   isCommandGrabbed,
   isDamaged,
   isGrabbed,
+  isMaybeJuggled,
+  isSpecialFall,
+  isUpBLag,
   Timers,
 } from "./common";
 import type { StatComputer } from "./stats";
@@ -228,7 +231,7 @@ function handleConversionCompute(
   const playerDidLoseStock = prevPlayerFrame && didLoseStock(playerFrame, prevPlayerFrame);
 
   const opntPosition = [opponentFrame.positionX, opponentFrame.positionY];
-  const opntIsOffstage = isOffstage(opntPosition, stageId);
+  const opntIsOffstage = isOffstage(opntPosition, opponentFrame.isAirborne, stageId);
   const opntIsDodging = isDodging(oppActionStateId);
   const opntIsShielding = isShielding(oppActionStateId);
   const opntIsTeching = isTeching(oppActionStateId);
@@ -236,6 +239,9 @@ function handleConversionCompute(
   const opntIsShieldBroken = isShieldBroken(oppActionStateId);
   const opntIsDying = isDead(oppActionStateId);
   const opntIsLedgeAction = isLedgeAction(oppActionStateId);
+  const opntIsMaybeJuggled = isMaybeJuggled(opntPosition, opponentFrame.isAirborne, stageId);
+  const opntIsSpecialFall = isSpecialFall(oppActionStateId);
+  const opntIsUpBLag = isUpBLag(oppActionStateId, prevOpponentFrame?.actionStateId);
 
   // Update percent if opponent didn't lose stock
   if (!opntDidLoseStock) {
@@ -253,7 +259,10 @@ function handleConversionCompute(
     opntIsDodging ||
     opntIsShielding ||
     opntIsShieldBroken ||
-    opntIsLedgeAction
+    opntIsLedgeAction ||
+    opntIsMaybeJuggled ||
+    opntIsSpecialFall ||
+    opntIsUpBLag
   ) {
     // If opponent got grabbed or damaged, reset the reset counter
     state.resetCounter = 0;
