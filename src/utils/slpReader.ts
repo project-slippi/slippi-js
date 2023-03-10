@@ -1,7 +1,7 @@
 import { decode } from "@shelacek/ubjson";
 import fs from "fs";
 import iconv from "iconv-lite";
-import { mapValues } from "lodash";
+import { mapValues, isUndefined, isNull } from "lodash";
 
 import type {
   EventCallbackFunc,
@@ -12,6 +12,7 @@ import type {
   MetadataType,
   PlacementType,
   PlayerType,
+  PostFrameUpdateType,
   SelfInducedSpeedsType,
 } from "../types";
 import { Command } from "../types";
@@ -683,4 +684,50 @@ export function getGameEnd(slpFile: SlpFileType): GameEndType | null {
   }
 
   return gameEndMessage as GameEndType;
+}
+
+export function extractFinalPostFrameUpdates(slpFile: SlpFileType): PostFrameUpdateType[] {
+  const { ref, rawDataPosition, rawDataLength, messageSizes } = slpFile;
+
+  // The following should exist on all replay versions
+  const postFramePayloadSize = messageSizes[Command.POST_FRAME_UPDATE];
+  const gameEndPayloadSize = messageSizes[Command.GAME_END];
+  const frameBookendPayloadSize = messageSizes[Command.FRAME_BOOKEND];
+
+  // Technically this should not be possible
+  if (isUndefined(postFramePayloadSize)) {
+    return [];
+  }
+
+  const gameEndSize = gameEndPayloadSize ? gameEndPayloadSize + 1 : 0;
+  const postFrameSize = postFramePayloadSize + 1;
+  const frameBookendSize = frameBookendPayloadSize ? frameBookendPayloadSize + 1 : 0;
+
+  let frameNum = null;
+  let postFramePosition = rawDataPosition + rawDataLength - gameEndSize - frameBookendSize - postFrameSize;
+  const postFrameUpdates: PostFrameUpdateType[] = [];
+  do {
+    const buffer = new Uint8Array(postFrameSize);
+    readRef(ref, buffer, 0, buffer.length, postFramePosition);
+    if (buffer[0] !== Command.POST_FRAME_UPDATE) {
+      break;
+    }
+
+    const postFrameMessage = parseMessage(Command.POST_FRAME_UPDATE, buffer) as PostFrameUpdateType | null;
+    if (!postFrameMessage) {
+      break;
+    }
+
+    if (isNull(frameNum)) {
+      frameNum = postFrameMessage.frame;
+    } else if (frameNum !== postFrameMessage.frame) {
+      // If post frame message is found but the frame doesn't match, it's not part of the final frame
+      break;
+    }
+
+    postFrameUpdates.unshift(postFrameMessage);
+    postFramePosition -= postFrameSize;
+  } while (postFramePosition >= rawDataPosition);
+
+  return postFrameUpdates;
 }

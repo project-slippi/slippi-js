@@ -19,14 +19,23 @@ import type {
   GeckoListType,
   MetadataType,
   PlacementType,
+  PostFrameUpdateType,
   RollbackFrames,
 } from "./types";
-import { GameMode } from "./types";
+import { GameMode, GameEndMethod } from "./types";
 import { getWinners } from "./utils/getWinners";
 import { extractDistanceInfoFromFrame } from "./utils/homeRunDistance";
 import { SlpParser, SlpParserEvent } from "./utils/slpParser";
-import type { SlpReadInput } from "./utils/slpReader";
-import { closeSlpFile, getGameEnd, getMetadata, iterateEvents, openSlpFile, SlpInputSource } from "./utils/slpReader";
+import type { SlpFileType, SlpReadInput } from "./utils/slpReader";
+import {
+  closeSlpFile,
+  getGameEnd,
+  getMetadata,
+  iterateEvents,
+  openSlpFile,
+  SlpInputSource,
+  extractFinalPostFrameUpdates,
+} from "./utils/slpReader";
 
 /**
  * Slippi Game class that wraps a file
@@ -87,11 +96,11 @@ export class SlippiGame {
     });
   }
 
-  private _process(shouldStop: EventCallbackFunc = () => false): void {
+  private _process(shouldStop: EventCallbackFunc = () => false, file?: SlpFileType): void {
     if (this.parser.getGameEnd() !== null) {
       return;
     }
-    const slpfile = openSlpFile(this.input);
+    const slpfile = file ?? openSlpFile(this.input);
     // Generate settings from iterating through file
     this.readPosition = iterateEvents(
       slpfile,
@@ -106,7 +115,9 @@ export class SlippiGame {
       },
       this.readPosition,
     );
-    closeSlpFile(slpfile);
+    if (!file) {
+      closeSlpFile(slpfile);
+    }
   }
 
   /**
@@ -260,11 +271,25 @@ export class SlippiGame {
   }
 
   public getWinners(): PlacementType[] {
-    const gameEnd = this.getGameEnd({ skipProcessing: true });
-    const settings = this.getSettings();
+    // Read game end block directly
+    const slpfile = openSlpFile(this.input);
+    const gameEnd = getGameEnd(slpfile);
+    this._process(() => this.parser.getSettings() !== null, slpfile);
+    const settings = this.parser.getSettings();
     if (!gameEnd || !settings) {
+      // Technically using the final post frame updates, it should be possible to compute winners for
+      // replays without a gameEnd message. But I'll leave this here anyway
       return [];
     }
-    return getWinners(gameEnd, settings);
+
+    // If we went to time, let's fetch the post frame updates to compute the winner
+    let finalPostFrameUpdates: PostFrameUpdateType[] = [];
+    if (gameEnd.gameEndMethod === GameEndMethod.TIME) {
+      console.log("Hello?");
+      finalPostFrameUpdates = extractFinalPostFrameUpdates(slpfile);
+    }
+
+    closeSlpFile(slpfile);
+    return getWinners(gameEnd, settings, finalPostFrameUpdates);
   }
 }

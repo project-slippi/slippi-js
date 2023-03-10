@@ -1,10 +1,11 @@
-import type { GameEndType, GameStartType, PlacementType } from "../types";
+import type { GameEndType, GameStartType, PlacementType, PostFrameUpdateType } from "../types";
 import { GameEndMethod } from "../types";
 import { exists } from "./exists";
 
 export function getWinners(
   gameEnd: GameEndType,
   settings: Pick<GameStartType, "players" | "isTeams">,
+  finalPostFrameUpdates: PostFrameUpdateType[],
 ): PlacementType[] {
   const { placements, gameEndMethod, lrasInitiatorIndex } = gameEnd;
   const { players, isTeams } = settings;
@@ -23,6 +24,32 @@ export function getWinners(
       }
     }
 
+    return [];
+  }
+
+  if (gameEndMethod === GameEndMethod.TIME && players.length === 2) {
+    const nonFollowerUpdates = finalPostFrameUpdates.filter((pfu) => !pfu.isFollower);
+    if (nonFollowerUpdates.length !== players.length) {
+      return [];
+    }
+
+    const p1 = nonFollowerUpdates[0]!;
+    const p2 = nonFollowerUpdates[1]!;
+    if (p1.stocksRemaining! > p2.stocksRemaining!) {
+      return [{ playerIndex: p1.playerIndex!, position: 0 }];
+    } else if (p2.stocksRemaining! > p1.stocksRemaining!) {
+      return [{ playerIndex: p2.playerIndex!, position: 0 }];
+    }
+
+    const p1Health = Math.trunc(p1.percent!);
+    const p2Health = Math.trunc(p2.percent!);
+    if (p1Health < p2Health) {
+      return [{ playerIndex: p1.playerIndex!, position: 0 }];
+    } else if (p2Health < p1Health) {
+      return [{ playerIndex: p2.playerIndex!, position: 0 }];
+    }
+
+    // If stocks and percents were tied, no winner
     return [];
   }
 
