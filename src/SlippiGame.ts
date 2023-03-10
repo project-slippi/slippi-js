@@ -279,13 +279,13 @@ export class SlippiGame {
     if (!gameEnd || !settings) {
       // Technically using the final post frame updates, it should be possible to compute winners for
       // replays without a gameEnd message. But I'll leave this here anyway
+      closeSlpFile(slpfile);
       return [];
     }
 
     // If we went to time, let's fetch the post frame updates to compute the winner
     let finalPostFrameUpdates: PostFrameUpdateType[] = [];
     if (gameEnd.gameEndMethod === GameEndMethod.TIME) {
-      console.log("Hello?");
       finalPostFrameUpdates = extractFinalPostFrameUpdates(slpfile);
     }
 
