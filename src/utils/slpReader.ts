@@ -703,7 +703,7 @@ export function extractFinalPostFrameUpdates(slpFile: SlpFileType): PostFrameUpd
   const postFrameSize = postFramePayloadSize + 1;
   const frameBookendSize = frameBookendPayloadSize ? frameBookendPayloadSize + 1 : 0;
 
-  let frameNum = null;
+  let frameNum: number | null = null;
   let postFramePosition = rawDataPosition + rawDataLength - gameEndSize - frameBookendSize - postFrameSize;
   const postFrameUpdates: PostFrameUpdateType[] = [];
   do {
