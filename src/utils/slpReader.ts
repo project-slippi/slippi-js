@@ -1,7 +1,7 @@
 import { decode } from "@shelacek/ubjson";
 import fs from "fs";
 import iconv from "iconv-lite";
-import { mapValues, isUndefined, isNull } from "lodash";
+import { mapValues } from "lodash";
 
 import type {
   EventCallbackFunc,
@@ -695,7 +695,7 @@ export function extractFinalPostFrameUpdates(slpFile: SlpFileType): PostFrameUpd
   const frameBookendPayloadSize = messageSizes[Command.FRAME_BOOKEND];
 
   // Technically this should not be possible
-  if (isUndefined(postFramePayloadSize)) {
+  if (!exists(postFramePayloadSize)) {
     return [];
   }
 
@@ -718,7 +718,7 @@ export function extractFinalPostFrameUpdates(slpFile: SlpFileType): PostFrameUpd
       break;
     }
 
-    if (isNull(frameNum)) {
+    if (frameNum === null) {
       frameNum = postFrameMessage.frame;
     } else if (frameNum !== postFrameMessage.frame) {
       // If post frame message is found but the frame doesn't match, it's not part of the final frame
