@@ -137,5 +137,13 @@ describe("when determining placings", () => {
       expect(settings.players[2].teamId).toBe(0); // Expect player 3 to be on team red
       expect(settings.players[3].teamId).toBe(2); // Expect player 4 to be on team green
     });
+
+    it("should return correct winners in timeout", () => {
+      const game = new SlippiGame("slp/placementsTest/incorrect-winner-timeout.slp");
+      const winners = game.getWinners();
+      expect(winners).toHaveLength(1);
+      expect(winners[0].playerIndex).toBe(0);
+      expect(winners[0].position).toBe(0);
+    });
   });
 });
