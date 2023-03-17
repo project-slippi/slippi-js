@@ -512,6 +512,8 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
         selfInducedSpeeds: selfInducedSpeeds,
         hitlagRemaining: readFloat(view, 0x49),
         animationIndex: readUint32(view, 0x4d),
+        instanceHitBy: readUint16(view, 0x51),
+        instanceId: readUint16(view, 0x53),
       };
     case Command.ITEM_UPDATE:
       return {
@@ -531,6 +533,7 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
         chargeShotLaunched: readUint8(view, 0x28),
         chargePower: readUint8(view, 0x29),
         owner: readInt8(view, 0x2a),
+        instanceId: readUint16(view, 0x2b),
       };
     case Command.FRAME_BOOKEND:
       return {

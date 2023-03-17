@@ -206,6 +206,8 @@ export type PostFrameUpdateType = {
   selfInducedSpeeds: SelfInducedSpeedsType | null;
   hitlagRemaining: number | null;
   animationIndex: number | null;
+  instanceHitBy: number | null;
+  instanceId: number | null;
 };
 
 export type SelfInducedSpeedsType = {
@@ -233,6 +235,7 @@ export type ItemUpdateType = {
   chargeShotLaunched: number | null;
   chargePower: number | null;
   owner: number | null;
+  instanceId: number | null;
 };
 
 export type FrameBookendType = {
