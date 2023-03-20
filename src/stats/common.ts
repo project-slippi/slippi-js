@@ -312,7 +312,7 @@ export function isDamaged(state: number): boolean {
   return ((state >= State.DAMAGE_START && state <= State.DAMAGE_END) ||
     state === State.DAMAGE_FALL ||
     state === State.JAB_RESET_UP ||
-    state == State.JAB_RESET_DOWN);
+    state === State.JAB_RESET_DOWN);
 }
 
 export function isGrabbed(state: number): boolean {
