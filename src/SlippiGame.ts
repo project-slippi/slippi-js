@@ -22,19 +22,19 @@ import type {
   PostFrameUpdateType,
   RollbackFrames,
 } from "./types";
-import { GameMode, GameEndMethod } from "./types";
+import { GameEndMethod, GameMode } from "./types";
 import { getWinners } from "./utils/getWinners";
 import { extractDistanceInfoFromFrame } from "./utils/homeRunDistance";
 import { SlpParser, SlpParserEvent } from "./utils/slpParser";
 import type { SlpFileType, SlpReadInput } from "./utils/slpReader";
 import {
   closeSlpFile,
+  extractFinalPostFrameUpdates,
   getGameEnd,
   getMetadata,
   iterateEvents,
   openSlpFile,
   SlpInputSource,
-  extractFinalPostFrameUpdates,
 } from "./utils/slpReader";
 
 /**
