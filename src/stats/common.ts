@@ -195,7 +195,9 @@ export enum State {
   ACTION_KNEE_BEND = 0x18,
   GUARD_ON = 0xb2,
   TECH_MISS_UP = 0xb7,
+  JAB_RESET_UP = 0xb9,
   TECH_MISS_DOWN = 0xbf,
+  JAB_RESET_DOWN = 0xc1,
   NEUTRAL_TECH = 0xc7,
   FORWARD_TECH = 0xc8,
   BACKWARD_TECH = 0xc9,
@@ -307,7 +309,12 @@ export function isDown(state: number): boolean {
 }
 
 export function isDamaged(state: number): boolean {
-  return (state >= State.DAMAGE_START && state <= State.DAMAGE_END) || state === State.DAMAGE_FALL;
+  return (
+    (state >= State.DAMAGE_START && state <= State.DAMAGE_END) ||
+    state === State.DAMAGE_FALL ||
+    state === State.JAB_RESET_UP ||
+    state === State.JAB_RESET_DOWN
+  );
 }
 
 export function isGrabbed(state: number): boolean {
