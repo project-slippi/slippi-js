@@ -1,4 +1,4 @@
-import { get } from "lodash";
+import get from "lodash/get";
 
 import type { FrameEntryType, FramesType, GameStartType } from "../types";
 import { Frames } from "../types";

@@ -1,4 +1,4 @@
-import { map } from "lodash";
+import map from "lodash/map";
 
 export function toHalfwidth(str: string): string {
   // Converts a fullwidth character to halfwidth

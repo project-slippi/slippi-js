@@ -1,6 +1,6 @@
 import type { WriteStream } from "fs";
 import fs from "fs";
-import { forEach } from "lodash";
+import forEach from "lodash/forEach";
 import type { WritableOptions } from "stream";
 import { Writable } from "stream";
 
