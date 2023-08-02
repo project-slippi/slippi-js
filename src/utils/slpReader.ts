@@ -79,6 +79,9 @@ function readRef(ref: SlpRefType, buffer: Uint8Array, offset: number, length: nu
     case SlpInputSource.FILE:
       return fs.readSync((ref as SlpFileSourceRef).fileDescriptor, buffer, offset, length, position);
     case SlpInputSource.BUFFER:
+      if (position >= (ref as SlpBufferSourceRef).buffer.length) {
+        return 0;
+      }
       return (ref as SlpBufferSourceRef).buffer.copy(buffer, offset, position, position + length);
     default:
       throw new Error("Source type not supported");
