@@ -161,7 +161,7 @@ function handleConversionCompute(
     state.lastHitAnimation = null;
   }
 
-  const lastAttackChanged = prevPlayerFrame ? prevPlayerFrame.lastAttackLanded != playerFrame.lastAttackLanded : false;
+  const lastAttackChanged = prevPlayerFrame ? prevPlayerFrame.lastAttackLanded !== playerFrame.lastAttackLanded : false;
 
   // If opponent took damage and was put in some kind of stun this frame, either
   // start a conversion or
