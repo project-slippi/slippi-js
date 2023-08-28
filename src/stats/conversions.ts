@@ -223,7 +223,7 @@ function handleConversionCompute(
     state.conversion.currentPercent = opponentFrame.percent ?? 0;
   }
 
-  if (opntIsDamaged || opntIsGrabbed || opntIsCommandGrabbed) {
+  if (opntIsDamaged || opntIsGrabbed || opntIsCommandGrabbed || lastAttackChanged || opntDamageTaken > 3.1) {
     // If opponent got grabbed or damaged, reset the reset counter
     state.resetCounter = 0;
   }
