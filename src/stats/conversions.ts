@@ -161,9 +161,11 @@ function handleConversionCompute(
     state.lastHitAnimation = null;
   }
 
+  const lastAttackChanged = prevPlayerFrame?.lastAttackLanded != playerFrame.lastAttackLanded;
+
   // If opponent took damage and was put in some kind of stun this frame, either
   // start a conversion or
-  if (opntIsDamaged || opntIsGrabbed || opntIsCommandGrabbed) {
+  if (opntIsDamaged || opntIsGrabbed || opntIsCommandGrabbed || lastAttackChanged || opntDamageTaken > 3.1) {
     if (!state.conversion) {
       state.conversion = {
         playerIndex: indices.opponentIndex,
