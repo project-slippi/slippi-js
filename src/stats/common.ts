@@ -1,6 +1,6 @@
 import type { GameStartType, PostFrameUpdateType } from "../types";
 
-export interface StatsType {
+export type StatsType = {
   gameComplete: boolean;
   lastFrame: number;
   playableFrameCount: number;
@@ -9,76 +9,78 @@ export interface StatsType {
   combos: ComboType[];
   actionCounts: ActionCountsType[];
   overall: OverallType[];
-}
+};
 
 export type StadiumStatsType = HomeRunContestResultType | TargetTestResultType;
 
-export interface TargetTestResultType {
+export type TargetTestResultType = {
   type: "target-test";
   targetBreaks: TargetBreakType[];
-}
+};
 
-export interface HomeRunContestResultType {
+export type HomeRunContestResultType = {
   type: "home-run-contest";
   distance: number;
   units: "feet" | "meters";
-}
+};
 
-export interface RatioType {
+export type RatioType = {
   count: number;
   total: number;
   ratio: number | null;
-}
+};
 
-export interface PlayerIndexedType {
+export type PlayerIndexedType = {
   playerIndex: number;
   opponentIndex: number;
-}
+};
 
-export interface DurationType {
+export type DurationType = {
   startFrame: number;
   endFrame?: number | null;
-}
+};
 
-export interface DamageType {
+export type DamageType = {
   startPercent: number;
   currentPercent: number;
   endPercent?: number | null;
-}
+};
 
-export interface StockType extends DurationType, DamageType {
-  playerIndex: number;
-  count: number;
-  deathAnimation?: number | null;
-}
+export type StockType = DurationType &
+  DamageType & {
+    playerIndex: number;
+    count: number;
+    deathAnimation?: number | null;
+  };
 
-export interface MoveLandedType {
+export type MoveLandedType = {
   playerIndex: number;
   frame: number;
   moveId: number;
   hitCount: number;
   damage: number;
-}
+};
 
-export interface ComboType extends DurationType, DamageType {
-  playerIndex: number;
-  moves: MoveLandedType[];
-  didKill: boolean;
-  lastHitBy: number | null;
-}
+export type ComboType = DurationType &
+  DamageType & {
+    playerIndex: number;
+    moves: MoveLandedType[];
+    didKill: boolean;
+    lastHitBy: number | null;
+  };
 
-export interface TargetBreakType {
+export type TargetBreakType = {
   spawnId: number;
   frameDestroyed: number | null;
   positionX: number;
   positionY: number;
-}
+};
 
-export interface ConversionType extends ComboType {
+export type ConversionType = ComboType & {
   openingType: string;
-}
+};
 
-export interface ActionCountsType {
+export type ActionCountsType = {
   playerIndex: number;
   wavedashCount: number;
   wavelandCount: number;
@@ -130,17 +132,17 @@ export interface ActionCountsType {
     success: number;
     fail: number;
   };
-}
+};
 
-export interface InputCountsType {
+export type InputCountsType = {
   buttons: number;
   triggers: number;
   joystick: number;
   cstick: number;
   total: number;
-}
+};
 
-export interface OverallType {
+export type OverallType = {
   playerIndex: number;
   inputCounts: InputCountsType;
   conversionCount: number;
@@ -154,7 +156,7 @@ export interface OverallType {
   neutralWinRatio: RatioType;
   counterHitRatio: RatioType;
   beneficialTradeRatio: RatioType;
-}
+};
 
 export enum State {
   // Animation ID ranges

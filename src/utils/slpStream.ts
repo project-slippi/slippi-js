@@ -20,15 +20,15 @@ export type SlpStreamSettings = typeof defaultSettings;
 
 export type MessageSizes = Map<Command, number>;
 
-export interface SlpCommandEventPayload {
+export type SlpCommandEventPayload = {
   command: Command;
   payload: EventPayloadTypes | MessageSizes;
-}
+};
 
-export interface SlpRawEventPayload {
+export type SlpRawEventPayload = {
   command: Command;
   payload: Buffer;
-}
+};
 
 export enum SlpStreamEvent {
   RAW = "slp-raw",

@@ -3,12 +3,12 @@ import characters from "./characters.json";
 export type CharacterColor = string;
 const DEFAULT_COLOR: CharacterColor = "Default";
 
-export interface CharacterInfo {
+export type CharacterInfo = {
   id: number;
   name: string;
   shortName: string;
   colors: CharacterColor[];
-}
+};
 
 export const UnknownCharacter: CharacterInfo = {
   id: -1,

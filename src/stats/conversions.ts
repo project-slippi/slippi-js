@@ -19,18 +19,18 @@ import {
 } from "./common";
 import type { StatComputer } from "./stats";
 
-interface PlayerConversionState {
+type PlayerConversionState = {
   conversion: ConversionType | null;
   move: MoveLandedType | null;
   resetCounter: number;
   lastHitAnimation: number | null;
-}
+};
 
-interface MetadataType {
+type MetadataType = {
   lastEndFrameByOppIdx: {
     [oppIdx: number]: number;
   };
-}
+};
 
 export class ConversionComputer extends EventEmitter implements StatComputer<ConversionType[]> {
   private playerPermutations = new Array<PlayerIndexedType>();

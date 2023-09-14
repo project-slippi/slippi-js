@@ -38,7 +38,7 @@ export type SlpReadInput = SlpFileReadInput | SlpBufferReadInput;
 
 export type SlpRefType = SlpFileSourceRef | SlpBufferSourceRef;
 
-export interface SlpFileType {
+export type SlpFileType = {
   ref: SlpRefType;
   rawDataPosition: number;
   rawDataLength: number;
@@ -47,16 +47,17 @@ export interface SlpFileType {
   messageSizes: {
     [command: number]: number;
   };
-}
+};
 
-export interface SlpFileSourceRef {
+export type SlpFileSourceRef = {
   source: SlpInputSource.FILE;
   fileDescriptor: number;
+};
 
-export interface SlpBufferSourceRef {
+export type SlpBufferSourceRef = {
   source: SlpInputSource.BUFFER;
   buffer: Buffer;
-}
+};
 
 function getRef(input: SlpReadInput): SlpRefType {
   switch (input.source) {

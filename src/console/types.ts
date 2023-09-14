@@ -22,17 +22,17 @@ export enum Ports {
   RELAY_START = 53741,
 }
 
-export interface ConnectionDetails {
+export type ConnectionDetails = {
   consoleNick: string;
   gameDataCursor: number | Uint8Array;
   version: string;
   clientToken?: number;
-}
+};
 
-export interface ConnectionSettings {
+export type ConnectionSettings = {
   ipAddress: string;
   port: number;
-}
+};
 
 export interface Connection extends EventEmitter {
   getStatus(): ConnectionStatus;
