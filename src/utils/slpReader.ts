@@ -236,17 +236,14 @@ function getGameInfoBlock(view: DataView): GameInfoType {
     gameBitfield3: readUint8(view, 0x2 + offset),
     gameBitfield4: readUint8(view, 0x3 + offset),
     bombRainEnabled: (readUint8(view, 0x6 + offset)! & 0xff) > 0 ? true : false,
-    itemSpawnBehavior: readInt8(view, 0xb + offset),
     selfDestructScoreValue: readInt8(view, 0xc + offset),
-    //stageId: readUint16(view, 0xe + offset),
-    //gameTimer: readUint32(view, 0x10 + offset),
     itemSpawnBitfield1: readUint8(view, 0x23 + offset),
     itemSpawnBitfield2: readUint8(view, 0x24 + offset),
     itemSpawnBitfield3: readUint8(view, 0x25 + offset),
     itemSpawnBitfield4: readUint8(view, 0x26 + offset),
     itemSpawnBitfield5: readUint8(view, 0x27 + offset),
     damageRatio: readFloat(view, 0x30 + offset),
-  } as GameInfoType;
+  };
 }
 
 /**
