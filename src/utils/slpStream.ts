@@ -135,10 +135,11 @@ export class SlpStream extends Writable {
     const payloadBuf = entirePayload.slice(0, payloadSize);
     const bufToWrite = Buffer.concat([Buffer.from([command]), payloadBuf]);
     // Forward the raw buffer onwards
-    this.emit(SlpStreamEvent.RAW, {
+    const event: SlpRawEventPayload = {
       command: command,
       payload: bufToWrite,
-    } as SlpRawEventPayload);
+    };
+    this.emit(SlpStreamEvent.RAW, event);
     return new Uint8Array(bufToWrite);
   }
 
@@ -150,10 +151,11 @@ export class SlpStream extends Writable {
       this.payloadSizes = processReceiveCommands(dataView);
       // Emit the raw command event
       this._writeCommand(command, entirePayload, payloadSize);
-      this.emit(SlpStreamEvent.COMMAND, {
+      const eventPayload: SlpCommandEventPayload = {
         command: command,
         payload: this.payloadSizes,
-      } as SlpCommandEventPayload);
+      };
+      this.emit(SlpStreamEvent.COMMAND, eventPayload);
       return payloadSize;
     }
 
@@ -182,10 +184,11 @@ export class SlpStream extends Writable {
         break;
     }
 
-    this.emit(SlpStreamEvent.COMMAND, {
+    const eventPayload: SlpCommandEventPayload = {
       command: command,
       payload: parsedPayload,
-    } as SlpCommandEventPayload);
+    };
+    this.emit(SlpStreamEvent.COMMAND, eventPayload);
     return payloadSize;
   }
 }

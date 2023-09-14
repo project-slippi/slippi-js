@@ -24,11 +24,17 @@ export enum SlpInputSource {
   FILE = "file",
 }
 
-export interface SlpReadInput {
-  source: SlpInputSource;
-  filePath?: string;
-  buffer?: Buffer;
-}
+type SlpFileReadInput = {
+  source: SlpInputSource.FILE;
+  filePath: string;
+};
+
+type SlpBufferReadInput = {
+  source: SlpInputSource.BUFFER;
+  buffer: Buffer;
+};
+
+export type SlpReadInput = SlpFileReadInput | SlpBufferReadInput;
 
 export type SlpRefType = SlpFileSourceRef | SlpBufferSourceRef;
 
@@ -44,12 +50,11 @@ export interface SlpFileType {
 }
 
 export interface SlpFileSourceRef {
-  source: SlpInputSource;
+  source: SlpInputSource.FILE;
   fileDescriptor: number;
-}
 
 export interface SlpBufferSourceRef {
-  source: SlpInputSource;
+  source: SlpInputSource.BUFFER;
   buffer: Buffer;
 }
 
@@ -63,12 +68,12 @@ function getRef(input: SlpReadInput): SlpRefType {
       return {
         source: input.source,
         fileDescriptor: fd,
-      } as SlpFileSourceRef;
+      };
     case SlpInputSource.BUFFER:
       return {
         source: input.source,
         buffer: input.buffer,
-      } as SlpBufferSourceRef;
+      };
     default:
       throw new Error("Source type not supported");
   }
@@ -77,12 +82,12 @@ function getRef(input: SlpReadInput): SlpRefType {
 function readRef(ref: SlpRefType, buffer: Uint8Array, offset: number, length: number, position: number): number {
   switch (ref.source) {
     case SlpInputSource.FILE:
-      return fs.readSync((ref as SlpFileSourceRef).fileDescriptor, buffer, offset, length, position);
+      return fs.readSync(ref.fileDescriptor, buffer, offset, length, position);
     case SlpInputSource.BUFFER:
-      if (position >= (ref as SlpBufferSourceRef).buffer.length) {
+      if (position >= ref.buffer.length) {
         return 0;
       }
-      return (ref as SlpBufferSourceRef).buffer.copy(buffer, offset, position, position + length);
+      return ref.buffer.copy(buffer, offset, position, position + length);
     default:
       throw new Error("Source type not supported");
   }
@@ -91,10 +96,10 @@ function readRef(ref: SlpRefType, buffer: Uint8Array, offset: number, length: nu
 function getLenRef(ref: SlpRefType): number {
   switch (ref.source) {
     case SlpInputSource.FILE:
-      const fileStats = fs.fstatSync((ref as SlpFileSourceRef).fileDescriptor);
+      const fileStats = fs.fstatSync(ref.fileDescriptor);
       return fileStats.size;
     case SlpInputSource.BUFFER:
-      return (ref as SlpBufferSourceRef).buffer.length;
+      return ref.buffer.length;
     default:
       throw new Error("Source type not supported");
   }
@@ -125,7 +130,7 @@ export function openSlpFile(input: SlpReadInput): SlpFileType {
 export function closeSlpFile(file: SlpFileType): void {
   switch (file.ref.source) {
     case SlpInputSource.FILE:
-      fs.closeSync((file.ref as SlpFileSourceRef).fileDescriptor);
+      fs.closeSync(file.ref.fileDescriptor);
       break;
   }
 }
