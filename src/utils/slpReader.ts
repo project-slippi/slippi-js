@@ -8,6 +8,7 @@ import type {
   EventPayloadTypes,
   GameEndType,
   GameInfoType,
+  GameStartType,
   GeckoCodeType,
   MetadataType,
   PlacementType,
@@ -384,7 +385,7 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
         const userId = userIdString ?? "";
 
         const offset = playerIndex * 0x24;
-        return {
+        const playerInfo: PlayerType = {
           playerIndex,
           port: playerIndex + 1,
           characterId: readUint8(view, 0x65 + offset),
@@ -412,6 +413,7 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
           connectCode,
           userId,
         };
+        return playerInfo;
       };
 
       const matchIdLength = 51;
@@ -423,7 +425,7 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
         .shift();
       const matchId = matchIdString ?? "";
 
-      return {
+      const gameSettings: GameStartType = {
         slpVersion: `${readUint8(view, 0x1)}.${readUint8(view, 0x2)}.${readUint8(view, 0x3)}`,
         timerType: readUint8(view, 0x5, 0x03),
         inGameMode: readUint8(view, 0x5, 0xe0),
@@ -447,6 +449,7 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
           tiebreakerNumber: readUint32(view, 0x2f5),
         },
       };
+      return gameSettings;
     case Command.FRAME_START:
       return {
         frame: readInt32(view, 0x1),
