@@ -3,9 +3,9 @@ import type { PlayerIndexedType, StockType } from "./common";
 import { didLoseStock, getSinglesPlayerPermutationsFromSettings, isDead } from "./common";
 import type { StatComputer } from "./stats";
 
-interface StockState {
+type StockState = {
   stock?: StockType | null;
-}
+};
 
 export class StockComputer implements StatComputer<StockType[]> {
   private state = new Map<PlayerIndexedType, StockState>();

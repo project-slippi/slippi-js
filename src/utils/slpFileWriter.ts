@@ -14,12 +14,12 @@ function getNewFilePath(folder: string, date: Date): string {
   return path.join(folder, `Game_${format(date, "yyyyMMdd")}T${format(date, "HHmmss")}.slp`);
 }
 
-export interface SlpFileWriterOptions extends Partial<SlpStreamSettings> {
+export type SlpFileWriterOptions = Partial<SlpStreamSettings> & {
   outputFiles: boolean;
   folderPath: string;
   consoleNickname: string;
   newFilename: (folder: string, startTime: Date) => string;
-}
+};
 
 const defaultSettings: SlpFileWriterOptions = {
   outputFiles: true,

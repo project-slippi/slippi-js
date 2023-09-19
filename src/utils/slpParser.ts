@@ -189,7 +189,6 @@ export class SlpParser extends EventEmitter {
       this._finalizeFrames(this.latestFrameIndex);
     }
 
-    payload = payload as GameEndType;
     this.gameEnd = payload;
     this.emit(SlpParserEvent.END, this.gameEnd);
   }
@@ -237,7 +236,6 @@ export class SlpParser extends EventEmitter {
   }
 
   private _handleFrameUpdate(command: Command, payload: PreFrameUpdateType | PostFrameUpdateType): void {
-    payload = payload as PostFrameUpdateType;
     const location = command === Command.PRE_FRAME_UPDATE ? "pre" : "post";
     const field = payload.isFollower ? "followers" : "players";
     const currentFrameNumber = payload.frame!;

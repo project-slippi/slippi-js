@@ -16,7 +16,7 @@ enum JoystickRegion {
   W = 8,
 }
 
-export interface PlayerInput {
+export type PlayerInput = {
   playerIndex: number;
   opponentIndex: number;
   inputCount: number;
@@ -24,7 +24,7 @@ export interface PlayerInput {
   cstickInputCount: number;
   buttonInputCount: number;
   triggerInputCount: number;
-}
+};
 
 export class InputComputer implements StatComputer<PlayerInput[]> {
   private state = new Map<PlayerIndexedType, PlayerInput>();

@@ -1,9 +1,9 @@
 import stageNames from "./stages.json";
 
-export interface StageInfo {
+export type StageInfo = {
   id: number;
   name: string;
-}
+};
 
 export const UnknownStage: StageInfo = {
   id: -1,

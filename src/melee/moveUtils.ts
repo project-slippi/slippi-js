@@ -1,10 +1,10 @@
 import moveNames from "./moves.json";
 
-export interface Move {
+export type Move = {
   id: number;
   name: string;
   shortName: string;
-}
+};
 
 export const UnknownMove: Move = {
   id: -1,

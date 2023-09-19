@@ -11,11 +11,11 @@ import type { GameStartType } from "../types";
 import type { ConversionType, InputCountsType, OverallType, RatioType } from "./common";
 import type { PlayerInput } from "./inputs";
 
-interface ConversionsByPlayerByOpening {
+type ConversionsByPlayerByOpening = {
   [playerIndex: string]: {
     [openingType: string]: ConversionType[];
   };
-}
+};
 
 export function generateOverallStats({
   settings,

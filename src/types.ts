@@ -11,7 +11,7 @@ export enum Command {
   GECKO_LIST = 0x3d,
 }
 
-export interface PlayerType {
+export type PlayerType = {
   playerIndex: number;
   port: number;
   characterId: number | null;
@@ -38,7 +38,7 @@ export interface PlayerType {
   displayName: string;
   connectCode: string;
   userId: string;
-}
+};
 
 export enum GameMode {
   VS = 0x02,
@@ -52,7 +52,7 @@ export enum Language {
   ENGLISH = 1,
 }
 
-export interface GameStartType {
+export type GameStartType = {
   slpVersion: string | null;
   timerType: TimerType | null;
   inGameMode: number | null;
@@ -71,21 +71,21 @@ export interface GameStartType {
   isPAL: boolean | null;
   isFrozenPS: boolean | null;
   matchInfo: MatchInfo | null;
-}
+};
 
-interface MatchInfo {
+type MatchInfo = {
   matchId: string | null;
   gameNumber: number | null;
   tiebreakerNumber: number | null;
-}
+};
 
-export interface FrameStartType {
+export type FrameStartType = {
   frame: number | null;
   seed: number | null;
   sceneFrameCounter: number | null;
-}
+};
 
-export interface GameInfoType {
+export type GameInfoType = {
   gameBitfield1: number | null;
   gameBitfield2: number | null;
   gameBitfield3: number | null;
@@ -98,7 +98,7 @@ export interface GameInfoType {
   itemSpawnBitfield4: number | null;
   itemSpawnBitfield5: number | null;
   damageRatio: number | null;
-}
+};
 
 export enum TimerType {
   NONE = 0b00,
@@ -159,7 +159,7 @@ export enum EnabledItemType {
   MR_SATURN = 2 ** 39,
 }
 
-export interface PreFrameUpdateType {
+export type PreFrameUpdateType = {
   frame: number | null;
   playerIndex: number | null;
   isFollower: boolean | null;
@@ -179,9 +179,9 @@ export interface PreFrameUpdateType {
   physicalRTrigger: number | null;
   rawJoystickX: number | null;
   percent: number | null;
-}
+};
 
-export interface PostFrameUpdateType {
+export type PostFrameUpdateType = {
   frame: number | null;
   playerIndex: number | null;
   isFollower: boolean | null;
@@ -206,17 +206,17 @@ export interface PostFrameUpdateType {
   selfInducedSpeeds: SelfInducedSpeedsType | null;
   hitlagRemaining: number | null;
   animationIndex: number | null;
-}
+};
 
-export interface SelfInducedSpeedsType {
+export type SelfInducedSpeedsType = {
   airX: number | null;
   y: number | null;
   attackX: number | null;
   attackY: number | null;
   groundX: number | null;
-}
+};
 
-export interface ItemUpdateType {
+export type ItemUpdateType = {
   frame: number | null;
   typeId: number | null;
   state: number | null;
@@ -233,12 +233,12 @@ export interface ItemUpdateType {
   chargeShotLaunched: number | null;
   chargePower: number | null;
   owner: number | null;
-}
+};
 
-export interface FrameBookendType {
+export type FrameBookendType = {
   frame: number | null;
   latestFinalizedFrame: number | null;
-}
+};
 
 export enum GameEndMethod {
   UNRESOLVED = 0,
@@ -249,29 +249,29 @@ export enum GameEndMethod {
   NO_CONTEST = 7,
 }
 
-export interface GameEndType {
+export type GameEndType = {
   gameEndMethod: GameEndMethod | null;
   lrasInitiatorIndex: number | null;
   placements: PlacementType[];
-}
+};
 
-export interface PlacementType {
+export type PlacementType = {
   playerIndex: number;
   position: number | null;
-}
+};
 
-export interface GeckoListType {
+export type GeckoListType = {
   codes: GeckoCodeType[];
   contents: Uint8Array;
-}
+};
 
-export interface GeckoCodeType {
+export type GeckoCodeType = {
   type: number | null;
   address: number | null;
   contents: Uint8Array;
-}
+};
 
-export interface MetadataType {
+export type MetadataType = {
   startAt?: string | null;
   playedOn?: string | null;
   lastFrame?: number | null;
@@ -287,7 +287,7 @@ export interface MetadataType {
     };
   } | null;
   consoleNick?: string | null;
-}
+};
 
 export type EventPayloadTypes =
   | GameStartType
@@ -305,7 +305,7 @@ export type EventCallbackFunc = (
   buffer?: Uint8Array | null,
 ) => boolean;
 
-export interface FrameEntryType {
+export type FrameEntryType = {
   frame: number;
   start?: FrameStartType;
   players: {
@@ -321,23 +321,23 @@ export interface FrameEntryType {
     } | null;
   };
   items?: ItemUpdateType[];
-}
+};
 
 export enum Frames {
   FIRST = -123,
   FIRST_PLAYABLE = -39,
 }
 
-export interface FramesType {
+export type FramesType = {
   [frameIndex: number]: FrameEntryType;
-}
+};
 
-export interface RollbackFramesType {
+export type RollbackFramesType = {
   [frameIndex: number]: FrameEntryType[];
-}
+};
 
-export interface RollbackFrames {
+export type RollbackFrames = {
   frames: RollbackFramesType;
   count: number;
   lengths: number[];
-}
+};

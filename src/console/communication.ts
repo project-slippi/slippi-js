@@ -6,7 +6,7 @@ export enum CommunicationType {
   KEEP_ALIVE = 3,
 }
 
-export interface CommunicationMessage {
+export type CommunicationMessage = {
   type: CommunicationType;
   payload: {
     cursor: Uint8Array;
@@ -18,7 +18,7 @@ export interface CommunicationMessage {
     forcePos: boolean;
     nintendontVersion: string | null;
   };
-}
+};
 
 // This class is responsible for handling the communication protocol between the Wii and the
 // desktop app

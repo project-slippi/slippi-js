@@ -11,7 +11,7 @@ import { SlpStream, SlpStreamEvent, SlpStreamMode } from "./slpStream";
 
 const DEFAULT_NICKNAME = "unknown";
 
-export interface SlpFileMetadata {
+export type SlpFileMetadata = {
   startTime: Date;
   lastFrame: number;
   players: {
@@ -26,7 +26,7 @@ export interface SlpFileMetadata {
     };
   };
   consoleNickname?: string;
-}
+};
 
 /**
  * SlpFile is a class that wraps a Writable stream. It handles the writing of the binary

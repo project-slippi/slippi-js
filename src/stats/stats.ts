@@ -9,9 +9,9 @@ export interface StatComputer<T> {
   fetch(): T;
 }
 
-export interface StatOptions {
+export type StatOptions = {
   processOnTheFly: boolean;
-}
+};
 
 const defaultOptions: StatOptions = {
   processOnTheFly: false,
