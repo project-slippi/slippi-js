@@ -8,6 +8,7 @@ import type {
   EventPayloadTypes,
   GameEndType,
   GameInfoType,
+  GameStartType,
   GeckoCodeType,
   MetadataType,
   PlacementType,
@@ -24,15 +25,21 @@ export enum SlpInputSource {
   FILE = "file",
 }
 
-export interface SlpReadInput {
-  source: SlpInputSource;
-  filePath?: string;
-  buffer?: Buffer;
-}
+type SlpFileReadInput = {
+  source: SlpInputSource.FILE;
+  filePath: string;
+};
+
+type SlpBufferReadInput = {
+  source: SlpInputSource.BUFFER;
+  buffer: Buffer;
+};
+
+export type SlpReadInput = SlpFileReadInput | SlpBufferReadInput;
 
 export type SlpRefType = SlpFileSourceRef | SlpBufferSourceRef;
 
-export interface SlpFileType {
+export type SlpFileType = {
   ref: SlpRefType;
   rawDataPosition: number;
   rawDataLength: number;
@@ -41,17 +48,17 @@ export interface SlpFileType {
   messageSizes: {
     [command: number]: number;
   };
-}
+};
 
-export interface SlpFileSourceRef {
-  source: SlpInputSource;
+export type SlpFileSourceRef = {
+  source: SlpInputSource.FILE;
   fileDescriptor: number;
-}
+};
 
-export interface SlpBufferSourceRef {
-  source: SlpInputSource;
+export type SlpBufferSourceRef = {
+  source: SlpInputSource.BUFFER;
   buffer: Buffer;
-}
+};
 
 function getRef(input: SlpReadInput): SlpRefType {
   switch (input.source) {
@@ -63,12 +70,12 @@ function getRef(input: SlpReadInput): SlpRefType {
       return {
         source: input.source,
         fileDescriptor: fd,
-      } as SlpFileSourceRef;
+      };
     case SlpInputSource.BUFFER:
       return {
         source: input.source,
         buffer: input.buffer,
-      } as SlpBufferSourceRef;
+      };
     default:
       throw new Error("Source type not supported");
   }
@@ -77,12 +84,12 @@ function getRef(input: SlpReadInput): SlpRefType {
 function readRef(ref: SlpRefType, buffer: Uint8Array, offset: number, length: number, position: number): number {
   switch (ref.source) {
     case SlpInputSource.FILE:
-      return fs.readSync((ref as SlpFileSourceRef).fileDescriptor, buffer, offset, length, position);
+      return fs.readSync(ref.fileDescriptor, buffer, offset, length, position);
     case SlpInputSource.BUFFER:
-      if (position >= (ref as SlpBufferSourceRef).buffer.length) {
+      if (position >= ref.buffer.length) {
         return 0;
       }
-      return (ref as SlpBufferSourceRef).buffer.copy(buffer, offset, position, position + length);
+      return ref.buffer.copy(buffer, offset, position, position + length);
     default:
       throw new Error("Source type not supported");
   }
@@ -91,10 +98,10 @@ function readRef(ref: SlpRefType, buffer: Uint8Array, offset: number, length: nu
 function getLenRef(ref: SlpRefType): number {
   switch (ref.source) {
     case SlpInputSource.FILE:
-      const fileStats = fs.fstatSync((ref as SlpFileSourceRef).fileDescriptor);
+      const fileStats = fs.fstatSync(ref.fileDescriptor);
       return fileStats.size;
     case SlpInputSource.BUFFER:
-      return (ref as SlpBufferSourceRef).buffer.length;
+      return ref.buffer.length;
     default:
       throw new Error("Source type not supported");
   }
@@ -125,7 +132,7 @@ export function openSlpFile(input: SlpReadInput): SlpFileType {
 export function closeSlpFile(file: SlpFileType): void {
   switch (file.ref.source) {
     case SlpInputSource.FILE:
-      fs.closeSync((file.ref as SlpFileSourceRef).fileDescriptor);
+      fs.closeSync(file.ref.fileDescriptor);
       break;
   }
 }
@@ -230,17 +237,14 @@ function getGameInfoBlock(view: DataView): GameInfoType {
     gameBitfield3: readUint8(view, 0x2 + offset),
     gameBitfield4: readUint8(view, 0x3 + offset),
     bombRainEnabled: (readUint8(view, 0x6 + offset)! & 0xff) > 0 ? true : false,
-    itemSpawnBehavior: readInt8(view, 0xb + offset),
     selfDestructScoreValue: readInt8(view, 0xc + offset),
-    //stageId: readUint16(view, 0xe + offset),
-    //gameTimer: readUint32(view, 0x10 + offset),
     itemSpawnBitfield1: readUint8(view, 0x23 + offset),
     itemSpawnBitfield2: readUint8(view, 0x24 + offset),
     itemSpawnBitfield3: readUint8(view, 0x25 + offset),
     itemSpawnBitfield4: readUint8(view, 0x26 + offset),
     itemSpawnBitfield5: readUint8(view, 0x27 + offset),
     damageRatio: readFloat(view, 0x30 + offset),
-  } as GameInfoType;
+  };
 }
 
 /**
@@ -381,7 +385,7 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
         const userId = userIdString ?? "";
 
         const offset = playerIndex * 0x24;
-        return {
+        const playerInfo: PlayerType = {
           playerIndex,
           port: playerIndex + 1,
           characterId: readUint8(view, 0x65 + offset),
@@ -409,6 +413,7 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
           connectCode,
           userId,
         };
+        return playerInfo;
       };
 
       const matchIdLength = 51;
@@ -420,7 +425,7 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
         .shift();
       const matchId = matchIdString ?? "";
 
-      return {
+      const gameSettings: GameStartType = {
         slpVersion: `${readUint8(view, 0x1)}.${readUint8(view, 0x2)}.${readUint8(view, 0x3)}`,
         timerType: readUint8(view, 0x5, 0x03),
         inGameMode: readUint8(view, 0x5, 0xe0),
@@ -444,6 +449,7 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
           tiebreakerNumber: readUint32(view, 0x2f5),
         },
       };
+      return gameSettings;
     case Command.FRAME_START:
       return {
         frame: readInt32(view, 0x1),
@@ -506,6 +512,8 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
         selfInducedSpeeds: selfInducedSpeeds,
         hitlagRemaining: readFloat(view, 0x49),
         animationIndex: readUint32(view, 0x4d),
+        instanceHitBy: readUint16(view, 0x51),
+        instanceId: readUint16(view, 0x53),
       };
     case Command.ITEM_UPDATE:
       return {
@@ -525,6 +533,7 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
         chargeShotLaunched: readUint8(view, 0x28),
         chargePower: readUint8(view, 0x29),
         owner: readInt8(view, 0x2a),
+        instanceId: readUint16(view, 0x2b),
       };
     case Command.FRAME_BOOKEND:
       return {

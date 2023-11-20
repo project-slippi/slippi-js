@@ -23,13 +23,13 @@ export enum ComboEvent {
   COMBO_END = "COMBO_END",
 }
 
-interface ComboState {
+type ComboState = {
   combo: ComboType | null;
   move: MoveLandedType | null;
   resetCounter: number;
   lastHitAnimation: number | null;
   event: ComboEvent | null;
-}
+};
 
 export class ComboComputer extends EventEmitter implements StatComputer<ComboType[]> {
   private playerPermutations = new Array<PlayerIndexedType>();

@@ -13,11 +13,11 @@ import type { StatComputer } from "./stats";
 // Frame pattern that indicates a dash dance turn was executed
 const dashDanceAnimations = [State.DASH, State.TURN, State.DASH];
 
-interface PlayerActionState {
+type PlayerActionState = {
   playerCounts: ActionCountsType;
   animations: number[];
   actionFrameCounters: number[];
-}
+};
 
 export class ActionsComputer implements StatComputer<ActionCountsType[]> {
   private playerPermutations = new Array<PlayerIndexedType>();
