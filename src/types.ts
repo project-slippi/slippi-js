@@ -197,6 +197,7 @@ export type PostFrameUpdateType = {
   lastHitBy: number | null;
   stocksRemaining: number | null;
   actionStateCounter: number | null;
+  flags: bigint | null;
   miscActionState: number | null;
   isAirborne: boolean | null;
   lastGroundId: number | null;
