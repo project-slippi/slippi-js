@@ -14,17 +14,32 @@ export enum DolphinMessageType {
 
 export class DolphinConnection extends EventEmitter implements Connection {
   private ipAddress: string;
+  private enet: any;
   private port: number;
   private connectionStatus = ConnectionStatus.DISCONNECTED;
   private gameCursor = 0;
   private nickname = "unknown";
   private version = "";
   private peer: any | null = null;
+  private client: any | null = null;
 
   public constructor() {
     super();
     this.ipAddress = "0.0.0.0";
     this.port = Ports.DEFAULT;
+  }
+
+  private async initClient() {
+    if (this.enet) {
+      return;
+    }
+    this.enet = await import("enet");
+    this.client = this.enet.createClient({ peers: MAX_PEERS, channels: 3, down: 0, up: 0 }, (err: any) => {
+      if (err) {
+        console.error(err);
+        return;
+      }
+    });
   }
 
   /**
@@ -53,20 +68,12 @@ export class DolphinConnection extends EventEmitter implements Connection {
   }
 
   public async connect(ip: string, port: number): Promise<void> {
+    await this.initClient();
     console.log(`Connecting to: ${ip}:${port}`);
     this.ipAddress = ip;
     this.port = port;
 
-    const enet = await import("enet");
-    // Create the enet client
-    const client = enet.createClient({ peers: MAX_PEERS, channels: 3, down: 0, up: 0 }, (err) => {
-      if (err) {
-        console.error(err);
-        return;
-      }
-    });
-
-    this.peer = client.connect(
+    this.peer = this.client?.connect(
       {
         address: this.ipAddress,
         port: this.port,
@@ -94,7 +101,7 @@ export class DolphinConnection extends EventEmitter implements Connection {
         type: "connect_request",
         cursor: this.gameCursor,
       };
-      const packet = new enet.Packet(JSON.stringify(request), enet.PACKET_FLAG.RELIABLE);
+      const packet = new this.enet.Packet(JSON.stringify(request), this.enet.PACKET_FLAG.RELIABLE);
       this.peer.send(0, packet);
     });
 
