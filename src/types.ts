@@ -9,6 +9,9 @@ export enum Command {
   ITEM_UPDATE = 0x3b,
   FRAME_BOOKEND = 0x3c,
   GECKO_LIST = 0x3d,
+  FOD_PLATFORM = 0x3f,
+  WHISPY = 0x40,
+  STADIUM_TRANSFORMATION = 0x41,
 }
 
 export type PlayerType = {
@@ -274,6 +277,50 @@ export type GeckoCodeType = {
   contents: Uint8Array;
 };
 
+export enum FODPlatformSide {
+  RIGHT = 0,
+  LEFT = 1,
+}
+
+export type FODPlatformType = {
+  frame: number;
+  platform: FODPlatformSide;
+  height: number;
+};
+
+export enum WhispyBlowDirection {
+  NONE = 0,
+  LEFT = 1,
+  RIGHT = 2,
+}
+
+export type WhispyType = {
+  frame: number;
+  direction: WhispyBlowDirection;
+};
+
+export enum StadiumTransformation {
+  FIRE = 3,
+  GRASS = 4,
+  NORMAL = 5,
+  ROCK = 6,
+  WATER = 9,
+}
+
+export enum StadiumTransformationEvent {
+  INITIATE = 2,
+  ON_MONITOR = 3,
+  RECEDING = 4,
+  RISING = 5,
+  FINISH = 6,
+}
+
+export type StadiumTransformationType = {
+  frame: number;
+  event: StadiumTransformationEvent;
+  transformation: StadiumTransformation;
+};
+
 export type MetadataType = {
   startAt?: string | null;
   playedOn?: string | null;
@@ -300,13 +347,18 @@ export type EventPayloadTypes =
   | ItemUpdateType
   | FrameBookendType
   | GameEndType
-  | GeckoListType;
+  | GeckoListType
+  | FODPlatformType
+  | WhispyType
+  | StadiumTransformationType;
 
 export type EventCallbackFunc = (
   command: Command,
   payload?: EventPayloadTypes | null,
   buffer?: Uint8Array | null,
 ) => boolean;
+
+export type StageEventTypes = FODPlatformType | WhispyType | StadiumTransformationType;
 
 export type FrameEntryType = {
   frame: number;
@@ -324,6 +376,7 @@ export type FrameEntryType = {
     } | null;
   };
   items?: ItemUpdateType[];
+  stageEvents?: StageEventTypes[];
 };
 
 export enum Frames {
