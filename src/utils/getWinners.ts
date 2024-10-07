@@ -53,6 +53,25 @@ export function getWinners(
     return [];
   }
 
+  // should only be true for legacy slps with no placements (< 3.13.0) or games without gameEnd payload
+  if (placements.every((placement) => placement.position === null) && gameEndMethod === GameEndMethod.GAME) {
+    if (players.length === 2) {
+      const p1Idx = players[0]?.playerIndex;
+      const p2Idx = players[1]?.playerIndex;
+      const p1FinalFrame = finalPostFrameUpdates.find((pfu) => pfu.playerIndex === p1Idx);
+      const p2FinalFrame = finalPostFrameUpdates.find((pfu) => pfu.playerIndex === p2Idx);
+      if (p2FinalFrame?.stocksRemaining === 0 && p1FinalFrame?.stocksRemaining && p1FinalFrame.stocksRemaining > 0) {
+        return [{ playerIndex: p1Idx ?? -1, position: 0 }];
+      } else if (
+        p1FinalFrame?.stocksRemaining === 0 &&
+        p2FinalFrame?.stocksRemaining &&
+        p2FinalFrame.stocksRemaining > 0
+      ) {
+        return [{ playerIndex: p2Idx ?? -1, position: 0 }];
+      }
+    }
+  }
+
   const firstPosition = placements.find((placement) => placement.position === 0);
   if (!firstPosition) {
     return [];
