@@ -67,10 +67,12 @@ export function getWinners(
       const p2Idx = players[1]?.playerIndex!;
       const p1Stocks = latestFrame.players[0]?.post.stocksRemaining;
       const p2Stocks = latestFrame.players[p2Idx]?.post.stocksRemaining;
-      if (p2Stocks && p2Stocks === 0 && p1Stocks && p1Stocks > 0) {
-        return [{ playerIndex: p1Idx, position: 0 }];
-      } else if (p1Stocks && p1Stocks === 0 && p2Stocks && p2Stocks > 0) {
-        return [{ playerIndex: p2Idx, position: 0 }];
+      if (p1Stocks !== undefined && p1Stocks !== null && p2Stocks !== undefined && p2Stocks !== null) {
+        if (p2Stocks === 0 && p1Stocks > 0) {
+          return [{ playerIndex: p1Idx, position: 0 }];
+        } else if (p1Stocks === 0 && p2Stocks > 0) {
+          return [{ playerIndex: p2Idx, position: 0 }];
+        }
       }
     }
   }
