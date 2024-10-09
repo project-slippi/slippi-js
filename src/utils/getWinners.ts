@@ -1,4 +1,4 @@
-import type { GameEndType, GameStartType, PlacementType, PostFrameUpdateType } from "../types";
+import type { FrameEntryType, GameEndType, GameStartType, PlacementType, PostFrameUpdateType } from "../types";
 import { GameEndMethod } from "../types";
 import { exists } from "./exists";
 
@@ -6,6 +6,7 @@ export function getWinners(
   gameEnd: GameEndType,
   settings: Pick<GameStartType, "players" | "isTeams">,
   finalPostFrameUpdates: PostFrameUpdateType[],
+  latestFrame: FrameEntryType | null,
 ): PlacementType[] {
   const { placements, gameEndMethod, lrasInitiatorIndex } = gameEnd;
   const { players, isTeams } = settings;
@@ -54,20 +55,22 @@ export function getWinners(
   }
 
   // should only be true for legacy slps with no placements (< 3.13.0) or games without gameEnd payload
-  if (placements.every((placement) => placement.position === null) && gameEndMethod === GameEndMethod.GAME) {
+  // should probably be expanded to include doubles/ffa but only works on signles for now
+  if (
+    latestFrame &&
+    placements.every((placement) => placement.position === null) &&
+    gameEndMethod === GameEndMethod.GAME
+  ) {
     if (players.length === 2) {
-      const p1Idx = players[0]?.playerIndex;
-      const p2Idx = players[1]?.playerIndex;
-      const p1FinalFrame = finalPostFrameUpdates.find((pfu) => pfu.playerIndex === p1Idx);
-      const p2FinalFrame = finalPostFrameUpdates.find((pfu) => pfu.playerIndex === p2Idx);
-      if (p2FinalFrame?.stocksRemaining === 0 && p1FinalFrame?.stocksRemaining && p1FinalFrame.stocksRemaining > 0) {
-        return [{ playerIndex: p1Idx ?? -1, position: 0 }];
-      } else if (
-        p1FinalFrame?.stocksRemaining === 0 &&
-        p2FinalFrame?.stocksRemaining &&
-        p2FinalFrame.stocksRemaining > 0
-      ) {
-        return [{ playerIndex: p2Idx ?? -1, position: 0 }];
+      // not sure how safe the !s are here
+      const p1Idx = players[0]?.playerIndex!;
+      const p2Idx = players[1]?.playerIndex!;
+      const p1Stocks = latestFrame.players[0]?.post.stocksRemaining;
+      const p2Stocks = latestFrame.players[p2Idx]?.post.stocksRemaining;
+      if (p2Stocks && p2Stocks === 0 && p1Stocks && p1Stocks > 0) {
+        return [{ playerIndex: p1Idx, position: 0 }];
+      } else if (p1Stocks && p1Stocks === 0 && p2Stocks && p2Stocks > 0) {
+        return [{ playerIndex: p2Idx, position: 0 }];
       }
     }
   }

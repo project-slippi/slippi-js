@@ -289,7 +289,9 @@ export class SlippiGame {
       finalPostFrameUpdates = extractFinalPostFrameUpdates(slpfile);
     }
 
+    const latestFrame = this.getLatestFrame();
+
     closeSlpFile(slpfile);
-    return getWinners(gameEnd, settings, finalPostFrameUpdates);
+    return getWinners(gameEnd, settings, finalPostFrameUpdates, latestFrame);
   }
 }
