@@ -16,7 +16,7 @@ import type {
   ItemUpdateType,
   PostFrameUpdateType,
   PreFrameUpdateType,
-  FODPlatformType,
+  FodPlatformType,
   WhispyType,
   StadiumTransformationType,
   RollbackFrames,
@@ -96,7 +96,7 @@ export class SlpParser extends EventEmitter {
         this._handleGeckoList(payload as GeckoListType);
         break;
       case Command.FOD_PLATFORM:
-        this._handleStageEvent(payload as FODPlatformType);
+        this._handleStageEvent(payload as FodPlatformType);
         break;
       case Command.WHISPY:
         this._handleStageEvent(payload as WhispyType);

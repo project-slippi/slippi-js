@@ -1,4 +1,4 @@
-import { Frames, SlippiGame, StadiumTransformationEvent, FODPlatformSide, WhispyBlowDirection } from "../src";
+import { Frames, SlippiGame, StadiumTransformationEvent, FodPlatformSide, WhispyBlowDirection } from "../src";
 
 describe("when extracting stadium transformation information", () => {
   it("should properly increment event ids", () => {
@@ -27,7 +27,7 @@ describe("when extracting stadium transformation information", () => {
 
 describe("when extracting FOD platform information", () => {
   it("should properly parse platform height", () => {
-    const game = new SlippiGame("slp/FODPlatforms.slp");
+    const game = new SlippiGame("slp/FodPlatforms.slp");
     const frames = game.getFrames();
 
     let prevHeightLeft = 20.0;
@@ -36,7 +36,7 @@ describe("when extracting FOD platform information", () => {
       const frame = frames[frameNum];
       if (frame.stageEvents) {
         frame.stageEvents.forEach((e) => {
-          if (e.platform == FODPlatformSide.LEFT) {
+          if (e.platform == FodPlatformSide.LEFT) {
             expect(Math.abs(e.height - prevHeightLeft)).toBeLessThan(0.2);
             prevHeightLeft = e.height;
           } else {

@@ -277,14 +277,14 @@ export type GeckoCodeType = {
   contents: Uint8Array;
 };
 
-export enum FODPlatformSide {
+export enum FodPlatformSide {
   RIGHT = 0,
   LEFT = 1,
 }
 
-export type FODPlatformType = {
+export type FodPlatformType = {
   frame: number;
-  platform: FODPlatformSide;
+  platform: FodPlatformSide;
   height: number;
 };
 
@@ -348,7 +348,7 @@ export type EventPayloadTypes =
   | FrameBookendType
   | GameEndType
   | GeckoListType
-  | FODPlatformType
+  | FodPlatformType
   | WhispyType
   | StadiumTransformationType;
 
@@ -358,7 +358,7 @@ export type EventCallbackFunc = (
   buffer?: Uint8Array | null,
 ) => boolean;
 
-export type StageEventTypes = FODPlatformType | WhispyType | StadiumTransformationType;
+export type StageEventTypes = FodPlatformType | WhispyType | StadiumTransformationType;
 
 export type FrameEntryType = {
   frame: number;
