@@ -20,6 +20,7 @@ export class DolphinConnection extends EventEmitter implements Connection {
   private nickname = "unknown";
   private version = "";
   private peer: any | null = null;
+  private client: any | null;
 
   public constructor() {
     super();
@@ -59,14 +60,14 @@ export class DolphinConnection extends EventEmitter implements Connection {
 
     const enet = await import("enet");
     // Create the enet client
-    const client = enet.createClient({ peers: MAX_PEERS, channels: 3, down: 0, up: 0 }, (err) => {
+    this.client = enet.createClient({ peers: MAX_PEERS, channels: 3, down: 0, up: 0 }, (err) => {
       if (err) {
         console.error(err);
         return;
       }
     });
 
-    this.peer = client.connect(
+    this.peer = this.client.connect(
       {
         address: this.ipAddress,
         port: this.port,
@@ -158,6 +159,10 @@ export class DolphinConnection extends EventEmitter implements Connection {
     if (this.peer) {
       this.peer.disconnect();
       this.peer = null;
+    }
+    if (this.client) {
+      this.client.destroy();
+      this.client = null;
     }
     this._setStatus(ConnectionStatus.DISCONNECTED);
   }
