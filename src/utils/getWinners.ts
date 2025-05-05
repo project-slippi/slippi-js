@@ -1,4 +1,4 @@
-import type { GameEndType, GameStartType, PlacementType, PostFrameUpdateType } from "../types";
+import type { FrameEntryType, GameEndType, GameStartType, PlacementType, PostFrameUpdateType } from "../types";
 import { GameEndMethod } from "../types";
 import { exists } from "./exists";
 
@@ -6,6 +6,7 @@ export function getWinners(
   gameEnd: GameEndType,
   settings: Pick<GameStartType, "players" | "isTeams">,
   finalPostFrameUpdates: PostFrameUpdateType[],
+  latestFrame: FrameEntryType | null,
 ): PlacementType[] {
   const { placements, gameEndMethod, lrasInitiatorIndex } = gameEnd;
   const { players, isTeams } = settings;
@@ -51,6 +52,29 @@ export function getWinners(
 
     // If stocks and percents were tied, no winner
     return [];
+  }
+
+  // should only be true for legacy slps with no placements (< 3.13.0) or games without gameEnd payload
+  // should probably be expanded to include doubles/ffa but only works on signles for now
+  if (
+    latestFrame &&
+    placements.every((placement) => placement.position === null) &&
+    gameEndMethod === GameEndMethod.GAME
+  ) {
+    if (players.length === 2) {
+      // not sure how safe the !s are here
+      const p1Idx = players[0]?.playerIndex!;
+      const p2Idx = players[1]?.playerIndex!;
+      const p1Stocks = latestFrame.players[0]?.post.stocksRemaining;
+      const p2Stocks = latestFrame.players[p2Idx]?.post.stocksRemaining;
+      if (p1Stocks !== undefined && p1Stocks !== null && p2Stocks !== undefined && p2Stocks !== null) {
+        if (p2Stocks === 0 && p1Stocks > 0) {
+          return [{ playerIndex: p1Idx, position: 0 }];
+        } else if (p1Stocks === 0 && p2Stocks > 0) {
+          return [{ playerIndex: p2Idx, position: 0 }];
+        }
+      }
+    }
   }
 
   const firstPosition = placements.find((placement) => placement.position === 0);
