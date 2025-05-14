@@ -65,3 +65,4 @@ dist/
 
 # Mac
 .DS_Store
+.tool-versions

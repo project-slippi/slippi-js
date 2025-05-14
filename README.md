@@ -70,7 +70,7 @@ To use the example script:
 
 1. Open a terminal prompt in root project folder
 2. Run `cd examples`
-3. Run `yarn install` to fetch the dependencies
+3. Run `npm install` to fetch the dependencies
 4. Run `node realtimeFileReads.js "C:\mirror\output\path"` replacing the path argument with where your connected console outputs replay files to
 
 At this point, you should see an output as you play games on the connected console.
@@ -82,19 +82,19 @@ At this point, you should see an output as you play games on the connected conso
 ```bash
 git clone https://github.com/project-slippi/slippi-js
 cd slippi-js
-yarn install
+npm install
 ```
 
 ### Build
 
 ```bash
-yarn run build
+npm run build
 ```
 
-You can also run `yarn run watch` to continuously build whenever changes are detected.
+You can also run `npm run watch` to continuously build whenever changes are detected.
 
 ### Test
 
 ```bash
-yarn run test
+npm run test
 ```
