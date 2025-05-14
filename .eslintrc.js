@@ -34,7 +34,6 @@ module.exports = {
     "import/no-named-as-default-member": "off",
     "simple-import-sort/imports": "warn",
     "simple-import-sort/exports": "warn",
-    // "strict-booleans/no-nullable-numbers": "error",
     "no-undef": "off",
     "new-cap": "error",
     curly: "error",
