@@ -27,21 +27,21 @@
   },
   "scripts": {
     "clean": "rimraf dist",
-    "prebuild": "yarn run clean",
+    "prebuild": "npm run clean",
     "start": "dts watch --target node",
     "build:check": "tsc --noEmit",
     "build": "tsc --noEmit && dts build --target node",
-    "coverage": "yarn run test --coverage",
+    "coverage": "npm run test --coverage",
     "postcoverage": "open-cli coverage/lcov-report/index.html",
     "test": "dts test --runInBand --verbose",
-    "test:watch": "yarn run test --watchAll --coverage",
-    "test:ci": "yarn run test --ci --coverage",
+    "test:watch": "npm run test --watchAll --coverage",
+    "test:ci": "npm run test --ci --coverage",
     "lint": "dts lint src",
     "lint:fix": "dts lint src --fix",
     "patch": "npm version patch && npm publish",
     "minor": "npm version minor && npm publish",
     "major": "npm version major && npm publish",
-    "prepublishOnly": "yarn run lint && yarn run test && yarn run build"
+    "prepublishOnly": "npm run lint && npm run test && npm run build"
   },
   "keywords": [
     "slp-parser-js",
@@ -71,7 +71,6 @@
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-prettier": "^3.2.0",
     "eslint-plugin-simple-import-sort": "^7.0.0",
-    "eslint-plugin-strict-booleans": "^1.0.0",
     "husky": "^4.2.5",
     "open-cli": "^7.0.1",
     "prettier": "^2.0.5",
@@ -83,7 +82,7 @@
   "husky": {
     "hooks": {
       "pre-commit": "pretty-quick --staged",
-      "pre-push": "yarn lint --quiet"
+      "pre-push": "npm run lint --quiet"
     }
   }
 }
