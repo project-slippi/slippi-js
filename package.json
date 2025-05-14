@@ -68,6 +68,7 @@
     "@typescript-eslint/eslint-plugin": "^5.1.0",
     "@typescript-eslint/parser": "^5.1.0",
     "dts-cli": "^1.1.6",
+    "eslint-plugin-flowtype": "^8.0.3",
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-prettier": "^3.2.0",
     "eslint-plugin-simple-import-sort": "^7.0.0",
