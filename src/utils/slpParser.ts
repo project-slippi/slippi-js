@@ -16,7 +16,11 @@ import type {
   ItemUpdateType,
   PostFrameUpdateType,
   PreFrameUpdateType,
+  FodPlatformType,
+  WhispyType,
+  StadiumTransformationType,
   RollbackFrames,
+  StageEventTypes,
 } from "../types";
 import { ItemSpawnType } from "../types";
 import { Command, Frames, GameMode } from "../types";
@@ -90,6 +94,15 @@ export class SlpParser extends EventEmitter {
         break;
       case Command.GECKO_LIST:
         this._handleGeckoList(payload as GeckoListType);
+        break;
+      case Command.FOD_PLATFORM:
+        this._handleStageEvent(payload as FodPlatformType);
+        break;
+      case Command.WHISPY:
+        this._handleStageEvent(payload as WhispyType);
+        break;
+      case Command.STADIUM_TRANSFORMATION:
+        this._handleStageEvent(payload as StadiumTransformationType);
         break;
     }
   }
@@ -291,6 +304,15 @@ export class SlpParser extends EventEmitter {
       // Since we don't have a valid finalized frame, just finalize the frame based on MAX_ROLLBACK_FRAMES
       this._finalizeFrames(currentFrameNumber - MAX_ROLLBACK_FRAMES);
     }
+  }
+
+  private _handleStageEvent(payload: StageEventTypes): void {
+    const currentFrameNumber = payload.frame!;
+    const stageEvents = this.frames[currentFrameNumber]?.stageEvents ?? [];
+    stageEvents.push(payload);
+
+    // Set stageEvents with newest
+    set(this.frames, [currentFrameNumber, "stageEvents"], stageEvents);
   }
 
   /**
