@@ -662,7 +662,7 @@ export function getMetadata(slpFile: SlpFileType): MetadataType | null {
 
   let metadata = null;
   try {
-    metadata = decode(buffer);
+    metadata = decode(buffer.buffer);
   } catch (ex) {
     // Do nothing
     // console.log(ex);
