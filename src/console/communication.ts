@@ -40,7 +40,7 @@ export class ConsoleCommunication {
 
       // Here we have received all the data, so let's decode it
       const ubjsonData = this.receiveBuf.slice(4, msgSize + 4);
-      this.messages.push(decode(ubjsonData));
+      this.messages.push(decode(ubjsonData.buffer));
 
       // Remove the processed data from receiveBuf
       this.receiveBuf = this.receiveBuf.slice(msgSize + 4);
