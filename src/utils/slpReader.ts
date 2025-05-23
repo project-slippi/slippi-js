@@ -503,6 +503,7 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
         lastHitBy: readUint8(view, 0x20),
         stocksRemaining: readUint8(view, 0x21),
         actionStateCounter: readFloat(view, 0x22),
+        flags: readFlags(view, 0x26),
         miscActionState: readFloat(view, 0x2b),
         isAirborne: readBool(view, 0x2f),
         lastGroundId: readUint16(view, 0x30),
@@ -647,6 +648,17 @@ function readBool(view: DataView, offset: number): boolean | null {
   }
 
   return !!view.getUint8(offset);
+}
+
+function readFlags(view: DataView, offset: number): bigint | null {
+  if (!canReadFromView(view, offset, 8)) {
+    return null;
+  }
+
+  // this overreads by 3 bytes, but those 3 bytes will always exist in any replay that has Flags,
+  // and we just mask off the extra that we don't need. We're essentially reading in a byte array
+  // so it needs to be read as little endian.
+  return view.getBigUint64(offset, true) & BigInt(0x0000_00ff_ffff_ffff);
 }
 
 export function getMetadata(slpFile: SlpFileType): MetadataType | null {
