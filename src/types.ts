@@ -283,9 +283,9 @@ export enum FodPlatformSide {
 }
 
 export type FodPlatformType = {
-  frame: number;
-  platform: FodPlatformSide;
-  height: number;
+  frame: number | null;
+  platform: FodPlatformSide | null;
+  height: number | null;
 };
 
 export enum WhispyBlowDirection {
@@ -295,8 +295,8 @@ export enum WhispyBlowDirection {
 }
 
 export type WhispyType = {
-  frame: number;
-  direction: WhispyBlowDirection;
+  frame: number | null;
+  direction: WhispyBlowDirection | null;
 };
 
 export enum StadiumTransformation {
@@ -316,9 +316,9 @@ export enum StadiumTransformationEvent {
 }
 
 export type StadiumTransformationType = {
-  frame: number;
-  event: StadiumTransformationEvent;
-  transformation: StadiumTransformation;
+  frame: number | null;
+  event: StadiumTransformationEvent | null;
+  transformation: StadiumTransformation | null;
 };
 
 export type MetadataType = {
