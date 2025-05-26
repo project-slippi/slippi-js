@@ -583,6 +583,23 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
         contents: payload.slice(1),
         codes: codes,
       };
+    case Command.FOD_PLATFORM:
+      return {
+        frame: readInt32(view, 0x1),
+        platform: readInt8(view, 0x5),
+        height: readFloat(view, 0x6),
+      };
+    case Command.WHISPY:
+      return {
+        frame: readInt32(view, 0x1),
+        direction: readInt8(view, 0x5),
+      };
+    case Command.STADIUM_TRANSFORMATION:
+      return {
+        frame: readInt32(view, 0x1),
+        event: readUint16(view, 0x5),
+        transformation: readUint16(view, 0x7),
+      };
     default:
       return null;
   }
