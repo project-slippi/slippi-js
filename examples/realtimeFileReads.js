@@ -64,9 +64,8 @@ watcher.on("change", (path) => {
     }
 
     console.log(
-      `${characterUtils.getCharacterName(player.characterId)} [Port ${player.port}] ${frameData.post.percent.toFixed(
-        1,
-      )}% | ${frameData.post.stocksRemaining} stocks`,
+      `${characterUtils.getCharacterName(player.characterId)} [Port ${player.port}] ` +
+        `${frameData.post.percent.toFixed(1)}% | ${frameData.post.stocksRemaining} stocks`,
     );
   });
 
