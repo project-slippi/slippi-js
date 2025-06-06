@@ -1,4 +1,4 @@
-const { SlippiGame } = require("@slippi/slippi-js");
+const { SlippiGame, characters: characterUtils } = require("@slippi/slippi-js");
 const chokidar = require("chokidar");
 const _ = require("lodash");
 
@@ -64,7 +64,9 @@ watcher.on("change", (path) => {
     }
 
     console.log(
-      `[Port ${player.port}] ${frameData.post.percent.toFixed(1)}% | ` + `${frameData.post.stocksRemaining} stocks`,
+      `${characterUtils.getCharacterName(player.characterId)} [Port ${player.port}] ${frameData.post.percent.toFixed(
+        1,
+      )}% | ${frameData.post.stocksRemaining} stocks`,
     );
   });
 
