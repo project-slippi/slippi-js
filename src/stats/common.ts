@@ -1,4 +1,5 @@
 import type { GameStartType, PostFrameUpdateType } from "../types";
+import { Stage } from "../melee/types";
 
 export type StatsType = {
   gameComplete: boolean;
@@ -176,6 +177,8 @@ export enum State {
   TECH_END = 0xcc,
   DYING_START = 0x0,
   DYING_END = 0xa,
+  LEDGE_ACTION_START = 0xfc,
+  LEDGE_ACTION_END = 0x107,
   CONTROLLED_JUMP_START = 0x18,
   CONTROLLED_JUMP_END = 0x22,
   GROUND_ATTACK_START = 0x2c,
@@ -186,6 +189,12 @@ export enum State {
   ATTACK_FTILT_END = 0x37,
   ATTACK_FSMASH_START = 0x3a,
   ATTACK_FSMASH_END = 0x3e,
+  GUARD_BREAK_START = 0xcd,
+  GUARD_BREAK_END = 0xd3,
+  DODGE_START = 0xe9,
+  DODGE_END = 0xec,
+  FALL_SPECIAL_START = 0x23,
+  FALL_SPECIAL_END = 0x25,
 
   // Animation ID specific
   ROLL_FORWARD = 0xe9,
@@ -293,15 +302,6 @@ export function didLoseStock(frame: PostFrameUpdateType, prevFrame: PostFrameUpd
   return prevFrame.stocksRemaining! - frame.stocksRemaining! > 0;
 }
 
-export function isInControl(state: number): boolean {
-  const ground = state >= State.GROUNDED_CONTROL_START && state <= State.GROUNDED_CONTROL_END;
-  const squat = state >= State.SQUAT_START && state <= State.SQUAT_END;
-  const groundAttack = state > State.GROUND_ATTACK_START && state <= State.GROUND_ATTACK_END;
-  const isGrab = state === State.GRAB;
-  // TODO: Add grounded b moves?
-  return ground || squat || groundAttack || isGrab;
-}
-
 export function isTeching(state: number): boolean {
   return state >= State.TECH_START && state <= State.TECH_END;
 }
@@ -332,8 +332,123 @@ export function isCommandGrabbed(state: number): boolean {
   );
 }
 
+export function isOffstage(
+  position: (number | null)[],
+  isAirborne: boolean | null,
+  currStage?: number | null,
+): boolean {
+  if (!position || !currStage || isAirborne === false) {
+    //if isAirborne is null, run the check anyway for backwards compatibility
+    return false;
+  }
+  //-5 is below the main part of all legal stages. Just ignore the X value if the player is at or below this
+  if (position[1]! <= -5) {
+    return true;
+  }
+
+  let stageBounds = [0, 0];
+  switch (currStage) {
+    case Stage.FOUNTAIN_OF_DREAMS:
+      stageBounds = [-64, 64];
+      break;
+    case Stage.YOSHIS_STORY:
+      stageBounds = [-56, 56];
+      break;
+    case Stage.DREAMLAND:
+      stageBounds = [-73, 73];
+      break;
+    case Stage.POKEMON_STADIUM:
+      stageBounds = [-88, 88];
+      break;
+    case Stage.BATTLEFIELD:
+      stageBounds = [-67, 67];
+      break;
+    case Stage.FINAL_DESTINATION:
+      stageBounds = [-89, 89];
+      break;
+    default:
+      return false;
+  }
+  return position[0]! < stageBounds[0]! && position[0]! > stageBounds[1]!;
+}
+
+export function isDodging(state: number): boolean {
+  //not the greatest term, but captures rolling, spot dodging, and air dodging
+  return state >= State.DODGE_START && state <= State.DODGE_END;
+}
+
+export function isShielding(state: number): boolean {
+  return state >= State.GUARD_START && state <= State.GUARD_END;
+}
+
 export function isDead(state: number): boolean {
   return state >= State.DYING_START && state <= State.DYING_END;
+}
+
+export function isShieldBroken(state: number): boolean {
+  return state >= State.GUARD_BREAK_START && state <= State.GUARD_BREAK_END;
+}
+
+export function isLedgeAction(state: number): boolean {
+  return state >= State.LEDGE_ACTION_START && state <= State.LEDGE_ACTION_END;
+}
+
+export function isMaybeJuggled(
+  position: (number | null)[],
+  isAirborne: boolean | null,
+  currStage?: number | null,
+): boolean {
+  if (!position || !currStage || !isAirborne) {
+    return false;
+  }
+
+  let stageBounds = 0;
+
+  switch (currStage) {
+    case Stage.FOUNTAIN_OF_DREAMS:
+      stageBounds = 42;
+      break;
+    case Stage.YOSHIS_STORY:
+      stageBounds = 41;
+      break;
+    case Stage.DREAMLAND:
+      stageBounds = 51;
+      break;
+    case Stage.POKEMON_STADIUM:
+      //similar side plat heights to yoshi's, so we can steal the top plat height as well
+      stageBounds = 41;
+      break;
+    case Stage.BATTLEFIELD:
+      stageBounds = 54;
+      break;
+    case Stage.FINAL_DESTINATION:
+      //No plats, so we'll just use a lower-than-average value
+      stageBounds = 10; // or 45
+      break;
+    default:
+      return false;
+  }
+  return position[1]! >= stageBounds!;
+}
+
+export function isSpecialFall(state: number): boolean {
+  return state >= State.FALL_SPECIAL_START && state <= State.FALL_SPECIAL_END;
+}
+
+export function isUpBLag(state: number, prevState: number | null | undefined): boolean {
+  if (!state || !prevState) {
+    return false;
+  }
+  //allows resetting timer for land_fall_special without triggering due to wavedash/waveland
+  //specifically useful for up b's like sheik's that have a unique animation id for ~40 frames of the endlag
+  //rather than just going straight into fall_special -> land_fall_special
+  return (
+    state == State.LANDING_FALL_SPECIAL &&
+    prevState != State.LANDING_FALL_SPECIAL &&
+    prevState != State.ACTION_KNEE_BEND &&
+    prevState != State.AIR_DODGE &&
+    (prevState <= State.CONTROLLED_JUMP_START || prevState >= State.CONTROLLED_JUMP_END)
+  );
 }
 
 export function calcDamageTaken(frame: PostFrameUpdateType, prevFrame: PostFrameUpdateType): number {
