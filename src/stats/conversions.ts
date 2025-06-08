@@ -15,6 +15,7 @@ import {
   isDamaged,
   isGrabbed,
   isInControl,
+  isInHitstun,
   Timers,
 } from "./common";
 import type { StatComputer } from "./stats";
@@ -146,6 +147,7 @@ function handleConversionCompute(
   const opntIsGrabbed = isGrabbed(oppActionStateId);
   const opntIsCommandGrabbed = isCommandGrabbed(oppActionStateId);
   const opntDamageTaken = prevOpponentFrame ? calcDamageTaken(opponentFrame, prevOpponentFrame) : 0;
+  const opntInHitstun = isInHitstun(opponentFrame.flags ?? BigInt(0));
 
   // Keep track of whether actionState changes after a hit. Used to compute move count
   // When purely using action state there was a bug where if you did two of the same
@@ -163,7 +165,7 @@ function handleConversionCompute(
 
   // If opponent took damage and was put in some kind of stun this frame, either
   // start a conversion or
-  if (opntIsDamaged || opntIsGrabbed || opntIsCommandGrabbed) {
+  if (opntIsDamaged || opntIsGrabbed || opntIsCommandGrabbed || opntInHitstun) {
     if (!state.conversion) {
       state.conversion = {
         playerIndex: indices.opponentIndex,
@@ -221,7 +223,7 @@ function handleConversionCompute(
     state.conversion.currentPercent = opponentFrame.percent ?? 0;
   }
 
-  if (opntIsDamaged || opntIsGrabbed || opntIsCommandGrabbed) {
+  if (opntIsDamaged || opntIsGrabbed || opntIsCommandGrabbed || opntInHitstun) {
     // If opponent got grabbed or damaged, reset the reset counter
     state.resetCounter = 0;
   }
