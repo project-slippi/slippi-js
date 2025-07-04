@@ -300,6 +300,7 @@ export class SlpFile extends Writable {
     // End the stream
     if (this.fileStream) {
       this.fileStream.write(footer, callback);
+      this.fileStream.close();
     }
   }
 }
