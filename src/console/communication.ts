@@ -39,11 +39,14 @@ export class ConsoleCommunication {
       }
 
       // Here we have received all the data, so let's decode it
-      const ubjsonData = this.receiveBuf.slice(4, msgSize + 4);
-      this.messages.push(decode(ubjsonData.buffer));
+      const ubjsonArrayBuffer = this.receiveBuf.buffer.slice(
+        this.receiveBuf.byteOffset + 4,
+        this.receiveBuf.byteOffset + msgSize + 4,
+      );
+      this.messages.push(decode(ubjsonArrayBuffer));
 
       // Remove the processed data from receiveBuf
-      this.receiveBuf = this.receiveBuf.slice(msgSize + 4);
+      this.receiveBuf = this.receiveBuf.subarray(msgSize + 4);
     }
   }
 
