@@ -216,7 +216,7 @@ describe("when reading match info", () => {
     const matchInfo = settings?.matchInfo;
     expect(matchInfo?.gameNumber).toBe(1);
     expect(matchInfo?.tiebreakerNumber).toBe(1);
-    expect(matchInfo?.matchId).toBe("mode.ranked-2022-12-20T05:36:47.50-0");
+    expect(matchInfo?.sessionId).toBe("mode.ranked-2022-12-20T05:36:47.50-0");
   });
 
   it("should return the correct match info for unranked across multiple games", () => {
@@ -225,14 +225,14 @@ describe("when reading match info", () => {
     const matchInfoGame1 = settingsGame1?.matchInfo;
     expect(matchInfoGame1?.gameNumber).toBe(1);
     expect(matchInfoGame1?.tiebreakerNumber).toBe(0);
-    expect(matchInfoGame1?.matchId).toBe("mode.unranked-2022-12-21T02:26:27.50-0");
+    expect(matchInfoGame1?.sessionId).toBe("mode.unranked-2022-12-21T02:26:27.50-0");
 
     const game2 = new SlippiGame("slp/unranked_game2.slp");
     const settingsGame2 = game2.getSettings();
     const matchInfoGame2 = settingsGame2?.matchInfo;
     expect(matchInfoGame2?.gameNumber).toBe(2);
     expect(matchInfoGame2?.tiebreakerNumber).toBe(0);
-    expect(matchInfoGame2?.matchId).toBe(matchInfoGame1?.matchId);
+    expect(matchInfoGame2?.sessionId).toBe(matchInfoGame1?.sessionId);
   });
 
   it("should return null values for old replays", () => {
@@ -241,7 +241,7 @@ describe("when reading match info", () => {
     const matchInfo = settings?.matchInfo;
     expect(matchInfo?.gameNumber).toBe(null);
     expect(matchInfo?.tiebreakerNumber).toBe(null);
-    expect(matchInfo?.matchId).toBe("");
+    expect(matchInfo?.sessionId).toBe("");
   });
 });
 

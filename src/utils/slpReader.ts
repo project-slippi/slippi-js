@@ -416,14 +416,14 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
         return playerInfo;
       };
 
-      const matchIdLength = 51;
-      const matchIdStart = 0x2be;
-      const matchIdBuf = payload.slice(matchIdStart, matchIdStart + matchIdLength);
-      const matchIdString = iconv
-        .decode(matchIdBuf as Buffer, "utf8")
+      const sessionIdLength = 51;
+      const sessionIdStart = 0x2be;
+      const sessionIdBuf = payload.slice(sessionIdStart, sessionIdStart + sessionIdLength);
+      const sessionIdString = iconv
+        .decode(sessionIdBuf as Buffer, "utf8")
         .split("\0")
         .shift();
-      const matchId = matchIdString ?? "";
+      const sessionId = sessionIdString ?? "";
 
       const gameSettings: GameStartType = {
         slpVersion: `${readUint8(view, 0x1)}.${readUint8(view, 0x2)}.${readUint8(view, 0x3)}`,
@@ -444,9 +444,11 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
         isPAL: readBool(view, 0x1a1),
         isFrozenPS: readBool(view, 0x1a2),
         matchInfo: {
-          matchId,
+          sessionId: sessionId,
           gameNumber: readUint32(view, 0x2f1),
           tiebreakerNumber: readUint32(view, 0x2f5),
+          /** remove in v8 */
+          matchId: sessionId,
         },
       };
       return gameSettings;

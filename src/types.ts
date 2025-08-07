@@ -77,9 +77,12 @@ export type GameStartType = {
 };
 
 type MatchInfo = {
-  matchId: string | null;
+  sessionId: string | null;
   gameNumber: number | null;
   tiebreakerNumber: number | null;
+
+  /** @deprecated since version 7.1.1. use sessionId instead */
+  matchId: string | null;
 };
 
 export type FrameStartType = {
