@@ -128,7 +128,7 @@ function isGrabbing(animation: State): boolean {
 }
 
 function isAerialLanding(animation: State): boolean {
-  return animation >= State.AERIAL_LANDING_START && animation <= State.AERIAL_ATTACK_END;
+  return animation >= State.AERIAL_LANDING_START && animation <= State.AERIAL_LANDING_END;
 }
 
 function isForwardTilt(animation: State): boolean {
