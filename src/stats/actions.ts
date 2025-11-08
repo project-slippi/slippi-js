@@ -7,6 +7,7 @@ import size from "lodash/size";
 
 import * as Melee from "../melee";
 import type { FrameEntryType, GameStartType } from "../types";
+import { exists } from "../utils/exists";
 import type { ActionCountsType, PlayerIndexedType } from "./common";
 import { getSinglesPlayerPermutationsFromSettings, State } from "./common";
 import type { StatComputer } from "./stats";
@@ -286,7 +287,7 @@ function handleActionCompute(state: PlayerActionState, indices: PlayerIndexedTyp
   if (
     isAerialLanding(prevAnimation) &&
     (currentAnimation === State.FALL || currentAnimation === State.TEETER) &&
-    playerFrame.internalCharacterId !== null
+    exists(playerFrame.internalCharacterId)
   ) {
     const landingFrames = getPrevAnimationLength(state);
     const [landingLag, lCanceledLag] = getLandLagFromLandAnimation(prevAnimation, playerFrame.internalCharacterId)!;
@@ -304,7 +305,7 @@ function handleActionCompute(state: PlayerActionState, indices: PlayerIndexedTyp
   // Handles wavedash detection (and waveland)
   handleActionWavedash(state.playerCounts, state.animations);
 
-  if (playerFrame.lCancelStatus && playerFrame.lCancelStatus > 0) {
+  if (exists(playerFrame.lCancelStatus) && playerFrame.lCancelStatus > 0) {
     state.lastLCancelStatus = playerFrame.lCancelStatus;
   }
 }
