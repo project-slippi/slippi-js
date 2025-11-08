@@ -1,4 +1,3 @@
-import { State } from "../stats";
 import framedata from "./framedata.json";
 
 type FramedataCharacter = keyof typeof framedata;
@@ -12,14 +11,6 @@ export type Aerial = {
   autoCancelAfter: number;
   landingLag: number;
   lcancelledLandingLag: number;
-};
-
-export type Character = {
-  upair: Aerial | null;
-  bair: Aerial | null;
-  nair: Aerial | null;
-  dair: Aerial | null;
-  fair: Aerial | null;
 };
 
 export type AerialName = "fair" | "bair" | "nair" | "upair" | "dair";
@@ -54,28 +45,10 @@ const characterNames: { [key: number]: FramedataCharacter } = {
   0x1a: "Roy",
 };
 
-export function dataFor(character: string): Character | null {
-  return framedata[character as FramedataCharacter];
-}
-
-export function getAerial(internalCharacterId: number, animation: State): Aerial | undefined {
-  let moveName: AerialName;
-  if (animation === State.AERIAL_BAIR_LANDING) {
-    moveName = "bair";
-  } else if (animation === State.AERIAL_FAIR_LANDING) {
-    moveName = "fair";
-  } else if (animation === State.AERIAL_DAIR_LANDING) {
-    moveName = "dair";
-  } else if (animation === State.AERIAL_NAIR_LANDING) {
-    moveName = "nair";
-  } else if (animation === State.AERIAL_UAIR_LANDING) {
-    moveName = "upair";
-  } else {
-    return undefined;
-  }
+export function getAerialFrameData(internalCharacterId: number, aerialName: AerialName): Aerial | undefined {
   const characterName = characterNames[internalCharacterId];
   if (!characterName) {
     return undefined;
   }
-  return framedata[characterName][moveName];
+  return framedata[characterName][aerialName];
 }

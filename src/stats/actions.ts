@@ -139,23 +139,41 @@ function isForwardSmash(animation: State): boolean {
   return animation >= State.ATTACK_FSMASH_START && animation <= State.ATTACK_FSMASH_END;
 }
 
-function getAerialLandLag(animation: State, internalCharacterId: number): [number, number] | undefined {
-  const data = Melee.framedata.getAerial(internalCharacterId, animation);
-  if (data) {
-    return [data.landingLag, data.lcancelledLandingLag];
+function getLandLagFromLandAnimation(animation: State, internalCharacterId: number): [number, number] | undefined {
+  let aerialName: Melee.framedata.AerialName;
+  if (animation === State.AERIAL_BAIR_LANDING) {
+    aerialName = "bair";
+  } else if (animation === State.AERIAL_FAIR_LANDING) {
+    aerialName = "fair";
+  } else if (animation === State.AERIAL_DAIR_LANDING) {
+    aerialName = "dair";
+  } else if (animation === State.AERIAL_NAIR_LANDING) {
+    aerialName = "nair";
+  } else if (animation === State.AERIAL_UAIR_LANDING) {
+    aerialName = "upair";
+  } else {
+    return undefined;
+  }
+  const aerialFrameData = Melee.framedata.getAerialFrameData(internalCharacterId, aerialName);
+  if (aerialFrameData) {
+    return [aerialFrameData.landingLag, aerialFrameData.lcancelledLandingLag];
   }
   return undefined;
 }
 
+//count the number of frames the previous animation took
 function getPrevAnimationLength(state: PlayerActionState): number {
-  let landingFrames = 0;
+  // last element of animations is the first frame of the current action, so
+  // start with the element before that
   const startIndex = state.animations.length - 2;
   let i = startIndex;
+  let frameCount = 0;
+  // count frames backwards until we find a different animation
   while (state.animations[i] === state.animations[startIndex]) {
-    landingFrames += 1;
+    frameCount += 1;
     i--;
   }
-  return landingFrames;
+  return frameCount;
 }
 
 function handleActionCompute(state: PlayerActionState, indices: PlayerIndexedType, frame: FrameEntryType): void {
@@ -264,20 +282,21 @@ function handleActionCompute(state: PlayerActionState, indices: PlayerIndexedTyp
     incrementCount("lCancelCount.fail", playerFrame.lCancelStatus === 2);
   }
 
+  // check for edge canceled aerial
   if (
     isAerialLanding(prevAnimation) &&
     (currentAnimation === State.FALL || currentAnimation === State.TEETER) &&
-    playerFrame.internalCharacterId
+    playerFrame.internalCharacterId !== null
   ) {
     const landingFrames = getPrevAnimationLength(state);
-    const [landingLag, lCanceledLag] = getAerialLandLag(prevAnimation, playerFrame.internalCharacterId)!;
+    const [landingLag, lCanceledLag] = getLandLagFromLandAnimation(prevAnimation, playerFrame.internalCharacterId)!;
 
     // only counts as a successful edge cancel if an L cancel wouldn't have been faster
     incrementCount("edgeCancelCount.success", landingFrames < lCanceledLag);
     incrementCount("edgeCancelCount.slow", landingFrames >= lCanceledLag && landingFrames < landingLag);
 
     // make edge cancels not count as failed L cancels
-    if (landingFrames < lCanceledLag && state.lastLCancelStatus === 2) {
+    if (landingFrames <= lCanceledLag && state.lastLCancelStatus === 2) {
       state.playerCounts.lCancelCount.fail -= 1;
     }
   }
