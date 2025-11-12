@@ -1,3 +1,4 @@
+import type { Host, Peer } from "enet";
 import { EventEmitter } from "events";
 
 import { loadEnetModule } from "./loadEnetModule";
@@ -20,8 +21,8 @@ export class DolphinConnection extends EventEmitter implements Connection {
   private gameCursor = 0;
   private nickname = "unknown";
   private version = "";
-  private peer: any | null = null;
-  private client: any | null;
+  private peer: Peer | null = null;
+  private client: Host | null = null;
 
   public constructor() {
     super();
@@ -61,14 +62,18 @@ export class DolphinConnection extends EventEmitter implements Connection {
 
     const enet = await loadEnetModule();
     // Create the enet client
-    this.client = enet.createClient({ peers: MAX_PEERS, channels: 3, down: 0, up: 0 }, (err) => {
-      if (err) {
-        console.error(err);
-        return;
-      }
-    });
+    let client: Host | null = this.client;
+    if (!client) {
+      client = enet.createClient({ peers: MAX_PEERS, channels: 3, down: 0, up: 0 }, (err) => {
+        if (err) {
+          console.error(err);
+          return;
+        }
+      });
+      this.client = client;
+    }
 
-    this.peer = this.client.connect(
+    const peer = client.connect(
       {
         address: this.ipAddress,
         port: this.port,
@@ -87,7 +92,7 @@ export class DolphinConnection extends EventEmitter implements Connection {
       },
     );
 
-    this.peer.on("connect", () => {
+    peer.on("connect", () => {
       // Reset the game cursor to the beginning of the game. Do we need to do this or
       // should it just continue from where it left off?
       this.gameCursor = 0;
@@ -97,10 +102,10 @@ export class DolphinConnection extends EventEmitter implements Connection {
         cursor: this.gameCursor,
       };
       const packet = new enet.Packet(JSON.stringify(request), enet.PACKET_FLAG.RELIABLE);
-      this.peer.send(0, packet);
+      peer.send(0, packet);
     });
 
-    this.peer.on("message", (packet: any) => {
+    peer.on("message", (packet: any) => {
       const data = packet.data();
       if (data.length === 0) {
         return;
@@ -149,9 +154,11 @@ export class DolphinConnection extends EventEmitter implements Connection {
       }
     });
 
-    this.peer.on("disconnect", () => {
+    peer.on("disconnect", () => {
       this.disconnect();
     });
+
+    this.peer = peer;
 
     this._setStatus(ConnectionStatus.CONNECTING);
   }
