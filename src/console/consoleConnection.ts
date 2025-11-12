@@ -1,9 +1,10 @@
 import { EventEmitter } from "events";
 import net from "net";
-import inject from "reconnect-core";
+import type { Instance } from "reconnect-core";
 
 import type { CommunicationMessage } from "./communication";
 import { CommunicationType, ConsoleCommunication } from "./communication";
+import { loadReconnectCoreModule } from "./loadReconnectCoreModule";
 import type { Connection, ConnectionDetails, ConnectionSettings } from "./types";
 import { ConnectionEvent, ConnectionStatus, Ports } from "./types";
 
@@ -59,7 +60,7 @@ export class ConsoleConnection extends EventEmitter implements Connection {
   private connectionStatus = ConnectionStatus.DISCONNECTED;
   private connDetails: ConnectionDetails = { ...defaultConnectionDetails };
   private client: net.Socket | null = null;
-  private connection: inject.Instance<unknown, net.Socket> | null = null;
+  private connection: Instance<unknown, net.Socket> | null = null;
   private options: ConsoleConnectionOptions;
   private shouldReconnect = false;
 
@@ -103,14 +104,21 @@ export class ConsoleConnection extends EventEmitter implements Connection {
    * @param timeout Optional. The timeout in milliseconds when attempting to connect
    *                to the Wii or relay.
    */
-  public connect(ip: string, port: number, isRealtime = false, timeout = DEFAULT_CONNECTION_TIMEOUT_MS): void {
+  public async connect(
+    ip: string,
+    port: number,
+    isRealtime = false,
+    timeout = DEFAULT_CONNECTION_TIMEOUT_MS,
+  ): Promise<void> {
     this.ipAddress = ip;
     this.port = port;
     this.isRealtime = isRealtime;
-    this._connectOnPort(ip, port, timeout);
+    await this._connectOnPort(ip, port, timeout);
   }
 
-  private _connectOnPort(ip: string, port: number, timeout: number): void {
+  private async _connectOnPort(ip: string, port: number, timeout: number): Promise<void> {
+    const inject = await loadReconnectCoreModule();
+
     // set up reconnect
     const reconnect = inject(() =>
       net.connect({
