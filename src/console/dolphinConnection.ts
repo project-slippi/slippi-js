@@ -58,7 +58,8 @@ export class DolphinConnection extends EventEmitter implements Connection {
     this.ipAddress = ip;
     this.port = port;
 
-    const enet = await import("enet");
+    const enetModule = await import("enet");
+    const enet = enetModule.default ?? enetModule;
     // Create the enet client
     this.client = enet.createClient({ peers: MAX_PEERS, channels: 3, down: 0, up: 0 }, (err) => {
       if (err) {
