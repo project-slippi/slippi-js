@@ -1,5 +1,6 @@
 import { EventEmitter } from "events";
 
+import { loadEnetModule } from "./loadEnetModule";
 import type { Connection, ConnectionDetails, ConnectionSettings } from "./types";
 import { ConnectionEvent, ConnectionStatus, Ports } from "./types";
 
@@ -58,8 +59,7 @@ export class DolphinConnection extends EventEmitter implements Connection {
     this.ipAddress = ip;
     this.port = port;
 
-    const enetModule = await import("enet");
-    const enet = enetModule.default ?? enetModule;
+    const enet = await loadEnetModule();
     // Create the enet client
     this.client = enet.createClient({ peers: MAX_PEERS, channels: 3, down: 0, up: 0 }, (err) => {
       if (err) {
