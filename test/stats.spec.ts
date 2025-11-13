@@ -1,4 +1,4 @@
-import { SlippiGame } from "../src/SlippiGame.node";
+import { SlippiGame } from "../src/index.node";
 import { PostFrameUpdateType } from "../src";
 import { didLoseStock } from "../src/stats/common";
 

@@ -1,4 +1,4 @@
-import { SlippiGame } from "../src/SlippiGame.node";
+import { SlippiGame } from "../src/index.node";
 import { HomeRunContestResultType } from "../src";
 import { positionToHomeRunDistance } from "../src/utils/homeRunDistance";
 

@@ -1,7 +1,7 @@
-import { InternalSlippiGame } from "./InternalSlippiGame";
+import { SlpFileInputRef } from "./nodeUtils/slpFileInputRef";
+import { SlippiGame as InternalSlippiGame } from "./SlippiGame";
 import type { StatOptions } from "./stats";
 import { type BinaryLike, asUint8Array, isBufferLike } from "./utils/bufferHelpers";
-import { SlpFileInputRef } from "./utils/slpFileInputRef";
 import { SlpBufferInputRef } from "./utils/slpInputRef";
 
 export class SlippiGame extends InternalSlippiGame {
@@ -23,3 +23,10 @@ export class SlippiGame extends InternalSlippiGame {
     return this.filePath;
   }
 }
+
+// Export everything that is node-specific
+export * from "./console";
+export * from "./index.common";
+export * from "./nodeUtils/slpFile";
+export * from "./nodeUtils/slpFileWriter";
+export * from "./nodeUtils/slpStream";

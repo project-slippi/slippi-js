@@ -1,20 +1,24 @@
-// Export melee util types
-export * from "./melee";
+import { SlippiGame as InternalSlippiGame } from "./SlippiGame";
+import type { StatOptions } from "./stats";
+import type { BinaryLike } from "./utils/bufferHelpers";
+import { asUint8Array, isBufferLike } from "./utils/bufferHelpers";
+import { SlpBufferInputRef } from "./utils/slpInputRef";
 
-// Export types
-export * from "./stats";
-export * from "./types";
+/**
+ * Slippi Game class that wraps a file
+ */
+export class SlippiGame extends InternalSlippiGame {
+  public constructor(input: string | BinaryLike, opts?: StatOptions) {
+    if (typeof input === "string") {
+      throw new Error(
+        "Cannot create SlippiGame with a file path in the browser. Import from the node version instead.",
+      );
+    } else if (isBufferLike(input)) {
+      super(new SlpBufferInputRef(asUint8Array(input)), opts);
+    } else {
+      throw new Error("Cannot create SlippiGame with input of that type");
+    }
+  }
+}
 
-// Utils
-export * from "./utils/gameTimer";
-export * from "./utils/slpFile";
-export * from "./utils/slpFileWriter";
-export * from "./utils/slpParser";
-export * from "./utils/slpReader";
-export * from "./utils/slpStream";
-
-// Console networking
-export * from "./console";
-
-// Export the main SlippiGame logic
-export * from "./SlippiGame";
+export * from "./index.common";

@@ -1,5 +1,4 @@
-import { Frames } from "../src";
-import { SlippiGame } from "../src/SlippiGame.node";
+import { Frames, SlippiGame } from "../src/index.node";
 
 describe("when extracting item information", () => {
   it("should monotonically increment item spawn id", () => {

@@ -1,4 +1,4 @@
-import { SlippiGame } from "../src/SlippiGame.node";
+import { SlippiGame } from "../src/index.node";
 import { Frames, StadiumTransformationEvent, FodPlatformSide, WhispyBlowDirection } from "../src";
 
 describe("when extracting stadium transformation information", () => {

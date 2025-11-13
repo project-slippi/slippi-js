@@ -4,7 +4,7 @@ import { Writable } from "stream";
 import { NETWORK_MESSAGE } from "../console";
 import type { EventPayloadTypes } from "../types";
 import { Command } from "../types";
-import { parseMessage } from "./slpReader";
+import { parseMessage } from "../utils/slpReader";
 
 export enum SlpStreamMode {
   AUTO = "AUTO", // Always reading data, but errors on invalid command
