@@ -5,7 +5,7 @@ import last from "lodash/last";
 import orderBy from "lodash/orderBy";
 
 import type { FrameEntryType, FramesType, GameStartType, PostFrameUpdateType } from "../types";
-import { TypedEventTarget } from "../utils/typed_event_target";
+import { TypedEventTarget } from "../utils/typedEventTarget";
 import type { ConversionType, MoveLandedType, PlayerIndexedType } from "./common";
 import {
   calcDamageTaken,

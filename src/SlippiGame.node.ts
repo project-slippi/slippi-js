@@ -1,7 +1,8 @@
 import { InternalSlippiGame } from "./InternalSlippiGame";
 import type { StatOptions } from "./stats";
 import { type BinaryLike, asUint8Array, isBufferLike } from "./utils/bufferHelpers";
-import { SlpBufferInputRef, SlpFileInputRef } from "./utils/slpInputRef";
+import { SlpFileInputRef } from "./utils/slpFileInputRef";
+import { SlpBufferInputRef } from "./utils/slpInputRef";
 
 export class SlippiGame extends InternalSlippiGame {
   protected readonly filePath: string | null;
