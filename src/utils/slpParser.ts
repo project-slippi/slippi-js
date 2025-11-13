@@ -1,4 +1,3 @@
-import { EventEmitter } from "events";
 import get from "lodash/get";
 import keyBy from "lodash/keyBy";
 import set from "lodash/set";
@@ -6,6 +5,7 @@ import semver from "semver";
 
 import type {
   EnabledItemType,
+  FodPlatformType,
   FrameBookendType,
   FrameEntryType,
   FrameStartType,
@@ -16,16 +16,16 @@ import type {
   ItemUpdateType,
   PostFrameUpdateType,
   PreFrameUpdateType,
-  FodPlatformType,
-  WhispyType,
-  StadiumTransformationType,
   RollbackFrames,
+  StadiumTransformationType,
   StageEventTypes,
+  WhispyType,
 } from "../types";
 import { ItemSpawnType } from "../types";
 import { Command, Frames, GameMode } from "../types";
 import { exists } from "./exists";
 import { RollbackCounter } from "./rollbackCounter";
+import { TypedEventTarget } from "./typed_event_target";
 
 // There are 5 bytes of item bitfields that can be enabled
 const ITEM_SETTINGS_BIT_COUNT = 40;
@@ -49,7 +49,15 @@ const defaultSlpParserOptions = {
 
 export type SlpParserOptions = typeof defaultSlpParserOptions;
 
-export class SlpParser extends EventEmitter {
+type SlpParserEventMap = {
+  [SlpParserEvent.SETTINGS]: GameStartType;
+  [SlpParserEvent.END]: GameEndType;
+  [SlpParserEvent.FRAME]: FrameEntryType;
+  [SlpParserEvent.FINALIZED_FRAME]: FrameEntryType;
+  [SlpParserEvent.ROLLBACK_FRAME]: FrameEntryType;
+};
+
+export class SlpParser extends TypedEventTarget<SlpParserEventMap> {
   private frames: FramesType = {};
   private rollbackCounter: RollbackCounter = new RollbackCounter();
   private settings: GameStartType | null = null;
@@ -256,7 +264,7 @@ export class SlpParser extends EventEmitter {
     if (location === "pre" && !payload.isFollower) {
       const currentFrame = this.frames[currentFrameNumber];
       const wasRolledback = this.rollbackCounter.checkIfRollbackFrame(currentFrame, payload.playerIndex!);
-      if (wasRolledback) {
+      if (wasRolledback && currentFrame) {
         // frame is about to be overwritten
         this.emit(SlpParserEvent.ROLLBACK_FRAME, currentFrame);
       }
@@ -268,7 +276,10 @@ export class SlpParser extends EventEmitter {
     // more processing than necessary, but it works
     const settings = this.getSettings();
     if (settings && (!settings.slpVersion || semver.lte(settings.slpVersion, "2.2.0"))) {
-      this.emit(SlpParserEvent.FRAME, this.frames[currentFrameNumber]);
+      const frame = this.frames[currentFrameNumber];
+      if (frame) {
+        this.emit(SlpParserEvent.FRAME, frame);
+      }
       // Finalize the previous frame since no bookending exists
       this._finalizeFrames(currentFrameNumber - 1);
     } else {
@@ -290,7 +301,10 @@ export class SlpParser extends EventEmitter {
     const currentFrameNumber = payload.frame!;
     set(this.frames, [currentFrameNumber, "isTransferComplete"], true);
     // Fire off a normal frame event
-    this.emit(SlpParserEvent.FRAME, this.frames[currentFrameNumber]);
+    const frame = this.frames[currentFrameNumber];
+    if (frame) {
+      this.emit(SlpParserEvent.FRAME, frame);
+    }
 
     // Finalize frames if necessary
     const validLatestFrame = this.settings!.gameMode === GameMode.ONLINE;
@@ -353,7 +367,9 @@ export class SlpParser extends EventEmitter {
   private _completeSettings(): void {
     if (!this.settingsComplete) {
       this.settingsComplete = true;
-      this.emit(SlpParserEvent.SETTINGS, this.settings);
+      if (this.settings) {
+        this.emit(SlpParserEvent.SETTINGS, this.settings);
+      }
     }
   }
 }
