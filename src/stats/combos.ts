@@ -1,7 +1,7 @@
-import { EventEmitter } from "events";
 import last from "lodash/last";
 
 import type { FrameEntryType, FramesType, GameStartType, PostFrameUpdateType } from "../types";
+import { TypedEventTarget } from "../utils/typed_event_target";
 import type { ComboType, MoveLandedType, PlayerIndexedType } from "./common";
 import {
   calcDamageTaken,
@@ -23,6 +23,17 @@ export enum ComboEvent {
   COMBO_END = "COMBO_END",
 }
 
+type ComboEventData = {
+  combo: ComboType | undefined;
+  settings: GameStartType | null;
+};
+
+type ComboEventMap = {
+  [ComboEvent.COMBO_START]: ComboEventData;
+  [ComboEvent.COMBO_EXTEND]: ComboEventData;
+  [ComboEvent.COMBO_END]: ComboEventData;
+};
+
 type ComboState = {
   combo: ComboType | null;
   move: MoveLandedType | null;
@@ -31,7 +42,7 @@ type ComboState = {
   event: ComboEvent | null;
 };
 
-export class ComboComputer extends EventEmitter implements StatComputer<ComboType[]> {
+export class ComboComputer extends TypedEventTarget<ComboEventMap> implements StatComputer<ComboType[]> {
   private playerPermutations = new Array<PlayerIndexedType>();
   private state = new Map<PlayerIndexedType, ComboState>();
   private combos = new Array<ComboType>();
