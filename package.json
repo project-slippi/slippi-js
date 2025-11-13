@@ -13,14 +13,27 @@
   "files": [
     "dist"
   ],
-  "source": "./src/index.ts",
   "main": "./dist/index.js",
   "module": "./dist/slippi-js.esm.js",
   "types": "./dist/index.d.ts",
+  "browser": "./dist/index.js",
   "exports": {
     ".": {
+      "node": {
+        "require": "./dist/index.node.js",
+        "import": "./dist/index.node.esm.js",
+        "types": "./dist/index.node.d.ts",
+        "default": "./dist/index.node.js"
+      },
+      "browser": {
+        "require": "./dist/index.js",
+        "import": "./dist/slippi-js.esm.js",
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
       "require": "./dist/index.js",
       "import": "./dist/slippi-js.esm.js",
+      "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
     "./package.json": "./package.json"
@@ -30,7 +43,9 @@
     "prebuild": "npm run clean",
     "start": "dts watch --target node",
     "build:check": "tsc --noEmit",
-    "build": "tsc --noEmit && dts build --target node",
+    "build:browser": "DTS_SOURCE=./src/index.ts dts build --name slippi-js",
+    "build:node": "DTS_SOURCE=./src/index.node.ts dts build --target node --name index.node",
+    "build": "npm run build:check && npm run build:browser && npm run build:node",
     "coverage": "npm run test -- --coverage",
     "postcoverage": "open-cli coverage/lcov-report/index.html",
     "test": "dts test --runInBand --verbose",
