@@ -3,7 +3,7 @@ import { bufferCopy, byteLength } from "./bufferHelpers";
 
 export interface SlpInputRef {
   read(targetBuffer: Uint8Array, offset: number, length: number, position: number): number;
-  size: number;
+  size(): number;
   open(): void;
   close(): void;
 }
@@ -15,7 +15,7 @@ export class SlpBufferInputRef implements SlpInputRef {
     // Do nothing
   }
 
-  public get size(): number {
+  public size(): number {
     return byteLength(this.buffer);
   }
 
@@ -24,7 +24,7 @@ export class SlpBufferInputRef implements SlpInputRef {
   }
 
   public read(targetBuffer: Uint8Array, offset: number, length: number, position: number): number {
-    if (position >= this.size) {
+    if (position >= this.size()) {
       return 0;
     }
     return bufferCopy(this.buffer, targetBuffer, offset, position, position + length);

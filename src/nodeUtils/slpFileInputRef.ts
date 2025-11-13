@@ -15,7 +15,7 @@ export class SlpFileInputRef implements SlpInputRef {
     this.fileDescriptor = fs.openSync(this.filePath, "r");
   }
 
-  public get size(): number {
+  public size(): number {
     if (!this.fileDescriptor) {
       throw new Error("Tried to get the size of a closed SLP file");
     }

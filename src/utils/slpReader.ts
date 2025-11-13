@@ -68,7 +68,7 @@ function getRawDataPosition(ref: SlpInputRef): number {
 }
 
 function getRawDataLength(ref: SlpInputRef, position: number): number {
-  const fileSize = ref.size;
+  const fileSize = ref.size();
   if (position === 0) {
     return fileSize;
   }
@@ -89,7 +89,7 @@ function getRawDataLength(ref: SlpInputRef, position: number): number {
 }
 
 function getMetadataLength(ref: SlpInputRef, position: number): number {
-  const len = ref.size;
+  const len = ref.size();
   return len - position - 1;
 }
 
