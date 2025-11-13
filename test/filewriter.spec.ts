@@ -1,17 +1,17 @@
 import fs from "fs";
 import { Writable } from "stream";
 
-import { SlippiGame, SlpFileWriter } from "../src";
-import { SlpFileWriterEvent } from "../src/utils/slpFileWriter";
-import { openSlpFile, SlpInputSource } from "../src/utils/slpReader";
+import { SlpFileWriter, SlpFileWriterEvent } from "../src/utils/slpFileWriter";
+import { SlippiGame } from "../src/SlippiGame.node";
+import { openSlpFile } from "../src/utils/slpReader";
+import { SlpFileInputRef } from "../src/utils/slpInputRef";
 
 describe("when ending SlpFileWriter", () => {
   it("should write data length to file", async () => {
     const { dataLength, fileCompletePromise, newFilename } = runSlpFileWriter("slp/finalizedFrame.slp");
-
     await fileCompletePromise;
 
-    const writtenDataLength = openSlpFile({ source: SlpInputSource.FILE, filePath: newFilename }).rawDataLength;
+    const writtenDataLength = openSlpFile(new SlpFileInputRef(newFilename)).rawDataLength;
     fs.unlinkSync(newFilename);
 
     expect(writtenDataLength).toBe(dataLength);
@@ -65,7 +65,8 @@ const runSlpFileWriter = function (testFilePath: string): {
   fileCompletePromise: Promise<void>;
 } {
   const slpFileWriter = new SlpFileWriter();
-  const slpFile = openSlpFile({ source: SlpInputSource.FILE, filePath: testFilePath });
+  const ref = new SlpFileInputRef(testFilePath);
+  const slpFile = openSlpFile(ref);
   const dataLength = slpFile.rawDataLength;
   const dataPos = slpFile.rawDataPosition;
 

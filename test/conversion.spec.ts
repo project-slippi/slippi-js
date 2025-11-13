@@ -1,4 +1,4 @@
-import { SlippiGame } from "../src";
+import { SlippiGame } from "../src/SlippiGame.node";
 
 describe("when calculating conversions", () => {
   it("should include Puff's Sing", () => {

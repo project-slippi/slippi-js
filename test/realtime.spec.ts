@@ -8,7 +8,6 @@ import {
   Frames,
   GameMode,
   MAX_ROLLBACK_FRAMES,
-  SlippiGame,
   SlpCommandEventPayload,
   SlpParser,
   SlpParserEvent,
@@ -16,6 +15,7 @@ import {
   SlpStreamEvent,
   SlpStreamMode,
 } from "../src";
+import { SlippiGame } from "../src/SlippiGame.node";
 
 describe("when reading last finalised frame from SlpStream", () => {
   it("should never decrease", async () => {

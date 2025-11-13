@@ -1,4 +1,5 @@
-import { PostFrameUpdateType, SlippiGame } from "../src";
+import { SlippiGame } from "../src/SlippiGame.node";
+import { PostFrameUpdateType } from "../src";
 import { didLoseStock } from "../src/stats/common";
 
 const expectedThrow = {

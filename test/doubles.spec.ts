@@ -1,4 +1,4 @@
-import { SlippiGame } from "../src";
+import { SlippiGame } from "../src/SlippiGame.node";
 
 describe("when parsing doubles games", () => {
   it("should correctly handle when players are eliminated", () => {

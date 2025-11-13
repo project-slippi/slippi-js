@@ -1,4 +1,5 @@
-import { SlippiGame, TargetTestResultType } from "../src";
+import { TargetTestResultType } from "../src";
+import { SlippiGame } from "../src/SlippiGame.node";
 
 describe("when processing break the target replays", () => {
   it("should correctly count the target breaks", () => {

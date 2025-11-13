@@ -1,6 +1,6 @@
 import _ from "lodash";
 
-import { SlippiGame } from "../src";
+import { SlippiGame } from "../src/SlippiGame.node";
 
 describe("when determining placings", () => {
   it("should return empty placings for older slp files", () => {

@@ -1,4 +1,5 @@
-import { HomeRunContestResultType, SlippiGame } from "../src";
+import { SlippiGame } from "../src/SlippiGame.node";
+import { HomeRunContestResultType } from "../src";
 import { positionToHomeRunDistance } from "../src/utils/homeRunDistance";
 
 describe("when processing homerun contest replays", () => {
