@@ -43,13 +43,17 @@ module.exports = {
     const source = process.env.DTS_SOURCE || "./src/index.ts";
 
     if (opts.format === "esm") {
-      config.output = {
-        ...config.output,
-        dir: "dist/",
-        entryFileNames: "[name].esm.js",
-        preserveModules: true,
-      };
-      delete config.output.file;
+      // Only preserve modules for Node builds, bundle browser builds
+      if (opts.target === "node") {
+        config.output = {
+          ...config.output,
+          dir: "dist/",
+          entryFileNames: "[name].esm.js",
+          preserveModules: true,
+        };
+        delete config.output.file;
+      }
+      // For browser builds, create a single bundle
     }
 
     // Add the Node.js entry generator plugin for Node builds
