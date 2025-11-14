@@ -14,27 +14,21 @@
     "dist"
   ],
   "main": "./dist/index.js",
-  "module": "./dist/slippi-js.esm.js",
+  "module": "./dist/index.esm.js",
   "types": "./dist/index.d.ts",
   "browser": "./dist/index.js",
   "exports": {
     ".": {
-      "node": {
-        "require": "./dist/index.node.js",
-        "import": "./dist/index.node.esm.js",
-        "types": "./dist/index.node.d.ts",
-        "default": "./dist/index.node.js"
-      },
-      "browser": {
-        "require": "./dist/index.js",
-        "import": "./dist/slippi-js.esm.js",
-        "types": "./dist/index.d.ts",
-        "default": "./dist/index.js"
-      },
       "require": "./dist/index.js",
-      "import": "./dist/slippi-js.esm.js",
+      "import": "./dist/index.esm.js",
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./node": {
+      "require": "./dist/index.node.js",
+      "import": "./dist/index.node.esm.js",
+      "types": "./dist/index.node.d.ts",
+      "default": "./dist/index.node.js"
     },
     "./package.json": "./package.json"
   },
