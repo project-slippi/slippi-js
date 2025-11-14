@@ -43,8 +43,8 @@
     "prebuild": "npm run clean",
     "start": "dts watch --target node",
     "build:check": "tsc --noEmit",
-    "build:browser": "DTS_SOURCE=./src/index.ts dts build --name slippi-js",
-    "build:node": "DTS_SOURCE=./src/index.node.ts dts build --target node --name index.node",
+    "build:browser": "cross-env DTS_SOURCE=./src/index.ts dts build --name slippi-js",
+    "build:node": "cross-env DTS_SOURCE=./src/index.node.ts dts build --target node --name index.node",
     "build": "npm run build:check && npm run build:browser && npm run build:node",
     "coverage": "npm run test -- --coverage",
     "postcoverage": "open-cli coverage/lcov-report/index.html",
@@ -79,6 +79,7 @@
   },
   "devDependencies": {
     "@types/jest": "^29.5.14",
+    "cross-env": "^7.0.3",
     "@types/lodash": "^4.14.178",
     "@types/node": "^20.17.50",
     "@types/reconnect-core": "^1.3.1",
