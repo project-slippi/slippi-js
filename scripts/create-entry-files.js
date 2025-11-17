@@ -2,13 +2,15 @@
 
 const fs = require("fs");
 const path = require("path");
+const { pathToFileURL } = require("url");
 
 // Import the output configuration from rollup.config.mjs
 const configPath = path.join(__dirname, "../rollup.config.mjs");
+const configURL = pathToFileURL(configPath).href;
 
 // Dynamic import for ESM module
 (async () => {
-  const { OUTPUT_CONFIG } = await import(configPath);
+  const { OUTPUT_CONFIG } = await import(configURL);
   const DIST_DIR = path.join(__dirname, "../dist");
 
   /**
