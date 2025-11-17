@@ -24,9 +24,11 @@ export class SlippiGame extends InternalSlippiGame {
   }
 }
 
+// Export everything that works in both the browser and node
+export * from "./index.common";
+
 // Export everything that is node-specific
 export * from "./console";
-export * from "./index.common";
 export * from "./nodeUtils/slpFile";
 export * from "./nodeUtils/slpFileWriter";
 export * from "./nodeUtils/slpStream";
