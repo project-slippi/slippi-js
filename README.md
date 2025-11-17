@@ -21,6 +21,50 @@ npm install @slippi/slippi-js
 yarn add @slippi/slippi-js
 ```
 
+## Browser vs Node.js
+
+This library provides two separate entry points depending on your environment:
+
+### Default Export: `@slippi/slippi-js` (Browser/Web)
+
+The default export is optimized for browser and web environments. It only accepts binary data as input (buffers, ArrayBuffers, Uint8Arrays, etc.) and **cannot read files from disk**.
+
+```js
+import { SlippiGame } from "@slippi/slippi-js";
+
+// Works with binary data
+const arrayBuffer = await fetch("game.slp").then((r) => r.arrayBuffer());
+const game = new SlippiGame(arrayBuffer);
+
+// Will throw an error in the browser
+const game = new SlippiGame("path/to/file.slp"); // ❌ Error!
+```
+
+### Node.js Export: `@slippi/slippi-js/node`
+
+The Node.js export is designed for server-side and Node.js environments. It can read files directly from disk using file paths **and** also accepts binary data. Additionally, it includes Node.js-specific features like console connections, file writing, and streaming utilities.
+
+```js
+const { SlippiGame } = require("@slippi/slippi-js/node");
+// or with ES modules:
+// import { SlippiGame } from "@slippi/slippi-js/node";
+
+// Works with file paths
+const game = new SlippiGame("path/to/file.slp"); // ✅
+
+// Also works with binary data
+const buffer = fs.readFileSync("path/to/file.slp");
+const game = new SlippiGame(buffer); // ✅
+```
+
+**Additional Node.js-only exports:**
+
+- Console connection utilities for real-time game capture
+- `SlpFileWriter` for creating `.slp` files
+- `SlpStream` for streaming game data
+
+**Rule of thumb:** Use `@slippi/slippi-js/node` for Node.js applications and scripts. Use the default `@slippi/slippi-js` for browser/web applications.
+
 ## Writing a simple script
 
 1. Create a fresh directory on your disk
@@ -28,7 +72,7 @@ yarn add @slippi/slippi-js
 3. Fill the `script.js` file with the following contents:
 
 ```js
-const { SlippiGame } = require("@slippi/slippi-js");
+const { SlippiGame } = require("@slippi/slippi-js/node");
 
 const game = new SlippiGame("test.slp");
 
