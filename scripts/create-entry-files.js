@@ -3,30 +3,35 @@
 const fs = require("fs");
 const path = require("path");
 
-const DIST_DIR = path.join(__dirname, "../dist");
+// Import the output configuration from rollup.config.mjs
+const configPath = path.join(__dirname, "../rollup.config.mjs");
 
-// Create Node entry file
-const nodeEntry = `'use strict'
+// Dynamic import for ESM module
+(async () => {
+  const { OUTPUT_CONFIG } = await import(configPath);
+  const DIST_DIR = path.join(__dirname, "../dist");
+
+  /**
+   * Generate an entry file that switches between development and production builds
+   */
+  function generateEntryFile(config, label) {
+    // Extract the subdirectory (e.g., "node" or "browser") from "dist/node" or "dist/browser"
+    const subdir = config.dir.replace(/^dist[/\\]?/, "");
+    const entry = `'use strict'
 
 if (process.env.NODE_ENV === 'production') {
-  module.exports = require('./node/index.node.cjs.production.min.js')
+  module.exports = require('./${subdir}/${config.production}')
 } else {
-  module.exports = require('./node/index.node.cjs.development.js')
+  module.exports = require('./${subdir}/${config.development}')
 }
 `;
 
-fs.writeFileSync(path.join(DIST_DIR, "index.node.js"), nodeEntry, "utf8");
-console.log("✓ Generated Node.js entry: index.node.js");
+    const entryPath = path.join(DIST_DIR, config.entry);
+    fs.writeFileSync(entryPath, entry, "utf8");
+    console.log(`✓ Generated ${label} entry: ${config.entry}`);
+  }
 
-// Create Browser entry file
-const browserEntry = `'use strict'
-
-if (process.env.NODE_ENV === 'production') {
-  module.exports = require('./browser/slippi-js.cjs.production.min.js')
-} else {
-  module.exports = require('./browser/slippi-js.cjs.development.js')
-}
-`;
-
-fs.writeFileSync(path.join(DIST_DIR, "index.js"), browserEntry, "utf8");
-console.log("✓ Generated Browser entry: index.js");
+  // Generate entry files
+  generateEntryFile(OUTPUT_CONFIG.node, "Node.js");
+  generateEntryFile(OUTPUT_CONFIG.browser, "Browser");
+})();

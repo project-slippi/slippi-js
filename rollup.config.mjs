@@ -49,6 +49,22 @@ const browserPlugins = [
   commonjs(),
 ];
 
+// Output file configuration - used by both Rollup and entry file generation
+export const OUTPUT_CONFIG = {
+  node: {
+    dir: "dist/node",
+    development: "index.node.cjs.development.js",
+    production: "index.node.cjs.production.min.js",
+    entry: "index.node.js",
+  },
+  browser: {
+    dir: "dist/browser",
+    development: "slippi-js.cjs.development.js",
+    production: "slippi-js.cjs.production.min.js",
+    entry: "index.js",
+  },
+};
+
 export default defineConfig([
   // ============================================
   // Node Build (ESM + CJS)
@@ -58,7 +74,7 @@ export default defineConfig([
     output: [
       // Node ESM with preserved modules
       {
-        dir: "dist/node",
+        dir: OUTPUT_CONFIG.node.dir,
         format: "esm",
         entryFileNames: "[name].esm.js",
         chunkFileNames: "[name].esm.js",
@@ -68,17 +84,17 @@ export default defineConfig([
       },
       // Node CJS development
       {
-        dir: "dist/node",
+        dir: OUTPUT_CONFIG.node.dir,
         format: "cjs",
-        entryFileNames: "index.node.cjs.development.js",
+        entryFileNames: OUTPUT_CONFIG.node.development,
         sourcemap: true,
         exports: "named",
       },
       // Node CJS production (minified)
       {
-        dir: "dist/node",
+        dir: OUTPUT_CONFIG.node.dir,
         format: "cjs",
-        entryFileNames: "index.node.cjs.production.min.js",
+        entryFileNames: OUTPUT_CONFIG.node.production,
         sourcemap: true,
         exports: "named",
         plugins: [
@@ -115,17 +131,17 @@ export default defineConfig([
       },
       // Browser CJS development
       {
-        dir: "dist/browser",
+        dir: OUTPUT_CONFIG.browser.dir,
         format: "cjs",
-        entryFileNames: "slippi-js.cjs.development.js",
+        entryFileNames: OUTPUT_CONFIG.browser.development,
         sourcemap: true,
         exports: "named",
       },
       // Browser CJS production
       {
-        dir: "dist/browser",
+        dir: OUTPUT_CONFIG.browser.dir,
         format: "cjs",
-        entryFileNames: "slippi-js.cjs.production.min.js",
+        entryFileNames: OUTPUT_CONFIG.browser.production,
         sourcemap: true,
         exports: "named",
       },
