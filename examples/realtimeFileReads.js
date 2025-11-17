@@ -1,4 +1,4 @@
-const { SlippiGame, characters: characterUtils } = require("@slippi/slippi-js");
+const { SlippiGame, characters: characterUtils } = require("@slippi/slippi-js/node");
 const chokidar = require("chokidar");
 const _ = require("lodash");
 
