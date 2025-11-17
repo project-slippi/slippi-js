@@ -8,13 +8,13 @@ import { SlpBufferInputRef } from "./utils/slpInputRef";
  * Slippi Game class that wraps a file
  */
 export class SlippiGame extends InternalSlippiGame {
-  public constructor(input: string | BinaryLike, opts?: StatOptions) {
-    if (typeof input === "string") {
+  public constructor(input: BinaryLike, opts?: StatOptions) {
+    if (isBufferLike(input)) {
+      super(new SlpBufferInputRef(asUint8Array(input)), opts);
+    } else if (typeof input === "string") {
       throw new Error(
         "Cannot create SlippiGame with a file path in the browser. Import from the node version instead.",
       );
-    } else if (isBufferLike(input)) {
-      super(new SlpBufferInputRef(asUint8Array(input)), opts);
     } else {
       throw new Error("Cannot create SlippiGame with input of that type");
     }
