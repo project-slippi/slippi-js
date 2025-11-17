@@ -1,7 +1,8 @@
 import fs from "fs";
 import { Writable } from "stream";
 
-import { openSlpFile, SlpFileWriter, SlpFileWriterEvent, SlippiGame } from "../src/index.node";
+import { SlpFileWriter, SlpFileWriterEvent, SlippiGame } from "../src/index.node";
+import { openSlpFile } from "../src/utils/slpReader";
 import { SlpFileInputRef } from "../src/nodeUtils/slpFileInputRef";
 
 describe("when ending SlpFileWriter", () => {
