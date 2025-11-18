@@ -11,7 +11,8 @@
     "url": "https://github.com/JLaferri"
   },
   "files": [
-    "dist"
+    "dist",
+    "node"
   ],
   "main": "./dist/browser/index.cjs",
   "module": "./dist/browser/index.esm.js",
@@ -19,18 +20,25 @@
   "browser": "./dist/browser/index.esm.js",
   "exports": {
     ".": {
-      "require": "./dist/browser/index.cjs",
-      "import": "./dist/browser/index.esm.js",
       "types": "./dist/index.d.ts",
+      "import": "./dist/browser/index.esm.js",
+      "require": "./dist/browser/index.cjs",
       "default": "./dist/browser/index.esm.js"
     },
     "./node": {
-      "require": "./dist/node/index.cjs",
-      "import": "./dist/node/index.esm.js",
       "types": "./dist/index.node.d.ts",
+      "import": "./dist/node/index.esm.js",
+      "require": "./dist/node/index.cjs",
       "default": "./dist/node/index.esm.js"
     },
     "./package.json": "./package.json"
+  },
+  "typesVersions": {
+    "*": {
+      "node": [
+        "./dist/index.node.d.ts"
+      ]
+    }
   },
   "scripts": {
     "clean": "rimraf dist",

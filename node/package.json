@@ -1,0 +1,6 @@
+{
+  "sideEffects": false,
+  "main": "../dist/node/index.cjs",
+  "module": "../dist/node/index.esm.js",
+  "types": "../dist/index.node.d.ts"
+}
