@@ -29,8 +29,11 @@ const external = (id) => {
   // Don't externalize rollup helpers
   if (id.startsWith("\\0")) return false;
 
+  // Normalize path separators for Windows compatibility
+  const normalizedId = id.replace(/\\/g, "/");
+
   // Don't externalize source files (anything with "src/" or relative paths)
-  if (id.includes("src/") || id.startsWith(".")) return false;
+  if (normalizedId.includes("src/") || normalizedId.startsWith(".")) return false;
 
   // Externalize npm packages and cross-directory imports
   return true;
