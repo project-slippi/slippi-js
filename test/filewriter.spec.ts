@@ -1,9 +1,9 @@
 import fs from "fs";
 import { Writable } from "stream";
 
-import { SlpFileWriter, SlpFileWriterEvent, SlippiGame } from "../src/index.node";
-import { openSlpFile } from "../src/utils/slpReader";
-import { SlpFileInputRef } from "../src/nodeUtils/slpFileInputRef";
+import { SlpFileWriter, SlippiGame, SlpFileWriterEvent } from "../src/node/index";
+import { openSlpFile } from "../src/common/utils/slpReader";
+import { SlpFileInputRef } from "../src/node/nodeUtils/slpFileInputRef";
 
 describe("when ending SlpFileWriter", () => {
   it("should write data length to file", async () => {

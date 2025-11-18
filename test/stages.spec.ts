@@ -1,5 +1,5 @@
-import { SlippiGame } from "../src/index.node";
-import { Frames, StadiumTransformationEvent, FodPlatformSide, WhispyBlowDirection } from "../src";
+import { SlippiGame } from "../src/node/index";
+import { Frames, StadiumTransformationEvent, FodPlatformSide, WhispyBlowDirection } from "../src/common/index";
 
 describe("when extracting stadium transformation information", () => {
   it("should properly increment event ids", () => {

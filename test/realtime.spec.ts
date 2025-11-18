@@ -15,7 +15,7 @@ import {
   SlpStreamEvent,
   SlpStreamMode,
   SlippiGame,
-} from "../src/index.node";
+} from "../src/node/index";
 
 describe("when reading last finalised frame from SlpStream", () => {
   it("should never decrease", async () => {

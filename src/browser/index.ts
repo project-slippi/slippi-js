@@ -1,8 +1,8 @@
-import { SlippiGame as InternalSlippiGame } from "./SlippiGame";
-import type { StatOptions } from "./stats";
-import type { BinaryLike } from "./utils/bufferHelpers";
-import { asUint8Array, isBufferLike } from "./utils/bufferHelpers";
-import { SlpBufferInputRef } from "./utils/slpInputRef";
+import { SlippiGame as InternalSlippiGame } from "../common/SlippiGame";
+import type { StatOptions } from "../common/stats";
+import type { BinaryLike } from "../common/utils/bufferHelpers";
+import { asUint8Array, isBufferLike } from "../common/utils/bufferHelpers";
+import { SlpBufferInputRef } from "../common/utils/slpInputRef";
 
 /**
  * Slippi Game class that wraps a file
@@ -21,4 +21,4 @@ export class SlippiGame extends InternalSlippiGame {
   }
 }
 
-export * from "./index.common";
+export * from "../common/index";

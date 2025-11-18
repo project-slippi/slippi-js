@@ -4,69 +4,47 @@ import resolve from "@rollup/plugin-node-resolve";
 import json from "@rollup/plugin-json";
 import dts from "rollup-plugin-dts";
 import { defineConfig } from "rollup";
-import { readdirSync } from "fs";
-import { join } from "path";
+import { globSync } from "glob";
 
 // ============================================
 // Helper Functions
 // ============================================
 
 /**
- * Automatically discover all TypeScript files in a directory
+ * Convert glob matches to Rollup input format
  */
-function discoverFiles(dir, prefix = "") {
-  const entries = {};
-  const files = readdirSync(join("src", dir), { withFileTypes: true });
-
-  for (const file of files) {
-    if (file.isFile() && file.name.endsWith(".ts") && !file.name.endsWith(".d.ts")) {
-      const name = file.name.replace(".ts", "");
-      const key = prefix ? `${prefix}/${name}` : name;
-      entries[key] = `src/${dir}/${file.name}`;
-    }
-  }
-  return entries;
-}
+const globToInput = (pattern, removePrefix = "src/") => {
+  return Object.fromEntries(
+    globSync(pattern, { ignore: ["**/*.spec.ts", "**/*.test.ts"] }).map((file) => {
+      const key = file.replace(removePrefix, "").replace(/\.ts$/, "");
+      return [key, file];
+    }),
+  );
+};
 
 /**
- * Create standardized external function
+ * Externalize npm packages and cross-directory imports
  */
-const createExternal =
-  (additionalChecks = []) =>
-  (id) => {
-    // Externalize node_modules
-    if (id.includes("node_modules")) return true;
+const external = (id) => {
+  // Don't externalize rollup helpers
+  if (id.startsWith("\\0")) return false;
 
-    // Don't externalize source files
-    if (
-      id.startsWith(".") ||
-      id.startsWith("/") ||
-      id.startsWith("\\0") ||
-      id.startsWith("src/") ||
-      id.endsWith(".ts") ||
-      id.endsWith(".tsx")
-    ) {
-      return false;
-    }
+  // Don't externalize source files (anything with "src/" or relative paths)
+  if (id.includes("src/") || id.startsWith(".")) return false;
 
-    // Apply additional checks
-    for (const check of additionalChecks) {
-      if (check(id)) return true;
-    }
-
-    // Default: externalize package imports
-    return true;
-  };
+  // Externalize npm packages and cross-directory imports
+  return true;
+};
 
 /**
- * Create standardized output configuration
+ * Standard output configuration
  */
-const createOutput = (dir, format, preserveModules = true) => ({
+const createOutput = (dir, format) => ({
   dir,
   format,
   entryFileNames: `[name].${format === "esm" ? "esm.js" : "cjs"}`,
   chunkFileNames: `[name].${format === "esm" ? "esm.js" : "cjs"}`,
-  preserveModules,
+  preserveModules: true,
   preserveModulesRoot: "src",
   sourcemap: true,
   exports: "named",
@@ -75,78 +53,62 @@ const createOutput = (dir, format, preserveModules = true) => ({
 /**
  * Standard plugin configuration
  */
-const createPlugins = (browser = false) => [
+const plugins = [
   typescript({
     tsconfig: "./tsconfig.json",
-    declaration: false,
-    declarationMap: false,
-    declarationDir: null,
-    composite: false,
-    incremental: false,
+    compilerOptions: {
+      declaration: false,
+      declarationMap: false,
+      declarationDir: undefined,
+    },
   }),
-  resolve({
-    preferBuiltins: !browser,
-    browser,
-  }),
+  resolve({ preferBuiltins: true }),
   json(),
   commonjs(),
 ];
 
 export default defineConfig([
   // ============================================
-  // Common Build (Shared code with preserved modules)
+  // Common Build (Shared browser/node code)
   // ============================================
   {
-    input: {
-      "index.common": "src/index.common.ts",
-      SlippiGame: "src/SlippiGame.ts",
-      "utils/bufferHelpers": "src/utils/bufferHelpers.ts",
-      "utils/slpInputRef": "src/utils/slpInputRef.ts",
-    },
-    output: [createOutput("dist/common", "esm"), createOutput("dist/common", "cjs")],
-    external: createExternal(),
-    plugins: createPlugins(),
+    input: globToInput("src/common/**/*.ts"),
+    output: [createOutput("dist", "esm"), createOutput("dist", "cjs")],
+    external,
+    plugins,
   },
 
   // ============================================
-  // Node-specific Build (Auto-discovered files)
+  // Node-specific Build
   // ============================================
   {
-    input: {
-      ...discoverFiles("console", "console"),
-      ...discoverFiles("nodeUtils", "nodeUtils"),
-    },
-    output: [createOutput("dist/node", "esm", false), createOutput("dist/node", "cjs", false)],
-    external: createExternal([
-      // Externalize common modules
-      (id) =>
-        id.startsWith("./stats/") ||
-        id.startsWith("./melee/") ||
-        id.startsWith("./utils/") ||
-        id === "./types" ||
-        id.startsWith("../"),
-    ]),
-    plugins: createPlugins(),
+    input: globToInput("src/node/**/*.ts"),
+    output: [createOutput("dist", "esm"), createOutput("dist", "cjs")],
+    external,
+    plugins,
   },
 
   // ============================================
-  // TypeScript Declarations (Generated once)
+  // Browser Build
+  // ============================================
+  {
+    input: { "browser/index": "src/browser/index.ts" },
+    output: [createOutput("dist", "esm"), createOutput("dist", "cjs")],
+    external,
+    plugins,
+  },
+
+  // ============================================
+  // TypeScript Declarations
   // ============================================
   {
     input: {
-      index: "src/index.ts",
-      "index.node": "src/index.node.ts",
-      "index.common": "src/index.common.ts",
+      index: "src/browser/index.ts",
+      "index.node": "src/node/index.ts",
+      "index.common": "src/common/index.ts",
     },
-    output: {
-      dir: "dist",
-      format: "esm",
-    },
-    external: createExternal(),
-    plugins: [
-      dts({
-        respectExternal: true,
-      }),
-    ],
+    output: { dir: "dist", format: "esm" },
+    external,
+    plugins: [dts({ respectExternal: true })],
   },
 ]);

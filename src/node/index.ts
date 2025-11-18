@@ -1,8 +1,8 @@
+import { SlippiGame as InternalSlippiGame } from "../common/SlippiGame";
+import type { StatOptions } from "../common/stats";
+import { type BinaryLike, asUint8Array, isBufferLike } from "../common/utils/bufferHelpers";
+import { SlpBufferInputRef } from "../common/utils/slpInputRef";
 import { SlpFileInputRef } from "./nodeUtils/slpFileInputRef";
-import { SlippiGame as InternalSlippiGame } from "./SlippiGame";
-import type { StatOptions } from "./stats";
-import { type BinaryLike, asUint8Array, isBufferLike } from "./utils/bufferHelpers";
-import { SlpBufferInputRef } from "./utils/slpInputRef";
 
 export class SlippiGame extends InternalSlippiGame {
   protected readonly filePath: string | null;
@@ -25,7 +25,7 @@ export class SlippiGame extends InternalSlippiGame {
 }
 
 // Export everything that works in both the browser and node
-export * from "./index.common";
+export * from "../common/index";
 
 // Export everything that is node-specific
 export * from "./console";

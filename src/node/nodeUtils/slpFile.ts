@@ -4,8 +4,8 @@ import forEach from "lodash/forEach";
 import type { WritableOptions } from "stream";
 import { Writable } from "stream";
 
-import type { GameStartType, PostFrameUpdateType } from "../types";
-import { Command } from "../types";
+import type { GameStartType, PostFrameUpdateType } from "../../common/types";
+import { Command } from "../../common/types";
 import type { SlpCommandEventPayload } from "./slpStream";
 import { SlpStream, SlpStreamEvent, SlpStreamMode } from "./slpStream";
 

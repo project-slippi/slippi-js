@@ -1,4 +1,4 @@
-import * as Melee from "../src/melee";
+import * as Melee from "../src/common/melee";
 
 const miscMove = { id: 1, name: "Miscellaneous", shortName: "misc" };
 const unknownMove = { id: -1, name: "Unknown Move", shortName: "unknown" };
