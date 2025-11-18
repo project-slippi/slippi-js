@@ -2,6 +2,7 @@ import typescript from "@rollup/plugin-typescript";
 import commonjs from "@rollup/plugin-commonjs";
 import resolve from "@rollup/plugin-node-resolve";
 import json from "@rollup/plugin-json";
+import terser from "@rollup/plugin-terser";
 import dts from "rollup-plugin-dts";
 import { defineConfig } from "rollup";
 
@@ -97,10 +98,7 @@ export default defineConfig([
         entryFileNames: OUTPUT_CONFIG.node.production,
         sourcemap: true,
         exports: "named",
-        plugins: [
-          // Add terser for minification if needed
-          // You can add @rollup/plugin-terser here
-        ],
+        plugins: [terser()],
       },
     ],
     external: nodeExternal,
@@ -144,6 +142,7 @@ export default defineConfig([
         entryFileNames: OUTPUT_CONFIG.browser.production,
         sourcemap: true,
         exports: "named",
+        plugins: [terser()],
       },
     ],
     external: browserExternal,
