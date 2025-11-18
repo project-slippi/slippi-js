@@ -4,23 +4,10 @@ import resolve from "@rollup/plugin-node-resolve";
 import json from "@rollup/plugin-json";
 import dts from "rollup-plugin-dts";
 import { defineConfig } from "rollup";
-import { globSync } from "glob";
 
 // ============================================
 // Helper Functions
 // ============================================
-
-/**
- * Convert glob matches to Rollup input format
- */
-const globToInput = (pattern, removePrefix = "src/") => {
-  return Object.fromEntries(
-    globSync(pattern, { ignore: ["**/*.spec.ts", "**/*.test.ts"] }).map((file) => {
-      const key = file.replace(removePrefix, "").replace(/\.ts$/, "");
-      return [key, file];
-    }),
-  );
-};
 
 /**
  * Externalize npm packages and cross-directory imports
@@ -72,30 +59,20 @@ const plugins = [
 
 export default defineConfig([
   // ============================================
-  // Common Build (Shared browser/node code)
-  // ============================================
-  {
-    input: globToInput("src/common/**/*.ts"),
-    output: [createOutput("dist", "esm"), createOutput("dist", "cjs")],
-    external,
-    plugins,
-  },
-
-  // ============================================
-  // Node-specific Build
-  // ============================================
-  {
-    input: globToInput("src/node/**/*.ts"),
-    output: [createOutput("dist", "esm"), createOutput("dist", "cjs")],
-    external,
-    plugins,
-  },
-
-  // ============================================
-  // Browser Build
+  // Browser Build (includes common via imports)
   // ============================================
   {
     input: { "browser/index": "src/browser/index.ts" },
+    output: [createOutput("dist", "esm"), createOutput("dist", "cjs")],
+    external,
+    plugins,
+  },
+
+  // ============================================
+  // Node Build (includes common + node via imports)
+  // ============================================
+  {
+    input: { "node/index": "src/node/index.ts" },
     output: [createOutput("dist", "esm"), createOutput("dist", "cjs")],
     external,
     plugins,
@@ -108,7 +85,6 @@ export default defineConfig([
     input: {
       index: "src/browser/index.ts",
       "index.node": "src/node/index.ts",
-      "index.common": "src/common/index.ts",
     },
     output: { dir: "dist", format: "esm" },
     external,
