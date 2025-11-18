@@ -13,22 +13,22 @@
   "files": [
     "dist"
   ],
-  "main": "./dist/index.js",
-  "module": "./dist/slippi-js.esm.js",
+  "main": "./dist/browser/index.cjs",
+  "module": "./dist/browser/index.esm.js",
   "types": "./dist/index.d.ts",
-  "browser": "./dist/slippi-js.esm.js",
+  "browser": "./dist/browser/index.esm.js",
   "exports": {
     ".": {
-      "require": "./dist/index.js",
-      "import": "./dist/slippi-js.esm.js",
+      "require": "./dist/browser/index.cjs",
+      "import": "./dist/browser/index.esm.js",
       "types": "./dist/index.d.ts",
-      "default": "./dist/slippi-js.esm.js"
+      "default": "./dist/browser/index.esm.js"
     },
     "./node": {
-      "require": "./dist/index.node.js",
-      "import": "./dist/node/index.node.esm.js",
+      "require": "./dist/node/index.cjs",
+      "import": "./dist/node/index.esm.js",
       "types": "./dist/index.node.d.ts",
-      "default": "./dist/index.node.js"
+      "default": "./dist/node/index.esm.js"
     },
     "./package.json": "./package.json"
   },
@@ -38,8 +38,8 @@
     "start": "rollup -c -w",
     "build:check": "tsc --noEmit",
     "build:js": "rollup -c",
-    "build:entries": "node scripts/create-entry-files.js",
-    "build": "npm run build:check && npm run build:js && npm run build:entries",
+    "build:wrappers": "node scripts/create-wrapper-files.js",
+    "build": "npm run build:check && npm run build:js && npm run build:wrappers",
     "coverage": "npm run test -- --coverage",
     "postcoverage": "open-cli coverage/lcov-report/index.html",
     "test": "jest --runInBand --verbose",
@@ -74,7 +74,6 @@
     "@rollup/plugin-commonjs": "^25.0.7",
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^15.2.3",
-    "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^11.1.6",
     "@types/jest": "^29.5.14",
     "@types/lodash": "^4.14.178",

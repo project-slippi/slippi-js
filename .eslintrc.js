@@ -38,5 +38,5 @@ module.exports = {
     "new-cap": "error",
     curly: "error",
   },
-  ignorePatterns: ["/*.js", "/*.mjs", "test"],
+  ignorePatterns: ["/*.js", "/*.mjs", "test", "scripts"],
 };

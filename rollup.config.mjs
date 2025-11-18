@@ -2,165 +2,135 @@ import typescript from "@rollup/plugin-typescript";
 import commonjs from "@rollup/plugin-commonjs";
 import resolve from "@rollup/plugin-node-resolve";
 import json from "@rollup/plugin-json";
-import terser from "@rollup/plugin-terser";
 import dts from "rollup-plugin-dts";
 import { defineConfig } from "rollup";
+import { readdirSync } from "fs";
+import { join } from "path";
 
-// External dependencies for Node builds
-const nodeExternal = (id) => {
-  // If it's from node_modules, externalize it
-  if (id.includes("node_modules")) {
+// ============================================
+// Helper Functions
+// ============================================
+
+/**
+ * Automatically discover all TypeScript files in a directory
+ */
+function discoverFiles(dir, prefix = "") {
+  const entries = {};
+  const files = readdirSync(join("src", dir), { withFileTypes: true });
+
+  for (const file of files) {
+    if (file.isFile() && file.name.endsWith(".ts") && !file.name.endsWith(".d.ts")) {
+      const name = file.name.replace(".ts", "");
+      const key = prefix ? `${prefix}/${name}` : name;
+      entries[key] = `src/${dir}/${file.name}`;
+    }
+  }
+  return entries;
+}
+
+/**
+ * Create standardized external function
+ */
+const createExternal =
+  (additionalChecks = []) =>
+  (id) => {
+    // Externalize node_modules
+    if (id.includes("node_modules")) return true;
+
+    // Don't externalize source files
+    if (
+      id.startsWith(".") ||
+      id.startsWith("/") ||
+      id.startsWith("\\0") ||
+      id.startsWith("src/") ||
+      id.endsWith(".ts") ||
+      id.endsWith(".tsx")
+    ) {
+      return false;
+    }
+
+    // Apply additional checks
+    for (const check of additionalChecks) {
+      if (check(id)) return true;
+    }
+
+    // Default: externalize package imports
     return true;
-  }
-  // If it's a relative or absolute path, or our source files, don't externalize
-  if (
-    id.startsWith(".") ||
-    id.startsWith("/") ||
-    id.startsWith("\\0") ||
-    id.startsWith("src/") ||
-    id.endsWith(".ts") ||
-    id.endsWith(".tsx")
-  ) {
-    return false;
-  }
-  // Otherwise, it's a package import - externalize it
-  return true;
-};
+  };
 
-// External dependencies for Browser builds (same as Node - externalize everything)
-const browserExternal = nodeExternal;
+/**
+ * Create standardized output configuration
+ */
+const createOutput = (dir, format, preserveModules = true) => ({
+  dir,
+  format,
+  entryFileNames: `[name].${format === "esm" ? "esm.js" : "cjs"}`,
+  chunkFileNames: `[name].${format === "esm" ? "esm.js" : "cjs"}`,
+  preserveModules,
+  preserveModulesRoot: "src",
+  sourcemap: true,
+  exports: "named",
+});
 
-// Shared plugins for JavaScript builds
-const sharedPlugins = [
+/**
+ * Standard plugin configuration
+ */
+const createPlugins = (browser = false) => [
+  typescript({
+    tsconfig: "./tsconfig.json",
+    declaration: false,
+    declarationMap: false,
+    declarationDir: null,
+    composite: false,
+    incremental: false,
+  }),
   resolve({
-    preferBuiltins: true,
-    browser: false, // We'll set this per-build
+    preferBuiltins: !browser,
+    browser,
   }),
   json(),
   commonjs(),
 ];
-
-// Browser-specific plugins
-const browserPlugins = [
-  resolve({
-    preferBuiltins: false,
-    browser: true,
-  }),
-  json(),
-  commonjs(),
-];
-
-// Output file configuration - used by both Rollup and entry file generation
-export const OUTPUT_CONFIG = {
-  node: {
-    dir: "dist/node",
-    development: "index.node.cjs.development.js",
-    production: "index.node.cjs.production.min.js",
-    entry: "index.node.js",
-  },
-  browser: {
-    dir: "dist/browser",
-    development: "slippi-js.cjs.development.js",
-    production: "slippi-js.cjs.production.min.js",
-    entry: "index.js",
-  },
-};
 
 export default defineConfig([
   // ============================================
-  // Node Build (ESM + CJS)
+  // Common Build (Shared code with preserved modules)
   // ============================================
   {
-    input: "src/index.node.ts",
-    output: [
-      // Node ESM with preserved modules
-      {
-        dir: OUTPUT_CONFIG.node.dir,
-        format: "esm",
-        entryFileNames: "[name].esm.js",
-        chunkFileNames: "[name].esm.js",
-        preserveModules: true,
-        preserveModulesRoot: "src",
-        sourcemap: true,
-      },
-      // Node CJS development
-      {
-        dir: OUTPUT_CONFIG.node.dir,
-        format: "cjs",
-        entryFileNames: OUTPUT_CONFIG.node.development,
-        sourcemap: true,
-        exports: "named",
-      },
-      // Node CJS production (minified)
-      {
-        dir: OUTPUT_CONFIG.node.dir,
-        format: "cjs",
-        entryFileNames: OUTPUT_CONFIG.node.production,
-        sourcemap: true,
-        exports: "named",
-        plugins: [terser()],
-      },
-    ],
-    external: nodeExternal,
-    plugins: [
-      typescript({
-        tsconfig: "./tsconfig.json",
-        declaration: false,
-        declarationMap: false,
-        declarationDir: null,
-        composite: false,
-        incremental: false,
-      }),
-      ...sharedPlugins,
-    ],
+    input: {
+      "index.common": "src/index.common.ts",
+      SlippiGame: "src/SlippiGame.ts",
+      "utils/bufferHelpers": "src/utils/bufferHelpers.ts",
+      "utils/slpInputRef": "src/utils/slpInputRef.ts",
+    },
+    output: [createOutput("dist/common", "esm"), createOutput("dist/common", "cjs")],
+    external: createExternal(),
+    plugins: createPlugins(),
   },
 
   // ============================================
-  // Browser Build (ESM + CJS)
+  // Node-specific Build (Auto-discovered files)
   // ============================================
   {
-    input: "src/index.ts",
-    output: [
-      // Browser ESM bundle
-      {
-        file: "dist/slippi-js.esm.js",
-        format: "esm",
-        sourcemap: true,
-      },
-      // Browser CJS development
-      {
-        dir: OUTPUT_CONFIG.browser.dir,
-        format: "cjs",
-        entryFileNames: OUTPUT_CONFIG.browser.development,
-        sourcemap: true,
-        exports: "named",
-      },
-      // Browser CJS production
-      {
-        dir: OUTPUT_CONFIG.browser.dir,
-        format: "cjs",
-        entryFileNames: OUTPUT_CONFIG.browser.production,
-        sourcemap: true,
-        exports: "named",
-        plugins: [terser()],
-      },
-    ],
-    external: browserExternal,
-    plugins: [
-      typescript({
-        tsconfig: "./tsconfig.json",
-        declaration: false,
-        declarationMap: false,
-        declarationDir: null,
-        composite: false,
-        incremental: false,
-      }),
-      ...browserPlugins,
-    ],
+    input: {
+      ...discoverFiles("console", "console"),
+      ...discoverFiles("nodeUtils", "nodeUtils"),
+    },
+    output: [createOutput("dist/node", "esm", false), createOutput("dist/node", "cjs", false)],
+    external: createExternal([
+      // Externalize common modules
+      (id) =>
+        id.startsWith("./stats/") ||
+        id.startsWith("./melee/") ||
+        id.startsWith("./utils/") ||
+        id === "./types" ||
+        id.startsWith("../"),
+    ]),
+    plugins: createPlugins(),
   },
 
   // ============================================
-  // TypeScript Declarations (Generated ONCE)
+  // TypeScript Declarations (Generated once)
   // ============================================
   {
     input: {
@@ -172,7 +142,7 @@ export default defineConfig([
       dir: "dist",
       format: "esm",
     },
-    external: nodeExternal,
+    external: createExternal(),
     plugins: [
       dts({
         respectExternal: true,
