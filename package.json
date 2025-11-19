@@ -75,7 +75,8 @@
   },
   "optionalDependencies": {
     "enet": "^0.2.9",
-    "reconnect-core": "^1.3.0"
+    "reconnect-core": "^1.3.0",
+    "ws": ">=7.0.0"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^25.0.7",
