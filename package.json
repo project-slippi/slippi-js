@@ -68,7 +68,7 @@
   ],
   "dependencies": {
     "@shelacek/ubjson": "^1.0.1",
-    "date-fns": "^2.28.0",
+    "date-fns": "^3.3.0",
     "iconv-cp932": "^1.2.2",
     "lodash": "^4.17.21",
     "semver": "^7.3.2"
