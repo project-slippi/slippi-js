@@ -13,7 +13,7 @@ export class SlippiGame extends InternalSlippiGame {
       super(new SlpBufferInputRef(input), opts);
     } else if (typeof input === "string") {
       throw new Error(
-        "Cannot create SlippiGame with a file path in the browser. Import from the node version instead.",
+        "Cannot create SlippiGame with a file path in the browser. If you're running node, import from '@slippi/slippi-js/node' instead.",
       );
     } else {
       throw new Error("Cannot create SlippiGame with input of that type");
