@@ -3,7 +3,7 @@ import { Writable } from "stream";
 
 import { SlpFileWriter, SlippiGame, SlpFileWriterEvent } from "../src/node/index";
 import { openSlpFile } from "../src/common/utils/slpReader";
-import { SlpFileInputRef } from "../src/node/nodeUtils/slpFileInputRef";
+import { SlpFileInputRef } from "../src/node/utils/slpFileInputRef";
 
 describe("when ending SlpFileWriter", () => {
   it("should write data length to file", async () => {

@@ -1,6 +1,6 @@
 import { SlippiGame } from "../src/node/index";
 import { getGameEnd, openSlpFile } from "../src/common/utils/slpReader";
-import { SlpFileInputRef } from "../src/node/nodeUtils/slpFileInputRef";
+import { SlpFileInputRef } from "../src/node/utils/slpFileInputRef";
 
 describe("when reading game end directly", () => {
   it("should return the same game end object", () => {
