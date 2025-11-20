@@ -2,7 +2,7 @@
 type EventMap = Record<string, unknown>;
 type EventListener<T> = (data: T) => void;
 
-export class TypedEventTarget<E extends EventMap> {
+export class TypedEventEmitter<E extends EventMap> {
   private listeners = new Map<keyof E, Set<EventListener<unknown>>>();
 
   public on<K extends keyof E>(type: K, listener: EventListener<E[K]>): () => void {

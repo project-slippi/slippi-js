@@ -5,7 +5,7 @@ import last from "lodash/last";
 import orderBy from "lodash/orderBy";
 
 import type { FrameEntryType, FramesType, GameStartType, PostFrameUpdateType } from "../types";
-import { TypedEventTarget } from "../utils/typedEventTarget";
+import { TypedEventEmitter } from "../utils/typedEventEmitter";
 import type { ConversionType, MoveLandedType, PlayerIndexedType } from "./common";
 import {
   calcDamageTaken,
@@ -41,7 +41,10 @@ type MetadataType = {
   };
 };
 
-export class ConversionComputer extends TypedEventTarget<ConversionEventMap> implements StatComputer<ConversionType[]> {
+export class ConversionComputer
+  extends TypedEventEmitter<ConversionEventMap>
+  implements StatComputer<ConversionType[]>
+{
   private playerPermutations = new Array<PlayerIndexedType>();
   private conversions = new Array<ConversionType>();
   private state = new Map<PlayerIndexedType, PlayerConversionState>();

@@ -25,7 +25,7 @@ import { ItemSpawnType } from "../types";
 import { Command, Frames, GameMode } from "../types";
 import { exists } from "./exists";
 import { RollbackCounter } from "./rollbackCounter";
-import { TypedEventTarget } from "./typedEventTarget";
+import { TypedEventEmitter } from "./typedEventEmitter";
 
 // There are 5 bytes of item bitfields that can be enabled
 const ITEM_SETTINGS_BIT_COUNT = 40;
@@ -57,7 +57,7 @@ type SlpParserEventMap = {
   [SlpParserEvent.ROLLBACK_FRAME]: FrameEntryType;
 };
 
-export class SlpParser extends TypedEventTarget<SlpParserEventMap> {
+export class SlpParser extends TypedEventEmitter<SlpParserEventMap> {
   private frames: FramesType = {};
   private rollbackCounter: RollbackCounter = new RollbackCounter();
   private settings: GameStartType | null = null;

@@ -1,7 +1,7 @@
 import type { EventPayloadTypes } from "../types";
 import { Command } from "../types";
 import { parseMessage } from "./slpReader";
-import { TypedEventTarget } from "./typedEventTarget";
+import { TypedEventEmitter } from "./typedEventEmitter";
 
 export const NETWORK_MESSAGE = "HELO\0";
 
@@ -47,9 +47,9 @@ type SlpStreamEventMap = {
  * file. The "slp-command" event returns the parsed payload which you can access the attributes.
  *
  * @class SlpStream
- * @extends {TypedEventTarget}
+ * @extends {TypedEventEmitter}
  */
-export class SlpStream extends TypedEventTarget<SlpStreamEventMap> {
+export class SlpStream extends TypedEventEmitter<SlpStreamEventMap> {
   private gameEnded = false; // True only if in manual mode and the game has completed
   private settings: SlpStreamSettings;
   private payloadSizes: MessageSizes | null = null;
