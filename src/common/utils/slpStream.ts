@@ -54,6 +54,7 @@ export class SlpStream extends TypedEventTarget<SlpStreamEventMap> {
   private settings: SlpStreamSettings;
   private payloadSizes: MessageSizes | null = null;
   private previousBuffer: Uint8Array = new Uint8Array(0);
+  private readonly decoder = new TextDecoder();
 
   /**
    *Creates an instance of SlpStream.
@@ -91,8 +92,7 @@ export class SlpStream extends TypedEventTarget<SlpStreamEventMap> {
     while (index < data.length) {
       // We want to filter out the network messages
       const networkMsgSlice = data.slice(index, index + 5);
-      const decoder = new TextDecoder();
-      if (decoder.decode(networkMsgSlice) === NETWORK_MESSAGE) {
+      if (this.decoder.decode(networkMsgSlice) === NETWORK_MESSAGE) {
         index += 5;
         continue;
       }
