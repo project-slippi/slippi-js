@@ -1,10 +1,9 @@
-import type { WritableOptions } from "stream";
-import { Writable } from "stream";
+import type { EventPayloadTypes } from "../types";
+import { Command } from "../types";
+import { parseMessage } from "./slpReader";
+import { TypedEventTarget } from "./typedEventTarget";
 
-import type { EventPayloadTypes } from "../../common/types";
-import { Command } from "../../common/types";
-import { parseMessage } from "../../common/utils/slpReader";
-import { NETWORK_MESSAGE } from "../console";
+export const NETWORK_MESSAGE = "HELO\0";
 
 export enum SlpStreamMode {
   AUTO = "AUTO", // Always reading data, but errors on invalid command
@@ -27,7 +26,7 @@ export type SlpCommandEventPayload = {
 
 export type SlpRawEventPayload = {
   command: Command;
-  payload: Buffer;
+  payload: Uint8Array;
 };
 
 export enum SlpStreamEvent {
@@ -35,31 +34,34 @@ export enum SlpStreamEvent {
   COMMAND = "slp-command",
 }
 
+type SlpStreamEventMap = {
+  [SlpStreamEvent.RAW]: SlpRawEventPayload;
+  [SlpStreamEvent.COMMAND]: SlpCommandEventPayload;
+};
+
 /**
- * SlpStream is a writable stream of Slippi data. It passes the data being written in
- * and emits an event based on what kind of Slippi messages were processed.
+ * SlpStream processes a stream of Slippi data and emits events based on the commands received.
  *
  * SlpStream emits two events: "slp-raw" and "slp-command". The "slp-raw" event emits the raw buffer
  * bytes whenever it processes each command. You can manually parse this or write it to a
  * file. The "slp-command" event returns the parsed payload which you can access the attributes.
  *
  * @class SlpStream
- * @extends {Writable}
+ * @extends {TypedEventTarget}
  */
-export class SlpStream extends Writable {
+export class SlpStream extends TypedEventTarget<SlpStreamEventMap> {
   private gameEnded = false; // True only if in manual mode and the game has completed
   private settings: SlpStreamSettings;
   private payloadSizes: MessageSizes | null = null;
-  private previousBuffer: Uint8Array = Buffer.from([]);
+  private previousBuffer: Uint8Array = new Uint8Array(0);
 
   /**
    *Creates an instance of SlpStream.
    * @param {Partial<SlpStreamSettings>} [slpOptions]
-   * @param {WritableOptions} [opts]
    * @memberof SlpStream
    */
-  public constructor(slpOptions?: Partial<SlpStreamSettings>, opts?: WritableOptions) {
-    super(opts);
+  public constructor(slpOptions?: Partial<SlpStreamSettings>) {
+    super();
     this.settings = Object.assign({}, defaultSettings, slpOptions);
   }
 
@@ -68,25 +70,29 @@ export class SlpStream extends Writable {
     this.payloadSizes = null;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public _write(newData: Buffer, encoding: string, callback: (error?: Error | null, data?: any) => void): void {
-    if (encoding !== "buffer") {
-      throw new Error(`Unsupported stream encoding. Expected 'buffer' got '${encoding}'.`);
-    }
-
+  /**
+   * Process a chunk of data. This is the main entry point for feeding data
+   * into the stream processor.
+   */
+  public process(newData: Uint8Array): void {
     // Join the current data with the old data
-    const data = Uint8Array.from(Buffer.concat([this.previousBuffer, newData]));
+    const combinedLength = this.previousBuffer.length + newData.length;
+    const data = new Uint8Array(combinedLength);
+    data.set(this.previousBuffer, 0);
+    data.set(newData, this.previousBuffer.length);
 
     // Clear previous data
-    this.previousBuffer = Buffer.from([]);
+    this.previousBuffer = new Uint8Array(0);
 
-    const dataView = new DataView(data.buffer);
+    const dataView = new DataView(data.buffer, data.byteOffset, data.byteLength);
 
     // Iterate through the data
     let index = 0;
     while (index < data.length) {
       // We want to filter out the network messages
-      if (Buffer.from(data.slice(index, index + 5)).toString() === NETWORK_MESSAGE) {
+      const networkMsgSlice = data.slice(index, index + 5);
+      const decoder = new TextDecoder();
+      if (decoder.decode(networkMsgSlice) === NETWORK_MESSAGE) {
         index += 5;
         continue;
       }
@@ -114,7 +120,7 @@ export class SlpStream extends Writable {
       index += 1;
 
       const payloadPtr = data.slice(index);
-      const payloadDataView = new DataView(data.buffer, index);
+      const payloadDataView = new DataView(data.buffer, data.byteOffset + index, data.byteLength - index);
       let payloadLen = 0;
       try {
         payloadLen = this._processCommand(command, payloadPtr, payloadDataView);
@@ -127,20 +133,22 @@ export class SlpStream extends Writable {
       }
       index += payloadLen;
     }
-
-    callback();
   }
 
   private _writeCommand(command: Command, entirePayload: Uint8Array, payloadSize: number): Uint8Array {
     const payloadBuf = entirePayload.slice(0, payloadSize);
-    const bufToWrite = Buffer.concat([Buffer.from([command]), payloadBuf]);
+    // Concatenate command byte with payload
+    const bufToWrite = new Uint8Array(1 + payloadBuf.length);
+    bufToWrite[0] = command;
+    bufToWrite.set(payloadBuf, 1);
+
     // Forward the raw buffer onwards
     const event: SlpRawEventPayload = {
       command: command,
       payload: bufToWrite,
     };
     this.emit(SlpStreamEvent.RAW, event);
-    return new Uint8Array(bufToWrite);
+    return bufToWrite;
   }
 
   private _processCommand(command: Command, entirePayload: Uint8Array, dataView: DataView): number {

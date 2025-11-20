@@ -31,4 +31,3 @@ export * from "../common/index";
 export * from "./console";
 export * from "./utils/slpFile";
 export * from "./utils/slpFileWriter";
-export * from "./utils/slpStream";

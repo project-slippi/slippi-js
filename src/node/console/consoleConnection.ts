@@ -2,13 +2,12 @@ import { EventEmitter } from "events";
 import net from "net";
 import type { Instance } from "reconnect-core";
 
+import { NETWORK_MESSAGE } from "../../common/utils/slpStream";
 import type { CommunicationMessage } from "./communication";
 import { CommunicationType, ConsoleCommunication } from "./communication";
 import { loadReconnectCoreModule } from "./loadReconnectCoreModule";
 import type { Connection, ConnectionDetails, ConnectionSettings } from "./types";
 import { ConnectionEvent, ConnectionStatus, Ports } from "./types";
-
-export const NETWORK_MESSAGE = "HELO\0";
 
 const DEFAULT_CONNECTION_TIMEOUT_MS = 20000;
 

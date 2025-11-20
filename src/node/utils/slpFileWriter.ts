@@ -1,11 +1,12 @@
 import { format } from "date-fns";
 import path from "path";
 import type { WritableOptions } from "stream";
+import { Writable } from "stream";
 
 import { Command } from "../../common/types";
+import type { SlpRawEventPayload, SlpStreamSettings } from "../../common/utils/slpStream";
+import { SlpStream, SlpStreamEvent } from "../../common/utils/slpStream";
 import { SlpFile } from "./slpFile";
-import type { SlpRawEventPayload, SlpStreamSettings } from "./slpStream";
-import { SlpStream, SlpStreamEvent } from "./slpStream";
 
 /**
  * The default function to use for generating new SLP files.
@@ -41,30 +42,52 @@ export enum SlpFileWriterEvent {
  *
  * @export
  * @class SlpFileWriter
- * @extends {SlpStream}
+ * @extends {Writable}
  */
-export class SlpFileWriter extends SlpStream {
+export class SlpFileWriter extends Writable {
   private currentFile: SlpFile | null = null;
   private options: SlpFileWriterOptions;
+  private processor: SlpStream;
 
   /**
    * Creates an instance of SlpFileWriter.
    */
   public constructor(options?: Partial<SlpFileWriterOptions>, opts?: WritableOptions) {
-    super(options, opts);
+    super(opts);
     this.options = Object.assign({}, defaultSettings, options);
+    this.processor = new SlpStream(options);
     this._setupListeners();
   }
 
-  private _writePayload(payload: Buffer): void {
+  /**
+   * Access the underlying SlpStream processor for event listening
+   */
+  public getProcessor(): SlpStream {
+    return this.processor;
+  }
+
+  // Implement _write to handle incoming data
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public override _write(chunk: Buffer, _encoding: string, callback: (error?: Error | null) => void): void {
+    try {
+      this.processor.process(new Uint8Array(chunk));
+      callback();
+    } catch (err) {
+      callback(err instanceof Error ? err : new Error(String(err)));
+    }
+  }
+
+  private _writePayload(payload: Uint8Array): void {
     // Write data to the current file
     if (this.currentFile) {
-      this.currentFile.write(payload);
+      // Convert Uint8Array to Buffer for Node.js fs operations
+      const buffer = Buffer.from(payload);
+      this.currentFile.write(buffer);
     }
   }
 
   private _setupListeners(): void {
-    this.on(SlpStreamEvent.RAW, (data: SlpRawEventPayload) => {
+    this.processor.on(SlpStreamEvent.RAW, (data: SlpRawEventPayload) => {
       const { command, payload } = data;
       switch (command) {
         case Command.MESSAGE_SIZES:
@@ -122,7 +145,8 @@ export class SlpFileWriter extends SlpStream {
     // Only create a new file if we're outputting files
     if (this.options.outputFiles) {
       const filePath = this.options.newFilename(this.options.folderPath, new Date());
-      this.currentFile = new SlpFile(filePath, this);
+      // Pass the processor to SlpFile so it can listen to events
+      this.currentFile = new SlpFile(filePath, this.processor);
       // console.log(`Creating new file at: ${filePath}`);
       this.emit(SlpFileWriterEvent.NEW_FILE, filePath);
     }

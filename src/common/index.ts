@@ -8,3 +8,4 @@ export * from "./types";
 // Utils
 export * from "./utils/gameTimer";
 export * from "./utils/slpParser";
+export * from "./utils/slpStream";

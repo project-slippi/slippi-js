@@ -6,8 +6,8 @@ import { Writable } from "stream";
 
 import type { GameStartType, PostFrameUpdateType } from "../../common/types";
 import { Command } from "../../common/types";
-import type { SlpCommandEventPayload } from "./slpStream";
-import { SlpStream, SlpStreamEvent, SlpStreamMode } from "./slpStream";
+import type { SlpCommandEventPayload } from "../../common/utils/slpStream";
+import { SlpStream, SlpStreamEvent, SlpStreamMode } from "../../common/utils/slpStream";
 
 const DEFAULT_NICKNAME = "unknown";
 
@@ -97,7 +97,7 @@ export class SlpFile extends Writable {
 
     // Parse the data manually if it's an internal stream
     if (!this.usesExternalStream) {
-      this.slpStream.write(chunk);
+      this.slpStream.process(chunk);
     }
 
     // Keep track of the bytes we've written
@@ -172,9 +172,9 @@ export class SlpFile extends Writable {
 
       // Unsubscribe from the stream
       this.slpStream.removeListener(SlpStreamEvent.COMMAND, streamListener);
-      // Terminate the internal stream
+      // Clean up the internal processor
       if (!this.usesExternalStream) {
-        this.slpStream.end();
+        this.slpStream.restart();
       }
     });
   }
