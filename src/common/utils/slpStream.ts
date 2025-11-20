@@ -91,7 +91,7 @@ export class SlpStream extends TypedEventTarget<SlpStreamEventMap> {
     let index = 0;
     while (index < data.length) {
       // We want to filter out the network messages
-      const networkMsgSlice = data.slice(index, index + 5);
+      const networkMsgSlice = data.subarray(index, index + 5);
       if (this.decoder.decode(networkMsgSlice) === NETWORK_MESSAGE) {
         index += 5;
         continue;
@@ -119,7 +119,7 @@ export class SlpStream extends TypedEventTarget<SlpStreamEventMap> {
       // Increment by one for the command byte
       index += 1;
 
-      const payloadPtr = data.slice(index);
+      const payloadPtr = data.subarray(index);
       const payloadDataView = new DataView(data.buffer, data.byteOffset + index, data.byteLength - index);
       let payloadLen = 0;
       try {
@@ -136,7 +136,7 @@ export class SlpStream extends TypedEventTarget<SlpStreamEventMap> {
   }
 
   private _writeCommand(command: Command, entirePayload: Uint8Array, payloadSize: number): Uint8Array {
-    const payloadBuf = entirePayload.slice(0, payloadSize);
+    const payloadBuf = entirePayload.subarray(0, payloadSize);
     // Concatenate command byte with payload
     const bufToWrite = new Uint8Array(1 + payloadBuf.length);
     bufToWrite[0] = command;

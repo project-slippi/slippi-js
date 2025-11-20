@@ -198,7 +198,7 @@ export function iterateEvents(
     if (commandByte === Command.SPLIT_MESSAGE) {
       // Here we have a split message, we will collect data from them until the last
       // message of the list is received
-      const view = new DataView(buffer.buffer);
+      const view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
       const size = readUint16(view, 0x201) ?? 512;
       const isLastMessage = readBool(view, 0x204);
       const internalCommand = readUint8(view, 0x203) ?? 0;
@@ -212,7 +212,7 @@ export function iterateEvents(
       }
 
       // Collect new data into splitMessageBuffer
-      const appendBuf = buffer.slice(0x1, 0x1 + size);
+      const appendBuf = buffer.subarray(0x1, 0x1 + size);
       const mergedBuf = new Uint8Array(splitMessageBuffer.length + appendBuf.length);
       mergedBuf.set(splitMessageBuffer);
       mergedBuf.set(appendBuf, splitMessageBuffer.length);
@@ -238,7 +238,7 @@ export function iterateEvents(
 }
 
 export function parseMessage(command: Command, payload: Uint8Array): EventPayloadTypes | null {
-  const view = new DataView(payload.buffer);
+  const view = new DataView(payload.buffer, payload.byteOffset, payload.byteLength);
   switch (command) {
     case Command.GAME_START:
       const getPlayerObject = (playerIndex: number): PlayerType => {
@@ -259,7 +259,7 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
         const nametagLength = 0x10;
         const nametagOffset = playerIndex * nametagLength;
         const nametagStart = 0x161 + nametagOffset;
-        const nametagBuf = payload.slice(nametagStart, nametagStart + nametagLength);
+        const nametagBuf = payload.subarray(nametagStart, nametagStart + nametagLength);
         const nameTagString = decodeSJIS(nametagBuf).split("\0").shift();
         const nametag = nameTagString ? toHalfwidth(nameTagString) : "";
 
@@ -267,7 +267,7 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
         const displayNameLength = 0x1f;
         const displayNameOffset = playerIndex * displayNameLength;
         const displayNameStart = 0x1a5 + displayNameOffset;
-        const displayNameBuf = payload.slice(displayNameStart, displayNameStart + displayNameLength);
+        const displayNameBuf = payload.subarray(displayNameStart, displayNameStart + displayNameLength);
         const displayNameString = decodeSJIS(displayNameBuf).split("\0").shift();
         const displayName = displayNameString ? toHalfwidth(displayNameString) : "";
 
@@ -275,14 +275,14 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
         const connectCodeLength = 0xa;
         const connectCodeOffset = playerIndex * connectCodeLength;
         const connectCodeStart = 0x221 + connectCodeOffset;
-        const connectCodeBuf = payload.slice(connectCodeStart, connectCodeStart + connectCodeLength);
+        const connectCodeBuf = payload.subarray(connectCodeStart, connectCodeStart + connectCodeLength);
         const connectCodeString = decodeSJIS(connectCodeBuf).split("\0").shift();
         const connectCode = connectCodeString ? toHalfwidth(connectCodeString) : "";
 
         const userIdLength = 0x1d;
         const userIdOffset = playerIndex * userIdLength;
         const userIdStart = 0x249 + userIdOffset;
-        const userIdBuf = payload.slice(userIdStart, userIdStart + userIdLength);
+        const userIdBuf = payload.subarray(userIdStart, userIdStart + userIdLength);
         const userIdString = utf8Decoder.decode(userIdBuf).split("\0").shift();
         const userId = userIdString ?? "";
 
@@ -320,7 +320,7 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
 
       const sessionIdLength = 51;
       const sessionIdStart = 0x2be;
-      const sessionIdBuf = payload.slice(sessionIdStart, sessionIdStart + sessionIdLength);
+      const sessionIdBuf = payload.subarray(sessionIdStart, sessionIdStart + sessionIdLength);
       const sessionIdString = utf8Decoder.decode(sessionIdBuf).split("\0").shift();
       const sessionId = sessionIdString ?? "";
 
@@ -474,14 +474,14 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
         codes.push({
           type: codetype,
           address: address,
-          contents: payload.slice(pos, pos + offset),
+          contents: payload.subarray(pos, pos + offset),
         });
 
         pos += offset;
       }
 
       return {
-        contents: payload.slice(1),
+        contents: payload.subarray(1),
         codes: codes,
       };
     case Command.FOD_PLATFORM:
