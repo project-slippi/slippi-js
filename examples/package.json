@@ -1,7 +1,18 @@
 {
+  "name": "slippi-js-examples",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build:browser": "node esbuild.config.mjs",
+    "serve": "serve browser-test -l 8080"
+  },
   "dependencies": {
     "chokidar": "^3.4.0",
     "lodash": "^4.17.19",
-    "@slippi/slippi-js": "*"
+    "@slippi/slippi-js": "file://../"
+  },
+  "devDependencies": {
+    "esbuild": "^0.19.0",
+    "serve": "^14.2.0"
   }
 }
