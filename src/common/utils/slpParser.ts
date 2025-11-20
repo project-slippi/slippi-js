@@ -336,7 +336,13 @@ export class SlpParser extends TypedEventTarget<SlpParserEventMap> {
   private _finalizeFrames(num: number): void {
     while (this.lastFinalizedFrame < num) {
       const frameToFinalize = this.lastFinalizedFrame + 1;
-      const frame = this.getFrame(frameToFinalize)!;
+      const frame = this.getFrame(frameToFinalize);
+
+      // If the frame doesn't exist, we can't finalize it yet
+      // This can happen when trying to finalize frames that haven't been received
+      if (!frame) {
+        break;
+      }
 
       // Check that we have all the pre and post frame data for all players if we're in strict mode
       if (this.options.strict) {
