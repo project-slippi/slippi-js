@@ -88,6 +88,16 @@ export default defineConfig([
     },
     output: { dir: "dist", format: "esm" },
     external,
-    plugins: [dts({ respectExternal: true })],
+    plugins: [
+      dts({
+        // Remove respectExternal: true as it can cause the plugin to hang
+        // when trying to resolve complex type dependencies.
+        // The external function already handles what should be externalized.
+        compilerOptions: {
+          // Skip lib checks to speed up type resolution
+          skipLibCheck: true,
+        },
+      }),
+    ],
   },
 ]);
