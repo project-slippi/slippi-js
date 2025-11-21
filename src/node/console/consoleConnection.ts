@@ -1,12 +1,12 @@
-import { EventEmitter } from "events";
 import net from "net";
 import type { Instance } from "reconnect-core";
 
 import { NETWORK_MESSAGE } from "../../common/utils/slpStream";
+import { TypedEventEmitter } from "../../common/utils/typedEventEmitter";
 import type { CommunicationMessage } from "./communication";
 import { CommunicationType, ConsoleCommunication } from "./communication";
 import { loadReconnectCoreModule } from "./loadReconnectCoreModule";
-import type { Connection, ConnectionDetails, ConnectionSettings } from "./types";
+import type { Connection, ConnectionDetails, ConnectionEventMap, ConnectionSettings } from "./types";
 import { ConnectionEvent, ConnectionStatus, Ports } from "./types";
 
 const DEFAULT_CONNECTION_TIMEOUT_MS = 20000;
@@ -52,7 +52,7 @@ export type ConsoleConnectionOptions = typeof consoleConnectionOptions;
  * });
  * ```
  */
-export class ConsoleConnection extends EventEmitter implements Connection {
+export class ConsoleConnection extends TypedEventEmitter<ConnectionEventMap> implements Connection {
   private ipAddress: string;
   private port: number;
   private isRealtime: boolean;
@@ -143,7 +143,7 @@ export class ConsoleConnection extends EventEmitter implements Connection {
         failAfter: Infinity,
       },
       (client) => {
-        this.emit(ConnectionEvent.CONNECT);
+        this.emit(ConnectionEvent.CONNECT, undefined);
         // We successfully connected so turn on auto-reconnect
         this.shouldReconnect = this.options.autoReconnect;
         this.client = client;

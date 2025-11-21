@@ -1,8 +1,8 @@
 import type { Host, Packet, Peer } from "enet";
-import { EventEmitter } from "events";
 
+import { TypedEventEmitter } from "../../common/utils/typedEventEmitter";
 import { loadEnetModule } from "./loadEnetModule";
-import type { Connection, ConnectionDetails, ConnectionSettings } from "./types";
+import type { Connection, ConnectionDetails, ConnectionEventMap, ConnectionSettings } from "./types";
 import { ConnectionEvent, ConnectionStatus, Ports } from "./types";
 
 const MAX_PEERS = 32;
@@ -14,7 +14,7 @@ export enum DolphinMessageType {
   END_GAME = "end_game",
 }
 
-export class DolphinConnection extends EventEmitter implements Connection {
+export class DolphinConnection extends TypedEventEmitter<ConnectionEventMap> implements Connection {
   private ipAddress: string;
   private port: number;
   private connectionStatus = ConnectionStatus.DISCONNECTED;
@@ -87,7 +87,7 @@ export class DolphinConnection extends EventEmitter implements Connection {
         }
 
         newPeer.ping();
-        this.emit(ConnectionEvent.CONNECT);
+        this.emit(ConnectionEvent.CONNECT, undefined);
         this._setStatus(ConnectionStatus.CONNECTED);
       },
     );

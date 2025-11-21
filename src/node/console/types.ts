@@ -1,4 +1,4 @@
-import type { EventEmitter } from "events";
+import type { TypedEventEmitter } from "../../common/utils/typedEventEmitter";
 
 export enum ConnectionEvent {
   CONNECT = "connect",
@@ -8,6 +8,15 @@ export enum ConnectionEvent {
   DATA = "data",
   ERROR = "error",
 }
+
+export type ConnectionEventMap = {
+  [ConnectionEvent.CONNECT]: undefined;
+  [ConnectionEvent.MESSAGE]: unknown;
+  [ConnectionEvent.HANDSHAKE]: ConnectionDetails;
+  [ConnectionEvent.STATUS_CHANGE]: ConnectionStatus;
+  [ConnectionEvent.DATA]: Uint8Array;
+  [ConnectionEvent.ERROR]: unknown;
+};
 
 export enum ConnectionStatus {
   DISCONNECTED = 0,
@@ -34,7 +43,7 @@ export type ConnectionSettings = {
   port: number;
 };
 
-export interface Connection extends EventEmitter {
+export interface Connection extends TypedEventEmitter<ConnectionEventMap> {
   getStatus(): ConnectionStatus;
   getSettings(): ConnectionSettings;
   getDetails(): ConnectionDetails;
