@@ -1,58 +1,31 @@
-// A tiny EventEmitter-compatible base class that you can reuse
+// A tiny typed event emitter
 type EventMap = Record<string, unknown>;
-type EventListener<T> = (data: T) => void;
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Listener = (data: any) => void;
 
 export class TypedEventEmitter<E extends EventMap> {
-  private listeners = new Map<keyof E, Set<EventListener<unknown>>>();
+  private listeners = new Map<keyof E, Set<Listener>>();
 
-  public on<K extends keyof E>(type: K, listener: EventListener<E[K]>): () => void {
-    if (!this.listeners.has(type)) {
-      this.listeners.set(type, new Set());
+  public on<K extends keyof E>(type: K, listener: (data: E[K]) => void): () => void {
+    let listeners = this.listeners.get(type);
+    if (!listeners) {
+      listeners = new Set();
+      this.listeners.set(type, listeners);
     }
-    const eventListeners = this.listeners.get(type);
-    if (eventListeners) {
-      eventListeners.add(listener as EventListener<unknown>);
-    }
-    return () => this.off(type, listener); // handy disposer
+    listeners.add(listener);
+    return () => this.off(type, listener);
   }
 
-  public off<K extends keyof E>(type: K, listener: EventListener<E[K]>): void {
-    const eventListeners = this.listeners.get(type);
-    if (eventListeners) {
-      eventListeners.delete(listener as EventListener<unknown>);
-      if (eventListeners.size === 0) {
-        this.listeners.delete(type);
-      }
-    }
+  public off<K extends keyof E>(type: K, listener: (data: E[K]) => void): void {
+    this.listeners.get(type)?.delete(listener);
   }
 
-  public removeListener<K extends keyof E>(type: K, listener: EventListener<E[K]>): void {
+  public removeListener<K extends keyof E>(type: K, listener: (data: E[K]) => void): void {
     this.off(type, listener);
   }
 
-  public emit<K extends keyof E>(type: K, data: E[K]): boolean {
-    const eventListeners = this.listeners.get(type);
-    if (eventListeners && eventListeners.size > 0) {
-      // Call each listener with the data directly (EventEmitter style)
-      eventListeners.forEach((listener) => {
-        try {
-          (listener as EventListener<E[K]>)(data);
-        } catch (error) {
-          // In Node.js EventEmitter, errors in listeners don't stop other listeners
-          // We'll just log and continue
-          console.error(`Error in event listener for '${String(type)}':`, error);
-        }
-      });
-      return true;
-    }
-    return false;
-  }
-
-  public removeAllListeners<K extends keyof E>(type?: K): void {
-    if (type !== undefined) {
-      this.listeners.delete(type);
-    } else {
-      this.listeners.clear();
-    }
+  public emit<K extends keyof E>(type: K, data: E[K]): void {
+    this.listeners.get(type)?.forEach((fn) => fn(data));
   }
 }
