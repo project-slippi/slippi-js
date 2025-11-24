@@ -6,6 +6,8 @@ import replace from "@rollup/plugin-replace";
 import dts from "rollup-plugin-dts";
 import { defineConfig } from "rollup";
 
+const browserIncompatiblePackages = ["@shelacek/ubjson"];
+
 // ============================================
 // Helper Functions
 // ============================================
@@ -31,20 +33,11 @@ const external = (id) => {
  * Browser-specific external function that bundles certain dependencies
  */
 const browserExternal = (id) => {
-  // Bundle @shelacek/ubjson for browser builds
-  if (id === "@shelacek/ubjson" || id.includes("@shelacek/ubjson")) return false;
+  for (const pkg of browserIncompatiblePackages) {
+    if (id === pkg || id.includes(pkg)) return false;
+  }
 
-  // Don't externalize rollup helpers
-  if (id.startsWith("\\0")) return false;
-
-  // Normalize path separators for Windows compatibility
-  const normalizedId = id.replace(/\\/g, "/");
-
-  // Don't externalize source files (anything with "src/" or relative paths)
-  if (normalizedId.includes("src/") || normalizedId.startsWith(".")) return false;
-
-  // Externalize other npm packages and cross-directory imports
-  return true;
+  return external(id);
 };
 
 /**
@@ -55,20 +48,6 @@ const createOutput = (dir, format) => ({
   format,
   entryFileNames: `[name].${format === "esm" ? "esm.js" : "cjs"}`,
   chunkFileNames: `[name].${format === "esm" ? "esm.js" : "cjs"}`,
-  preserveModules: true,
-  preserveModulesRoot: "src",
-  sourcemap: true,
-  exports: "named",
-});
-
-/**
- * Browser output configuration (bundled to include dependencies)
- */
-const createBrowserOutput = (dir, format) => ({
-  dir,
-  format,
-  entryFileNames: `[name].${format === "esm" ? "esm.js" : "cjs"}`,
-  chunkFileNames: `[name]-[hash].${format === "esm" ? "esm.js" : "cjs"}`,
   sourcemap: true,
   exports: "named",
 });
@@ -110,8 +89,10 @@ const browserPlugins = [
   commonjs({
     include: /node_modules/,
   }),
-  // Replace require("util") with browser globals after bundling
-  // This handles the @shelacek/ubjson package's fallback to require("util")
+  // The @shelacek/ubjson package has a runtime check that will require("util") if it detects
+  // that the encoders are not available globally. This check should never happen in the browser.
+  // This does break static import analysis done by some bundlers so it's problematic so we remove
+  // the require call entirely.
   replace({
     preventAssignment: false,
     delimiters: ["", ""],
@@ -128,7 +109,7 @@ export default defineConfig([
   // ============================================
   {
     input: { "browser/index": "src/browser/index.ts" },
-    output: [createBrowserOutput("dist", "esm"), createBrowserOutput("dist", "cjs")],
+    output: [createOutput("dist", "esm"), createOutput("dist", "cjs")],
     external: browserExternal,
     plugins: browserPlugins,
   },
