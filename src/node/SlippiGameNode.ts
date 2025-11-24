@@ -5,7 +5,7 @@ import { SlpBufferInputRef } from "../common/utils/slpInputRef";
 import { SlpFileInputRef } from "./utils/slpFileInputRef";
 
 export class SlippiGameNode extends SlippiGameBase {
-  protected readonly filePath: string | null;
+  private readonly filePath: string | null;
 
   public constructor(input: string | BinaryLike, opts?: StatOptions) {
     if (typeof input === "string") {
