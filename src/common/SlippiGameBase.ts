@@ -33,7 +33,7 @@ import { extractFinalPostFrameUpdates, getGameEnd, getMetadata, iterateEvents, o
 /**
  * Slippi Game class that wraps a file
  */
-export class SlippiGame {
+export abstract class SlippiGameBase {
   private metadata: MetadataType | null = null;
   private finalStats: StatsType | null = null;
   private parser: SlpParser;
@@ -238,10 +238,7 @@ export class SlippiGame {
     return this.metadata;
   }
 
-  public getFilePath(): string | null {
-    // The buffer version of the SlippiGame doesn't have a file path
-    return null;
-  }
+  public abstract getFilePath(): string | null;
 
   public getWinners(): PlacementType[] {
     // Read game end block directly
