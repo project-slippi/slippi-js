@@ -17,6 +17,14 @@ export class TypedEventEmitter<E extends EventMap> {
     return () => this.off(type, listener);
   }
 
+  public once<K extends keyof E>(type: K, listener: (data: E[K]) => void): () => void {
+    const wrappedListener = (data: E[K]) => {
+      this.off(type, wrappedListener);
+      listener(data);
+    };
+    return this.on(type, wrappedListener);
+  }
+
   public off<K extends keyof E>(type: K, listener: (data: E[K]) => void): void {
     this.listeners.get(type)?.delete(listener);
   }
