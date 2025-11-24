@@ -16,4 +16,8 @@ export class SlippiGameWeb extends SlippiGameBase {
       throw new Error("Cannot create SlippiGame with input of that type");
     }
   }
+
+  public override getFilePath(): string | null {
+    return null;
+  }
 }
