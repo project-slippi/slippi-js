@@ -85,6 +85,13 @@ it("should be able to read nametags", () => {
   expect(settings3.players[1].nametag).toBe(".  。");
 });
 
+it("should correctly decode ShiftJIS Japanese nametags in hiragana and katakana", () => {
+  const game = new SlippiGame("slp/japanese-names.slp");
+  const settings = game.getSettings()!;
+  expect(settings.players[0].nametag).toBe("さしすせ");
+  expect(settings.players[1].nametag).toBe("サシスセ");
+});
+
 it("should be able to read netplay names and codes", () => {
   const game = new SlippiGame("slp/finalizedFrame.slp");
   const players = game.getMetadata()!.players!;
