@@ -168,10 +168,10 @@ export class DolphinConnection extends EventEmitter implements Connection {
       this.client.destroy();
       this.client = null;
     }
-    this._setStatus(ConnectionStatus.DISCONNECTED);
   }
 
   private onPeerDisconnected(): void {
+    this._setStatus(ConnectionStatus.DISCONNECTED);
     if (this.peer) {
       this.peer = null;
     }
@@ -182,6 +182,7 @@ export class DolphinConnection extends EventEmitter implements Connection {
     if (this.peer) {
       this.peer.disconnectLater();
     } else {
+      this._setStatus(ConnectionStatus.DISCONNECTED);
       this.destroyClient();
     }
   }
