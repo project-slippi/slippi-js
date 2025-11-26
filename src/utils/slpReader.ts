@@ -1,7 +1,9 @@
 import { decode } from "@shelacek/ubjson";
 import fs from "fs";
-import iconv from "iconv-lite";
+import { decode as decodeSJIS } from "iconv-cp932";
 import mapValues from "lodash/mapValues";
+
+const utf8Decoder = new TextDecoder("utf-8");
 
 import type {
   EventCallbackFunc,
@@ -346,10 +348,7 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
         const nametagOffset = playerIndex * nametagLength;
         const nametagStart = 0x161 + nametagOffset;
         const nametagBuf = payload.slice(nametagStart, nametagStart + nametagLength);
-        const nameTagString = iconv
-          .decode(nametagBuf as Buffer, "Shift_JIS")
-          .split("\0")
-          .shift();
+        const nameTagString = decodeSJIS(nametagBuf).split("\0").shift();
         const nametag = nameTagString ? toHalfwidth(nameTagString) : "";
 
         // Display name
@@ -357,10 +356,7 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
         const displayNameOffset = playerIndex * displayNameLength;
         const displayNameStart = 0x1a5 + displayNameOffset;
         const displayNameBuf = payload.slice(displayNameStart, displayNameStart + displayNameLength);
-        const displayNameString = iconv
-          .decode(displayNameBuf as Buffer, "Shift_JIS")
-          .split("\0")
-          .shift();
+        const displayNameString = decodeSJIS(displayNameBuf).split("\0").shift();
         const displayName = displayNameString ? toHalfwidth(displayNameString) : "";
 
         // Connect code
@@ -368,20 +364,14 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
         const connectCodeOffset = playerIndex * connectCodeLength;
         const connectCodeStart = 0x221 + connectCodeOffset;
         const connectCodeBuf = payload.slice(connectCodeStart, connectCodeStart + connectCodeLength);
-        const connectCodeString = iconv
-          .decode(connectCodeBuf as Buffer, "Shift_JIS")
-          .split("\0")
-          .shift();
+        const connectCodeString = decodeSJIS(connectCodeBuf).split("\0").shift();
         const connectCode = connectCodeString ? toHalfwidth(connectCodeString) : "";
 
         const userIdLength = 0x1d;
         const userIdOffset = playerIndex * userIdLength;
         const userIdStart = 0x249 + userIdOffset;
         const userIdBuf = payload.slice(userIdStart, userIdStart + userIdLength);
-        const userIdString = iconv
-          .decode(userIdBuf as Buffer, "utf8")
-          .split("\0")
-          .shift();
+        const userIdString = utf8Decoder.decode(userIdBuf).split("\0").shift();
         const userId = userIdString ?? "";
 
         const offset = playerIndex * 0x24;
@@ -419,10 +409,7 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
       const sessionIdLength = 51;
       const sessionIdStart = 0x2be;
       const sessionIdBuf = payload.slice(sessionIdStart, sessionIdStart + sessionIdLength);
-      const sessionIdString = iconv
-        .decode(sessionIdBuf as Buffer, "utf8")
-        .split("\0")
-        .shift();
+      const sessionIdString = utf8Decoder.decode(sessionIdBuf).split("\0").shift();
       const sessionId = sessionIdString ?? "";
 
       const gameSettings: GameStartType = {
