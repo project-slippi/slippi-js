@@ -2,85 +2,95 @@ import fs from "fs";
 import { Writable } from "stream";
 
 import { SlippiGame, SlpFileWriter } from "../src";
+import { SlpFileWriterEvent } from "../src/utils/slpFileWriter";
 import { openSlpFile, SlpInputSource } from "../src/utils/slpReader";
-
-// On my machine, >100 is required to give the slpFile.ts "finish" callback time to execute.
-// I thought a 'yield' 0 ms setTimout would allow the callback to execute, but that's not the case.
-const TIMEOUT_MS = 1000;
 
 describe("when ending SlpFileWriter", () => {
   it("should write data length to file", async () => {
-    const { dataLength, newFilename } = runSlpFileWriter("slp/finalizedFrame.slp");
-    await new Promise<void>((resolve) => {
-      setTimeout(() => {
-        const writtenDataLength = openSlpFile({ source: SlpInputSource.FILE, filePath: newFilename }).rawDataLength;
-        fs.unlinkSync(newFilename);
+    const { dataLength, fileCompletePromise, newFilename } = runSlpFileWriter("slp/finalizedFrame.slp");
 
-        expect(writtenDataLength).toBe(dataLength);
+    await fileCompletePromise;
 
-        resolve();
-      }, TIMEOUT_MS);
-    });
+    const writtenDataLength = openSlpFile({ source: SlpInputSource.FILE, filePath: newFilename }).rawDataLength;
+    fs.unlinkSync(newFilename);
+
+    expect(writtenDataLength).toBe(dataLength);
   });
 
   it("should succeed if no display names or connect codes are available in game start", async () => {
-    const { newFilename } = runSlpFileWriter("slp/finalizedFrame.slp");
-    await new Promise<void>((resolve) => {
-      setTimeout(() => {
-        const players = new SlippiGame(newFilename).getMetadata().players;
-        Object.keys(players).forEach((key) => {
-          const player = players[key];
-          players[key] = player.names;
-        });
-        fs.unlinkSync(newFilename);
+    const { fileCompletePromise, newFilename } = runSlpFileWriter("slp/finalizedFrame.slp");
 
-        expect(players).toEqual({ 0: { netplay: "", code: "" }, 1: { netplay: "", code: "" } });
+    await fileCompletePromise;
 
-        resolve();
-      }, TIMEOUT_MS);
+    const metadata = new SlippiGame(newFilename).getMetadata();
+    const players = metadata?.players;
+    expect(players).not.toBeNull();
+    const playerNames: any = {};
+    Object.keys(players!).forEach((key) => {
+      const player = players![key];
+      playerNames[key] = player.names;
     });
+    fs.unlinkSync(newFilename);
+
+    expect(playerNames).toEqual({ 0: { netplay: "", code: "" }, 1: { netplay: "", code: "" } });
   });
 
   it("should write display name and connect codes to metadata if available in game start", async () => {
-    const { newFilename } = runSlpFileWriter("slp/displayNameAndConnectCodeInGameStart.slp");
-    await new Promise<void>((resolve) => {
-      setTimeout(() => {
-        const players = new SlippiGame(newFilename).getMetadata().players;
-        Object.keys(players).forEach((key) => {
-          const player = players[key];
-          players[key] = player.names;
-        });
-        fs.unlinkSync(newFilename);
+    const { fileCompletePromise, newFilename } = runSlpFileWriter("slp/displayNameAndConnectCodeInGameStart.slp");
 
-        expect(players).toEqual({
-          0: { netplay: "ekans", code: "EKNS#442" },
-          1: { netplay: "gaR's uncle", code: "BAP#666" },
-          2: { netplay: "jmlee337", code: "JMLE#166" },
-          3: { netplay: "Mr.SuiSui", code: "SUI#244" },
-        });
+    await fileCompletePromise;
 
-        resolve();
-      }, TIMEOUT_MS);
+    const metadata = new SlippiGame(newFilename).getMetadata();
+    const players = metadata?.players;
+    expect(players).not.toBeNull();
+    const playerNames: any = {};
+    Object.keys(players!).forEach((key) => {
+      const player = players![key];
+      playerNames[key] = player.names;
+    });
+    fs.unlinkSync(newFilename);
+
+    expect(playerNames).toEqual({
+      0: { netplay: "ekans", code: "EKNS#442" },
+      1: { netplay: "gaR's uncle", code: "BAP#666" },
+      2: { netplay: "jmlee337", code: "JMLE#166" },
+      3: { netplay: "Mr.SuiSui", code: "SUI#244" },
     });
   });
 });
 
-const runSlpFileWriter = function (testFilePath: string): { dataLength: number; newFilename: string } {
+const runSlpFileWriter = function (testFilePath: string): {
+  dataLength: number;
+  newFilename: string;
+  fileCompletePromise: Promise<void>;
+} {
   const slpFileWriter = new SlpFileWriter();
   const slpFile = openSlpFile({ source: SlpInputSource.FILE, filePath: testFilePath });
   const dataLength = slpFile.rawDataLength;
   const dataPos = slpFile.rawDataPosition;
 
+  // Set up the FILE_COMPLETE promise BEFORE piping any data
+  // FILE_COMPLETE now fires after the file's "finish" event, so we can use it directly
+  const fileCompletePromise = new Promise<void>((resolve) => {
+    slpFileWriter.once(SlpFileWriterEvent.FILE_COMPLETE, () => {
+      resolve();
+    });
+  });
+
   const testFd = fs.openSync(testFilePath, "r");
   const newPos = pipeMessageSizes(testFd, dataPos, slpFileWriter);
 
   const newFilename = slpFileWriter.getCurrentFilename();
+  if (!newFilename) {
+    throw new Error("Failed to get filename from SlpFileWriter");
+  }
 
   pipeAllEvents(testFd, newPos, dataPos + dataLength, slpFileWriter, slpFile.messageSizes);
 
   return {
     dataLength: dataLength,
     newFilename: newFilename,
+    fileCompletePromise: fileCompletePromise,
   };
 };
 

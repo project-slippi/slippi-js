@@ -131,14 +131,19 @@ export class SlpFileWriter extends SlpStream {
   private _handleEndGame(): void {
     // End the stream
     if (this.currentFile) {
+      const filePath = this.currentFile.path();
+
       // Set the console nickname
       this.currentFile.setMetadata({
         consoleNickname: this.options.consoleNickname,
       });
-      this.currentFile.end();
 
-      // console.log(`Finished writing file: ${this.currentFile.path()}`);
-      this.emit(SlpFileWriterEvent.FILE_COMPLETE, this.currentFile.path());
+      // Wait for the file to actually finish writing before emitting FILE_COMPLETE
+      this.currentFile.once("finish", () => {
+        this.emit(SlpFileWriterEvent.FILE_COMPLETE, filePath);
+      });
+
+      this.currentFile.end();
 
       // Clear current file
       this.currentFile = null;
