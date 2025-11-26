@@ -1,4 +1,4 @@
-import type { Host, Peer } from "enet";
+import type { Host, Packet, Peer } from "enet";
 import { EventEmitter } from "events";
 
 import { loadEnetModule } from "./loadEnetModule";
@@ -80,7 +80,7 @@ export class DolphinConnection extends EventEmitter implements Connection {
       },
       3,
       1337, // Data to send, not sure what this is or what this represents
-      (err: any, newPeer: any) => {
+      (err, newPeer) => {
         if (err) {
           console.error(err);
           return;
@@ -105,7 +105,7 @@ export class DolphinConnection extends EventEmitter implements Connection {
       peer.send(0, packet);
     });
 
-    peer.on("message", (packet: any) => {
+    peer.on("message", (packet: Packet) => {
       const data = packet.data();
       if (data.length === 0) {
         return;
@@ -155,7 +155,7 @@ export class DolphinConnection extends EventEmitter implements Connection {
     });
 
     peer.on("disconnect", () => {
-      this.disconnect();
+      this.onPeerDisconnected();
     });
 
     this.peer = peer;
@@ -163,16 +163,27 @@ export class DolphinConnection extends EventEmitter implements Connection {
     this._setStatus(ConnectionStatus.CONNECTING);
   }
 
-  public disconnect(): void {
-    if (this.peer) {
-      this.peer.disconnect();
-      this.peer = null;
-    }
+  private destroyClient(): void {
     if (this.client) {
       this.client.destroy();
       this.client = null;
     }
     this._setStatus(ConnectionStatus.DISCONNECTED);
+  }
+
+  private onPeerDisconnected(): void {
+    if (this.peer) {
+      this.peer = null;
+    }
+    this.destroyClient();
+  }
+
+  public disconnect(): void {
+    if (this.peer) {
+      this.peer.disconnectLater();
+    } else {
+      this.destroyClient();
+    }
   }
 
   private _handleReplayData(data: Uint8Array): void {
