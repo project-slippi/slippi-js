@@ -3,8 +3,6 @@ import fs from "fs";
 import { decode as decodeSJIS } from "iconv-cp932";
 import mapValues from "lodash/mapValues";
 
-const utf8Decoder = new TextDecoder("utf-8");
-
 import type {
   EventCallbackFunc,
   EventPayloadTypes,
@@ -21,6 +19,8 @@ import type {
 import { Command } from "../types";
 import { exists } from "./exists";
 import { toHalfwidth } from "./fullwidth";
+
+const utf8Decoder = new TextDecoder("utf-8");
 
 export enum SlpInputSource {
   BUFFER = "buffer",
