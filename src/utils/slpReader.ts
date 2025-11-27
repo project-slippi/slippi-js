@@ -1,4 +1,4 @@
-import { decode } from "@shelacek/ubjson";
+import { decode as decodeUBJSON } from "@shelacek/ubjson";
 import fs from "fs";
 import { decode as decodeSJIS } from "iconv-cp932";
 import mapValues from "lodash/mapValues";
@@ -668,7 +668,7 @@ export function getMetadata(slpFile: SlpFileType): MetadataType | null {
 
   let metadata = null;
   try {
-    metadata = decode(buffer.buffer);
+    metadata = decodeUBJSON(buffer.buffer);
   } catch (ex) {
     // Do nothing
     // console.log(ex);
