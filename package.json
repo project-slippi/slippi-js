@@ -103,7 +103,7 @@
     "pretty-quick": "^2.0.1",
     "rimraf": "^3.0.0",
     "rollup": "^4.53.3",
-    "rollup-plugin-dts": "^6.2.3",
+    "rollup-plugin-dts": "^6.3.0",
     "ts-jest": "^29.3.2",
     "typescript": "^4.4.4"
   },
