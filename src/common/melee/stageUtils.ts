@@ -1,4 +1,4 @@
-import stageNames from "./stages.json";
+import stagesInfoMap from "./stages.json";
 
 export type StageInfo = {
   id: number;
@@ -10,16 +10,16 @@ export const UnknownStage: StageInfo = {
   name: "Unknown Stage",
 };
 
-type StageId = keyof typeof stageNames;
+type StageId = keyof typeof stagesInfoMap;
 
 export function getStageInfo(stageId: number): StageInfo {
-  const stageName = stageNames[stageId.toString() as StageId];
-  if (!stageName) {
+  const stageInfo = stagesInfoMap[stageId.toString() as StageId];
+  if (!stageInfo) {
     return UnknownStage;
   }
   return {
     id: stageId,
-    name: stageName,
+    name: stageInfo.name,
   };
 }
 
