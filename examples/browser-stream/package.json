@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build:browser": "node esbuild.config.mjs",
+    "build": "node esbuild.config.mjs",
     "serve": "serve browser-test -l 8080"
   },
   "dependencies": {
