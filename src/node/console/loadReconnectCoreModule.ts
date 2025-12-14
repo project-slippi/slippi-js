@@ -20,7 +20,7 @@ async function maybeLoadReconnectCoreModule(): Promise<ReconnectCoreModule | und
 
   // Try CJS first (works in both Node & webpack)
   try {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports
     const mod = require("reconnect-core") as any;
     reconnectCoreModule = (mod?.default ? mod?.default : mod) as ReconnectCoreModule | undefined;
     return reconnectCoreModule;

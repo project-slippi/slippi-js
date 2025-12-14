@@ -20,7 +20,7 @@ async function maybeLoadEnetModule(): Promise<EnetModule | undefined> {
 
   // Try CJS first (works in both Node & webpack)
   try {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports
     const mod = require("enet") as any;
     enetModule = (mod?.default ? mod?.default : mod) as EnetModule | undefined;
     return enetModule;
