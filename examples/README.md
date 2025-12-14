@@ -40,11 +40,3 @@ Demonstrates monitoring a directory for live `.slp` file changes and processing 
 | ----------------------- | ----------- | ------------------------------------ | ---------------------------------------------- |
 | **Browser Stream**      | Browser     | Low-level (`SlpStream`, `SlpParser`) | Web apps, network streaming, custom processing |
 | **Realtime File Reads** | Node.js     | High-level (`SlippiGame`)            | File monitoring, overlays, statistics          |
-
----
-
-## Additional Resources
-
-- **Main Documentation**: See the root [README.md](../README.md)
-- **Package Usage**: See [PACKAGE_USAGE.md](../PACKAGE_USAGE.md)
-- **Test Files**: The [test/](../test/) directory contains many more usage examples
