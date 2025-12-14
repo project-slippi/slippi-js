@@ -93,4 +93,15 @@ describe("when fetching stage information", () => {
   it("should return the right stage name from an ID", () => {
     expect(Melee.stages.getStageName(venomStage.id)).toEqual(venomStage.name);
   });
+
+  it("should return the vs mode stage list by default", () => {
+    // It should return only the VS mode stages by default
+    expect(Melee.stages.getStages().length).toEqual(30);
+  });
+
+  it("should return the correct stage list when specifying the mode", () => {
+    expect(Melee.stages.getStages("vs").length).toEqual(30);
+    expect(Melee.stages.getStages("target-test").length).toEqual(26);
+    expect(Melee.stages.getStages("home-run-contest").length).toEqual(1);
+  });
 });
