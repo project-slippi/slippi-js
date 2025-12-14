@@ -3,7 +3,7 @@ import * as esbuild from "esbuild";
 await esbuild.build({
   entryPoints: ["src/browser-stream-test.ts"],
   bundle: true,
-  outfile: "browser-test/bundle.js",
+  outfile: "dist/bundle.js",
   platform: "browser",
   target: "es2020",
   sourcemap: false,
