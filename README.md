@@ -40,6 +40,8 @@ const game = new SlippiGame(arrayBuffer);
 const game = new SlippiGame("path/to/file.slp"); // ❌ Error!
 ```
 
+> **💡 See the [browser-stream example](./examples/browser-stream/)** for a complete web application demonstrating real-time replay file processing in the browser.
+
 ### Node.js Export: `@slippi/slippi-js/node`
 
 The Node.js export is designed for server-side and Node.js environments. It can read files directly from disk using file paths **and** also accepts binary data. Additionally, it includes Node.js-specific features like console connections, file writing, and streaming utilities.
@@ -64,7 +66,11 @@ const game = new SlippiGame(buffer); // ✅
 
 **Rule of thumb:** Use `@slippi/slippi-js/node` for Node.js applications and scripts. Use the default `@slippi/slippi-js` for browser/web applications.
 
-## Writing a simple script
+> **💡 See the [realtime-file-reads example](./examples/realtime-file-reads/)** for a Node.js script that monitors live games using file system watching.
+
+## Quick Start
+
+### Writing a Simple Script
 
 1. Create a fresh directory on your disk
 2. Inside this new directory, create a file called `script.js`
@@ -97,26 +103,35 @@ console.log(frames[0].players); // Print frame when timer starts counting down
 5. Browse to the directory from the command line and run the command: `npm install @slippi/slippi-js`. This should create a `node_modules` directory in the folder.
 6. Run the command: `node script.js`. This will run the script above and will print data about the `test.slp` file
 
-## Reading live files
+> **💡 Tip:** See the [examples](./examples/) directory for more advanced usage including live file monitoring and browser-based replay processing.
 
-When using Slippi to mirror gameplay, it can be useful to extract game data about the live game. There are a few different methods of doing this but `slippi-js` can also be used to read live files. It is written in such a way where as long as the same SlippiGame class is used, it will only read from disk the data it has not yet read.
+## Examples
 
-One thing to note, when creating the `SlippiGame` object, be sure to enable `processOnTheFly` to get updated stats as the game progresses.
+The library supports processing replay files in real-time as they're being written. This is useful for live overlays, game monitoring, and analysis tools.
+
+### 🌐 [Browser Stream Example](./examples/browser-stream/)
+
+Demonstrates processing replay files in a web browser with simulated streaming using the low-level `SlpStream` and `SlpParser` APIs. Perfect for understanding how to handle chunked data in browser environments.
+
+**Features:** Interactive web UI, configurable chunk sizes, real-time event log, progress tracking
+
+### 📂 [Realtime File Reads Example](./examples/realtime-file-reads/)
+
+Demonstrates monitoring a directory for live `.slp` file changes and processing them as they're written using the high-level `SlippiGame` API in Node.js.
+
+**Features:** File system watching, live game state (stocks/damage), incremental updates, game end detection
+
+### Reading Live Files
+
+When reading files that are actively being written (e.g., during a live game), use the `processOnTheFly` option:
 
 ```javascript
-const game = new SlippiGame("path/to/your/slp/file", { processOnTheFly: true });
+const { SlippiGame } = require("@slippi/slippi-js/node");
+
+const game = new SlippiGame("path/to/live/file.slp", { processOnTheFly: true });
 ```
 
-An example script for how to do this is provided in the [examples](https://github.com/project-slippi/slippi-js/blob/master/examples/realtimeFileReads.js) folder.
-
-To use the example script:
-
-1. Open a terminal prompt in root project folder
-2. Run `cd examples`
-3. Run `npm install` to fetch the dependencies
-4. Run `node realtimeFileReads.js "C:\mirror\output\path"` replacing the path argument with where your connected console outputs replay files to
-
-At this point, you should see an output as you play games on the connected console.
+This allows the `SlippiGame` instance to read partial files and be re-read as new data becomes available. See the [realtime-file-reads example](./examples/realtime-file-reads/) for a complete implementation with file watching.
 
 ## Development
 
