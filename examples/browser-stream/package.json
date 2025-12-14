@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "build": "node esbuild.config.mjs",
-    "serve": "serve browser-test -l 8080"
+    "serve": "serve . -l 8080"
   },
   "dependencies": {
     "@slippi/slippi-js": "file:../.."
