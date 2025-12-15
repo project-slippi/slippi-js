@@ -275,7 +275,7 @@ export const State = {
   COMMAND_GRAB_RANGE2_END: 0x152,
 } as const;
 
-export type State = (typeof State)[keyof typeof State];
+export type State = number;
 
 export const Timers = {
   PUNISH_RESET_FRAMES: 45,
