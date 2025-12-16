@@ -571,7 +571,6 @@ function readBool(view: DataView, offset: number): boolean | undefined {
 export function getMetadata(slpFile: SlpFileType): MetadataType | undefined {
   if (slpFile.metadataLength <= 0) {
     // This will happen on a severed incomplete file
-    // $FlowFixMe
     return undefined;
   }
 
@@ -584,10 +583,8 @@ export function getMetadata(slpFile: SlpFileType): MetadataType | undefined {
     metadata = decodeUBJSON(buffer.buffer);
   } catch (ex) {
     // Do nothing
-    // console.log(ex);
   }
 
-  // $FlowFixMe
   return metadata;
 }
 
