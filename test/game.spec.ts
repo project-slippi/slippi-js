@@ -57,7 +57,7 @@ it("should correctly return file path", () => {
   expect(game.getFilePath()).toBe("slp/test.slp");
 
   const empty_game = new SlippiGame(new Buffer(""));
-  expect(empty_game.getFilePath()).toBe(null);
+  expect(empty_game.getFilePath()).toBeUndefined();
 });
 
 it("should be able to read incomplete SLP files", () => {
@@ -175,7 +175,7 @@ it("should support realtime parsing", () => {
 
   // Test results with empty buffer
   data = getData();
-  expect(data.settings).toBe(null);
+  expect(data.settings).toBeUndefined();
 
   // Add the header and 0x35 command to buffer
   copyBuf(0x1d);
@@ -191,7 +191,7 @@ it("should support realtime parsing", () => {
   data = getData();
   expect(_.size(data.frames)).toBe(3);
   expect(data.latestFrame.frame).toBe(-122); // Eventually this should be -121
-  expect(data.stats.stocks[1].endFrame).toBe(null);
+  expect(data.stats.stocks[1].endFrame).toBeUndefined();
 
   // Load the rest of the game data
   copyBuf(0x8271b);
@@ -246,8 +246,8 @@ describe("when reading match info", () => {
     const game = new SlippiGame("slp/geckoCodes.slp");
     const settings = game.getSettings();
     const matchInfo = settings?.matchInfo;
-    expect(matchInfo?.gameNumber).toBe(null);
-    expect(matchInfo?.tiebreakerNumber).toBe(null);
+    expect(matchInfo?.gameNumber).toBeUndefined();
+    expect(matchInfo?.tiebreakerNumber).toBeUndefined();
     expect(matchInfo?.sessionId).toBe("");
   });
 });

@@ -23,7 +23,7 @@ describe("when ending SlpFileWriter", () => {
 
     const metadata = new SlippiGame(newFilename).getMetadata();
     const players = metadata?.players;
-    expect(players).not.toBeNull();
+    expect(players).toBeDefined();
     const playerNames: any = {};
     Object.keys(players!).forEach((key) => {
       const player = players![key];
@@ -41,7 +41,7 @@ describe("when ending SlpFileWriter", () => {
 
     const metadata = new SlippiGame(newFilename).getMetadata();
     const players = metadata?.players;
-    expect(players).not.toBeNull();
+    expect(players).toBeDefined();
     const playerNames: any = {};
     Object.keys(players!).forEach((key) => {
       const player = players![key];

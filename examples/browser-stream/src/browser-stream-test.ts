@@ -16,7 +16,7 @@ const elapsedTimeEl = document.getElementById("elapsedTime") as HTMLDivElement;
 const progressBar = document.getElementById("progressBar") as HTMLDivElement;
 
 // State
-let selectedFile: File | null = null;
+let selectedFile: File | undefined = undefined;
 let isProcessing = false;
 let startTime = 0;
 let stats = {
@@ -134,7 +134,7 @@ async function processFile() {
 
   slpParser.on(SlpParserEvent.END, (gameEnd) => {
     const lras =
-      gameEnd.lrasInitiatorIndex !== undefined && gameEnd.lrasInitiatorIndex !== null
+      gameEnd.lrasInitiatorIndex !== undefined && gameEnd.lrasInitiatorIndex !== undefined
         ? gameEnd.lrasInitiatorIndex
         : "N/A";
     addLog("END", `Game ended - Method: ${gameEnd.gameEndMethod}, LRas: ${lras}`, "log-end");

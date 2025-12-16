@@ -9,10 +9,10 @@ describe("when determining placings", () => {
     // Test Placements
     expect(placements).toHaveLength(4);
     // Expect empty placements
-    expect(placements[0].position).toBe(null);
-    expect(placements[1].position).toBe(null);
-    expect(placements[2].position).toBe(null);
-    expect(placements[3].position).toBe(null);
+    expect(placements[0].position).toBeUndefined();
+    expect(placements[1].position).toBeUndefined();
+    expect(placements[2].position).toBeUndefined();
+    expect(placements[3].position).toBeUndefined();
   });
 
   describe("when handling LRAS", () => {

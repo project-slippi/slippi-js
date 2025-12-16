@@ -58,10 +58,10 @@ export function getWinners(
     return [];
   }
 
-  const winningTeam = players.find(({ playerIndex }) => playerIndex === firstPosition.playerIndex)?.teamId ?? null;
+  const winningTeam = players.find(({ playerIndex }) => playerIndex === firstPosition.playerIndex)?.teamId ?? undefined;
   if (isTeams && exists(winningTeam)) {
     return placements.filter((placement) => {
-      const teamId = players.find(({ playerIndex }) => playerIndex === placement.playerIndex)?.teamId ?? null;
+      const teamId = players.find(({ playerIndex }) => playerIndex === placement.playerIndex)?.teamId ?? undefined;
       return teamId === winningTeam;
     });
   }

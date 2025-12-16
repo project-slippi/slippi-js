@@ -36,13 +36,13 @@ export function positionToHomeRunDistance(distance: number, units: HomeRunDistan
 export function extractDistanceInfoFromFrame(
   settings: Pick<GameStartType, "language">,
   lastFrame: Pick<FrameEntryType, "players">,
-): { distance: number; units: HomeRunDistanceUnits } | null {
+): { distance: number; units: HomeRunDistanceUnits } | undefined {
   const sandbagLastFrame = Object.values(lastFrame.players)
     .filter(exists)
     .find((playerFrame) => playerFrame.post.internalCharacterId === SANDBAG_INTERNAL_ID);
 
   if (!sandbagLastFrame) {
-    return null;
+    return undefined;
   }
 
   // Only return the distance in meters if it's a Japanese replay.

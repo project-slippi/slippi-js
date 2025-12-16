@@ -45,7 +45,7 @@ export enum SlpFileWriterEvent {
  * @extends {Writable}
  */
 export class SlpFileWriter extends Writable {
-  private currentFile: SlpFile | null = null;
+  private currentFile: SlpFile | undefined = undefined;
   private options: SlpFileWriterOptions;
   private processor: SlpStream;
 
@@ -68,7 +68,7 @@ export class SlpFileWriter extends Writable {
 
   // Implement _write to handle incoming data
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public override _write(chunk: Buffer, _encoding: string, callback: (error?: Error | null) => void): void {
+  public override _write(chunk: Buffer, _encoding: string, callback: (error?: Error | undefined) => void): void {
     try {
       this.processor.process(new Uint8Array(chunk));
       callback();
@@ -108,23 +108,23 @@ export class SlpFileWriter extends Writable {
   }
 
   /**
-   * Return the name of the SLP file currently being written or null if
+   * Return the name of the SLP file currently being written or undefined if
    * no file is being written to currently.
    *
-   * @returns {(string | null)}
+   * @returns {(string | undefined)}
    * @memberof SlpFileWriter
    */
-  public getCurrentFilename(): string | null {
-    if (this.currentFile !== null) {
+  public getCurrentFilename(): string | undefined {
+    if (this.currentFile !== undefined) {
       return path.resolve(this.currentFile.path());
     }
-    return null;
+    return undefined;
   }
 
   /**
    * Ends the current file being written to.
    *
-   * @returns {(string | null)}
+   * @returns {(string | undefined)}
    * @memberof SlpFileWriter
    */
   public endCurrentFile(): void {
@@ -170,7 +170,7 @@ export class SlpFileWriter extends Writable {
       this.currentFile.end();
 
       // Clear current file
-      this.currentFile = null;
+      this.currentFile = undefined;
     }
   }
 }

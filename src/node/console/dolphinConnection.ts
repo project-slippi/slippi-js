@@ -21,8 +21,8 @@ export class DolphinConnection extends TypedEventEmitter<ConnectionEventMap> imp
   private gameCursor = 0;
   private nickname = "unknown";
   private version = "";
-  private peer: Peer | null = null;
-  private client: Host | null = null;
+  private peer: Peer | undefined = undefined;
+  private client: Host | undefined = undefined;
 
   public constructor() {
     super();
@@ -62,7 +62,7 @@ export class DolphinConnection extends TypedEventEmitter<ConnectionEventMap> imp
 
     const enet = await loadEnetModule();
     // Create the enet client
-    let client: Host | null = this.client;
+    let client: Host | undefined = this.client;
     if (!client) {
       client = enet.createClient({ peers: MAX_PEERS, channels: 3, down: 0, up: 0 }, (err) => {
         if (err) {
@@ -166,14 +166,14 @@ export class DolphinConnection extends TypedEventEmitter<ConnectionEventMap> imp
   private destroyClient(): void {
     if (this.client) {
       this.client.destroy();
-      this.client = null;
+      this.client = undefined;
     }
   }
 
   private onPeerDisconnected(): void {
     this._setStatus(ConnectionStatus.DISCONNECTED);
     if (this.peer) {
-      this.peer = null;
+      this.peer = undefined;
     }
     this.destroyClient();
   }

@@ -21,7 +21,7 @@ import type { StatComputer } from "./stats";
 
 type ConversionEventData = {
   combo: ConversionType | undefined;
-  settings: GameStartType | null;
+  settings: GameStartType | undefined;
 };
 
 type ConversionEventMap = {
@@ -29,10 +29,10 @@ type ConversionEventMap = {
 };
 
 type PlayerConversionState = {
-  conversion: ConversionType | null;
-  move: MoveLandedType | null;
+  conversion: ConversionType | undefined;
+  move: MoveLandedType | undefined;
   resetCounter: number;
-  lastHitAnimation: number | null;
+  lastHitAnimation: number | undefined;
 };
 
 type MetadataType = {
@@ -49,7 +49,7 @@ export class ConversionComputer
   private conversions = new Array<ConversionType>();
   private state = new Map<PlayerIndexedType, PlayerConversionState>();
   private metadata: MetadataType;
-  private settings: GameStartType | null = null;
+  private settings: GameStartType | undefined = undefined;
 
   public constructor() {
     super();
@@ -70,10 +70,10 @@ export class ConversionComputer
 
     this.playerPermutations.forEach((indices) => {
       const playerState: PlayerConversionState = {
-        conversion: null,
-        move: null,
+        conversion: undefined,
+        move: undefined,
         resetCounter: 0,
-        lastHitAnimation: null,
+        lastHitAnimation: undefined,
       };
       this.state.set(indices, playerState);
     });
@@ -145,8 +145,8 @@ function handleConversionCompute(
   const opponentFrame = frame.players[indices.opponentIndex]!.post;
 
   const prevFrameNumber = currentFrameNumber - 1;
-  let prevPlayerFrame: PostFrameUpdateType | null = null;
-  let prevOpponentFrame: PostFrameUpdateType | null = null;
+  let prevPlayerFrame: PostFrameUpdateType | undefined = undefined;
+  let prevOpponentFrame: PostFrameUpdateType | undefined = undefined;
 
   if (frames[prevFrameNumber]) {
     prevPlayerFrame = frames[prevFrameNumber]!.players[indices.playerIndex]!.post;
@@ -164,13 +164,13 @@ function handleConversionCompute(
   // move really fast (such as ganon's jab), it would count as one move. Added
   // the actionStateCounter at this point which counts the number of frames since
   // an animation started. Should be more robust, for old files it should always be
-  // null and null < null = false
+  // undefined and undefined < undefined = false
   const actionChangedSinceHit = playerFrame.actionStateId !== state.lastHitAnimation;
   const actionCounter = playerFrame.actionStateCounter!;
   const prevActionCounter = prevPlayerFrame ? prevPlayerFrame.actionStateCounter! : 0;
   const actionFrameCounterReset = actionCounter < prevActionCounter;
   if (actionChangedSinceHit || actionFrameCounterReset) {
-    state.lastHitAnimation = null;
+    state.lastHitAnimation = undefined;
   }
 
   // If opponent took damage and was put in some kind of stun this frame, either
@@ -181,10 +181,10 @@ function handleConversionCompute(
         playerIndex: indices.opponentIndex,
         lastHitBy: indices.playerIndex,
         startFrame: currentFrameNumber,
-        endFrame: null,
+        endFrame: undefined,
         startPercent: prevOpponentFrame ? prevOpponentFrame.percent ?? 0 : 0,
         currentPercent: opponentFrame.percent ?? 0,
-        endPercent: null,
+        endPercent: undefined,
         moves: [],
         didKill: false,
         openingType: "unknown", // Will be updated later
@@ -196,7 +196,7 @@ function handleConversionCompute(
     if (opntDamageTaken) {
       // If animation of last hit has been cleared that means this is a new move. This
       // prevents counting multiple hits from the same move such as fox's drill
-      if (state.lastHitAnimation === null) {
+      if (state.lastHitAnimation === undefined) {
         state.move = {
           playerIndex: indices.playerIndex,
           frame: currentFrameNumber,
@@ -215,7 +215,7 @@ function handleConversionCompute(
 
       // Store previous frame animation to consider the case of a trade, the previous
       // frame should always be the move that actually connected... I hope
-      state.lastHitAnimation = prevPlayerFrame ? prevPlayerFrame.actionStateId : null;
+      state.lastHitAnimation = prevPlayerFrame ? prevPlayerFrame.actionStateId : undefined;
     }
   }
 
@@ -265,8 +265,8 @@ function handleConversionCompute(
     state.conversion.endFrame = playerFrame.frame;
     state.conversion.endPercent = prevOpponentFrame ? prevOpponentFrame.percent ?? 0 : 0;
 
-    state.conversion = null;
-    state.move = null;
+    state.conversion = undefined;
+    state.move = undefined;
   }
 
   return shouldTerminate;

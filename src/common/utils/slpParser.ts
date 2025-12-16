@@ -60,13 +60,13 @@ type SlpParserEventMap = {
 export class SlpParser extends TypedEventEmitter<SlpParserEventMap> {
   private frames: FramesType = {};
   private rollbackCounter: RollbackCounter = new RollbackCounter();
-  private settings: GameStartType | null = null;
-  private gameEnd: GameEndType | null = null;
-  private latestFrameIndex: number | null = null;
+  private settings: GameStartType | undefined = undefined;
+  private gameEnd: GameEndType | undefined = undefined;
+  private latestFrameIndex: number | undefined = undefined;
   private settingsComplete = false;
   private lastFinalizedFrame = Frames.FIRST - 1;
   private options: SlpParserOptions;
-  private geckoList: GeckoListType | null = null;
+  private geckoList: GeckoListType | undefined = undefined;
 
   public constructor(options?: Partial<SlpParserOptions>) {
     super();
@@ -120,9 +120,9 @@ export class SlpParser extends TypedEventEmitter<SlpParserEventMap> {
    */
   public reset(): void {
     this.frames = {};
-    this.settings = null;
-    this.gameEnd = null;
-    this.latestFrameIndex = null;
+    this.settings = undefined;
+    this.gameEnd = undefined;
+    this.latestFrameIndex = undefined;
     this.settingsComplete = false;
     this.lastFinalizedFrame = Frames.FIRST - 1;
   }
@@ -132,35 +132,35 @@ export class SlpParser extends TypedEventEmitter<SlpParserEventMap> {
   }
 
   public getPlayableFrameCount(): number {
-    if (this.latestFrameIndex === null) {
+    if (this.latestFrameIndex === undefined) {
       return 0;
     }
     return this.latestFrameIndex < Frames.FIRST_PLAYABLE ? 0 : this.latestFrameIndex - Frames.FIRST_PLAYABLE;
   }
 
-  public getLatestFrame(): FrameEntryType | null {
+  public getLatestFrame(): FrameEntryType | undefined {
     // return this.playerFrames[this.latestFrameIndex];
 
     // TODO: Modify this to check if we actually have all the latest frame data and return that
     // TODO: If we do. For now I'm just going to take a shortcut
     const allFrames = this.getFrames();
-    const frameIndex = this.latestFrameIndex !== null ? this.latestFrameIndex : Frames.FIRST;
+    const frameIndex = this.latestFrameIndex !== undefined ? this.latestFrameIndex : Frames.FIRST;
     const indexToUse = this.gameEnd ? frameIndex : frameIndex - 1;
-    return get(allFrames, indexToUse) || null;
+    return get(allFrames, indexToUse) || undefined;
   }
 
-  public getSettings(): GameStartType | null {
-    return this.settingsComplete ? this.settings : null;
+  public getSettings(): GameStartType | undefined {
+    return this.settingsComplete ? this.settings : undefined;
   }
 
-  public getItems(): EnabledItemType[] | null {
+  public getItems(): EnabledItemType[] | undefined {
     if (this.settings?.itemSpawnBehavior === ItemSpawnType.OFF) {
-      return null;
+      return undefined;
     }
 
     const itemBitfield = this.settings?.enabledItems;
     if (!exists(itemBitfield)) {
-      return null;
+      return undefined;
     }
 
     const enabledItems: EnabledItemType[] = [];
@@ -176,7 +176,7 @@ export class SlpParser extends TypedEventEmitter<SlpParserEventMap> {
     return enabledItems;
   }
 
-  public getGameEnd(): GameEndType | null {
+  public getGameEnd(): GameEndType | undefined {
     return this.gameEnd;
   }
 
@@ -192,11 +192,11 @@ export class SlpParser extends TypedEventEmitter<SlpParserEventMap> {
     };
   }
 
-  public getFrame(num: number): FrameEntryType | null {
-    return this.frames[num] || null;
+  public getFrame(num: number): FrameEntryType | undefined {
+    return this.frames[num] || undefined;
   }
 
-  public getGeckoList(): GeckoListType | null {
+  public getGeckoList(): GeckoListType | undefined {
     return this.geckoList;
   }
 
@@ -206,7 +206,7 @@ export class SlpParser extends TypedEventEmitter<SlpParserEventMap> {
 
   private _handleGameEnd(payload: GameEndType): void {
     // Finalize remaining frames if necessary
-    if (this.latestFrameIndex !== null && this.latestFrameIndex !== this.lastFinalizedFrame) {
+    if (this.latestFrameIndex !== undefined && this.latestFrameIndex !== this.lastFinalizedFrame) {
       this._finalizeFrames(this.latestFrameIndex);
     }
 

@@ -52,7 +52,7 @@ type SlpStreamEventMap = {
 export class SlpStream extends TypedEventEmitter<SlpStreamEventMap> {
   private gameEnded = false; // True only if in manual mode and the game has completed
   private settings: SlpStreamSettings;
-  private payloadSizes: MessageSizes | null = null;
+  private payloadSizes: MessageSizes | undefined = undefined;
   private previousBuffer: Uint8Array = new Uint8Array(0);
   private readonly utf8Decoder = new TextDecoder("utf-8");
 
@@ -68,7 +68,7 @@ export class SlpStream extends TypedEventEmitter<SlpStreamEventMap> {
 
   public restart(): void {
     this.gameEnded = false;
-    this.payloadSizes = null;
+    this.payloadSizes = undefined;
   }
 
   /**
@@ -174,7 +174,7 @@ export class SlpStream extends TypedEventEmitter<SlpStreamEventMap> {
 
     // Fetch the payload and parse it
     let payload: Uint8Array;
-    let parsedPayload: EventPayloadTypes | null = null;
+    let parsedPayload: EventPayloadTypes | undefined = undefined;
     if (payloadSize > 0) {
       payload = this._writeCommand(command, entirePayload, payloadSize);
       parsedPayload = parseMessage(command, payload);

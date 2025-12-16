@@ -41,7 +41,7 @@ function handleTargetBreak(frames: FramesType, frame: FrameEntryType, targetBrea
     targets.forEach((target) => {
       targetBreaks.push({
         spawnId: target.spawnId as number,
-        frameDestroyed: null,
+        frameDestroyed: undefined,
         positionX: target.positionX as number,
         positionY: target.positionY as number,
       });

@@ -26,7 +26,7 @@ describe("when fetching animations", () => {
     expect(Melee.animations.getDeathDirection(1)).toEqual("left");
     expect(Melee.animations.getDeathDirection(2)).toEqual("right");
     expect(Melee.animations.getDeathDirection(3)).toEqual("up");
-    expect(Melee.animations.getDeathDirection(1234)).toEqual(null);
+    expect(Melee.animations.getDeathDirection(1234)).toBeUndefined();
   });
 });
 

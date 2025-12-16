@@ -17,7 +17,7 @@ export class SlippiGameWeb extends SlippiGameBase {
     }
   }
 
-  public override getFilePath(): string | null {
-    return null;
+  public override getFilePath(): string | undefined {
+    return undefined;
   }
 }

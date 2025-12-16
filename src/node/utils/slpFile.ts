@@ -38,7 +38,7 @@ export type SlpFileMetadata = {
 export class SlpFile extends Writable {
   private filePath: string;
   private metadata: SlpFileMetadata;
-  private fileStream: WriteStream | null = null;
+  private fileStream: WriteStream | undefined = undefined;
   private rawDataLength = 0;
   private slpStream: SlpStream;
   private usesExternalStream = false;
@@ -86,7 +86,7 @@ export class SlpFile extends Writable {
     this.metadata = Object.assign({}, this.metadata, metadata);
   }
 
-  public _write(chunk: Uint8Array, encoding: string, callback: (error?: Error | null) => void): void {
+  public _write(chunk: Uint8Array, encoding: string, callback: (error?: Error | undefined) => void): void {
     if (encoding !== "buffer") {
       throw new Error(`Unsupported stream encoding. Expected 'buffer' got '${encoding}'.`);
     }
@@ -193,7 +193,7 @@ export class SlpFile extends Writable {
     this.fileStream.write(header);
   }
 
-  public _final(callback: (error?: Error | null) => void): void {
+  public _final(callback: (error?: Error | undefined) => void): void {
     let footer = Buffer.concat([Buffer.from("U"), Buffer.from([8]), Buffer.from("metadata{")]);
 
     // Write game start time

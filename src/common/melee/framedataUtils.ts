@@ -6,7 +6,7 @@ export type Aerial = {
   subactionIndex: number;
   subactionName: string;
   totalFrames: number;
-  iasa: number | null;
+  iasa: number | undefined;
   autoCancelBefore: number;
   autoCancelAfter: number;
   landingLag: number;

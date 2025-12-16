@@ -5,7 +5,7 @@ describe("when calculating the in-game timer", () => {
   it("should return unknown if no starting timer is provided", () => {
     const gameTimer = frameToGameTimer(1234, {
       timerType: TimerType.DECREASING,
-      startingTimerSeconds: null,
+      startingTimerSeconds: undefined,
     });
     expect(gameTimer).toBe("Unknown");
   });

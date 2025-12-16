@@ -3,7 +3,7 @@ import fs from "fs";
 import type { SlpInputRef } from "../../common/utils/slpInputRef";
 
 export class SlpFileInputRef implements SlpInputRef {
-  private fileDescriptor: number | null = null;
+  private fileDescriptor: number | undefined = undefined;
 
   public constructor(private readonly filePath: string) {}
 
@@ -25,7 +25,7 @@ export class SlpFileInputRef implements SlpInputRef {
   public close(): void {
     if (this.fileDescriptor) {
       fs.closeSync(this.fileDescriptor);
-      this.fileDescriptor = null;
+      this.fileDescriptor = undefined;
     }
   }
 

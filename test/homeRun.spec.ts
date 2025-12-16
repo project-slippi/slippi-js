@@ -28,6 +28,6 @@ describe("when processing homerun contest replays", () => {
     const game = new SlippiGame("slp/facingDirection.slp");
     const stadiumStats = game.getStadiumStats() as HomeRunContestResultType;
 
-    expect(stadiumStats).toBeNull();
+    expect(stadiumStats).not.toBeDefined();
   });
 });

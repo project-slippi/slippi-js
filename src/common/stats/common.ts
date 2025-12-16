@@ -27,7 +27,7 @@ export type HomeRunContestResultType = {
 export type RatioType = {
   count: number;
   total: number;
-  ratio: number | null;
+  ratio: number | undefined;
 };
 
 export type PlayerIndexedType = {
@@ -37,20 +37,20 @@ export type PlayerIndexedType = {
 
 export type DurationType = {
   startFrame: number;
-  endFrame?: number | null;
+  endFrame?: number | undefined;
 };
 
 export type DamageType = {
   startPercent: number;
   currentPercent: number;
-  endPercent?: number | null;
+  endPercent?: number | undefined;
 };
 
 export type StockType = DurationType &
   DamageType & {
     playerIndex: number;
     count: number;
-    deathAnimation?: number | null;
+    deathAnimation?: number | undefined;
   };
 
 export type MoveLandedType = {
@@ -66,12 +66,12 @@ export type ComboType = DurationType &
     playerIndex: number;
     moves: MoveLandedType[];
     didKill: boolean;
-    lastHitBy: number | null;
+    lastHitBy: number | undefined;
   };
 
 export type TargetBreakType = {
   spawnId: number;
-  frameDestroyed: number | null;
+  frameDestroyed: number | undefined;
   positionX: number;
   positionY: number;
 };

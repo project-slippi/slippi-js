@@ -17,27 +17,27 @@ export enum Command {
 export type PlayerType = {
   playerIndex: number;
   port: number;
-  characterId: number | null;
-  type: number | null;
-  startStocks: number | null;
-  characterColor: number | null;
-  teamShade: number | null;
-  handicap: number | null;
-  teamId: number | null;
-  staminaMode: boolean | null;
-  silentCharacter: boolean | null;
-  invisible: boolean | null;
-  lowGravity: boolean | null;
-  blackStockIcon: boolean | null;
-  metal: boolean | null;
-  startOnAngelPlatform: boolean | null;
-  rumbleEnabled: boolean | null;
-  cpuLevel: number | null;
-  offenseRatio: number | null;
-  defenseRatio: number | null;
-  modelScale: number | null;
-  controllerFix: string | null;
-  nametag: string | null;
+  characterId: number | undefined;
+  type: number | undefined;
+  startStocks: number | undefined;
+  characterColor: number | undefined;
+  teamShade: number | undefined;
+  handicap: number | undefined;
+  teamId: number | undefined;
+  staminaMode: boolean | undefined;
+  silentCharacter: boolean | undefined;
+  invisible: boolean | undefined;
+  lowGravity: boolean | undefined;
+  blackStockIcon: boolean | undefined;
+  metal: boolean | undefined;
+  startOnAngelPlatform: boolean | undefined;
+  rumbleEnabled: boolean | undefined;
+  cpuLevel: number | undefined;
+  offenseRatio: number | undefined;
+  defenseRatio: number | undefined;
+  modelScale: number | undefined;
+  controllerFix: string | undefined;
+  nametag: string | undefined;
   displayName: string;
   connectCode: string;
   userId: string;
@@ -56,54 +56,54 @@ export enum Language {
 }
 
 export type GameStartType = {
-  slpVersion: string | null;
-  timerType: TimerType | null;
-  inGameMode: number | null;
-  friendlyFireEnabled: boolean | null;
-  isTeams: boolean | null;
-  stageId: number | null;
-  startingTimerSeconds: number | null;
-  itemSpawnBehavior: ItemSpawnType | null;
-  enabledItems: number | null;
+  slpVersion: string | undefined;
+  timerType: TimerType | undefined;
+  inGameMode: number | undefined;
+  friendlyFireEnabled: boolean | undefined;
+  isTeams: boolean | undefined;
+  stageId: number | undefined;
+  startingTimerSeconds: number | undefined;
+  itemSpawnBehavior: ItemSpawnType | undefined;
+  enabledItems: number | undefined;
   players: PlayerType[];
-  scene: number | null;
-  gameMode: GameMode | null;
-  language: Language | null;
-  gameInfoBlock: GameInfoType | null;
-  randomSeed: number | null;
-  isPAL: boolean | null;
-  isFrozenPS: boolean | null;
-  matchInfo: MatchInfo | null;
+  scene: number | undefined;
+  gameMode: GameMode | undefined;
+  language: Language | undefined;
+  gameInfoBlock: GameInfoType | undefined;
+  randomSeed: number | undefined;
+  isPAL: boolean | undefined;
+  isFrozenPS: boolean | undefined;
+  matchInfo: MatchInfo | undefined;
 };
 
 type MatchInfo = {
-  sessionId: string | null;
-  gameNumber: number | null;
-  tiebreakerNumber: number | null;
+  sessionId: string | undefined;
+  gameNumber: number | undefined;
+  tiebreakerNumber: number | undefined;
 
   /** @deprecated since version 7.2.0. use sessionId instead */
-  matchId: string | null;
+  matchId: string | undefined;
 };
 
 export type FrameStartType = {
-  frame: number | null;
-  seed: number | null;
-  sceneFrameCounter: number | null;
+  frame: number | undefined;
+  seed: number | undefined;
+  sceneFrameCounter: number | undefined;
 };
 
 export type GameInfoType = {
-  gameBitfield1: number | null;
-  gameBitfield2: number | null;
-  gameBitfield3: number | null;
-  gameBitfield4: number | null;
-  bombRainEnabled: boolean | null;
-  selfDestructScoreValue: number | null;
-  itemSpawnBitfield1: number | null;
-  itemSpawnBitfield2: number | null;
-  itemSpawnBitfield3: number | null;
-  itemSpawnBitfield4: number | null;
-  itemSpawnBitfield5: number | null;
-  damageRatio: number | null;
+  gameBitfield1: number | undefined;
+  gameBitfield2: number | undefined;
+  gameBitfield3: number | undefined;
+  gameBitfield4: number | undefined;
+  bombRainEnabled: boolean | undefined;
+  selfDestructScoreValue: number | undefined;
+  itemSpawnBitfield1: number | undefined;
+  itemSpawnBitfield2: number | undefined;
+  itemSpawnBitfield3: number | undefined;
+  itemSpawnBitfield4: number | undefined;
+  itemSpawnBitfield5: number | undefined;
+  damageRatio: number | undefined;
 };
 
 export enum TimerType {
@@ -166,87 +166,87 @@ export enum EnabledItemType {
 }
 
 export type PreFrameUpdateType = {
-  frame: number | null;
-  playerIndex: number | null;
-  isFollower: boolean | null;
-  seed: number | null;
-  actionStateId: number | null;
-  positionX: number | null;
-  positionY: number | null;
-  facingDirection: number | null;
-  joystickX: number | null;
-  joystickY: number | null;
-  cStickX: number | null;
-  cStickY: number | null;
-  trigger: number | null;
-  buttons: number | null;
-  physicalButtons: number | null;
-  physicalLTrigger: number | null;
-  physicalRTrigger: number | null;
-  rawJoystickX: number | null;
-  percent: number | null;
+  frame: number | undefined;
+  playerIndex: number | undefined;
+  isFollower: boolean | undefined;
+  seed: number | undefined;
+  actionStateId: number | undefined;
+  positionX: number | undefined;
+  positionY: number | undefined;
+  facingDirection: number | undefined;
+  joystickX: number | undefined;
+  joystickY: number | undefined;
+  cStickX: number | undefined;
+  cStickY: number | undefined;
+  trigger: number | undefined;
+  buttons: number | undefined;
+  physicalButtons: number | undefined;
+  physicalLTrigger: number | undefined;
+  physicalRTrigger: number | undefined;
+  rawJoystickX: number | undefined;
+  percent: number | undefined;
 };
 
 export type PostFrameUpdateType = {
-  frame: number | null;
-  playerIndex: number | null;
-  isFollower: boolean | null;
-  internalCharacterId: number | null;
-  actionStateId: number | null;
-  positionX: number | null;
-  positionY: number | null;
-  facingDirection: number | null;
-  percent: number | null;
-  shieldSize: number | null;
-  lastAttackLanded: number | null;
-  currentComboCount: number | null;
-  lastHitBy: number | null;
-  stocksRemaining: number | null;
-  actionStateCounter: number | null;
-  miscActionState: number | null;
-  isAirborne: boolean | null;
-  lastGroundId: number | null;
-  jumpsRemaining: number | null;
-  lCancelStatus: number | null;
-  hurtboxCollisionState: number | null;
-  selfInducedSpeeds: SelfInducedSpeedsType | null;
-  hitlagRemaining: number | null;
-  animationIndex: number | null;
-  instanceHitBy: number | null;
-  instanceId: number | null;
+  frame: number | undefined;
+  playerIndex: number | undefined;
+  isFollower: boolean | undefined;
+  internalCharacterId: number | undefined;
+  actionStateId: number | undefined;
+  positionX: number | undefined;
+  positionY: number | undefined;
+  facingDirection: number | undefined;
+  percent: number | undefined;
+  shieldSize: number | undefined;
+  lastAttackLanded: number | undefined;
+  currentComboCount: number | undefined;
+  lastHitBy: number | undefined;
+  stocksRemaining: number | undefined;
+  actionStateCounter: number | undefined;
+  miscActionState: number | undefined;
+  isAirborne: boolean | undefined;
+  lastGroundId: number | undefined;
+  jumpsRemaining: number | undefined;
+  lCancelStatus: number | undefined;
+  hurtboxCollisionState: number | undefined;
+  selfInducedSpeeds: SelfInducedSpeedsType | undefined;
+  hitlagRemaining: number | undefined;
+  animationIndex: number | undefined;
+  instanceHitBy: number | undefined;
+  instanceId: number | undefined;
 };
 
 export type SelfInducedSpeedsType = {
-  airX: number | null;
-  y: number | null;
-  attackX: number | null;
-  attackY: number | null;
-  groundX: number | null;
+  airX: number | undefined;
+  y: number | undefined;
+  attackX: number | undefined;
+  attackY: number | undefined;
+  groundX: number | undefined;
 };
 
 export type ItemUpdateType = {
-  frame: number | null;
-  typeId: number | null;
-  state: number | null;
-  facingDirection: number | null;
-  velocityX: number | null;
-  velocityY: number | null;
-  positionX: number | null;
-  positionY: number | null;
-  damageTaken: number | null;
-  expirationTimer: number | null;
-  spawnId: number | null;
-  missileType: number | null;
-  turnipFace: number | null;
-  chargeShotLaunched: number | null;
-  chargePower: number | null;
-  owner: number | null;
-  instanceId: number | null;
+  frame: number | undefined;
+  typeId: number | undefined;
+  state: number | undefined;
+  facingDirection: number | undefined;
+  velocityX: number | undefined;
+  velocityY: number | undefined;
+  positionX: number | undefined;
+  positionY: number | undefined;
+  damageTaken: number | undefined;
+  expirationTimer: number | undefined;
+  spawnId: number | undefined;
+  missileType: number | undefined;
+  turnipFace: number | undefined;
+  chargeShotLaunched: number | undefined;
+  chargePower: number | undefined;
+  owner: number | undefined;
+  instanceId: number | undefined;
 };
 
 export type FrameBookendType = {
-  frame: number | null;
-  latestFinalizedFrame: number | null;
+  frame: number | undefined;
+  latestFinalizedFrame: number | undefined;
 };
 
 export enum GameEndMethod {
@@ -259,14 +259,14 @@ export enum GameEndMethod {
 }
 
 export type GameEndType = {
-  gameEndMethod: GameEndMethod | null;
-  lrasInitiatorIndex: number | null;
+  gameEndMethod: GameEndMethod | undefined;
+  lrasInitiatorIndex: number | undefined;
   placements: PlacementType[];
 };
 
 export type PlacementType = {
   playerIndex: number;
-  position: number | null;
+  position: number | undefined;
 };
 
 export type GeckoListType = {
@@ -275,8 +275,8 @@ export type GeckoListType = {
 };
 
 export type GeckoCodeType = {
-  type: number | null;
-  address: number | null;
+  type: number | undefined;
+  address: number | undefined;
   contents: Uint8Array;
 };
 
@@ -286,9 +286,9 @@ export enum FodPlatformSide {
 }
 
 export type FodPlatformType = {
-  frame: number | null;
-  platform: FodPlatformSide | null;
-  height: number | null;
+  frame: number | undefined;
+  platform: FodPlatformSide | undefined;
+  height: number | undefined;
 };
 
 export enum WhispyBlowDirection {
@@ -298,8 +298,8 @@ export enum WhispyBlowDirection {
 }
 
 export type WhispyType = {
-  frame: number | null;
-  direction: WhispyBlowDirection | null;
+  frame: number | undefined;
+  direction: WhispyBlowDirection | undefined;
 };
 
 export enum StadiumTransformation {
@@ -319,27 +319,29 @@ export enum StadiumTransformationEvent {
 }
 
 export type StadiumTransformationType = {
-  frame: number | null;
-  event: StadiumTransformationEvent | null;
-  transformation: StadiumTransformation | null;
+  frame: number | undefined;
+  event: StadiumTransformationEvent | undefined;
+  transformation: StadiumTransformation | undefined;
 };
 
 export type MetadataType = {
-  startAt?: string | null;
-  playedOn?: string | null;
-  lastFrame?: number | null;
-  players?: {
-    [playerIndex: number]: {
-      characters: {
-        [internalCharacterId: number]: number;
-      };
-      names?: {
-        netplay?: string | null;
-        code?: string | null;
-      };
-    };
-  } | null;
-  consoleNick?: string | null;
+  startAt?: string | undefined;
+  playedOn?: string | undefined;
+  lastFrame?: number | undefined;
+  players?:
+    | {
+        [playerIndex: number]: {
+          characters: {
+            [internalCharacterId: number]: number;
+          };
+          names?: {
+            netplay?: string | undefined;
+            code?: string | undefined;
+          };
+        };
+      }
+    | undefined;
+  consoleNick?: string | undefined;
 };
 
 export type EventPayloadTypes =
@@ -357,8 +359,8 @@ export type EventPayloadTypes =
 
 export type EventCallbackFunc = (
   command: Command,
-  payload?: EventPayloadTypes | null,
-  buffer?: Uint8Array | null,
+  payload?: EventPayloadTypes | undefined,
+  buffer?: Uint8Array | undefined,
 ) => boolean;
 
 export type StageEventTypes = FodPlatformType | WhispyType | StadiumTransformationType;
@@ -367,16 +369,20 @@ export type FrameEntryType = {
   frame: number;
   start?: FrameStartType;
   players: {
-    [playerIndex: number]: {
-      pre: PreFrameUpdateType;
-      post: PostFrameUpdateType;
-    } | null;
+    [playerIndex: number]:
+      | {
+          pre: PreFrameUpdateType;
+          post: PostFrameUpdateType;
+        }
+      | undefined;
   };
   followers: {
-    [playerIndex: number]: {
-      pre: PreFrameUpdateType;
-      post: PostFrameUpdateType;
-    } | null;
+    [playerIndex: number]:
+      | {
+          pre: PreFrameUpdateType;
+          post: PostFrameUpdateType;
+        }
+      | undefined;
   };
   items?: ItemUpdateType[];
   stageEvents?: StageEventTypes[];

@@ -114,7 +114,7 @@ function getRatio(count: number, total: number): RatioType {
   return {
     count: count,
     total: total,
-    ratio: total ? count / total : null,
+    ratio: total ? count / total : undefined,
   };
 }
 

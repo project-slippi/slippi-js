@@ -34,10 +34,10 @@ import { extractFinalPostFrameUpdates, getGameEnd, getMetadata, iterateEvents, o
  * Slippi Game class that wraps a file
  */
 export abstract class SlippiGameBase {
-  private metadata: MetadataType | null = null;
-  private finalStats: StatsType | null = null;
+  private metadata: MetadataType | undefined = undefined;
+  private finalStats: StatsType | undefined = undefined;
   private parser: SlpParser;
-  private readPosition: number | null = null;
+  private readPosition: number | undefined = undefined;
   private actionsComputer: ActionsComputer = new ActionsComputer();
   private conversionComputer: ConversionComputer = new ConversionComputer();
   private comboComputer: ComboComputer = new ComboComputer();
@@ -70,7 +70,7 @@ export abstract class SlippiGameBase {
   }
 
   private _process(shouldStop: EventCallbackFunc = () => false, file?: SlpFileType): void {
-    if (this.parser.getGameEnd() !== null) {
+    if (this.parser.getGameEnd() !== undefined) {
       return;
     }
     this.input.open();
@@ -98,23 +98,23 @@ export abstract class SlippiGameBase {
    * Gets the game settings, these are the settings that describe the starting state of
    * the game such as characters, stage, etc.
    */
-  public getSettings(): GameStartType | null {
+  public getSettings(): GameStartType | undefined {
     // Settings is only complete after post-frame update
-    this._process(() => this.parser.getSettings() !== null);
+    this._process(() => this.parser.getSettings() !== undefined);
     return this.parser.getSettings();
   }
 
-  public getItems(): EnabledItemType[] | null {
+  public getItems(): EnabledItemType[] | undefined {
     this._process();
     return this.parser.getItems();
   }
 
-  public getLatestFrame(): FrameEntryType | null {
+  public getLatestFrame(): FrameEntryType | undefined {
     this._process();
     return this.parser.getLatestFrame();
   }
 
-  public getGameEnd(options: { skipProcessing?: boolean } = {}): GameEndType | null {
+  public getGameEnd(options: { skipProcessing?: boolean } = {}): GameEndType | undefined {
     if (options?.skipProcessing) {
       // Read game end block directly
       this.input.open();
@@ -138,12 +138,12 @@ export abstract class SlippiGameBase {
     return this.parser.getRollbackFrames();
   }
 
-  public getGeckoList(): GeckoListType | null {
-    this._process(() => this.parser.getGeckoList() !== null);
+  public getGeckoList(): GeckoListType | undefined {
+    this._process(() => this.parser.getGeckoList() !== undefined);
     return this.parser.getGeckoList();
   }
 
-  public getStats(): StatsType | null {
+  public getStats(): StatsType | undefined {
     if (this.finalStats) {
       return this.finalStats;
     }
@@ -152,7 +152,7 @@ export abstract class SlippiGameBase {
 
     const settings = this.parser.getSettings();
     if (!settings) {
-      return null;
+      return undefined;
     }
 
     // Finish processing if we're not up to date
@@ -164,7 +164,7 @@ export abstract class SlippiGameBase {
     const overall = generateOverallStats({ settings, inputs, conversions, playableFrameCount });
 
     const gameEnd = this.parser.getGameEnd();
-    const gameComplete = gameEnd !== null;
+    const gameComplete = gameEnd !== undefined;
 
     const stats: StatsType = {
       lastFrame: this.parser.getLatestFrameNumber(),
@@ -188,19 +188,19 @@ export abstract class SlippiGameBase {
     return stats;
   }
 
-  public getStadiumStats(): StadiumStatsType | null {
+  public getStadiumStats(): StadiumStatsType | undefined {
     this._process();
 
     const settings = this.parser.getSettings();
     if (!settings) {
-      return null;
+      return undefined;
     }
 
     const latestFrame = this.parser.getLatestFrame();
     const players = latestFrame?.players;
 
     if (!players) {
-      return null;
+      return undefined;
     }
 
     this.statsComputer.process();
@@ -214,7 +214,7 @@ export abstract class SlippiGameBase {
       case GameMode.HOME_RUN_CONTEST:
         const distanceInfo = extractDistanceInfoFromFrame(settings, latestFrame);
         if (!distanceInfo) {
-          return null;
+          return undefined;
         }
 
         return {
@@ -223,11 +223,11 @@ export abstract class SlippiGameBase {
           units: distanceInfo.units,
         };
       default:
-        return null;
+        return undefined;
     }
   }
 
-  public getMetadata(): MetadataType | null {
+  public getMetadata(): MetadataType | undefined {
     if (this.metadata) {
       return this.metadata;
     }
@@ -238,14 +238,14 @@ export abstract class SlippiGameBase {
     return this.metadata;
   }
 
-  public abstract getFilePath(): string | null;
+  public abstract getFilePath(): string | undefined;
 
   public getWinners(): PlacementType[] {
     // Read game end block directly
     this.input.open();
     const slpfile = openSlpFile(this.input);
     const gameEnd = getGameEnd(slpfile);
-    this._process(() => this.parser.getSettings() !== null, slpfile);
+    this._process(() => this.parser.getSettings() !== undefined, slpfile);
     const settings = this.parser.getSettings();
     if (!gameEnd || !settings) {
       // Technically using the final post frame updates, it should be possible to compute winners for

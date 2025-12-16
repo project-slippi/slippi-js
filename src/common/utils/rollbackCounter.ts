@@ -3,13 +3,13 @@ import type { FrameEntryType, RollbackFramesType } from "../types";
 export class RollbackCounter {
   private rollbackFrames: RollbackFramesType = {};
   private rollbackFrameCount = 0;
-  private rollbackPlayerIdx: number | null = null; // for keeping track of rollbacks by following a single player
+  private rollbackPlayerIdx: number | undefined = undefined; // for keeping track of rollbacks by following a single player
   private lastFrameWasRollback = false;
   private currentRollbackLength = 0;
   private rollbackLengths: number[] = [];
 
   public checkIfRollbackFrame(currentFrame: FrameEntryType | undefined, playerIdx: number) {
-    if (this.rollbackPlayerIdx === null) {
+    if (this.rollbackPlayerIdx === undefined) {
       // we only want to follow a single player to avoid double counting. So we use whoever is on first.
       this.rollbackPlayerIdx = playerIdx;
     } else if (this.rollbackPlayerIdx !== playerIdx) {
