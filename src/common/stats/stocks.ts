@@ -4,7 +4,7 @@ import { didLoseStock, getSinglesPlayerPermutationsFromSettings, isDead } from "
 import type { StatComputer } from "./stats";
 
 type StockState = {
-  stock?: StockType | undefined;
+  stock?: StockType;
 };
 
 export class StockComputer implements StatComputer<StockType[]> {

@@ -37,20 +37,20 @@ export type PlayerIndexedType = {
 
 export type DurationType = {
   startFrame: number;
-  endFrame?: number | undefined;
+  endFrame?: number;
 };
 
 export type DamageType = {
   startPercent: number;
   currentPercent: number;
-  endPercent?: number | undefined;
+  endPercent?: number;
 };
 
 export type StockType = DurationType &
   DamageType & {
     playerIndex: number;
     count: number;
-    deathAnimation?: number | undefined;
+    deathAnimation?: number;
   };
 
 export type MoveLandedType = {
