@@ -3,6 +3,7 @@ import { decode as decodeSJIS } from "iconv-cp932";
 import mapValues from "lodash/mapValues";
 
 import type {
+  ControllerFixType,
   EventCallbackFunc,
   EventPayloadTypes,
   GameEndType,
@@ -246,7 +247,7 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
         const cfOffset = playerIndex * 0x8;
         const dashback = readUint32(view, 0x141 + cfOffset);
         const shieldDrop = readUint32(view, 0x145 + cfOffset);
-        let controllerFix = "None";
+        let controllerFix: ControllerFixType = "None";
         if (dashback !== shieldDrop) {
           controllerFix = "Mixed";
         } else if (dashback === 1) {

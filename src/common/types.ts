@@ -14,6 +14,8 @@ export enum Command {
   STADIUM_TRANSFORMATION = 0x41,
 }
 
+export type ControllerFixType = "None" | "Mixed" | "UCF" | "Dween";
+
 export type PlayerType = {
   playerIndex: number;
   port: number;
@@ -36,8 +38,8 @@ export type PlayerType = {
   offenseRatio: number | undefined;
   defenseRatio: number | undefined;
   modelScale: number | undefined;
-  controllerFix: string | undefined;
-  nametag: string | undefined;
+  controllerFix: ControllerFixType | undefined;
+  nametag: string;
   displayName: string;
   connectCode: string;
   userId: string;
@@ -357,11 +359,7 @@ export type EventPayloadTypes =
   | WhispyType
   | StadiumTransformationType;
 
-export type EventCallbackFunc = (
-  command: Command,
-  payload?: EventPayloadTypes | undefined,
-  buffer?: Uint8Array | undefined,
-) => boolean;
+export type EventCallbackFunc = (command: Command, payload?: EventPayloadTypes, buffer?: Uint8Array) => boolean;
 
 export type StageEventTypes = FodPlatformType | WhispyType | StadiumTransformationType;
 
