@@ -7,12 +7,13 @@ describe("when extracting item information", () => {
 
     let lastSpawnId = -1;
     for (let frameNum = Frames.FIRST; frames[frameNum]; frameNum++) {
-      const frame = frames[frameNum];
+      const frame = frames[frameNum]!;
       if (frame.items) {
         frame.items.forEach((i) => {
-          if (lastSpawnId < i.spawnId) {
-            expect(i.spawnId).toBe(lastSpawnId + 1);
-            lastSpawnId = i.spawnId;
+          const spawnId = i.spawnId!;
+          if (lastSpawnId < spawnId) {
+            expect(spawnId).toBe(lastSpawnId + 1);
+            lastSpawnId = spawnId;
           }
         });
       }
@@ -24,7 +25,7 @@ describe("when extracting item information", () => {
     const frames = game.getFrames();
 
     for (let frameNum = Frames.FIRST; frames[frameNum]; frameNum++) {
-      const frame = frames[frameNum];
+      const frame = frames[frameNum]!;
       if (frame.items) {
         frame.items.forEach((i) => {
           // The owner must be between -1 and 3

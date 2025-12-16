@@ -1,5 +1,13 @@
 import { SlippiGame } from "../src/node/index";
-import { Frames, StadiumTransformationEvent, FodPlatformSide, WhispyBlowDirection } from "../src/common/index";
+import {
+  Frames,
+  StadiumTransformationEvent,
+  FodPlatformSide,
+  WhispyBlowDirection,
+  StadiumTransformationType,
+  FodPlatformType,
+  WhispyType,
+} from "../src/common/index";
 
 describe("when extracting stadium transformation information", () => {
   it("should properly increment event ids", () => {
@@ -9,16 +17,17 @@ describe("when extracting stadium transformation information", () => {
     let lastEventId = -1;
     let lastTransformationId = -1;
     for (let frameNum = Frames.FIRST; frames[frameNum]; frameNum++) {
-      const frame = frames[frameNum];
+      const frame = frames[frameNum]!;
       if (frame.stageEvents) {
         frame.stageEvents.forEach((e) => {
-          if (e.transformation != lastTransformationId) {
-            expect(e.event).toBe(StadiumTransformationEvent.INITIATE);
-            lastTransformationId = e.transformation;
-            lastEventId = e.event;
+          const stadiumEvent = e as StadiumTransformationType;
+          if (stadiumEvent.transformation != lastTransformationId) {
+            expect(stadiumEvent.event).toBe(StadiumTransformationEvent.INITIATE);
+            lastTransformationId = stadiumEvent.transformation!;
+            lastEventId = stadiumEvent.event!;
           } else {
-            expect(e.event).toBe((lastEventId + 1) % 7);
-            lastEventId = e.event;
+            expect(stadiumEvent.event).toBe((lastEventId + 1) % 7);
+            lastEventId = stadiumEvent.event!;
           }
         });
       }
@@ -34,15 +43,16 @@ describe("when extracting FOD platform information", () => {
     let prevHeightLeft = 20.0;
     let prevHeightRight = 28.0;
     for (let frameNum = Frames.FIRST; frames[frameNum]; frameNum++) {
-      const frame = frames[frameNum];
+      const frame = frames[frameNum]!;
       if (frame.stageEvents) {
         frame.stageEvents.forEach((e) => {
-          if (e.platform == FodPlatformSide.LEFT) {
-            expect(Math.abs(e.height - prevHeightLeft)).toBeLessThan(0.2);
-            prevHeightLeft = e.height;
+          const fodEvent = e as FodPlatformType;
+          if (fodEvent.platform == FodPlatformSide.LEFT) {
+            expect(Math.abs(fodEvent.height! - prevHeightLeft)).toBeLessThan(0.2);
+            prevHeightLeft = fodEvent.height!;
           } else {
-            expect(Math.abs(e.height - prevHeightRight)).toBeLessThan(0.2);
-            prevHeightRight = e.height;
+            expect(Math.abs(fodEvent.height! - prevHeightRight)).toBeLessThan(0.2);
+            prevHeightRight = fodEvent.height!;
           }
         });
       }
@@ -57,18 +67,19 @@ describe("when extracting Dreamland Whispy information", () => {
 
     let prevBlowDirection = WhispyBlowDirection.NONE;
     for (let frameNum = Frames.FIRST; frames[frameNum]; frameNum++) {
-      const frame = frames[frameNum];
+      const frame = frames[frameNum]!;
       if (frame.stageEvents) {
         frame.stageEvents.forEach((e) => {
+          const whispyEvent = e as WhispyType;
           if (prevBlowDirection == WhispyBlowDirection.LEFT) {
-            expect(e.direction).toBe(WhispyBlowDirection.NONE);
+            expect(whispyEvent.direction).toBe(WhispyBlowDirection.NONE);
           } else if (prevBlowDirection == WhispyBlowDirection.RIGHT) {
-            expect(e.direction).toBe(WhispyBlowDirection.NONE);
+            expect(whispyEvent.direction).toBe(WhispyBlowDirection.NONE);
           } else {
-            expect(e.direction).not.toBe(WhispyBlowDirection.NONE);
+            expect(whispyEvent.direction).not.toBe(WhispyBlowDirection.NONE);
           }
 
-          prevBlowDirection = e.direction;
+          prevBlowDirection = whispyEvent.direction!;
         });
       }
     }

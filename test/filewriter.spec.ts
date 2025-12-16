@@ -24,9 +24,9 @@ describe("when ending SlpFileWriter", () => {
     const metadata = new SlippiGame(newFilename).getMetadata();
     const players = metadata?.players;
     expect(players).toBeDefined();
-    const playerNames: any = {};
+    const playerNames: Record<string, any> = {};
     Object.keys(players!).forEach((key) => {
-      const player = players![key];
+      const player = players![key as any]!;
       playerNames[key] = player.names;
     });
     fs.unlinkSync(newFilename);
@@ -42,9 +42,9 @@ describe("when ending SlpFileWriter", () => {
     const metadata = new SlippiGame(newFilename).getMetadata();
     const players = metadata?.players;
     expect(players).toBeDefined();
-    const playerNames: any = {};
+    const playerNames: Record<string, any> = {};
     Object.keys(players!).forEach((key) => {
-      const player = players![key];
+      const player = players![key as any]!;
       playerNames[key] = player.names;
     });
     fs.unlinkSync(newFilename);
@@ -85,7 +85,7 @@ const runSlpFileWriter = function (testFilePath: string): {
     throw new Error("Failed to get filename from SlpFileWriter");
   }
 
-  pipeAllEvents(testFd, newPos, dataPos + dataLength, slpFileWriter, slpFile.messageSizes);
+  pipeAllEvents(testFd, newPos, dataPos + dataLength, slpFileWriter, slpFile.messageSizes!);
 
   return {
     dataLength: dataLength,
@@ -98,7 +98,7 @@ const pipeMessageSizes = function (fd: number, start: number, writeStream: Writa
   let pos = start;
   const commandByteBuffer = new Uint8Array(2);
   fs.readSync(fd, commandByteBuffer, 0, 2, pos);
-  const length = commandByteBuffer[1] + 1;
+  const length = commandByteBuffer[1]! + 1;
 
   const buffer = new Uint8Array(length);
   fs.readSync(fd, buffer, 0, length, pos);
@@ -122,7 +122,8 @@ const pipeAllEvents = function (
   while (pos < end) {
     const commandByteBuffer = new Uint8Array(1);
     fs.readSync(fd, commandByteBuffer, 0, 1, pos);
-    const length = messageSizes[commandByteBuffer[0]] + 1;
+    const commandByte = commandByteBuffer[0]!;
+    const length = messageSizes[commandByte]! + 1;
     // const commandByte = commandByteBuffer[0];
 
     const buffer = new Uint8Array(length);

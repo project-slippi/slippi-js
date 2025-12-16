@@ -31,18 +31,18 @@ it("should correctly return stats", () => {
   expect(_.last(firstConversion.moves)?.moveId).toBe(17);
 
   // Test action counts
-  expect(stats.actionCounts[0].wavedashCount).toBe(16);
-  expect(stats.actionCounts[0].wavelandCount).toBe(1);
-  expect(stats.actionCounts[0].airDodgeCount).toBe(3);
+  expect(stats.actionCounts[0]!.wavedashCount).toBe(16);
+  expect(stats.actionCounts[0]!.wavelandCount).toBe(1);
+  expect(stats.actionCounts[0]!.airDodgeCount).toBe(3);
 
   // Test attack counts
-  expect(stats.actionCounts[0].attackCount.ftilt).toBe(3);
-  expect(stats.actionCounts[0].attackCount.dash).toBe(1);
-  expect(stats.actionCounts[0].attackCount.fsmash).toBe(4);
-  expect(stats.actionCounts[0].attackCount.bair).toBe(4);
+  expect(stats.actionCounts[0]!.attackCount.ftilt).toBe(3);
+  expect(stats.actionCounts[0]!.attackCount.dash).toBe(1);
+  expect(stats.actionCounts[0]!.attackCount.fsmash).toBe(4);
+  expect(stats.actionCounts[0]!.attackCount.bair).toBe(4);
 
   // Test overall
-  expect(stats.overall[0].inputCounts.total).toBe(494);
+  expect(stats.overall[0]!.inputCounts.total).toBe(494);
 });
 
 it("should correctly return metadata", () => {
@@ -71,34 +71,34 @@ it("should be able to read incomplete SLP files", () => {
 it("should be able to read nametags", () => {
   const game = new SlippiGame("slp/nametags.slp");
   const settings = game.getSettings()!;
-  expect(settings.players[0].nametag).toBe("AMNイ");
-  expect(settings.players[1].nametag).toBe("");
+  expect(settings.players[0]!.nametag).toBe("AMNイ");
+  expect(settings.players[1]!.nametag).toBe("");
 
   const game2 = new SlippiGame("slp/nametags2.slp");
   const settings2 = game2.getSettings()!;
-  expect(settings2.players[0].nametag).toBe("A1=$");
-  expect(settings2.players[1].nametag).toBe("か、9@");
+  expect(settings2.players[0]!.nametag).toBe("A1=$");
+  expect(settings2.players[1]!.nametag).toBe("か、9@");
 
   const game3 = new SlippiGame("slp/nametags3.slp");
   const settings3 = game3.getSettings()!;
-  expect(settings3.players[0].nametag).toBe("B  R");
-  expect(settings3.players[1].nametag).toBe(".  。");
+  expect(settings3.players[0]!.nametag).toBe("B  R");
+  expect(settings3.players[1]!.nametag).toBe(".  。");
 });
 
 it("should correctly decode ShiftJIS Japanese nametags in hiragana and katakana", () => {
   const game = new SlippiGame("slp/japanese-names.slp");
   const settings = game.getSettings()!;
-  expect(settings.players[0].nametag).toBe("さしすせ");
-  expect(settings.players[1].nametag).toBe("サシスセ");
+  expect(settings.players[0]!.nametag).toBe("さしすせ");
+  expect(settings.players[1]!.nametag).toBe("サシスセ");
 });
 
 it("should be able to read netplay names and codes", () => {
   const game = new SlippiGame("slp/finalizedFrame.slp");
   const players = game.getMetadata()!.players!;
-  expect(players[0].names!.netplay).toBe("V");
-  expect(players[0].names!.code).toBe("VA#0");
-  expect(players[1].names!.netplay).toBe("Fizzi");
-  expect(players[1].names!.code).toBe("FIZZI#36");
+  expect(players[0]!.names!.netplay).toBe("V");
+  expect(players[0]!.names!.code).toBe("VA#0");
+  expect(players[1]!.names!.netplay).toBe("Fizzi");
+  expect(players[1]!.names!.code).toBe("FIZZI#36");
 });
 
 it("should be able to read console nickname", () => {
@@ -118,9 +118,9 @@ it("should support PAL version", () => {
 it("should correctly distinguish between different controller fixes", () => {
   const game = new SlippiGame("slp/controllerFixes.slp");
   const settings = game.getSettings()!;
-  expect(settings.players[0].controllerFix).toBe("Dween");
-  expect(settings.players[1].controllerFix).toBe("UCF");
-  expect(settings.players[2].controllerFix).toBe("None");
+  expect(settings.players[0]!.controllerFix).toBe("Dween");
+  expect(settings.players[1]!.controllerFix).toBe("UCF");
+  expect(settings.players[2]!.controllerFix).toBe("None");
 });
 
 it("should be able to support reading from a buffer input", () => {
@@ -184,28 +184,28 @@ it("should support realtime parsing", () => {
   // Copy settings
   copyBuf(0x1a3);
   data = getData();
-  expect(data.settings.stageId).toBe(8);
+  expect(data.settings!.stageId).toBe(8);
 
   // Copy first 3 frames
   copyBuf(0xe8 * 3);
   data = getData();
   expect(_.size(data.frames)).toBe(3);
-  expect(data.latestFrame.frame).toBe(-122); // Eventually this should be -121
-  expect(data.stats.stocks[1].endFrame).toBeUndefined();
+  expect(data.latestFrame!.frame).toBe(-122); // Eventually this should be -121
+  expect(data.stats!.stocks[1]!.endFrame).toBeUndefined();
 
   // Load the rest of the game data
   copyBuf(0x8271b);
   data = getData();
   expect(_.size(data.frames)).toBe(2306);
-  expect(data.stats.lastFrame).toBe(2182);
-  expect(data.gameEnd.gameEndMethod).toBe(7);
-  expect(data.latestFrame.frame).toBe(2182);
-  expect(data.stats.stocks[1].endFrame).toBe(766);
+  expect(data.stats!.lastFrame).toBe(2182);
+  expect(data.gameEnd!.gameEndMethod).toBe(7);
+  expect(data.latestFrame!.frame).toBe(2182);
+  expect(data.stats!.stocks[1]!.endFrame).toBe(766);
 
   // Load metadata
   copyBuf(0xa7);
   data = getData();
-  expect(data.metadata.playedOn).toBe("network");
+  expect(data.metadata!.playedOn).toBe("network");
 });
 
 it("should count rollback frames properly", () => {

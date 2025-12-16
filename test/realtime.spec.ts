@@ -43,8 +43,8 @@ describe("when reading last finalised frame from SlpStream", () => {
           expect(payload.latestFinalizedFrame).not.toEqual(Frames.FIRST - 1);
           expect(payload.latestFinalizedFrame).toBeGreaterThanOrEqual(lastFinalizedFrame);
           // We also expect it to be within 7 frames of the current frame
-          expect(payload.latestFinalizedFrame).toBeGreaterThanOrEqual(payload.frame - MAX_ROLLBACK_FRAMES);
-          lastFinalizedFrame = payload.latestFinalizedFrame;
+          expect(payload.latestFinalizedFrame).toBeGreaterThanOrEqual(payload.frame! - MAX_ROLLBACK_FRAMES);
+          lastFinalizedFrame = payload.latestFinalizedFrame!;
       }
     });
 
@@ -61,7 +61,7 @@ describe("when reading last finalised frame from SlpStream", () => {
     await pipeFileContents(testFile, stream);
 
     // The last finalized frame should be the same as what's recorded in the metadata
-    const metadata = game.getMetadata();
+    const metadata = game.getMetadata()!;
     expect(metadata.lastFrame).toEqual(lastFinalizedFrame);
   });
 });
@@ -96,9 +96,9 @@ describe("when reading finalised frames from SlpParser", () => {
 
     // The last finalized frame should be the same as what's recorded in the metadata
     const game = new SlippiGame(testFile);
-    const metadata = game.getMetadata();
+    const metadata = game.getMetadata()!;
     expect(metadata).toBeDefined();
-    const lastFrame = metadata.lastFrame ?? game.getLatestFrame().frame;
+    const lastFrame = metadata.lastFrame ?? game.getLatestFrame()!.frame;
     expect(lastFrame).toEqual(lastFinalizedFrame);
   });
 
@@ -140,7 +140,7 @@ describe("when reading finalised frames from SlpParser", () => {
  */
 const makeStreamPipeable = (processor: SlpStream): Writable => {
   return new Writable({
-    write(chunk: Buffer, encoding: string, callback: (error?: Error | null) => void) {
+    write(chunk: Buffer, _encoding: string, callback: (error?: Error | null) => void) {
       try {
         processor.process(new Uint8Array(chunk));
         callback();

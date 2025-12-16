@@ -18,10 +18,10 @@ describe("when calculating stats", () => {
   it("should distinguish between edge cancels and other interrupted aerials", () => {
     const game = new SlippiGame("slp/edge-cancel-2.slp");
     const stats = game.getStats()!;
-    const lCancel = stats.actionCounts[0].lCancelCount.success;
-    const lCancelfail = stats.actionCounts[0].lCancelCount.fail;
-    const edgeCancel = stats.actionCounts[0].edgeCancelCount.success;
-    const slowEdgeCancel = stats.actionCounts[0].edgeCancelCount.slow;
+    const lCancel = stats.actionCounts[0]!.lCancelCount.success;
+    const lCancelfail = stats.actionCounts[0]!.lCancelCount.fail;
+    const edgeCancel = stats.actionCounts[0]!.edgeCancelCount.success;
+    const slowEdgeCancel = stats.actionCounts[0]!.edgeCancelCount.slow;
     expect(lCancel).toBe(5);
     expect(lCancelfail).toBe(3);
     expect(edgeCancel).toBe(4);
@@ -31,10 +31,10 @@ describe("when calculating stats", () => {
   it("should correctly count edge cancels and not count edge cancels as failed L cancels", () => {
     const game = new SlippiGame("slp/edge-cancel-1.slp");
     const stats = game.getStats()!;
-    const lCancel = stats.actionCounts[0].lCancelCount.success;
-    const lCancelfail = stats.actionCounts[0].lCancelCount.fail;
-    const edgeCancel = stats.actionCounts[0].edgeCancelCount.success;
-    const slowEdgeCancel = stats.actionCounts[0].edgeCancelCount.slow;
+    const lCancel = stats.actionCounts[0]!.lCancelCount.success;
+    const lCancelfail = stats.actionCounts[0]!.lCancelCount.fail;
+    const edgeCancel = stats.actionCounts[0]!.edgeCancelCount.success;
+    const slowEdgeCancel = stats.actionCounts[0]!.edgeCancelCount.slow;
     expect(lCancel).toBe(0);
     expect(lCancelfail).toBe(2);
     expect(edgeCancel).toBe(4);
@@ -44,12 +44,12 @@ describe("when calculating stats", () => {
   it("should correctly calculate L cancel counts", () => {
     const game = new SlippiGame("slp/lCancel.slp");
     const stats = game.getStats()!;
-    const p1Success = stats.actionCounts[0].lCancelCount.success;
-    const p1Fail = stats.actionCounts[0].lCancelCount.fail;
+    const p1Success = stats.actionCounts[0]!.lCancelCount.success;
+    const p1Fail = stats.actionCounts[0]!.lCancelCount.fail;
     expect(p1Success).toBe(3);
     expect(p1Fail).toBe(4);
-    const p2Success = stats.actionCounts[1].lCancelCount.success;
-    const p2Fail = stats.actionCounts[1].lCancelCount.fail;
+    const p2Success = stats.actionCounts[1]!.lCancelCount.success;
+    const p2Fail = stats.actionCounts[1]!.lCancelCount.fail;
     expect(p2Success).toBe(5);
     expect(p2Fail).toBe(4);
   });
@@ -57,8 +57,8 @@ describe("when calculating stats", () => {
   it("should count repeat actions properly", () => {
     const game = new SlippiGame("slp/actionEdgeCases.slp");
     const stats = game.getStats()!;
-    const p1Bairs = stats.actionCounts[0].attackCount.bair;
-    const p1SpotDodge = stats.actionCounts[0].spotDodgeCount;
+    const p1Bairs = stats.actionCounts[0]!.attackCount.bair;
+    const p1SpotDodge = stats.actionCounts[0]!.spotDodgeCount;
     expect(p1Bairs).toBe(8);
     expect(p1SpotDodge).toBe(4);
   });
@@ -66,8 +66,8 @@ describe("when calculating stats", () => {
   it("should count angled attacks properly", () => {
     const game = new SlippiGame("slp/actionEdgeCases.slp");
     const stats = game.getStats()!;
-    const p1Ftilts = stats.actionCounts[0].attackCount.ftilt;
-    const p1Fsmashes = stats.actionCounts[0].attackCount.fsmash;
+    const p1Ftilts = stats.actionCounts[0]!.attackCount.ftilt;
+    const p1Fsmashes = stats.actionCounts[0]!.attackCount.fsmash;
     expect(p1Ftilts).toBe(3);
     expect(p1Fsmashes).toBe(3);
   });
@@ -75,21 +75,21 @@ describe("when calculating stats", () => {
   it("should count gnw weird moveset correctly", () => {
     const game = new SlippiGame("slp/gnwActions.slp");
     const stats = game.getStats()!;
-    const p1Jab1s = stats.actionCounts[0].attackCount.jab1;
-    const p1Jabms = stats.actionCounts[0].attackCount.jabm;
-    const p1Ftilts = stats.actionCounts[0].attackCount.ftilt;
-    const p1Utilts = stats.actionCounts[0].attackCount.utilt;
-    const p1Dtilts = stats.actionCounts[0].attackCount.dtilt;
-    const p1Fsmashes = stats.actionCounts[0].attackCount.fsmash;
-    const p1Usmashes = stats.actionCounts[0].attackCount.usmash;
-    const p1Dsmashes = stats.actionCounts[0].attackCount.dsmash;
-    const p1Nairs = stats.actionCounts[0].attackCount.nair;
-    const p1Fairs = stats.actionCounts[0].attackCount.fair;
-    const p1Bairs = stats.actionCounts[0].attackCount.bair;
-    const p1Uairs = stats.actionCounts[0].attackCount.uair;
-    const p1Dairs = stats.actionCounts[0].attackCount.dair;
-    const p1LCancelSuccess = stats.actionCounts[0].lCancelCount.success;
-    const p1LCancelFail = stats.actionCounts[0].lCancelCount.fail;
+    const p1Jab1s = stats.actionCounts[0]!.attackCount.jab1;
+    const p1Jabms = stats.actionCounts[0]!.attackCount.jabm;
+    const p1Ftilts = stats.actionCounts[0]!.attackCount.ftilt;
+    const p1Utilts = stats.actionCounts[0]!.attackCount.utilt;
+    const p1Dtilts = stats.actionCounts[0]!.attackCount.dtilt;
+    const p1Fsmashes = stats.actionCounts[0]!.attackCount.fsmash;
+    const p1Usmashes = stats.actionCounts[0]!.attackCount.usmash;
+    const p1Dsmashes = stats.actionCounts[0]!.attackCount.dsmash;
+    const p1Nairs = stats.actionCounts[0]!.attackCount.nair;
+    const p1Fairs = stats.actionCounts[0]!.attackCount.fair;
+    const p1Bairs = stats.actionCounts[0]!.attackCount.bair;
+    const p1Uairs = stats.actionCounts[0]!.attackCount.uair;
+    const p1Dairs = stats.actionCounts[0]!.attackCount.dair;
+    const p1LCancelSuccess = stats.actionCounts[0]!.lCancelCount.success;
+    const p1LCancelFail = stats.actionCounts[0]!.lCancelCount.fail;
     expect(p1Jab1s).toBe(2);
     expect(p1Jabms).toBe(1);
     expect(p1Ftilts).toBe(1);
@@ -110,10 +110,10 @@ describe("when calculating stats", () => {
   it("should count jabs properly", () => {
     const game = new SlippiGame("slp/actionEdgeCases.slp");
     const stats = game.getStats()!;
-    const p1Jab1s = stats.actionCounts[0].attackCount.jab1;
-    const p1Jab2s = stats.actionCounts[0].attackCount.jab2;
-    const p1Jab3s = stats.actionCounts[0].attackCount.jab3;
-    const p1Jabms = stats.actionCounts[0].attackCount.jabm;
+    const p1Jab1s = stats.actionCounts[0]!.attackCount.jab1;
+    const p1Jab2s = stats.actionCounts[0]!.attackCount.jab2;
+    const p1Jab3s = stats.actionCounts[0]!.attackCount.jab3;
+    const p1Jabms = stats.actionCounts[0]!.attackCount.jabm;
     expect(p1Jab1s).toBe(4);
     expect(p1Jab2s).toBe(3);
     expect(p1Jab3s).toBe(2);
@@ -123,8 +123,8 @@ describe("when calculating stats", () => {
   it("should count grabs even if frame perfect throw", () => {
     const game = new SlippiGame("slp/actionEdgeCases.slp");
     const stats = game.getStats()!;
-    const p1GrabSuccess = stats.actionCounts[0].grabCount.success;
-    const p1GrabFail = stats.actionCounts[0].grabCount.fail;
+    const p1GrabSuccess = stats.actionCounts[0]!.grabCount.success;
+    const p1GrabFail = stats.actionCounts[0]!.grabCount.fail;
     expect(p1GrabSuccess).toBe(4);
     expect(p1GrabFail).toBe(1);
   });
@@ -132,21 +132,21 @@ describe("when calculating stats", () => {
   it("should count dash attacks correctly despite boost grabs", () => {
     const game = new SlippiGame("slp/actionEdgeCases.slp");
     const stats = game.getStats()!;
-    const p1DashAttack = stats.actionCounts[0].attackCount.dash;
+    const p1DashAttack = stats.actionCounts[0]!.attackCount.dash;
     expect(p1DashAttack).toBe(2);
   });
 
   it("should correctly calculate throw counts", () => {
     const game = new SlippiGame("slp/throwGrab.slp");
     const stats = game.getStats()!;
-    const p2Throws = stats.actionCounts[1].throwCount;
+    const p2Throws = stats.actionCounts[1]!.throwCount;
     expect(p2Throws).toEqual(expectedThrow);
   });
 
   it("should correctly calculate grab counts", () => {
     const game = new SlippiGame("slp/throwGrab.slp");
     const stats = game.getStats()!;
-    const p2Grabs = stats.actionCounts[1].grabCount;
+    const p2Grabs = stats.actionCounts[1]!.grabCount;
     expect(p2Grabs).toEqual(expectedGrab);
   });
 
@@ -154,8 +154,8 @@ describe("when calculating stats", () => {
     it("should include throw damage", () => {
       const game = new SlippiGame("slp/throwGrab.slp");
       const stats = game.getStats()!;
-      const falco = stats.overall[0];
-      const marth = stats.overall[1];
+      const falco = stats.overall[0]!;
+      const marth = stats.overall[1]!;
       expect(marth.totalDamage).toBeGreaterThanOrEqual(75 + 120);
       expect(falco.totalDamage).toBeGreaterThanOrEqual(117 + 153);
     });
@@ -163,8 +163,8 @@ describe("when calculating stats", () => {
     it("should include pummel damage", () => {
       const game = new SlippiGame("slp/pummel.slp");
       const stats = game.getStats()!;
-      const marth = stats.overall[0];
-      const sheik = stats.overall[1];
+      const marth = stats.overall[0]!;
+      const sheik = stats.overall[1]!;
       expect(marth.totalDamage).toBeGreaterThanOrEqual(14);
       expect(sheik.totalDamage).toBeGreaterThanOrEqual(21);
     });
@@ -172,8 +172,8 @@ describe("when calculating stats", () => {
     it("should ignore Blast Zone Magnifying Glass damage", () => {
       const game = new SlippiGame("slp/consistencyTest/Puff-MagnifyingGlass-10.slp");
       const stats = game.getStats()!;
-      const puff = stats.overall[0];
-      const yl = stats.overall[1];
+      const puff = stats.overall[0]!;
+      const yl = stats.overall[1]!;
       let totalDamagePuffDealt = 0;
       stats.conversions.forEach((conversion) => {
         if (conversion.lastHitBy === puff.playerIndex) {
@@ -189,10 +189,10 @@ describe("when calculating stats", () => {
     it("should ignore Pichu's self-damage", () => {
       const game = new SlippiGame("slp/consistencyTest/PichuVSelf-All-22.slp");
       const stats = game.getStats()!;
-      const pichu = stats.overall[0];
-      const ics = stats.overall[1];
-      const pichuStock = stats.stocks.filter((s) => s.playerIndex === pichu.playerIndex)[0];
-      const icsStock = stats.stocks.filter((s) => s.playerIndex === ics.playerIndex)[0];
+      const pichu = stats.overall[0]!;
+      const ics = stats.overall[1]!;
+      const pichuStock = stats.stocks.filter((s) => s.playerIndex === pichu.playerIndex)[0]!;
+      const icsStock = stats.stocks.filter((s) => s.playerIndex === ics.playerIndex)[0]!;
       let totalDamagePichuDealt = 0;
       let icsDamageDealt = 0;
       stats.conversions.forEach((conversion) => {
@@ -217,8 +217,8 @@ describe("when calculating stats", () => {
     it("should ignore Ness' damage recovery", () => {
       const game = new SlippiGame("slp/consistencyTest/NessVFox-Absorb.slp");
       const stats = game.getStats()!;
-      const ness = stats.overall[0];
-      const fox = stats.overall[1];
+      const ness = stats.overall[0]!;
+      const fox = stats.overall[1]!;
       let totalDamageNessDealt = 0;
       let totalDamageFoxDealt = 0;
       stats.conversions.forEach((conversion) => {
@@ -246,16 +246,16 @@ describe("when calculating stats", () => {
     const game2 = new SlippiGame("slp/facingDirection.slp");
     const stats = game.getStats();
     const stats2 = game2.getStats();
-    expect(stats?.actionCounts[0].groundTechCount).toEqual({ in: 4, away: 4, neutral: 4, fail: 4 });
+    expect(stats?.actionCounts[0]!.groundTechCount).toEqual({ in: 4, away: 4, neutral: 4, fail: 4 });
     // 3 of these tech aways are not facing the opponent
-    expect(stats2?.actionCounts[1].groundTechCount).toEqual({ in: 1, away: 4, neutral: 4, fail: 11 });
-    expect(stats?.actionCounts[1].wallTechCount).toEqual({ success: 0, fail: 0 });
+    expect(stats2?.actionCounts[1]!.groundTechCount).toEqual({ in: 1, away: 4, neutral: 4, fail: 11 });
+    expect(stats?.actionCounts[1]!.wallTechCount).toEqual({ success: 0, fail: 0 });
   });
 
   it("should count peach fsmash correctly", () => {
     const game = new SlippiGame("slp/peachFsmash.slp");
     const stats = game.getStats();
-    const p1Fsmashes = stats?.actionCounts[0].attackCount.fsmash;
+    const p1Fsmashes = stats?.actionCounts[0]!.attackCount.fsmash;
     expect(p1Fsmashes).toBe(4);
   });
 });
