@@ -336,8 +336,8 @@ export type MetadataType = {
         [internalCharacterId: number]: number;
       };
       names?: {
-        netplay?: null;
-        code?: null;
+        netplay?: string | null;
+        code?: string | null;
       };
     };
   } | null;
