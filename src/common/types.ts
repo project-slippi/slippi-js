@@ -327,23 +327,21 @@ export type StadiumTransformationType = {
 };
 
 export type MetadataType = {
-  startAt?: string | undefined;
-  playedOn?: string | undefined;
-  lastFrame?: number | undefined;
-  players?:
-    | {
-        [playerIndex: number]: {
-          characters: {
-            [internalCharacterId: number]: number;
-          };
-          names?: {
-            netplay?: string | undefined;
-            code?: string | undefined;
-          };
-        };
-      }
-    | undefined;
-  consoleNick?: string | undefined;
+  startAt?: string | null;
+  playedOn?: "dolphin" | "network" | "nintendont" | null;
+  lastFrame?: number | null;
+  players?: {
+    [playerIndex: number]: {
+      characters: {
+        [internalCharacterId: number]: number;
+      };
+      names?: {
+        netplay?: null;
+        code?: null;
+      };
+    };
+  } | null;
+  consoleNick?: string | null;
 };
 
 export type EventPayloadTypes =
