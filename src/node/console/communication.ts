@@ -24,7 +24,7 @@ export type CommunicationMessage = {
 // desktop app
 export class ConsoleCommunication {
   private receiveBuf = Buffer.from([]);
-  private messages = new Array<CommunicationMessage>();
+  private messages: CommunicationMessage[] = [];
 
   public receive(data: Buffer): void {
     this.receiveBuf = Buffer.concat([this.receiveBuf, data]);

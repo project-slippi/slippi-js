@@ -43,9 +43,9 @@ type ComboState = {
 };
 
 export class ComboComputer extends TypedEventEmitter<ComboEventMap> implements StatComputer<ComboType[]> {
-  private playerPermutations = new Array<PlayerIndexedType>();
+  private playerPermutations: PlayerIndexedType[] = [];
   private state = new Map<PlayerIndexedType, ComboState>();
-  private combos = new Array<ComboType>();
+  private combos: ComboType[] = [];
   private settings?: GameStartType;
 
   public setup(settings: GameStartType): void {

@@ -9,8 +9,8 @@ type StockState = {
 
 export class StockComputer implements StatComputer<StockType[]> {
   private state = new Map<PlayerIndexedType, StockState>();
-  private playerPermutations = new Array<PlayerIndexedType>();
-  private stocks = new Array<StockType>();
+  private playerPermutations: PlayerIndexedType[] = [];
+  private stocks: StockType[] = [];
 
   public setup(settings: GameStartType): void {
     // Reset state

@@ -23,7 +23,7 @@ type PlayerActionState = {
 };
 
 export class ActionsComputer implements StatComputer<ActionCountsType[]> {
-  private playerPermutations = new Array<PlayerIndexedType>();
+  private playerPermutations: PlayerIndexedType[] = [];
   private state = new Map<PlayerIndexedType, PlayerActionState>();
 
   public setup(settings: GameStartType): void {

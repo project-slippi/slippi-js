@@ -28,7 +28,7 @@ export type PlayerInput = {
 
 export class InputComputer implements StatComputer<PlayerInput[]> {
   private state = new Map<PlayerIndexedType, PlayerInput>();
-  private playerPermutations = new Array<PlayerIndexedType>();
+  private playerPermutations: PlayerIndexedType[] = [];
 
   public setup(settings: GameStartType): void {
     // Reset the state

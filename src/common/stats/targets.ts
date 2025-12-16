@@ -8,7 +8,7 @@ import type { StatComputer } from "./stats";
 const TARGET_ITEM_TYPE_ID = 209;
 
 export class TargetBreakComputer implements StatComputer<TargetBreakType[]> {
-  private targetBreaks = new Array<TargetBreakType>();
+  private targetBreaks: TargetBreakType[] = [];
   private isTargetTestGame = false;
 
   public setup(settings: GameStartType): void {

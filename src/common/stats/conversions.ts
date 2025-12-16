@@ -45,8 +45,8 @@ export class ConversionComputer
   extends TypedEventEmitter<ConversionEventMap>
   implements StatComputer<ConversionType[]>
 {
-  private playerPermutations = new Array<PlayerIndexedType>();
-  private conversions = new Array<ConversionType>();
+  private playerPermutations: PlayerIndexedType[] = [];
+  private conversions: ConversionType[] = [];
   private state = new Map<PlayerIndexedType, PlayerConversionState>();
   private metadata: MetadataType;
   private settings?: GameStartType;

@@ -22,7 +22,7 @@ export class Stats {
   private lastProcessedFrame?: number;
   private frames: FramesType = {};
   private players: number[] = [];
-  private allComputers = new Array<StatComputer<unknown>>();
+  private allComputers: StatComputer<unknown>[] = [];
 
   public constructor(options?: StatOptions) {
     this.options = Object.assign({}, defaultOptions, options);
