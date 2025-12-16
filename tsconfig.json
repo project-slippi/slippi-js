@@ -1,5 +1,5 @@
 {
-  "include": ["src", "types"],
+  "include": ["src", "types", "test"],
   "compilerOptions": {
     "target": "ES2017",
     "module": "esnext",
@@ -8,7 +8,6 @@
     "declaration": true,
     "sourceMap": true,
     "declarationMap": true,
-    "rootDir": "./src",
     "declarationDir": "./dist",
     "strict": true,
     "strictNullChecks": true,
