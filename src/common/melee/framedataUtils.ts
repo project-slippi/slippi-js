@@ -45,10 +45,10 @@ const characterNames: { [key: number]: FramedataCharacter } = {
   0x1a: "Roy",
 };
 
-export function getAerialFrameData(internalCharacterId: number, aerialName: AerialName): Aerial | null {
+export function getAerialFrameData(internalCharacterId: number, aerialName: AerialName): Aerial | undefined {
   const characterName = characterNames[internalCharacterId];
   if (!characterName) {
-    return null;
+    return undefined;
   }
   return framedata[characterName][aerialName];
 }
