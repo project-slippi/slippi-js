@@ -131,7 +131,7 @@ describe("when reading finalised frames from SlpParser", () => {
     // The last finalized frame should be the same as what's recorded in the metadata
     const game = new SlippiGame(testFile);
     const metadata = game.getMetadata();
-    expect(metadata.lastFrame).toEqual(lastFinalizedFrame);
+    expect(metadata?.lastFrame).toEqual(lastFinalizedFrame);
   });
 });
 

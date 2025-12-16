@@ -263,6 +263,8 @@ describe("when calculating stats", () => {
 describe("when calculating stock information", () => {
   it("should handle invalid values", () => {
     expect(didLoseStock(undefined as any, undefined as any)).toEqual(false);
-    expect(didLoseStock({ stocksRemaining: null } as PostFrameUpdateType, {} as PostFrameUpdateType)).toEqual(false);
+    expect(
+      didLoseStock({ stocksRemaining: null } as unknown as PostFrameUpdateType, {} as unknown as PostFrameUpdateType),
+    ).toEqual(false);
   });
 });
