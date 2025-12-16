@@ -196,7 +196,7 @@ function handleConversionCompute(
     if (opntDamageTaken) {
       // If animation of last hit has been cleared that means this is a new move. This
       // prevents counting multiple hits from the same move such as fox's drill
-      if (state.lastHitAnimation === undefined) {
+      if (state.lastHitAnimation == null) {
         state.move = {
           playerIndex: indices.playerIndex,
           frame: currentFrameNumber,

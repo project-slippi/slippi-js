@@ -74,7 +74,7 @@ export class ComboComputer extends TypedEventEmitter<ComboEventMap> implements S
         handleComboCompute(allFrames, state, indices, frame, this.combos);
 
         // Emit an event for the new combo
-        if (state.event !== undefined) {
+        if (state.event != null) {
           this.emit(state.event, {
             combo: last(this.combos),
             settings: this.settings,
@@ -156,7 +156,7 @@ function handleComboCompute(
     if (opntDamageTaken) {
       // If animation of last hit has been cleared that means this is a new move. This
       // prevents counting multiple hits from the same move such as fox's drill
-      if (state.lastHitAnimation === undefined) {
+      if (state.lastHitAnimation == null) {
         state.move = {
           playerIndex: indices.playerIndex,
           frame: currentFrameNumber,

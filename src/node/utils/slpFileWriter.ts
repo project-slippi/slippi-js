@@ -115,7 +115,7 @@ export class SlpFileWriter extends Writable {
    * @memberof SlpFileWriter
    */
   public getCurrentFilename(): string | undefined {
-    if (this.currentFile !== undefined) {
+    if (this.currentFile != null) {
       return path.resolve(this.currentFile.path());
     }
     return undefined;

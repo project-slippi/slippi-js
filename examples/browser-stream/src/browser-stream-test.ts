@@ -134,9 +134,7 @@ async function processFile() {
 
   slpParser.on(SlpParserEvent.END, (gameEnd) => {
     const lras =
-      gameEnd.lrasInitiatorIndex !== undefined && gameEnd.lrasInitiatorIndex !== undefined
-        ? gameEnd.lrasInitiatorIndex
-        : "N/A";
+      gameEnd.lrasInitiatorIndex != null && gameEnd.lrasInitiatorIndex != null ? gameEnd.lrasInitiatorIndex : "N/A";
     addLog("END", `Game ended - Method: ${gameEnd.gameEndMethod}, LRas: ${lras}`, "log-end");
     scheduleStatsUpdate();
   });

@@ -33,7 +33,7 @@ export function bufferCopy(
 
   const sLen = s.length;
   const ss = Math.max(0, Math.min(sourceStart, sLen));
-  const se = sourceEnd === undefined ? sLen : Math.max(ss, Math.min(sourceEnd, sLen));
+  const se = sourceEnd == null ? sLen : Math.max(ss, Math.min(sourceEnd, sLen));
   const ts = Math.max(0, Math.min(targetStart, d.length));
 
   const toCopy = Math.min(se - ss, d.length - ts);

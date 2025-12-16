@@ -132,7 +132,7 @@ export class SlpParser extends TypedEventEmitter<SlpParserEventMap> {
   }
 
   public getPlayableFrameCount(): number {
-    if (this.latestFrameIndex === undefined) {
+    if (this.latestFrameIndex == null) {
       return 0;
     }
     return this.latestFrameIndex < Frames.FIRST_PLAYABLE ? 0 : this.latestFrameIndex - Frames.FIRST_PLAYABLE;
@@ -144,7 +144,7 @@ export class SlpParser extends TypedEventEmitter<SlpParserEventMap> {
     // TODO: Modify this to check if we actually have all the latest frame data and return that
     // TODO: If we do. For now I'm just going to take a shortcut
     const allFrames = this.getFrames();
-    const frameIndex = this.latestFrameIndex !== undefined ? this.latestFrameIndex : Frames.FIRST;
+    const frameIndex = this.latestFrameIndex != null ? this.latestFrameIndex : Frames.FIRST;
     const indexToUse = this.gameEnd ? frameIndex : frameIndex - 1;
     return get(allFrames, indexToUse) || undefined;
   }
@@ -206,7 +206,7 @@ export class SlpParser extends TypedEventEmitter<SlpParserEventMap> {
 
   private _handleGameEnd(payload: GameEndType): void {
     // Finalize remaining frames if necessary
-    if (this.latestFrameIndex !== undefined && this.latestFrameIndex !== this.lastFinalizedFrame) {
+    if (this.latestFrameIndex != null && this.latestFrameIndex !== this.lastFinalizedFrame) {
       this._finalizeFrames(this.latestFrameIndex);
     }
 

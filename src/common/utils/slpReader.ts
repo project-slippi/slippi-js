@@ -171,7 +171,7 @@ export function iterateEvents(
 ): number {
   const ref = slpFile.ref;
 
-  let readPosition = startPos !== undefined && startPos > 0 ? startPos : slpFile.rawDataPosition;
+  let readPosition = startPos != null && startPos > 0 ? startPos : slpFile.rawDataPosition;
   const stopReadingAt = slpFile.rawDataPosition + slpFile.rawDataLength;
 
   // Generate read buffers for each
@@ -183,7 +183,7 @@ export function iterateEvents(
     ref.read(commandByteBuffer, 0, 1, readPosition);
     let commandByte = (commandByteBuffer[0] as number) ?? 0;
     let buffer = commandPayloadBuffers[commandByte];
-    if (buffer === undefined) {
+    if (buffer == null) {
       // If we don't have an entry for this command, return false to indicate failed read
       return readPosition;
     }
@@ -648,7 +648,7 @@ export function extractFinalPostFrameUpdates(slpFile: SlpFileType): PostFrameUpd
       break;
     }
 
-    if (frameNum === undefined) {
+    if (frameNum == null) {
       frameNum = postFrameMessage.frame;
     } else if (frameNum !== postFrameMessage.frame) {
       // If post frame message is found but the frame doesn't match, it's not part of the final frame

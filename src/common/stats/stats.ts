@@ -49,7 +49,7 @@ export class Stats {
       return;
     }
 
-    let i = this.lastProcessedFrame !== undefined ? this.lastProcessedFrame + 1 : Frames.FIRST;
+    let i = this.lastProcessedFrame != null ? this.lastProcessedFrame + 1 : Frames.FIRST;
     while (this.frames[i]) {
       const frame = this.frames[i];
       // Don't attempt to compute stats on frames that have not been fully received

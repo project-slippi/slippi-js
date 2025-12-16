@@ -70,7 +70,7 @@ export abstract class SlippiGameBase {
   }
 
   private _process(shouldStop: EventCallbackFunc = () => false, file?: SlpFileType): void {
-    if (this.parser.getGameEnd() !== undefined) {
+    if (this.parser.getGameEnd() != null) {
       return;
     }
     this.input.open();
@@ -100,7 +100,7 @@ export abstract class SlippiGameBase {
    */
   public getSettings(): GameStartType | undefined {
     // Settings is only complete after post-frame update
-    this._process(() => this.parser.getSettings() !== undefined);
+    this._process(() => this.parser.getSettings() != null);
     return this.parser.getSettings();
   }
 
@@ -139,7 +139,7 @@ export abstract class SlippiGameBase {
   }
 
   public getGeckoList(): GeckoListType | undefined {
-    this._process(() => this.parser.getGeckoList() !== undefined);
+    this._process(() => this.parser.getGeckoList() != null);
     return this.parser.getGeckoList();
   }
 
@@ -164,7 +164,7 @@ export abstract class SlippiGameBase {
     const overall = generateOverallStats({ settings, inputs, conversions, playableFrameCount });
 
     const gameEnd = this.parser.getGameEnd();
-    const gameComplete = gameEnd !== undefined;
+    const gameComplete = gameEnd != null;
 
     const stats: StatsType = {
       lastFrame: this.parser.getLatestFrameNumber(),
@@ -245,7 +245,7 @@ export abstract class SlippiGameBase {
     this.input.open();
     const slpfile = openSlpFile(this.input);
     const gameEnd = getGameEnd(slpfile);
-    this._process(() => this.parser.getSettings() !== undefined, slpfile);
+    this._process(() => this.parser.getSettings() != null, slpfile);
     const settings = this.parser.getSettings();
     if (!gameEnd || !settings) {
       // Technically using the final post frame updates, it should be possible to compute winners for

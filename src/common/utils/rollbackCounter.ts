@@ -9,7 +9,7 @@ export class RollbackCounter {
   private rollbackLengths: number[] = [];
 
   public checkIfRollbackFrame(currentFrame: FrameEntryType | undefined, playerIdx: number) {
-    if (this.rollbackPlayerIdx === undefined) {
+    if (this.rollbackPlayerIdx == null) {
       // we only want to follow a single player to avoid double counting. So we use whoever is on first.
       this.rollbackPlayerIdx = playerIdx;
     } else if (this.rollbackPlayerIdx !== playerIdx) {
