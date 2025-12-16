@@ -86,7 +86,7 @@ export class SlpFile extends Writable {
     this.metadata = Object.assign({}, this.metadata, metadata);
   }
 
-  public _write(chunk: Uint8Array, encoding: string, callback: (error?: Error | undefined) => void): void {
+  public _write(chunk: Uint8Array, encoding: string, callback: (error?: Error | null) => void): void {
     if (encoding !== "buffer") {
       throw new Error(`Unsupported stream encoding. Expected 'buffer' got '${encoding}'.`);
     }

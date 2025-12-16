@@ -68,7 +68,7 @@ export class SlpFileWriter extends Writable {
 
   // Implement _write to handle incoming data
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public override _write(chunk: Buffer, _encoding: string, callback: (error?: Error | undefined) => void): void {
+  public override _write(chunk: Buffer, _encoding: string, callback: (error?: Error | null) => void): void {
     try {
       this.processor.process(new Uint8Array(chunk));
       callback();
