@@ -193,7 +193,7 @@ export class SlpFile extends Writable {
     this.fileStream.write(header);
   }
 
-  public _final(callback: (error?: Error | undefined) => void): void {
+  public _final(callback: (error?: Error | null) => void): void {
     let footer = Buffer.concat([Buffer.from("U"), Buffer.from([8]), Buffer.from("metadata{")]);
 
     // Write game start time

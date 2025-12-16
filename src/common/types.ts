@@ -363,7 +363,7 @@ export type StageEventTypes = FodPlatformType | WhispyType | StadiumTransformati
 
 export type FrameEntryType = {
   frame: number;
-  start?: FrameStartType;
+  start: FrameStartType | undefined;
   players: {
     [playerIndex: number]:
       | {
@@ -380,8 +380,8 @@ export type FrameEntryType = {
         }
       | undefined;
   };
-  items?: ItemUpdateType[];
-  stageEvents?: StageEventTypes[];
+  items: ItemUpdateType[] | undefined;
+  stageEvents: StageEventTypes[] | undefined;
 };
 
 export enum Frames {
