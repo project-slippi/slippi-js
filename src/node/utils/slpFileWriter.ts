@@ -45,7 +45,7 @@ export enum SlpFileWriterEvent {
  * @extends {Writable}
  */
 export class SlpFileWriter extends Writable {
-  private currentFile: SlpFile | undefined = undefined;
+  private currentFile?: SlpFile;
   private options: SlpFileWriterOptions;
   private processor: SlpStream;
 

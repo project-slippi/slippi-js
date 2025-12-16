@@ -52,7 +52,7 @@ type SlpStreamEventMap = {
 export class SlpStream extends TypedEventEmitter<SlpStreamEventMap> {
   private gameEnded = false; // True only if in manual mode and the game has completed
   private settings: SlpStreamSettings;
-  private payloadSizes: MessageSizes | undefined = undefined;
+  private payloadSizes?: MessageSizes;
   private previousBuffer: Uint8Array = new Uint8Array(0);
   private readonly utf8Decoder = new TextDecoder("utf-8");
 

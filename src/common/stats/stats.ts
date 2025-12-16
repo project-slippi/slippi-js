@@ -19,7 +19,7 @@ const defaultOptions: StatOptions = {
 
 export class Stats {
   private options: StatOptions;
-  private lastProcessedFrame: number | undefined = undefined;
+  private lastProcessedFrame?: number;
   private frames: FramesType = {};
   private players: number[] = [];
   private allComputers = new Array<StatComputer<unknown>>();

@@ -58,8 +58,8 @@ export class ConsoleConnection extends TypedEventEmitter<ConnectionEventMap> imp
   private isRealtime: boolean;
   private connectionStatus = ConnectionStatus.DISCONNECTED;
   private connDetails: ConnectionDetails = { ...defaultConnectionDetails };
-  private client: net.Socket | undefined = undefined;
-  private connection: Instance<unknown, net.Socket> | undefined = undefined;
+  private client?: net.Socket;
+  private connection?: Instance<unknown, net.Socket>;
   private options: ConsoleConnectionOptions;
   private shouldReconnect = false;
 

@@ -34,10 +34,10 @@ import { extractFinalPostFrameUpdates, getGameEnd, getMetadata, iterateEvents, o
  * Slippi Game class that wraps a file
  */
 export abstract class SlippiGameBase {
-  private metadata: MetadataType | undefined = undefined;
-  private finalStats: StatsType | undefined = undefined;
+  private metadata?: MetadataType;
+  private finalStats?: StatsType;
+  private readPosition?: number;
   private parser: SlpParser;
-  private readPosition: number | undefined = undefined;
   private actionsComputer: ActionsComputer = new ActionsComputer();
   private conversionComputer: ConversionComputer = new ConversionComputer();
   private comboComputer: ComboComputer = new ComboComputer();

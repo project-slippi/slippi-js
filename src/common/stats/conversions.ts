@@ -49,7 +49,7 @@ export class ConversionComputer
   private conversions = new Array<ConversionType>();
   private state = new Map<PlayerIndexedType, PlayerConversionState>();
   private metadata: MetadataType;
-  private settings: GameStartType | undefined = undefined;
+  private settings?: GameStartType;
 
   public constructor() {
     super();

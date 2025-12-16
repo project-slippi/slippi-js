@@ -38,7 +38,7 @@ export type SlpFileMetadata = {
 export class SlpFile extends Writable {
   private filePath: string;
   private metadata: SlpFileMetadata;
-  private fileStream: WriteStream | undefined = undefined;
+  private fileStream?: WriteStream;
   private rawDataLength = 0;
   private slpStream: SlpStream;
   private usesExternalStream = false;

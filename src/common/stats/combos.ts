@@ -46,7 +46,7 @@ export class ComboComputer extends TypedEventEmitter<ComboEventMap> implements S
   private playerPermutations = new Array<PlayerIndexedType>();
   private state = new Map<PlayerIndexedType, ComboState>();
   private combos = new Array<ComboType>();
-  private settings: GameStartType | undefined = undefined;
+  private settings?: GameStartType;
 
   public setup(settings: GameStartType): void {
     // Reset the state

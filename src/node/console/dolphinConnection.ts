@@ -21,8 +21,8 @@ export class DolphinConnection extends TypedEventEmitter<ConnectionEventMap> imp
   private gameCursor = 0;
   private nickname = "unknown";
   private version = "";
-  private peer: Peer | undefined = undefined;
-  private client: Host | undefined = undefined;
+  private peer?: Peer;
+  private client?: Host;
 
   public constructor() {
     super();

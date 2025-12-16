@@ -60,13 +60,13 @@ type SlpParserEventMap = {
 export class SlpParser extends TypedEventEmitter<SlpParserEventMap> {
   private frames: FramesType = {};
   private rollbackCounter: RollbackCounter = new RollbackCounter();
-  private settings: GameStartType | undefined = undefined;
-  private gameEnd: GameEndType | undefined = undefined;
-  private latestFrameIndex: number | undefined = undefined;
+  private settings?: GameStartType;
+  private gameEnd?: GameEndType;
+  private latestFrameIndex?: number;
   private settingsComplete = false;
   private lastFinalizedFrame = Frames.FIRST - 1;
   private options: SlpParserOptions;
-  private geckoList: GeckoListType | undefined = undefined;
+  private geckoList?: GeckoListType;
 
   public constructor(options?: Partial<SlpParserOptions>) {
     super();
