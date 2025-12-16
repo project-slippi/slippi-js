@@ -6,7 +6,7 @@ export type Aerial = {
   subactionIndex: number;
   subactionName: string;
   totalFrames: number;
-  iasa: number | undefined;
+  iasa: number | null;
   autoCancelBefore: number;
   autoCancelAfter: number;
   landingLag: number;
@@ -45,10 +45,10 @@ const characterNames: { [key: number]: FramedataCharacter } = {
   0x1a: "Roy",
 };
 
-export function getAerialFrameData(internalCharacterId: number, aerialName: AerialName): Aerial | undefined {
+export function getAerialFrameData(internalCharacterId: number, aerialName: AerialName): Aerial | null {
   const characterName = characterNames[internalCharacterId];
   if (!characterName) {
-    return undefined;
+    return null;
   }
   return framedata[characterName][aerialName];
 }
