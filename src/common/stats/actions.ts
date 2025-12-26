@@ -323,9 +323,9 @@ function handleActionWavedash(counts: ActionCountsType, animations: State[]): vo
   }
 
   // Here we special landed, it might be a wavedash, let's check
-  // We grab the last 8 frames here because that should be enough time to execute a
+  // We grab the last 9 frames here because that should be enough time to execute a
   // wavedash. This number could be tweaked if we find false negatives
-  const recentFrames = animations.slice(-8);
+  const recentFrames = animations.slice(-9);
   const recentAnimations = keyBy(recentFrames, (animation) => animation);
 
   if (size(recentAnimations) === 2 && recentAnimations[State.AIR_DODGE]) {
@@ -341,8 +341,22 @@ function handleActionWavedash(counts: ActionCountsType, animations: State[]): vo
   }
 
   if (recentAnimations[State.ACTION_KNEE_BEND]) {
-    // If a jump was started recently, we will consider this a wavedash
-    counts.wavedashCount += 1;
+    // If a jump was started recently, we will consider this a wavedash unless the player
+    // spent too many frames in the air (indicating they were traveling, not wavedashing).
+    // We use CONTROLLED_JUMP_START + 1 because CONTROLLED_JUMP_START equals ACTION_KNEE_BEND,
+    // and we only want to count actual airborne jump frames, not the knee bend frames.
+    const airborneJumpStart = State.CONTROLLED_JUMP_START + 1;
+    const jumpFrames = recentFrames.filter(
+      (animation) => animation >= airborneJumpStart && animation <= State.CONTROLLED_JUMP_END,
+    ).length;
+
+    // If the player was airborne for more than 3 frames, they were traveling through the
+    // air (e.g. jumping to a platform) and then wavelanded, not wavedashing
+    if (jumpFrames <= 3) {
+      counts.wavedashCount += 1;
+    } else {
+      counts.wavelandCount += 1;
+    }
   } else {
     // If there was no jump recently, this is a waveland
     counts.wavelandCount += 1;

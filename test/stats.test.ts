@@ -258,6 +258,24 @@ describe("when calculating stats", () => {
     const p1Fsmashes = stats?.actionCounts[0]!.attackCount.fsmash;
     expect(p1Fsmashes).toBe(4);
   });
+
+  it("should count wavedashes correctly", () => {
+    const game = new SlippiGame("slp/wavedash-1.slp");
+    const stats = game.getStats();
+    const p2Wavedashes = stats?.actionCounts[1]!.wavedashCount;
+    const p2Wavelands = stats?.actionCounts[1]!.wavelandCount;
+    expect(p2Wavedashes).toBe(5);
+    expect(p2Wavelands).toBe(0);
+  });
+
+  it("should cound wavelands correctly", () => {
+    const game = new SlippiGame("slp/waveland-1.slp");
+    const stats = game.getStats();
+    const p2Wavelands = stats?.actionCounts[1]!.wavelandCount;
+    const p2Wavedashes = stats?.actionCounts[1]!.wavedashCount;
+    expect(p2Wavelands).toBe(5);
+    expect(p2Wavedashes).toBe(0);
+  });
 });
 
 describe("when calculating stock information", () => {
