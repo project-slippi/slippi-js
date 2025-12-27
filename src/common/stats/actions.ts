@@ -326,10 +326,10 @@ function handleActionWavedash(counts: ActionCountsType, animations: State[], pos
   }
 
   // Here we special landed, it might be a wavedash, let's check
-  // We grab the last 20 frames here because that should be enough time to execute a
+  // We grab the last 15 frames here because that should be enough time to execute a
   // wavedash. This number could be tweaked if we find false negatives
   // Normally, wavedashes happen much faster, but for certain characters (e.g. Bowser),
-  // You
+  // they can have a super delayed wavedash.
   const lookbackFrames = 15;
   const recentFrames = animations.slice(-lookbackFrames);
   const recentAnimations = keyBy(recentFrames, (animation) => animation);
@@ -364,7 +364,7 @@ function handleActionWavedash(counts: ActionCountsType, animations: State[], pos
     const epsilon = 0.1;
     const changedY = Math.abs(yDifference) > epsilon;
     
-    // If the player was airborne for more than 5 frames and their Y positions changed, they were traveling through the
+    // If the player was airborne for more than 4 frames and their Y positions changed, they were traveling through the
     // air (e.g. jumping to a platform) wavelanded, not wavedashing
     if (jumpFrames > 4 && changedY) {
       counts.wavelandCount += 1;
