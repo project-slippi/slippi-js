@@ -19,6 +19,7 @@ type PlayerActionState = {
   playerCounts: ActionCountsType;
   animations: number[];
   actionFrameCounters: number[];
+  positionsY: number[];
   lastLCancelStatus: number;
 };
 
@@ -91,6 +92,7 @@ export class ActionsComputer implements StatComputer<ActionCountsType[]> {
         playerCounts: playerCounts,
         animations: [],
         actionFrameCounters: [],
+        positionsY: [],
         lastLCancelStatus: 0,
       };
       this.state.set(indices, playerState);
@@ -194,6 +196,7 @@ function handleActionCompute(state: PlayerActionState, indices: PlayerIndexedTyp
   state.animations.push(currentAnimation);
   const currentFrameCounter = playerFrame.actionStateCounter!;
   state.actionFrameCounters.push(currentFrameCounter);
+  state.positionsY.push(playerFrame.positionY ?? 0);
 
   // Grab last 3 frames
   const last3Frames = state.animations.slice(-3);
@@ -303,14 +306,14 @@ function handleActionCompute(state: PlayerActionState, indices: PlayerIndexedTyp
   }
 
   // Handles wavedash detection (and waveland)
-  handleActionWavedash(state.playerCounts, state.animations);
+  handleActionWavedash(state.playerCounts, state.animations, state.positionsY);
 
   if (exists(playerFrame.lCancelStatus) && playerFrame.lCancelStatus > 0) {
     state.lastLCancelStatus = playerFrame.lCancelStatus;
   }
 }
 
-function handleActionWavedash(counts: ActionCountsType, animations: State[]): void {
+function handleActionWavedash(counts: ActionCountsType, animations: State[], positionsY: number[]): void {
   const currentAnimation = last(animations);
   const prevAnimation = animations[animations.length - 2] as number;
 
@@ -323,9 +326,12 @@ function handleActionWavedash(counts: ActionCountsType, animations: State[]): vo
   }
 
   // Here we special landed, it might be a wavedash, let's check
-  // We grab the last 9 frames here because that should be enough time to execute a
+  // We grab the last 20 frames here because that should be enough time to execute a
   // wavedash. This number could be tweaked if we find false negatives
-  const recentFrames = animations.slice(-9);
+  // Normally, wavedashes happen much faster, but for certain characters (e.g. Bowser),
+  // You
+  const lookbackFrames = 15;
+  const recentFrames = animations.slice(-lookbackFrames);
   const recentAnimations = keyBy(recentFrames, (animation) => animation);
 
   if (size(recentAnimations) === 2 && recentAnimations[State.AIR_DODGE]) {
@@ -342,7 +348,8 @@ function handleActionWavedash(counts: ActionCountsType, animations: State[]): vo
 
   if (recentAnimations[State.ACTION_KNEE_BEND]) {
     // If a jump was started recently, we will consider this a wavedash unless the player
-    // spent too many frames in the air (indicating they were traveling, not wavedashing).
+    // spent too many frames in the air and their Y positions changed 
+    // (indicating they were traveling through the air, not wavedashing).
     // We use CONTROLLED_JUMP_START + 1 because CONTROLLED_JUMP_START equals ACTION_KNEE_BEND,
     // and we only want to count actual airborne jump frames, not the knee bend frames.
     const airborneJumpStart = State.CONTROLLED_JUMP_START + 1;
@@ -350,12 +357,19 @@ function handleActionWavedash(counts: ActionCountsType, animations: State[]): vo
       (animation) => animation >= airborneJumpStart && animation <= State.CONTROLLED_JUMP_END,
     ).length;
 
-    // If the player was airborne for more than 3 frames, they were traveling through the
-    // air (e.g. jumping to a platform) and then wavelanded, not wavedashing
-    if (jumpFrames <= 3) {
-      counts.wavedashCount += 1;
-    } else {
+    // Calculate Y position difference between knee bend start and landing
+    const recentPositionsY = positionsY.slice(-lookbackFrames);
+    const kneeBendIndex = recentFrames.findLastIndex((anim) => anim === State.ACTION_KNEE_BEND);
+    const yDifference = recentPositionsY[recentPositionsY.length - 1]! - recentPositionsY[kneeBendIndex]!;
+    const epsilon = 0.1;
+    const changedY = Math.abs(yDifference) > epsilon;
+    
+    // If the player was airborne for more than 5 frames and their Y positions changed, they were traveling through the
+    // air (e.g. jumping to a platform) wavelanded, not wavedashing
+    if (jumpFrames > 4 && changedY) {
       counts.wavelandCount += 1;
+    } else {
+      counts.wavedashCount += 1;
     }
   } else {
     // If there was no jump recently, this is a waveland

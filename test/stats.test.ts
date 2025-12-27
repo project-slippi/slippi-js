@@ -260,21 +260,33 @@ describe("when calculating stats", () => {
   });
 
   it("should count wavedashes correctly", () => {
-    const game = new SlippiGame("slp/wavedash-1.slp");
-    const stats = game.getStats();
-    const p2Wavedashes = stats?.actionCounts[1]!.wavedashCount;
-    const p2Wavelands = stats?.actionCounts[1]!.wavelandCount;
-    expect(p2Wavedashes).toBe(5);
-    expect(p2Wavelands).toBe(0);
+    const game1 = new SlippiGame("slp/wavedash-1.slp");
+    const game2 = new SlippiGame("slp/wavedash-2.slp");
+    const stats1 = game1.getStats();
+    const stats2 = game2.getStats();
+    const g1p2Wavedashes = stats1?.actionCounts[1]!.wavedashCount;
+    const g1p2Wavelands = stats1?.actionCounts[1]!.wavelandCount;
+    expect(g1p2Wavedashes).toBe(5);
+    expect(g1p2Wavelands).toBe(0);
+    const g2p1Wavedashes = stats2?.actionCounts[0]!.wavedashCount;
+    const g2p1Wavelands = stats2?.actionCounts[0]!.wavelandCount;
+    expect(g2p1Wavedashes).toBe(5);
+    expect(g2p1Wavelands).toBe(0);
   });
 
   it("should cound wavelands correctly", () => {
-    const game = new SlippiGame("slp/waveland-1.slp");
-    const stats = game.getStats();
-    const p2Wavelands = stats?.actionCounts[1]!.wavelandCount;
-    const p2Wavedashes = stats?.actionCounts[1]!.wavedashCount;
-    expect(p2Wavelands).toBe(5);
-    expect(p2Wavedashes).toBe(0);
+    const game1 = new SlippiGame("slp/waveland-1.slp");
+    const game2 = new SlippiGame("slp/waveland-2.slp");
+    const stats1 = game1.getStats();
+    const stats2 = game2.getStats();
+    const g1p2Wavelands = stats1?.actionCounts[1]!.wavelandCount;
+    const g1p2Wavedashes = stats1?.actionCounts[1]!.wavedashCount;
+    const g2p1Wavelands = stats2?.actionCounts[0]!.wavelandCount;
+    const g2p1Wavedashes = stats2?.actionCounts[0]!.wavedashCount;
+    expect(g1p2Wavelands).toBe(5);
+    expect(g1p2Wavedashes).toBe(0);
+    expect(g2p1Wavelands).toBe(5);
+    expect(g2p1Wavedashes).toBe(0);
   });
 });
 
