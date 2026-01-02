@@ -327,9 +327,8 @@ function handleActionWavedash(counts: ActionCountsType, animations: State[], pos
 
   // Here we special landed, it might be a wavedash, let's check
   // We grab the last 15 frames here because that should be enough time to execute a
-  // wavedash. This number could be tweaked if we find false negatives
-  // Normally, wavedashes happen much faster, but for certain characters (e.g. Bowser),
-  // they can have a super delayed wavedash.
+  // wavedash. This number could be tweaked if we find false negatives.
+  // Normally, wavedashes happen faster, but can be delayed.
   const lookbackFrames = 15;
   const recentFrames = animations.slice(-lookbackFrames);
   const recentAnimations = keyBy(recentFrames, (animation) => animation);
@@ -348,7 +347,7 @@ function handleActionWavedash(counts: ActionCountsType, animations: State[], pos
 
   if (recentAnimations[State.ACTION_KNEE_BEND]) {
     // If a jump was started recently, we will consider this a wavedash unless the player
-    // spent too many frames in the air and their Y positions changed 
+    // spent too many frames in the air and their Y positions changed
     // (indicating they were traveling through the air, not wavedashing).
     // We use CONTROLLED_JUMP_START + 1 because CONTROLLED_JUMP_START equals ACTION_KNEE_BEND,
     // and we only want to count actual airborne jump frames, not the knee bend frames.
@@ -363,10 +362,16 @@ function handleActionWavedash(counts: ActionCountsType, animations: State[], pos
     const yDifference = recentPositionsY[recentPositionsY.length - 1]! - recentPositionsY[kneeBendIndex]!;
     const epsilon = 0.1;
     const changedY = Math.abs(yDifference) > epsilon;
-    
-    // If the player was airborne for more than 4 frames and their Y positions changed, they were traveling through the
-    // air (e.g. jumping to a platform) wavelanded, not wavedashing
-    if (jumpFrames > 4 && changedY) {
+    // If the player was airborne for at least 5 frames and their Y positions changed,
+    // they were traveling through the air (e.g. jumping to a platform) so they wavelanded, not wavedashed
+    // 5 was chosen because it is the minimum number of jump frames it takes a character to get from ground to
+    // a non-moving platform, Falco on the lowest FoD platform.
+    // Edge cases:
+    // - Any wavedash that is done with >15 frames from knee bend to landing
+    // e.g. Fox/Falco JC shine where the first and second jump combine to 4+ frames in air.
+    // - Any wavedash that has 5 or more frames in the air and changes Y position,
+    // e.g. Late wavedash to/from Yoshi's center to slope, Late wavedash on FoD moving platforms (4+ frames in air).
+    if (jumpFrames >= 5 && changedY) {
       counts.wavelandCount += 1;
     } else {
       counts.wavedashCount += 1;
