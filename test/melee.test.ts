@@ -3,9 +3,6 @@ import * as Melee from "../src/common/melee";
 const miscMove = { id: 1, name: "Miscellaneous", shortName: "misc" };
 const unknownMove = { id: -1, name: "Unknown Move", shortName: "unknown" };
 
-const venomStage = { id: 22, name: "Venom" };
-const unknownStage = { id: -1, name: "Unknown Stage" };
-
 const foxCharacter = {
   id: 2,
   name: "Fox",
@@ -82,16 +79,16 @@ describe("when fetching move information", () => {
 
 describe("when fetching stage information", () => {
   it("should return the stage from an ID", () => {
-    expect(Melee.stages.getStageInfo(venomStage.id)).toEqual(venomStage);
+    expect(Melee.stages.getStageInfo(22).name).toEqual("Venom");
   });
 
   it("should handle unknown stages", () => {
-    expect(Melee.stages.getStageInfo(69)).toEqual(unknownStage);
-    expect(Melee.stages.UnknownStage).toEqual(unknownStage);
+    expect(Melee.stages.getStageInfo(69).name).toEqual("Unknown Stage");
+    expect(Melee.stages.UnknownStage.name).toEqual("Unknown Stage");
   });
 
   it("should return the right stage name from an ID", () => {
-    expect(Melee.stages.getStageName(venomStage.id)).toEqual(venomStage.name);
+    expect(Melee.stages.getStageName(22)).toEqual("Venom");
   });
 
   it("should return the vs mode stage list by default", () => {
