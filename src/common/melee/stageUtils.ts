@@ -6,14 +6,16 @@ export type StageInfo = {
   id: number;
   name: string;
   mode?: StageMode;
+  aliases: string[];
 };
 
 const ALL_STAGES = new Map<number, StageInfo>(
-  Object.entries(stagesInfoMap).map(([key, value]) => {
+  Object.entries(stagesInfoMap).map(([key, value]: [string, { name: string; mode: string; aliases?: string[] }]) => {
     const stageId = parseInt(key);
     const info: StageInfo = {
       id: stageId,
       name: value.name,
+      aliases: value.aliases ?? [],
       mode: value.mode as StageMode,
     };
     return [stageId, info];
@@ -23,6 +25,7 @@ const ALL_STAGES = new Map<number, StageInfo>(
 export const UnknownStage: StageInfo = {
   id: -1,
   name: "Unknown Stage",
+  aliases: [],
 };
 
 export function getStageInfo(stageId: number): StageInfo {
@@ -30,10 +33,7 @@ export function getStageInfo(stageId: number): StageInfo {
   if (!stageInfo) {
     return UnknownStage;
   }
-  return {
-    id: stageId,
-    name: stageInfo.name,
-  };
+  return stageInfo;
 }
 
 export function getStageName(stageId: number): string {
