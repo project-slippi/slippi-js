@@ -27,8 +27,17 @@ export function getWinners(
     return [];
   }
 
+  const nonFollowerUpdates = finalPostFrameUpdates.filter((pfu) => !pfu.isFollower);
+
+  // If everyone has no stocks at the last frame, then we handle it by returning []
+  if (nonFollowerUpdates.length === players.length) {
+    const everyoneDead = nonFollowerUpdates.every((pfu) => pfu.stocksRemaining === 0);
+    if (everyoneDead) {
+      return [];
+    }
+  }
+
   if (gameEndMethod === GameEndMethod.TIME && players.length === 2) {
-    const nonFollowerUpdates = finalPostFrameUpdates.filter((pfu) => !pfu.isFollower);
     if (nonFollowerUpdates.length !== players.length) {
       return [];
     }
