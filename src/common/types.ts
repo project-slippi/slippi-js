@@ -57,6 +57,12 @@ export enum Language {
   ENGLISH = 1,
 }
 
+export enum LCancelResult {
+  SUCCESS = 1,
+  FAIL = 2,
+  NONE = 0,
+}
+
 export type GameStartType = {
   slpVersion: string | undefined;
   timerType: TimerType | undefined;

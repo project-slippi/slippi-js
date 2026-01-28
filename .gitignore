@@ -48,6 +48,9 @@ typings/
 # Optional REPL history
 .node_repl_history
 
+# Optional bun lock -- repo uses npm
+bun.lock
+
 # Output of 'npm pack'
 *.tgz
 
