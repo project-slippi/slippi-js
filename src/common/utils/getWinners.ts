@@ -29,19 +29,32 @@ export function getWinners(
 
   const nonFollowerUpdates = finalPostFrameUpdates.filter((pfu) => !pfu.isFollower);
 
+  if (nonFollowerUpdates.length !== players.length) {
+    return [];
+  }
+
   // If everyone has no stocks at the last frame, then we handle it by returning []
-  if (nonFollowerUpdates.length === players.length) {
-    const everyoneDead = nonFollowerUpdates.every((pfu) => pfu.stocksRemaining === 0);
-    if (everyoneDead) {
+  const everyoneDead = nonFollowerUpdates.every((pfu) => pfu.stocksRemaining === 0);
+  if (everyoneDead) {
+    return [];
+  }
+
+  // Handle when the last frame is timeout in 1v1s
+  if (players.length === 2) {
+    const baseStocks = nonFollowerUpdates[0]!.stocksRemaining;
+    const basePercent = Math.trunc(nonFollowerUpdates[0]!.percent ?? 0);
+    const everyoneTied = nonFollowerUpdates.every((pfu) => {
+      return (
+        pfu.stocksRemaining === baseStocks && Math.trunc(pfu.percent ?? 0) === basePercent
+      );
+    });
+
+    if (everyoneTied) {
       return [];
     }
   }
 
   if (gameEndMethod === GameEndMethod.TIME && players.length === 2) {
-    if (nonFollowerUpdates.length !== players.length) {
-      return [];
-    }
-
     const p1 = nonFollowerUpdates[0]!;
     const p2 = nonFollowerUpdates[1]!;
     if (p1.stocksRemaining! > p2.stocksRemaining!) {
@@ -57,9 +70,6 @@ export function getWinners(
     } else if (p2Health < p1Health) {
       return [{ playerIndex: p2.playerIndex!, position: 0 }];
     }
-
-    // If stocks and percents were tied, no winner
-    return [];
   }
 
   const firstPosition = placements.find((placement) => placement.position === 0);
