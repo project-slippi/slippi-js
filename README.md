@@ -44,7 +44,7 @@ const game = new SlippiGame("path/to/file.slp"); // ❌ Error!
 
 ### Node.js Export: `@slippi/slippi-js/node`
 
-The Node.js export is designed for server-side and Node.js environments. It can read files directly from disk using file paths **and** also accepts binary data. Additionally, it includes Node.js-specific features like console connections, file writing, and streaming utilities.
+The Node.js export is designed for server-side and Node.js environments. It includes everything that is in the web export, but can also read files directly from disk using file paths **and** also accepts binary data. It also includes Node.js-specific features like console connections, and SLP file writing.
 
 ```js
 const { SlippiGame } = require("@slippi/slippi-js/node");
