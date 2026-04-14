@@ -152,9 +152,8 @@ export class ConsoleConnection extends TypedEventEmitter<ConnectionEventMap> imp
         client.on("data", (data) => {
           if (commState === CommunicationState.INITIAL) {
             commState = this._getInitialCommState(data);
-            console.log(`Connected to ${ip}:${port} with type: ${commState}`);
+            // console.log(`Connected to ${ip}:${port} with type: ${commState}`);
             this._setStatus(ConnectionStatus.CONNECTED);
-            console.log(data.toString("hex"));
           }
 
           if (commState === CommunicationState.LEGACY) {
@@ -196,15 +195,15 @@ export class ConsoleConnection extends TypedEventEmitter<ConnectionEventMap> imp
         });
 
         client.on("end", () => {
-          console.log("disconnect");
+          // console.log("disconnect");
           if (!this.shouldReconnect) {
             client.destroy();
           }
         });
 
-        client.on("close", () => {
-          console.log("connection was closed");
-        });
+        // client.on("close", () => {
+        //   console.log("connection was closed");
+        // });
 
         const handshakeMsgOut = consoleComms.genHandshakeOut(
           this.connDetails.gameDataCursor as Uint8Array,

@@ -56,7 +56,7 @@ export class DolphinConnection extends TypedEventEmitter<ConnectionEventMap> imp
   }
 
   public async connect(ip: string, port: number): Promise<void> {
-    console.log(`Connecting to: ${ip}:${port}`);
+    // console.log(`Connecting to: ${ip}:${port}`);
     this.ipAddress = ip;
     this.port = port;
 
