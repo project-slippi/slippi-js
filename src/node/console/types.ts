@@ -7,6 +7,7 @@ export enum ConnectionEvent {
   STATUS_CHANGE = "statusChange",
   DATA = "data",
   ERROR = "error",
+  BROADCAST = "broadcast",
 }
 
 export type ConnectionEventMap = {
@@ -16,6 +17,7 @@ export type ConnectionEventMap = {
   [ConnectionEvent.STATUS_CHANGE]: ConnectionStatus;
   [ConnectionEvent.DATA]: Uint8Array;
   [ConnectionEvent.ERROR]: unknown;
+  [ConnectionEvent.BROADCAST]: BroadcastMessage;
 };
 
 export enum ConnectionStatus {
@@ -24,6 +26,21 @@ export enum ConnectionStatus {
   CONNECTED = 2,
   RECONNECT_WAIT = 3,
 }
+
+export enum BroadcastMessageType {
+  CONNECT_REPLY = "connect_reply",
+  GAME_EVENT = "game_event",
+  START_GAME = "start_game",
+  END_GAME = "end_game",
+}
+
+export type BroadcastMessage = {
+  type: BroadcastMessageType;
+  cursor: number;
+  nextCursor: number;
+  payload?: string; // Base64 encoded
+  nick?: string;
+};
 
 export enum Ports {
   DEFAULT = 51441,

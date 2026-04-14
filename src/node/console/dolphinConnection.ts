@@ -3,7 +3,8 @@ import type { Host, Packet, Peer } from "enet";
 import { TypedEventEmitter } from "../../common/utils/typedEventEmitter";
 import { loadEnetModule } from "./loadEnetModule";
 import type { Connection, ConnectionDetails, ConnectionEventMap, ConnectionSettings } from "./types";
-import { ConnectionEvent, ConnectionStatus, Ports } from "./types";
+import type { BroadcastMessage } from "./types";
+import { BroadcastMessageType, ConnectionEvent, ConnectionStatus, Ports } from "./types";
 
 const MAX_PEERS = 32;
 
@@ -119,7 +120,48 @@ export class DolphinConnection extends TypedEventEmitter<ConnectionEventMap> imp
         this.disconnect();
         return;
       }
+
+      // Existing: Emit MESSAGE event (KEEP THIS)
       this.emit(ConnectionEvent.MESSAGE, message);
+
+      // NEW: Also emit as BROADCAST with normalized format
+      switch (message.type) {
+        case DolphinMessageType.CONNECT_REPLY:
+          this.emit(ConnectionEvent.BROADCAST, {
+            type: BroadcastMessageType.CONNECT_REPLY,
+            cursor: message.cursor,
+            nextCursor: message.cursor, // CONNECT_REPLY doesn't have next_cursor
+            nick: message.nick,
+          } as BroadcastMessage);
+          break;
+
+        case DolphinMessageType.START_GAME:
+          this.emit(ConnectionEvent.BROADCAST, {
+            type: BroadcastMessageType.START_GAME,
+            cursor: message.cursor,
+            nextCursor: message.next_cursor,
+          } as BroadcastMessage);
+          break;
+
+        case DolphinMessageType.GAME_EVENT:
+          this.emit(ConnectionEvent.BROADCAST, {
+            type: BroadcastMessageType.GAME_EVENT,
+            cursor: message.cursor,
+            nextCursor: message.next_cursor,
+            payload: message.payload, // Already base64 from Dolphin
+          } as BroadcastMessage);
+          break;
+
+        case DolphinMessageType.END_GAME:
+          this.emit(ConnectionEvent.BROADCAST, {
+            type: BroadcastMessageType.END_GAME,
+            cursor: message.cursor,
+            nextCursor: message.next_cursor,
+            payload: message.payload, // May be undefined
+          } as BroadcastMessage);
+          break;
+      }
+
       switch (message.type) {
         case DolphinMessageType.CONNECT_REPLY:
           this.connectionStatus = ConnectionStatus.CONNECTED;

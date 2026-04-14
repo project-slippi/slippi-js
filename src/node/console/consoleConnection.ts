@@ -1,13 +1,17 @@
 import net from "net";
 import type { Instance } from "reconnect-core";
 
+import { Command } from "../../common/types";
+import type { SlpRawEventPayload } from "../../common/utils/slpStream";
 import { NETWORK_MESSAGE } from "../../common/utils/slpStream";
+import { SlpStream, SlpStreamEvent, SlpStreamMode } from "../../common/utils/slpStream";
 import { TypedEventEmitter } from "../../common/utils/typedEventEmitter";
 import type { CommunicationMessage } from "./communication";
 import { CommunicationType, ConsoleCommunication } from "./communication";
 import { loadReconnectCoreModule } from "./loadReconnectCoreModule";
 import type { Connection, ConnectionDetails, ConnectionEventMap, ConnectionSettings } from "./types";
-import { ConnectionEvent, ConnectionStatus, Ports } from "./types";
+import type { BroadcastMessage } from "./types";
+import { BroadcastMessageType, ConnectionEvent, ConnectionStatus, Ports } from "./types";
 
 const DEFAULT_CONNECTION_TIMEOUT_MS = 20000;
 
@@ -62,6 +66,19 @@ export class ConsoleConnection extends TypedEventEmitter<ConnectionEventMap> imp
   private connection?: Instance<unknown, net.Socket>;
   private options: ConsoleConnectionOptions;
   private shouldReconnect = false;
+
+  private slpStream?: SlpStream;
+  private broadcastCursor: number = 0;
+  private broadcastPayloads: Buffer[] = [];
+  private broadcastReady: boolean = false;
+
+  // Events that trigger a broadcast flush
+  private readonly BROADCAST_FLUSH_EVENTS = [
+    Command.MESSAGE_SIZES,
+    Command.FRAME_BOOKEND,
+    Command.GAME_END,
+    Command.SPLIT_MESSAGE,
+  ];
 
   public constructor(options?: Partial<ConsoleConnectionOptions>) {
     super();
@@ -144,6 +161,9 @@ export class ConsoleConnection extends TypedEventEmitter<ConnectionEventMap> imp
       },
       (client) => {
         this.emit(ConnectionEvent.CONNECT, undefined);
+
+        this._setupBroadcastStream();
+
         // We successfully connected so turn on auto-reconnect
         this.shouldReconnect = this.options.autoReconnect;
         this.client = client;
@@ -258,6 +278,14 @@ export class ConsoleConnection extends TypedEventEmitter<ConnectionEventMap> imp
     if (this.client) {
       this.client.destroy();
     }
+
+    if (this.slpStream) {
+      this.slpStream = undefined;
+    }
+
+    this.broadcastReady = false;
+    this.broadcastPayloads = [];
+    this.broadcastCursor = 0;
   }
 
   private _getInitialCommState(data: Buffer): CommunicationState {
@@ -322,6 +350,13 @@ export class ConsoleConnection extends TypedEventEmitter<ConnectionEventMap> imp
         }
         this.connDetails.gameDataCursor = Uint8Array.from(message.payload.pos);
         this.emit(ConnectionEvent.HANDSHAKE, this.connDetails);
+
+        this.emit(ConnectionEvent.BROADCAST, {
+          type: BroadcastMessageType.CONNECT_REPLY,
+          cursor: 0,
+          nextCursor: 0,
+          nick: nick,
+        } as BroadcastMessage);
         break;
       default:
         // Should this be an error?
@@ -331,6 +366,74 @@ export class ConsoleConnection extends TypedEventEmitter<ConnectionEventMap> imp
 
   private _handleReplayData(data: Uint8Array): void {
     this.emit(ConnectionEvent.DATA, data);
+
+    if (this.slpStream) {
+      try {
+        this.slpStream.process(data);
+      } catch (err) {
+        //TODO: probably need better than this
+        console.error("error processing data through SlpStream:", err);
+      }
+    }
+  }
+
+  private _setupBroadcastStream(): void {
+    this.slpStream = new SlpStream({ mode: SlpStreamMode.AUTO });
+    this.broadcastCursor = 0;
+    this.broadcastPayloads = [];
+    this.broadcastReady = false;
+
+    this.slpStream.on(SlpStreamEvent.RAW, (data: SlpRawEventPayload) => {
+      this._handleBroadcastRaw(data);
+    });
+  }
+
+  private _handleBroadcastRaw(data: SlpRawEventPayload): void {
+    // On MESSAGE_SIZES, a game is starting
+    if (data.command === Command.MESSAGE_SIZES) {
+      this.broadcastReady = true;
+      this.broadcastPayloads = [];
+
+      this.emit(ConnectionEvent.BROADCAST, {
+        type: BroadcastMessageType.START_GAME,
+        cursor: this.broadcastCursor,
+        nextCursor: this.broadcastCursor + 1,
+      } as BroadcastMessage);
+
+      this.broadcastCursor++;
+    }
+
+    if (!this.broadcastReady) {
+      return;
+    }
+
+    // Accumulate payload data
+    this.broadcastPayloads.push(Buffer.from(data.payload));
+
+    // Only flush on specific events
+    if (!this.BROADCAST_FLUSH_EVENTS.includes(data.command)) {
+      return;
+    }
+
+    const isGameEnd = data.command === Command.GAME_END;
+
+    // Build and emit BROADCAST event
+    const broadcastMsg: BroadcastMessage = {
+      type: isGameEnd ? BroadcastMessageType.END_GAME : BroadcastMessageType.GAME_EVENT,
+      cursor: this.broadcastCursor,
+      nextCursor: this.broadcastCursor + 1,
+      payload: Buffer.concat(this.broadcastPayloads).toString("base64"),
+    };
+
+    this.emit(ConnectionEvent.BROADCAST, broadcastMsg);
+
+    // Reset accumulator
+    this.broadcastPayloads = [];
+    this.broadcastCursor++;
+
+    if (isGameEnd) {
+      this.broadcastReady = false;
+    }
   }
 
   private _setStatus(status: ConnectionStatus): void {
