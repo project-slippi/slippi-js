@@ -40,6 +40,7 @@ export class ActionsComputer implements StatComputer<ActionCountsType[]> {
         spotDodgeCount: 0,
         ledgegrabCount: 0,
         rollCount: 0,
+        tauntCount: 0,
         edgeCancelCount: {
           success: 0,
           slow: 0,
@@ -142,6 +143,10 @@ function isForwardSmash(animation: State): boolean {
   return animation >= State.ATTACK_FSMASH_START && animation <= State.ATTACK_FSMASH_END;
 }
 
+function isTaunting(animation: State): boolean {
+  return animation === State.TAUNT_LEFT || animation === State.TAUNT_RIGHT;
+}
+
 function getLandLagFromLandAnimation(animation: State, internalCharacterId: number): [number, number] | undefined {
   let aerialName: Melee.framedata.AerialName;
   if (animation === State.AERIAL_BAIR_LANDING) {
@@ -217,6 +222,9 @@ function handleActionCompute(state: PlayerActionState, indices: PlayerIndexedTyp
   incrementCount("spotDodgeCount", currentAnimation === State.SPOT_DODGE);
   incrementCount("airDodgeCount", currentAnimation === State.AIR_DODGE);
   incrementCount("ledgegrabCount", currentAnimation === State.CLIFF_CATCH);
+
+  // Taunts
+  incrementCount("tauntCount", isTaunting(currentAnimation));
 
   // Grabs
   incrementCount("grabCount.success", isGrabbing(prevAnimation) && isGrabAction(currentAnimation));

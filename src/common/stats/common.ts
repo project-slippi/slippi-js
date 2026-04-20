@@ -89,6 +89,7 @@ export type ActionCountsType = {
   spotDodgeCount: number;
   ledgegrabCount: number;
   rollCount: number;
+  tauntCount: number;
   edgeCancelCount: {
     success: number;
     slow: number;
@@ -250,6 +251,10 @@ export const State = {
   AERIAL_UAIR_LANDING: 0x49,
   AERIAL_DAIR_LANDING: 0x4a,
   TEETER: 0xf5,
+
+  // Taunts
+  TAUNT_LEFT: 0x108,
+  TAUNT_RIGHT: 0x109,
 
   // Weird GnW IDs
   GNW_JAB1: 0x155,
