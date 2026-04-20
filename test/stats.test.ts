@@ -294,6 +294,15 @@ describe("when calculating stats", () => {
     expect(g2p1Wavelands).toBe(5);
     expect(g2p1Wavedashes).toBe(0);
   });
+
+  it("should correctly count taunts", () => {
+    const game = new SlippiGame("slp/finalizedFrame.slp");
+    const stats = game.getStats()!;
+    const p1Taunts = stats.actionCounts[0]!.tauntCount;
+    const p2Taunts = stats.actionCounts[1]!.tauntCount;
+    expect(p1Taunts).toBe(1);
+    expect(p2Taunts).toBe(0);
+  });
 });
 
 describe("when calculating stock information", () => {
