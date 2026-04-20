@@ -50,6 +50,12 @@ const createOutput = (dir, format) => ({
   chunkFileNames: `[name].${format === "esm" ? "esm.js" : "cjs"}`,
   sourcemap: "hidden",
   exports: "named",
+  paths: format !== "esm" ? undefined : (id) => {
+    if (id.startsWith("lodash/")) {
+      return id + ".js";
+    }
+    return id;
+  },
 });
 
 /**
