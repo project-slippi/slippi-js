@@ -1,7 +1,7 @@
-import type { FrameEntryType, FramesType, GameStartType } from "../types";
-import type { PlayerIndexedType, StockType } from "./common";
-import { didLoseStock, getSinglesPlayerPermutationsFromSettings, isDead } from "./common";
-import type { StatComputer } from "./stats";
+import type { FrameEntryType, FramesType, GameStartType } from "../types.js";
+import type { PlayerIndexedType, StockType } from "./common.js";
+import { didLoseStock, getSinglesPlayerPermutationsFromSettings, isDead } from "./common.js";
+import type { StatComputer } from "./stats.js";
 
 type StockState = {
   stock: StockType | undefined;

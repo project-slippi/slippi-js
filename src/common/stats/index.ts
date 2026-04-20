@@ -1,9 +1,9 @@
-export { ActionsComputer } from "./actions";
-export { ComboComputer } from "./combos";
-export * from "./common";
-export { ConversionComputer } from "./conversions";
-export { InputComputer } from "./inputs";
-export { generateOverallStats } from "./overall";
-export { StatComputer, StatOptions, Stats } from "./stats";
-export { StockComputer } from "./stocks";
-export { TargetBreakComputer } from "./targets";
+export { ActionsComputer } from "./actions.js";
+export { ComboComputer } from "./combos.js";
+export * from "./common.js";
+export { ConversionComputer } from "./conversions.js";
+export { InputComputer } from "./inputs.js";
+export { generateOverallStats } from "./overall.js";
+export { StatComputer, StatOptions, Stats } from "./stats.js";
+export { StockComputer } from "./stocks.js";
+export { TargetBreakComputer } from "./targets.js";

@@ -1,8 +1,8 @@
 import { format } from "date-fns";
 
-import type { GameStartType } from "../types";
-import { TimerType } from "../types";
-import { exists } from "./exists";
+import type { GameStartType } from "../types.js";
+import { TimerType } from "../types.js";
+import { exists } from "./exists.js";
 
 export function frameToGameTimer(
   frame: number,

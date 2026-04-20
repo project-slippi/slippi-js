@@ -1,2 +1,2 @@
-export * from "../common/index";
-export { SlippiGameWeb as SlippiGame } from "./SlippiGameWeb";
+export * from "../common/index.js";
+export { SlippiGameWeb as SlippiGame } from "./SlippiGameWeb.js";

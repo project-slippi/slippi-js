@@ -1,5 +1,5 @@
-import type { BinaryLike } from "./bufferHelpers";
-import { bufferCopy, byteLength } from "./bufferHelpers";
+import type { BinaryLike } from "./bufferHelpers.js";
+import { bufferCopy, byteLength } from "./bufferHelpers.js";
 
 export interface SlpInputRef {
   read(targetBuffer: Uint8Array, offset: number, length: number, position: number): number;

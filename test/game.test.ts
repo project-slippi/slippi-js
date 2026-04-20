@@ -1,7 +1,7 @@
 import fs from "fs";
 import _ from "lodash";
 
-import { SlippiGame } from "../src/node/index";
+import { SlippiGame } from "../src/node/index.js";
 
 it("should correctly return game settings", () => {
   const game = new SlippiGame("slp/sheik_vs_ics_yoshis.slp");

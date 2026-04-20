@@ -5,11 +5,6 @@ export type ReconnectCoreModule = typeof import("reconnect-core");
 let reconnectCoreModule: ReconnectCoreModule | undefined;
 let loadPromise: Promise<ReconnectCoreModule | undefined> | undefined;
 
-// Keep a single dynamic import function that TS won’t downlevel.
-const dynamicImport: (s: string) => Promise<any> =
-  // eslint-disable-next-line no-new-func
-  new Function("s", "return import(s)") as any;
-
 async function maybeLoadReconnectCoreModule(): Promise<ReconnectCoreModule | undefined> {
   if (reconnectCoreModule) {
     return reconnectCoreModule;
@@ -18,20 +13,26 @@ async function maybeLoadReconnectCoreModule(): Promise<ReconnectCoreModule | und
     return loadPromise;
   }
 
-  // Try CJS first (works in both Node & webpack)
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports
-    const mod = require("reconnect-core") as any;
-    reconnectCoreModule = (mod?.default ? mod?.default : mod) as ReconnectCoreModule | undefined;
-    return reconnectCoreModule;
-  } catch (error: any) {
-    // Ignore and try ESM
-  }
+  loadPromise = (async () => {
+    // Try require first (CJS or bundler environments)
+    try {
+      if (typeof require !== "undefined") {
+        // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports
+        const mod = require("reconnect-core") as any;
+        return (mod?.default ?? mod) as ReconnectCoreModule;
+      }
+    } catch {
+      // ignore
+    }
 
-  // Fallback: ESM dynamic import (v8+)
-  loadPromise = dynamicImport("reconnect-core")
-    .then((m: any) => (m?.default ? m?.default : m) as ReconnectCoreModule | undefined)
-    .catch(() => undefined);
+    // Fallback: ESM dynamic import
+    try {
+      const mod = await import("reconnect-core");
+      return (mod?.default ?? mod) as ReconnectCoreModule;
+    } catch {
+      return undefined;
+    }
+  })();
 
   reconnectCoreModule = await loadPromise;
   return reconnectCoreModule;

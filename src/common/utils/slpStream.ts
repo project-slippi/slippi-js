@@ -1,7 +1,7 @@
-import type { EventPayloadTypes } from "../types";
-import { Command } from "../types";
-import { parseMessage } from "./slpReader";
-import { TypedEventEmitter } from "./typedEventEmitter";
+import type { EventPayloadTypes } from "../types.js";
+import { Command } from "../types.js";
+import { parseMessage } from "./slpReader.js";
+import { TypedEventEmitter } from "./typedEventEmitter.js";
 
 export const NETWORK_MESSAGE = "HELO\0";
 

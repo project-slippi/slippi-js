@@ -1,4 +1,4 @@
-import type { FrameEntryType, RollbackFramesType } from "../types";
+import type { FrameEntryType, RollbackFramesType } from "../types.js";
 
 export class RollbackCounter {
   private rollbackFrames: RollbackFramesType = {};

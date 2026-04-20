@@ -1,9 +1,9 @@
-import * as animations from "./animationUtils";
-import * as characters from "./characterUtils";
-import * as framedata from "./framedataUtils";
-import * as moves from "./moveUtils";
-import * as stages from "./stageUtils";
+import * as animations from "./animationUtils.js";
+import * as characters from "./characterUtils.js";
+import * as framedata from "./framedataUtils.js";
+import * as moves from "./moveUtils.js";
+import * as stages from "./stageUtils.js";
 
-export * from "./types";
+export * from "./types.js";
 
 export { animations, characters, framedata, moves, stages };

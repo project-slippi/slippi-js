@@ -1,8 +1,8 @@
-import type { FrameEntryType, FramesType, GameStartType } from "../types";
-import { Frames } from "../types";
-import type { PlayerIndexedType } from "./common";
-import { getSinglesPlayerPermutationsFromSettings } from "./common";
-import type { StatComputer } from "./stats";
+import type { FrameEntryType, FramesType, GameStartType } from "../types.js";
+import { Frames } from "../types.js";
+import type { PlayerIndexedType } from "./common.js";
+import { getSinglesPlayerPermutationsFromSettings } from "./common.js";
+import type { StatComputer } from "./stats.js";
 
 enum JoystickRegion {
   DZ = 0,

@@ -1,4 +1,4 @@
-import type { TypedEventEmitter } from "../../common/utils/typedEventEmitter";
+import type { TypedEventEmitter } from "../../common/utils/typedEventEmitter.js";
 
 export enum ConnectionEvent {
   CONNECT = "connect",

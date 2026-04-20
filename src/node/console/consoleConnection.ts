@@ -1,13 +1,13 @@
 import net from "net";
 import type { Instance } from "reconnect-core";
 
-import { NETWORK_MESSAGE } from "../../common/utils/slpStream";
-import { TypedEventEmitter } from "../../common/utils/typedEventEmitter";
-import type { CommunicationMessage } from "./communication";
-import { CommunicationType, ConsoleCommunication } from "./communication";
-import { loadReconnectCoreModule } from "./loadReconnectCoreModule";
-import type { Connection, ConnectionDetails, ConnectionEventMap, ConnectionSettings } from "./types";
-import { ConnectionEvent, ConnectionStatus, Ports } from "./types";
+import { NETWORK_MESSAGE } from "../../common/utils/slpStream.js";
+import { TypedEventEmitter } from "../../common/utils/typedEventEmitter.js";
+import type { CommunicationMessage } from "./communication.js";
+import { CommunicationType, ConsoleCommunication } from "./communication.js";
+import { loadReconnectCoreModule } from "./loadReconnectCoreModule.js";
+import type { Connection, ConnectionDetails, ConnectionEventMap, ConnectionSettings } from "./types.js";
+import { ConnectionEvent, ConnectionStatus, Ports } from "./types.js";
 
 const DEFAULT_CONNECTION_TIMEOUT_MS = 20000;
 

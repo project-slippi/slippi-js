@@ -1,6 +1,6 @@
-import type { GameEndType, GameStartType, PlacementType, PostFrameUpdateType } from "../types";
-import { GameEndMethod } from "../types";
-import { exists } from "./exists";
+import type { GameEndType, GameStartType, PlacementType, PostFrameUpdateType } from "../types.js";
+import { GameEndMethod } from "../types.js";
+import { exists } from "./exists.js";
 
 export function getWinners(
   gameEnd: GameEndType,

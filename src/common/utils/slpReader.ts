@@ -15,11 +15,11 @@ import type {
   PlayerType,
   PostFrameUpdateType,
   SelfInducedSpeedsType,
-} from "../types";
-import { Command } from "../types";
-import { exists } from "./exists";
-import { toHalfwidth } from "./fullwidth";
-import type { SlpInputRef } from "./slpInputRef";
+} from "../types.js";
+import { Command } from "../types.js";
+import { exists } from "./exists.js";
+import { toHalfwidth } from "./fullwidth.js";
+import type { SlpInputRef } from "./slpInputRef.js";
 
 const utf8Decoder = new TextDecoder("utf-8");
 

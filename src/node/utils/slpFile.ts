@@ -4,10 +4,10 @@ import forEach from "lodash/forEach";
 import type { WritableOptions } from "stream";
 import { Writable } from "stream";
 
-import type { GameStartType, PostFrameUpdateType } from "../../common/types";
-import { Command } from "../../common/types";
-import type { SlpCommandEventPayload } from "../../common/utils/slpStream";
-import { SlpStream, SlpStreamEvent, SlpStreamMode } from "../../common/utils/slpStream";
+import type { GameStartType, PostFrameUpdateType } from "../../common/types.js";
+import { Command } from "../../common/types.js";
+import type { SlpCommandEventPayload } from "../../common/utils/slpStream.js";
+import { SlpStream, SlpStreamEvent, SlpStreamMode } from "../../common/utils/slpStream.js";
 
 const DEFAULT_NICKNAME = "unknown";
 

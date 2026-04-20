@@ -4,9 +4,9 @@ import groupBy from "lodash/groupBy";
 import last from "lodash/last";
 import orderBy from "lodash/orderBy";
 
-import type { FrameEntryType, FramesType, GameStartType, PostFrameUpdateType } from "../types";
-import { TypedEventEmitter } from "../utils/typedEventEmitter";
-import type { ConversionType, MoveLandedType, PlayerIndexedType } from "./common";
+import type { FrameEntryType, FramesType, GameStartType, PostFrameUpdateType } from "../types.js";
+import { TypedEventEmitter } from "../utils/typedEventEmitter.js";
+import type { ConversionType, MoveLandedType, PlayerIndexedType } from "./common.js";
 import {
   calcDamageTaken,
   didLoseStock,
@@ -16,8 +16,8 @@ import {
   isGrabbed,
   isInControl,
   Timers,
-} from "./common";
-import type { StatComputer } from "./stats";
+} from "./common.js";
+import type { StatComputer } from "./stats.js";
 
 type ConversionEventData = {
   combo: ConversionType | undefined;
