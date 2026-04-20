@@ -1,4 +1,4 @@
-import { SlippiGame } from "../src/node/index";
+import { SlippiGame } from "../src/node/index.js";
 import {
   Frames,
   StadiumTransformationEvent,
@@ -7,7 +7,7 @@ import {
   StadiumTransformationType,
   FodPlatformType,
   WhispyType,
-} from "../src/common/index";
+} from "../src/common/index.js";
 
 describe("when extracting stadium transformation information", () => {
   it("should properly increment event ids", () => {

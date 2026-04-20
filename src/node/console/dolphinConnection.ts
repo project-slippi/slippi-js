@@ -1,9 +1,9 @@
 import type { Host, Packet, Peer } from "enet";
 
-import { TypedEventEmitter } from "../../common/utils/typedEventEmitter";
-import { loadEnetModule } from "./loadEnetModule";
-import type { Connection, ConnectionDetails, ConnectionEventMap, ConnectionSettings } from "./types";
-import { ConnectionEvent, ConnectionStatus, Ports } from "./types";
+import { TypedEventEmitter } from "../../common/utils/typedEventEmitter.js";
+import { loadEnetModule } from "./loadEnetModule.js";
+import type { Connection, ConnectionDetails, ConnectionEventMap, ConnectionSettings } from "./types.js";
+import { ConnectionEvent, ConnectionStatus, Ports } from "./types.js";
 
 const MAX_PEERS = 32;
 

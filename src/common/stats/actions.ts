@@ -5,12 +5,12 @@ import last from "lodash/last";
 import set from "lodash/set";
 import size from "lodash/size";
 
-import * as Melee from "../melee";
-import type { FrameEntryType, GameStartType } from "../types";
-import { exists } from "../utils/exists";
-import type { ActionCountsType, PlayerIndexedType } from "./common";
-import { getSinglesPlayerPermutationsFromSettings, State } from "./common";
-import type { StatComputer } from "./stats";
+import * as Melee from "../melee/index.js";
+import type { FrameEntryType, GameStartType } from "../types.js";
+import { exists } from "../utils/exists.js";
+import type { ActionCountsType, PlayerIndexedType } from "./common.js";
+import { getSinglesPlayerPermutationsFromSettings, State } from "./common.js";
+import type { StatComputer } from "./index.js";
 
 // Frame pattern that indicates a dash dance turn was executed
 const dashDanceAnimations = [State.DASH, State.TURN, State.DASH];

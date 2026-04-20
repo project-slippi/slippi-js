@@ -20,12 +20,12 @@ import type {
   StadiumTransformationType,
   StageEventTypes,
   WhispyType,
-} from "../types";
-import { ItemSpawnType } from "../types";
-import { Command, Frames, GameMode } from "../types";
-import { exists } from "./exists";
-import { RollbackCounter } from "./rollbackCounter";
-import { TypedEventEmitter } from "./typedEventEmitter";
+} from "../types.js";
+import { ItemSpawnType } from "../types.js";
+import { Command, Frames, GameMode } from "../types.js";
+import { exists } from "./exists.js";
+import { RollbackCounter } from "./rollbackCounter.js";
+import { TypedEventEmitter } from "./typedEventEmitter.js";
 
 // There are 5 bytes of item bitfields that can be enabled
 const ITEM_SETTINGS_BIT_COUNT = 40;

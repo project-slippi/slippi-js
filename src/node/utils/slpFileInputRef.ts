@@ -1,6 +1,6 @@
 import fs from "fs";
 
-import type { SlpInputRef } from "../../common/utils/slpInputRef";
+import type { SlpInputRef } from "../../common/utils/slpInputRef.js";
 
 export class SlpFileInputRef implements SlpInputRef {
   private fileDescriptor?: number;

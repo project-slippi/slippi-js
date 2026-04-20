@@ -1,4 +1,4 @@
-import type { GameStartType, PostFrameUpdateType } from "../types";
+import type { GameStartType, PostFrameUpdateType } from "../types.js";
 
 export type StatsType = {
   gameComplete: boolean;

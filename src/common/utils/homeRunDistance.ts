@@ -1,6 +1,6 @@
-import type { FrameEntryType, GameStartType } from "../types";
-import { Language } from "../types";
-import { exists } from "./exists";
+import type { FrameEntryType, GameStartType } from "../types.js";
+import { Language } from "../types.js";
+import { exists } from "./exists.js";
 
 const SANDBAG_INTERNAL_ID = 32;
 

@@ -1,8 +1,8 @@
-import { SlippiGameBase } from "../common/SlippiGameBase";
-import type { StatOptions } from "../common/stats";
-import type { BinaryLike } from "../common/utils/bufferHelpers";
-import { isBufferLike } from "../common/utils/bufferHelpers";
-import { SlpBufferInputRef } from "../common/utils/slpInputRef";
+import { SlippiGameBase } from "../common/SlippiGameBase.js";
+import type { StatOptions } from "../common/stats/index.js";
+import type { BinaryLike } from "../common/utils/bufferHelpers.js";
+import { isBufferLike } from "../common/utils/bufferHelpers.js";
+import { SlpBufferInputRef } from "../common/utils/slpInputRef.js";
 
 export class SlippiGameWeb extends SlippiGameBase {
   public constructor(input: BinaryLike, opts?: StatOptions) {

@@ -1,8 +1,8 @@
-import type { FrameEntryType, FramesType, GameStartType } from "../types";
-import { Frames, GameMode } from "../types";
-import { exists } from "../utils/exists";
-import type { TargetBreakType } from "./common";
-import type { StatComputer } from "./stats";
+import type { FrameEntryType, FramesType, GameStartType } from "../types.js";
+import { Frames, GameMode } from "../types.js";
+import { exists } from "../utils/exists.js";
+import type { TargetBreakType } from "./common.js";
+import type { StatComputer } from "./stats.js";
 
 // The Target item's in-game ID
 const TARGET_ITEM_TYPE_ID = 209;

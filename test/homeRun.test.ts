@@ -1,6 +1,6 @@
-import { SlippiGame } from "../src/node/index";
-import { HomeRunContestResultType } from "../src/common/index";
-import { positionToHomeRunDistance } from "../src/common/utils/homeRunDistance";
+import { SlippiGame } from "../src/node/index.js";
+import { HomeRunContestResultType } from "../src/common/index.js";
+import { positionToHomeRunDistance } from "../src/common/utils/homeRunDistance.js";
 
 describe("when processing homerun contest replays", () => {
   it("should correctly calculate the distance for negative-distance hits", () => {

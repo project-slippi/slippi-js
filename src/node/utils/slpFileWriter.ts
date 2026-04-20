@@ -3,10 +3,10 @@ import path from "path";
 import type { WritableOptions } from "stream";
 import { Writable } from "stream";
 
-import { Command } from "../../common/types";
-import type { SlpRawEventPayload, SlpStreamSettings } from "../../common/utils/slpStream";
-import { SlpStream, SlpStreamEvent } from "../../common/utils/slpStream";
-import { SlpFile } from "./slpFile";
+import { Command } from "../../common/types.js";
+import type { SlpRawEventPayload, SlpStreamSettings } from "../../common/utils/slpStream.js";
+import { SlpStream, SlpStreamEvent } from "../../common/utils/slpStream.js";
+import { SlpFile } from "./slpFile.js";
 
 /**
  * The default function to use for generating new SLP files.

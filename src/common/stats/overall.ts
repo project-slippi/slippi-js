@@ -7,9 +7,9 @@ import last from "lodash/last";
 import mapValues from "lodash/mapValues";
 import zip from "lodash/zip";
 
-import type { GameStartType } from "../types";
-import type { ConversionType, InputCountsType, OverallType, RatioType } from "./common";
-import type { PlayerInput } from "./inputs";
+import type { GameStartType } from "../types.js";
+import type { ConversionType, InputCountsType, OverallType, RatioType } from "./common.js";
+import type { PlayerInput } from "./inputs.js";
 
 type ConversionsByPlayerByOpening = {
   [playerIndex: string]: {

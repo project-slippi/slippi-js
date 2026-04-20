@@ -1,5 +1,5 @@
-import { TimerType } from "../types";
-import { frameToGameTimer } from "./gameTimer";
+import { TimerType } from "../types.js";
+import { frameToGameTimer } from "./gameTimer.js";
 
 describe("when calculating the in-game timer", () => {
   it("should return unknown if no starting timer is provided", () => {

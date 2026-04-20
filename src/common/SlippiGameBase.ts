@@ -1,5 +1,4 @@
-import type { StadiumStatsType, StatOptions, StatsType } from "./stats";
-import { TargetBreakComputer } from "./stats";
+import type { StadiumStatsType, StatOptions, StatsType } from "./stats/index.js";
 import {
   ActionsComputer,
   ComboComputer,
@@ -8,7 +7,8 @@ import {
   InputComputer,
   Stats,
   StockComputer,
-} from "./stats";
+} from "./stats/index.js";
+import { TargetBreakComputer } from "./stats/index.js";
 import type {
   EnabledItemType,
   EventCallbackFunc,
@@ -21,14 +21,20 @@ import type {
   PlacementType,
   PostFrameUpdateType,
   RollbackFrames,
-} from "./types";
-import { GameEndMethod, GameMode } from "./types";
-import { getWinners } from "./utils/getWinners";
-import { extractDistanceInfoFromFrame } from "./utils/homeRunDistance";
-import type { SlpInputRef } from "./utils/slpInputRef";
-import { SlpParser, SlpParserEvent } from "./utils/slpParser";
-import type { SlpFileType } from "./utils/slpReader";
-import { extractFinalPostFrameUpdates, getGameEnd, getMetadata, iterateEvents, openSlpFile } from "./utils/slpReader";
+} from "./types.js";
+import { GameEndMethod, GameMode } from "./types.js";
+import { getWinners } from "./utils/getWinners.js";
+import { extractDistanceInfoFromFrame } from "./utils/homeRunDistance.js";
+import type { SlpInputRef } from "./utils/slpInputRef.js";
+import { SlpParser, SlpParserEvent } from "./utils/slpParser.js";
+import type { SlpFileType } from "./utils/slpReader.js";
+import {
+  extractFinalPostFrameUpdates,
+  getGameEnd,
+  getMetadata,
+  iterateEvents,
+  openSlpFile,
+} from "./utils/slpReader.js";
 
 /**
  * Slippi Game class that wraps a file
