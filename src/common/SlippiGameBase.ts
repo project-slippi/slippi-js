@@ -19,10 +19,9 @@ import type {
   GeckoListType,
   MetadataType,
   PlacementType,
-  PostFrameUpdateType,
   RollbackFrames,
 } from "./types.js";
-import { GameEndMethod, GameMode } from "./types.js";
+import { GameMode } from "./types.js";
 import { getWinners } from "./utils/getWinners.js";
 import { extractDistanceInfoFromFrame } from "./utils/homeRunDistance.js";
 import type { SlpInputRef } from "./utils/slpInputRef.js";
@@ -247,25 +246,17 @@ export abstract class SlippiGameBase {
   public abstract getFilePath(): string | undefined;
 
   public getWinners(): PlacementType[] {
-    // Read game end block directly
     this.input.open();
     const slpfile = openSlpFile(this.input);
-    const gameEnd = getGameEnd(slpfile);
     this._process(() => this.parser.getSettings() != null, slpfile);
     const settings = this.parser.getSettings();
-    if (!gameEnd || !settings) {
-      // Technically using the final post frame updates, it should be possible to compute winners for
-      // replays without a gameEnd message. But I'll leave this here anyway
+    if (!settings) {
       this.input.close();
       return [];
     }
 
-    // If we went to time, let's fetch the post frame updates to compute the winner
-    let finalPostFrameUpdates: PostFrameUpdateType[] = [];
-    if (gameEnd.gameEndMethod === GameEndMethod.TIME) {
-      finalPostFrameUpdates = extractFinalPostFrameUpdates(slpfile);
-    }
-
+    const finalPostFrameUpdates = extractFinalPostFrameUpdates(slpfile);
+    const gameEnd: Partial<GameEndType> = getGameEnd(slpfile) ?? {};
     this.input.close();
     return getWinners(gameEnd, settings, finalPostFrameUpdates);
   }
