@@ -248,7 +248,6 @@ export abstract class SlippiGameBase {
   public getWinners(): PlacementType[] {
     this.input.open();
     const slpfile = openSlpFile(this.input);
-    const gameEnd = getGameEnd(slpfile);
     this._process(() => this.parser.getSettings() != null, slpfile);
     const settings = this.parser.getSettings();
     if (!settings) {
@@ -257,8 +256,8 @@ export abstract class SlippiGameBase {
     }
 
     const finalPostFrameUpdates = extractFinalPostFrameUpdates(slpfile);
-
+    const gameEnd: Partial<GameEndType> = getGameEnd(slpfile) ?? {};
     this.input.close();
-    return getWinners(gameEnd || {}, settings, finalPostFrameUpdates);
+    return getWinners(gameEnd, settings, finalPostFrameUpdates);
   }
 }
