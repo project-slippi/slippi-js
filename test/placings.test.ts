@@ -3,6 +3,12 @@ import _ from "lodash";
 import { SlippiGame } from "../src/node/index.js";
 
 describe("when determining placings", () => {
+  it("should return no winners if everyone died at the same time", () => {
+    const game = new SlippiGame("slp/placementsTest/same-frame-death.slp");
+    const winners = game.getWinners();
+    expect(winners).toHaveLength(0);
+  });
+
   it("should return empty placings for older slp files", () => {
     const game = new SlippiGame("slp/test.slp");
     const placements = game.getGameEnd()!.placements!;
