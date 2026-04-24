@@ -31,13 +31,15 @@ import { TypedEventEmitter } from "./typedEventEmitter.js";
 const ITEM_SETTINGS_BIT_COUNT = 40;
 export const MAX_ROLLBACK_FRAMES = 7;
 
-export enum SlpParserEvent {
-  SETTINGS = "settings",
-  END = "end",
-  FRAME = "frame", // Emitted for every frame
-  FINALIZED_FRAME = "finalized-frame", // Emitted for only finalized frames
-  ROLLBACK_FRAME = "rollback-frame", // Emitted if a frame is being replaced
-}
+export const SlpParserEvent = {
+  SETTINGS: "settings",
+  END: "end",
+  FRAME: "frame", // Emitted for every frame
+  FINALIZED_FRAME: "finalized-frame", // Emitted for only finalized frames
+  ROLLBACK_FRAME: "rollback-frame", // Emitted if a frame is being replaced
+} as const;
+
+export type SlpParserEvent = (typeof SlpParserEvent)[keyof typeof SlpParserEvent];
 
 // If strict mode is on, we will do strict validation checking
 // which could throw errors on invalid data.

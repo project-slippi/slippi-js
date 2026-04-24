@@ -17,11 +17,13 @@ import {
 } from "./common.js";
 import type { StatComputer } from "./stats.js";
 
-export enum ComboEvent {
-  COMBO_START = "COMBO_START",
-  COMBO_EXTEND = "COMBO_EXTEND",
-  COMBO_END = "COMBO_END",
-}
+export const ComboEvent = {
+  COMBO_START: "COMBO_START",
+  COMBO_EXTEND: "COMBO_EXTEND",
+  COMBO_END: "COMBO_END",
+} as const;
+
+export type ComboEvent = (typeof ComboEvent)[keyof typeof ComboEvent];
 
 type ComboEventData = {
   combo: ComboType | undefined;

@@ -7,12 +7,14 @@ import { ConnectionEvent, ConnectionStatus, Ports } from "./types.js";
 
 const MAX_PEERS = 32;
 
-export enum DolphinMessageType {
-  CONNECT_REPLY = "connect_reply",
-  GAME_EVENT = "game_event",
-  START_GAME = "start_game",
-  END_GAME = "end_game",
-}
+export const DolphinMessageType = {
+  CONNECT_REPLY: "connect_reply",
+  GAME_EVENT: "game_event",
+  START_GAME: "start_game",
+  END_GAME: "end_game",
+} as const;
+
+export type DolphinMessageType = (typeof DolphinMessageType)[keyof typeof DolphinMessageType];
 
 export class DolphinConnection extends TypedEventEmitter<ConnectionEventMap> implements Connection {
   private ipAddress: string;
