@@ -1,13 +1,15 @@
 import type { TypedEventEmitter } from "../../common/utils/typedEventEmitter.js";
 
-export enum ConnectionEvent {
-  CONNECT = "connect",
-  MESSAGE = "message",
-  HANDSHAKE = "handshake",
-  STATUS_CHANGE = "statusChange",
-  DATA = "data",
-  ERROR = "error",
-}
+export const ConnectionEvent = {
+  CONNECT: "connect",
+  MESSAGE: "message",
+  HANDSHAKE: "handshake",
+  STATUS_CHANGE: "statusChange",
+  DATA: "data",
+  ERROR: "error",
+} as const;
+
+export type ConnectionEvent = (typeof ConnectionEvent)[keyof typeof ConnectionEvent];
 
 export type ConnectionEventMap = {
   [ConnectionEvent.CONNECT]: undefined;

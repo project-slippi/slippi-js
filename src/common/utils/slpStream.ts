@@ -29,10 +29,12 @@ export type SlpRawEventPayload = {
   payload: Uint8Array;
 };
 
-export enum SlpStreamEvent {
-  RAW = "slp-raw",
-  COMMAND = "slp-command",
-}
+export const SlpStreamEvent = {
+  RAW: "slp-raw",
+  COMMAND: "slp-command",
+} as const;
+
+export type SlpStreamEvent = (typeof SlpStreamEvent)[keyof typeof SlpStreamEvent];
 
 type SlpStreamEventMap = {
   [SlpStreamEvent.RAW]: SlpRawEventPayload;
