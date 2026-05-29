@@ -32,7 +32,7 @@
       "require": "./dist/node/index.cjs",
       "default": "./dist/node/index.js"
     },
-    "./*": "./dist/node/*.js",
+    "./*": "./dist/*.js",
     "./package.json": "./package.json"
   },
   "typesVersions": {
