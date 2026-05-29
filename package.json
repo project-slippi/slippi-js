@@ -28,10 +28,11 @@
     },
     "./node": {
       "types": "./dist/index.node.d.ts",
-      "import": "./dist/node/index.esm.js",
+      "import": "./dist/node/index.js",
       "require": "./dist/node/index.cjs",
-      "default": "./dist/node/index.esm.js"
+      "default": "./dist/node/index.js"
     },
+    "./*": "./dist/node/*.js",
     "./package.json": "./package.json"
   },
   "typesVersions": {

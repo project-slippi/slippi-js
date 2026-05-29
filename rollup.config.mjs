@@ -130,7 +130,34 @@ export default defineConfig([
   // ============================================
   {
     input: { "node/index": "src/node/index.ts" },
-    output: [createOutput("dist", "esm"), createOutput("dist", "cjs")],
+    output: [
+      // ESM output with preserveModules for per-module tree-shaking
+      {
+        dir: "dist",
+        format: "esm",
+        preserveModules: true,
+        preserveModulesRoot: "src",
+        entryFileNames: "[name].js",
+        sourcemap: "hidden",
+        exports: "named",
+        paths: (id) => {
+          if (id.startsWith("lodash/")) {
+            return id + ".js";
+          }
+          return id;
+        },
+      },
+      // CJS output with preserveModules for per-module tree-shaking in CommonJS bundlers
+      {
+        dir: "dist",
+        format: "cjs",
+        preserveModules: true,
+        preserveModulesRoot: "src",
+        entryFileNames: "[name].cjs",
+        sourcemap: "hidden",
+        exports: "named",
+      },
+    ],
     external,
     plugins,
   },

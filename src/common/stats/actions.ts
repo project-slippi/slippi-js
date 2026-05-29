@@ -5,7 +5,8 @@ import last from "lodash/last";
 import set from "lodash/set";
 import size from "lodash/size";
 
-import * as Melee from "../melee/index.js";
+import type { AerialName } from "../melee/framedataUtils.js";
+import { getAerialFrameData } from "../melee/framedataUtils.js";
 import type { FrameEntryType, GameStartType } from "../types.js";
 import { exists } from "../utils/exists.js";
 import type { ActionCountsType, PlayerIndexedType } from "./common.js";
@@ -148,7 +149,7 @@ function isTaunting(animation: State): boolean {
 }
 
 function getLandLagFromLandAnimation(animation: State, internalCharacterId: number): [number, number] | undefined {
-  let aerialName: Melee.framedata.AerialName;
+  let aerialName: AerialName;
   if (animation === State.AERIAL_BAIR_LANDING) {
     aerialName = "bair";
   } else if (animation === State.AERIAL_FAIR_LANDING) {
@@ -162,7 +163,7 @@ function getLandLagFromLandAnimation(animation: State, internalCharacterId: numb
   } else {
     return undefined;
   }
-  const aerialFrameData = Melee.framedata.getAerialFrameData(internalCharacterId, aerialName);
+  const aerialFrameData = getAerialFrameData(internalCharacterId, aerialName);
   if (aerialFrameData) {
     return [aerialFrameData.landingLag, aerialFrameData.lcancelledLandingLag];
   }
