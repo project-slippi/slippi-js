@@ -28,9 +28,9 @@
     },
     "./node": {
       "types": "./dist/index.node.d.ts",
-      "import": "./dist/node/index.js",
+      "import": "./dist/node/index.esm.js",
       "require": "./dist/node/index.cjs",
-      "default": "./dist/node/index.js"
+      "default": "./dist/node/index.esm.js"
     },
     "./package.json": "./package.json"
   },

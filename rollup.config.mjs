@@ -41,13 +41,37 @@ const browserExternal = (id) => {
 };
 
 /**
- * Standard output configuration
+ * Browser output configuration (bundled — @shelacek/ubjson is inlined)
  */
-const createOutput = (dir, format) => ({
+const createBrowserOutput = (dir, format) => ({
   dir,
   format,
   entryFileNames: `[name].${format === "esm" ? "esm.js" : "cjs"}`,
   chunkFileNames: `[name].${format === "esm" ? "esm.js" : "cjs"}`,
+  sourcemap: "hidden",
+  exports: "named",
+  // This fixes the lodash ESM import issue as described here:
+  // https://github.com/project-slippi/slippi-js/issues/168
+  paths:
+    format !== "esm"
+      ? undefined
+      : (id) => {
+          if (id.startsWith("lodash/")) {
+            return id + ".js";
+          }
+          return id;
+        },
+});
+
+/**
+ * Node output configuration (per-module for tree-shaking)
+ */
+const createNodeOutput = (dir, format) => ({
+  dir,
+  format,
+  preserveModules: true,
+  preserveModulesRoot: "src",
+  entryFileNames: `[name].${format === "esm" ? "esm.js" : "cjs"}`,
   sourcemap: "hidden",
   exports: "named",
   // This fixes the lodash ESM import issue as described here:
@@ -120,7 +144,7 @@ export default defineConfig([
   // ============================================
   {
     input: { "browser/index": "src/browser/index.ts" },
-    output: [createOutput("dist", "esm"), createOutput("dist", "cjs")],
+    output: [createBrowserOutput("dist", "esm"), createBrowserOutput("dist", "cjs")],
     external: browserExternal,
     plugins: browserPlugins,
   },
@@ -130,34 +154,7 @@ export default defineConfig([
   // ============================================
   {
     input: { "node/index": "src/node/index.ts" },
-    output: [
-      // ESM output with preserveModules for per-module tree-shaking
-      {
-        dir: "dist",
-        format: "esm",
-        preserveModules: true,
-        preserveModulesRoot: "src",
-        entryFileNames: "[name].js",
-        sourcemap: "hidden",
-        exports: "named",
-        paths: (id) => {
-          if (id.startsWith("lodash/")) {
-            return id + ".js";
-          }
-          return id;
-        },
-      },
-      // CJS output with preserveModules for per-module tree-shaking in CommonJS bundlers
-      {
-        dir: "dist",
-        format: "cjs",
-        preserveModules: true,
-        preserveModulesRoot: "src",
-        entryFileNames: "[name].cjs",
-        sourcemap: "hidden",
-        exports: "named",
-      },
-    ],
+    output: [createNodeOutput("dist", "esm"), createNodeOutput("dist", "cjs")],
     external,
     plugins,
   },
