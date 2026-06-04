@@ -60,5 +60,3 @@ typings/
 # PHPStorm
 .idea/
 
-# Don't bundle source maps
-*.map
