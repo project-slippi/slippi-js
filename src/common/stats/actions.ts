@@ -2,7 +2,7 @@ import type { AerialName } from "../melee/framedataUtils.js";
 import { getAerialFrameData } from "../melee/framedataUtils.js";
 import type { FrameEntryType, GameStartType } from "../types.js";
 import { exists } from "../utils/exists.js";
-import { keyBy } from "../utils/lang.js";
+import { keyBy } from "../utils/keyBy.js";
 import type { ActionCountsType, PlayerIndexedType } from "./common.js";
 import { getSinglesPlayerPermutationsFromSettings, State } from "./common.js";
 import type { StatComputer } from "./index.js";

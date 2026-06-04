@@ -1,4 +1,4 @@
-import { groupBy } from "../utils/lang.js";
+import { groupBy } from "../utils/groupBy.js";
 
 import type { FrameEntryType, FramesType, GameStartType, PostFrameUpdateType } from "../types.js";
 import { TypedEventEmitter } from "../utils/typedEventEmitter.js";

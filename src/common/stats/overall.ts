@@ -1,5 +1,6 @@
 import type { GameStartType } from "../types.js";
-import { groupBy, keyBy } from "../utils/lang.js";
+import { groupBy } from "../utils/groupBy.js";
+import { keyBy } from "../utils/keyBy.js";
 import type { ConversionType, InputCountsType, OverallType, RatioType } from "./common.js";
 import type { PlayerInput } from "./inputs.js";
 
