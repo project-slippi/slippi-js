@@ -1,7 +1,5 @@
 import { decode as decodeUBJSON } from "@shelacek/ubjson";
 import { decode as decodeSJIS } from "iconv-cp932";
-import { mapValues } from "./lang.js";
-
 import type {
   ControllerFixType,
   EventCallbackFunc,
@@ -176,7 +174,9 @@ export function iterateEvents(
   const stopReadingAt = slpFile.rawDataPosition + slpFile.rawDataLength;
 
   // Generate read buffers for each
-  const commandPayloadBuffers = mapValues(slpFile.messageSizes, (size) => new Uint8Array(size + 1));
+  const commandPayloadBuffers = Object.fromEntries(
+    Object.entries(slpFile.messageSizes).map(([key, size]) => [key, new Uint8Array(size + 1)]),
+  );
   let splitMessageBuffer = new Uint8Array(0);
 
   const commandByteBuffer = new Uint8Array(1);

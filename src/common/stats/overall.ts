@@ -1,5 +1,5 @@
 import type { GameStartType } from "../types.js";
-import { flatten, groupBy, keyBy, mapValues } from "../utils/lang.js";
+import { groupBy, keyBy } from "../utils/lang.js";
 import type { ConversionType, InputCountsType, OverallType, RatioType } from "./common.js";
 import type { PlayerInput } from "./inputs.js";
 
@@ -23,8 +23,8 @@ export function generateOverallStats({
   const inputsByPlayer = keyBy(inputs, (input) => input.playerIndex);
   const originalConversions = conversions;
   const conversionsByPlayer = groupBy(conversions, (conv) => conv.moves[0]?.playerIndex ?? -1);
-  const conversionsByPlayerByOpening: ConversionsByPlayerByOpening = mapValues(conversionsByPlayer, (convs) =>
-    groupBy(convs, (conv) => conv.openingType),
+  const conversionsByPlayerByOpening: ConversionsByPlayerByOpening = Object.fromEntries(
+    Object.entries(conversionsByPlayer).map(([key, convs]) => [key, groupBy(convs, (conv) => conv.openingType)]),
   );
 
   const gameMinutes = playableFrameCount / 3600;
@@ -118,8 +118,8 @@ function getOpeningRatio(
 ): RatioType {
   const openings = conversionsByPlayerByOpening[String(playerIndex)]?.[type] ?? [];
 
-  const opponentOpenings = flatten(
-    opponentIndices.map((opponentIndex) => conversionsByPlayerByOpening[String(opponentIndex)]?.[type] ?? []),
+  const opponentOpenings = opponentIndices.flatMap(
+    (opponentIndex) => conversionsByPlayerByOpening[String(opponentIndex)]?.[type] ?? [],
   );
 
   return getRatio(openings.length, openings.length + opponentOpenings.length);
@@ -131,8 +131,8 @@ function getBeneficialTradeRatio(
   opponentIndices: number[],
 ): RatioType {
   const playerTrades = conversionsByPlayerByOpening[String(playerIndex)]?.["trade"] ?? [];
-  const opponentTrades = flatten(
-    opponentIndices.map((opponentIndex) => conversionsByPlayerByOpening[String(opponentIndex)]?.["trade"] ?? []),
+  const opponentTrades = opponentIndices.flatMap(
+    (opponentIndex) => conversionsByPlayerByOpening[String(opponentIndex)]?.["trade"] ?? [],
   );
 
   const benefitsPlayer = [];

@@ -30,21 +30,3 @@ export function groupBy<T>(arr: T[], fn: (item: T) => PropertyKey): Record<strin
   }
   return result;
 }
-
-export function mapValues<T, R>(obj: Record<string, T>, fn: (value: T, key: string) => R): Record<string, R> {
-  const result: Record<string, R> = {};
-  for (const key of Object.keys(obj)) {
-    result[key] = fn(obj[key]!, key);
-  }
-  return result;
-}
-
-export function flatten<T>(arr: T[][]): T[] {
-  const result: T[] = [];
-  for (const sub of arr) {
-    for (const item of sub) {
-      result.push(item);
-    }
-  }
-  return result;
-}
