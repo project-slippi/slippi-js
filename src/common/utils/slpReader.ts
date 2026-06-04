@@ -1,6 +1,6 @@
 import { decode as decodeUBJSON } from "@shelacek/ubjson";
 import { decode as decodeSJIS } from "iconv-cp932";
-import mapValues from "lodash/mapValues";
+import { mapValues } from "./lang.js";
 
 import type {
   ControllerFixType,

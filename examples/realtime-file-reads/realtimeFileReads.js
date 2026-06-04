@@ -1,6 +1,5 @@
 const { SlippiGame, characters: characterUtils } = require("@slippi/slippi-js/node");
 const chokidar = require("chokidar");
-const _ = require("lodash");
 
 const listenPath = process.argv[2];
 console.log(`Listening at: ${listenPath}`);
@@ -19,7 +18,7 @@ watcher.on("change", (path) => {
 
   let gameState, settings, stats, frames, latestFrame, gameEnd;
   try {
-    let game = _.get(gameByPath, [path, "game"]);
+    let game = gameByPath[path]?.game;
     if (!game) {
       console.log(`New file at: ${path}`);
       // Make sure to enable `processOnTheFly` to get updated stats as the game progresses
@@ -33,7 +32,7 @@ watcher.on("change", (path) => {
       };
     }
 
-    gameState = _.get(gameByPath, [path, "state"]);
+    gameState = gameByPath[path]?.state;
 
     settings = game.getSettings();
 
@@ -56,9 +55,9 @@ watcher.on("change", (path) => {
     gameState.settings = settings;
   }
 
-  console.log(`We have ${_.size(frames)} frames.`);
-  _.forEach(settings.players, (player) => {
-    const frameData = _.get(latestFrame, ["players", player.playerIndex]);
+  console.log(`We have ${Object.keys(frames).length} frames.`);
+  settings.players.forEach((player) => {
+    const frameData = latestFrame?.players?.[player.playerIndex];
     if (!frameData) {
       return;
     }
@@ -72,9 +71,9 @@ watcher.on("change", (path) => {
   // Uncomment this if you uncomment the stats calculation above. See comment above for details
   // // Do some conversion detection logging
   // // console.log(stats);
-  // _.forEach(stats.conversions, conversion => {
+  // stats.conversions.forEach(conversion => {
   //   const key = `${conversion.playerIndex}-${conversion.startFrame}`;
-  //   const detected = _.get(gameState, ['detectedPunishes', key]);
+  //   const detected = gameState?.detectedPunishes?.[key];
   //   if (!detected) {
   //     console.log(`[Punish Start] Frame ${conversion.startFrame} by player ${conversion.playerIndex + 1}`);
   //     gameState.detectedPunishes[key] = conversion;
@@ -103,7 +102,7 @@ watcher.on("change", (path) => {
       7: "No Contest",
     };
 
-    const endMessage = _.get(endTypes, gameEnd.gameEndMethod) || "Unknown";
+    const endMessage = endTypes[gameEnd.gameEndMethod] || "Unknown";
 
     const lrasText = gameEnd.gameEndMethod === 7 ? ` | Quitter Index: ${gameEnd.lrasInitiatorIndex}` : "";
     console.log(`[Game Complete] Type: ${endMessage}${lrasText}`);

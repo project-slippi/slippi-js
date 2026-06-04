@@ -1,13 +1,5 @@
-import first from "lodash/first";
-import flatten from "lodash/flatten";
-import get from "lodash/get";
-import groupBy from "lodash/groupBy";
-import keyBy from "lodash/keyBy";
-import last from "lodash/last";
-import mapValues from "lodash/mapValues";
-import zip from "lodash/zip";
-
 import type { GameStartType } from "../types.js";
+import { flatten, groupBy, keyBy, mapValues } from "../utils/lang.js";
 import type { ConversionType, InputCountsType, OverallType, RatioType } from "./common.js";
 import type { PlayerInput } from "./inputs.js";
 
@@ -28,11 +20,11 @@ export function generateOverallStats({
   conversions: ConversionType[];
   playableFrameCount: number;
 }): OverallType[] {
-  const inputsByPlayer = keyBy(inputs, "playerIndex");
+  const inputsByPlayer = keyBy(inputs, (input) => input.playerIndex);
   const originalConversions = conversions;
-  const conversionsByPlayer = groupBy(conversions, (conv) => conv.moves[0]?.playerIndex);
-  const conversionsByPlayerByOpening: ConversionsByPlayerByOpening = mapValues(conversionsByPlayer, (conversions) =>
-    groupBy(conversions, "openingType"),
+  const conversionsByPlayer = groupBy(conversions, (conv) => conv.moves[0]?.playerIndex ?? -1);
+  const conversionsByPlayerByOpening: ConversionsByPlayerByOpening = mapValues(conversionsByPlayer, (convs) =>
+    groupBy(convs, (conv) => conv.openingType),
   );
 
   const gameMinutes = playableFrameCount / 3600;
@@ -40,13 +32,13 @@ export function generateOverallStats({
   const overall = settings.players.map((player) => {
     const playerIndex = player.playerIndex;
 
-    const playerInputs = get(inputsByPlayer, playerIndex) || {};
+    const playerInputs = inputsByPlayer[String(playerIndex)];
     const inputCounts: InputCountsType = {
-      buttons: get(playerInputs, "buttonInputCount"),
-      triggers: get(playerInputs, "triggerInputCount"),
-      cstick: get(playerInputs, "cstickInputCount"),
-      joystick: get(playerInputs, "joystickInputCount"),
-      total: get(playerInputs, "inputCount"),
+      buttons: playerInputs?.buttonInputCount ?? 0,
+      triggers: playerInputs?.triggerInputCount ?? 0,
+      cstick: playerInputs?.cstickInputCount ?? 0,
+      joystick: playerInputs?.joystickInputCount ?? 0,
+      total: playerInputs?.inputCount ?? 0,
     };
     // const conversions = get(conversionsByPlayer, playerIndex) || [];
     // const successfulConversions = conversions.filter((conversion) => conversion.moves.length > 1);
@@ -124,10 +116,10 @@ function getOpeningRatio(
   opponentIndices: number[],
   type: string,
 ): RatioType {
-  const openings = get(conversionsByPlayerByOpening, [playerIndex, type]) || [];
+  const openings = conversionsByPlayerByOpening[String(playerIndex)]?.[type] ?? [];
 
   const opponentOpenings = flatten(
-    opponentIndices.map((opponentIndex) => get(conversionsByPlayerByOpening, [opponentIndex, type]) || []),
+    opponentIndices.map((opponentIndex) => conversionsByPlayerByOpening[String(opponentIndex)]?.[type] ?? []),
   );
 
   return getRatio(openings.length, openings.length + opponentOpenings.length);
@@ -138,29 +130,29 @@ function getBeneficialTradeRatio(
   playerIndex: number,
   opponentIndices: number[],
 ): RatioType {
-  const playerTrades = get(conversionsByPlayerByOpening, [playerIndex, "trade"]) || [];
+  const playerTrades = conversionsByPlayerByOpening[String(playerIndex)]?.["trade"] ?? [];
   const opponentTrades = flatten(
-    opponentIndices.map((opponentIndex) => get(conversionsByPlayerByOpening, [opponentIndex, "trade"]) || []),
+    opponentIndices.map((opponentIndex) => conversionsByPlayerByOpening[String(opponentIndex)]?.["trade"] ?? []),
   );
 
   const benefitsPlayer = [];
 
   // Figure out which punishes benefited this player
-  const zippedTrades = zip(playerTrades, opponentTrades);
-  zippedTrades.forEach((conversionPair) => {
-    const playerConversion = first(conversionPair);
-    const opponentConversion = last(conversionPair);
+  const len = Math.min(playerTrades.length, opponentTrades.length);
+  for (let i = 0; i < len; i++) {
+    const playerConversion = playerTrades[i];
+    const opponentConversion = opponentTrades[i];
     if (playerConversion && opponentConversion) {
       const playerDamage = playerConversion.currentPercent - playerConversion.startPercent;
       const opponentDamage = opponentConversion.currentPercent - opponentConversion.startPercent;
 
-      if (playerConversion!.didKill && !opponentConversion!.didKill) {
+      if (playerConversion.didKill && !opponentConversion.didKill) {
         benefitsPlayer.push(playerConversion);
       } else if (playerDamage > opponentDamage) {
         benefitsPlayer.push(playerConversion);
       }
     }
-  });
+  }
 
   return getRatio(benefitsPlayer.length, playerTrades.length);
 }
