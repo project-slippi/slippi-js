@@ -1,6 +1,3 @@
-import get from "lodash/get";
-import keyBy from "lodash/keyBy";
-import set from "lodash/set";
 import semver from "semver";
 
 import type {
@@ -24,6 +21,7 @@ import type {
 import { ItemSpawnType } from "../types.js";
 import { Command, Frames, GameMode } from "../types.js";
 import { exists } from "./exists.js";
+import { keyBy } from "./keyBy.js";
 import { RollbackCounter } from "./rollbackCounter.js";
 import { TypedEventEmitter } from "./typedEventEmitter.js";
 
@@ -148,7 +146,7 @@ export class SlpParser extends TypedEventEmitter<SlpParserEventMap> {
     const allFrames = this.getFrames();
     const frameIndex = this.latestFrameIndex != null ? this.latestFrameIndex : Frames.FIRST;
     const indexToUse = this.gameEnd ? frameIndex : frameIndex - 1;
-    return get(allFrames, indexToUse) || undefined;
+    return allFrames[indexToUse] || undefined;
   }
 
   public getSettings(): GameStartType | undefined {
@@ -242,7 +240,7 @@ export class SlpParser extends TypedEventEmitter<SlpParserEventMap> {
     // Finish calculating settings
     if (payload.frame! <= Frames.FIRST) {
       const playerIndex = payload.playerIndex!;
-      const playersByIndex = keyBy(this.settings!.players, "playerIndex");
+      const playersByIndex = keyBy(this.settings!.players, (p) => p.playerIndex);
 
       switch (payload.internalCharacterId) {
         case 0x7:
@@ -380,4 +378,16 @@ export class SlpParser extends TypedEventEmitter<SlpParserEventMap> {
       }
     }
   }
+}
+
+function set<T extends Record<string, any>>(obj: T, path: (string | number)[], value: unknown): void {
+  let current: any = obj;
+  for (let i = 0; i < path.length - 1; i++) {
+    const key = path[i]!;
+    if (!(key in current)) {
+      current[key] = {};
+    }
+    current = current[key];
+  }
+  current[path[path.length - 1]!] = value;
 }

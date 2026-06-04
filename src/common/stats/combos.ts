@@ -1,5 +1,3 @@
-import last from "lodash/last";
-
 import type { FrameEntryType, FramesType, GameStartType, PostFrameUpdateType } from "../types.js";
 import { TypedEventEmitter } from "../utils/typedEventEmitter.js";
 import type { ComboType, MoveLandedType, PlayerIndexedType } from "./common.js";
@@ -78,7 +76,7 @@ export class ComboComputer extends TypedEventEmitter<ComboEventMap> implements S
         // Emit an event for the new combo
         if (state.event != null) {
           this.emit(state.event, {
-            combo: last(this.combos),
+            combo: this.combos[this.combos.length - 1],
             settings: this.settings,
           });
           state.event = undefined;

@@ -1,5 +1,3 @@
-import map from "lodash/map";
-
 export function toHalfwidth(str: string): string {
   // Converts a fullwidth character to halfwidth
   const convertChar = (charCode: number): number => {
@@ -32,7 +30,7 @@ export function toHalfwidth(str: string): string {
     return charCode;
   };
 
-  const ret = map(str, (char) => convertChar(char.charCodeAt(0)));
+  const ret = Array.from(str, (char) => convertChar(char.charCodeAt(0)));
 
   return String.fromCharCode(...ret);
 }

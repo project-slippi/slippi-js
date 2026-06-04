@@ -1,6 +1,5 @@
 import type { WriteStream } from "fs";
 import fs from "fs";
-import forEach from "lodash/forEach";
 import type { WritableOptions } from "stream";
 import { Writable } from "stream";
 
@@ -117,7 +116,7 @@ export class SlpFile extends Writable {
     switch (command) {
       case Command.GAME_START:
         const { players } = payload as GameStartType;
-        forEach(players, (player) => {
+        players.forEach((player) => {
           if (player.type === 3) {
             return;
           }
@@ -232,7 +231,7 @@ export class SlpFile extends Writable {
     // Start writting player specific data
     footer = Buffer.concat([footer, Buffer.from("U"), Buffer.from([7]), Buffer.from("players{")]);
     const players = this.metadata.players;
-    forEach(players, (player, index) => {
+    Object.entries(players).forEach(([index, player]) => {
       // Start player obj with index being the player index
       footer = Buffer.concat([footer, Buffer.from("U"), Buffer.from([index.length]), Buffer.from(`${index}{`)]);
 
@@ -240,7 +239,7 @@ export class SlpFile extends Writable {
       footer = Buffer.concat([footer, Buffer.from("U"), Buffer.from([10]), Buffer.from("characters{")]);
 
       // Write character usage
-      forEach(player.characterUsage, (usage, internalId) => {
+      Object.entries(player.characterUsage).forEach(([internalId, usage]) => {
         // Write this character
         footer = Buffer.concat([
           footer,

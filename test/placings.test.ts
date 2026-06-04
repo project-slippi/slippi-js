@@ -1,5 +1,3 @@
-import _ from "lodash";
-
 import { SlippiGame } from "../src/node/index.js";
 
 describe("when determining placings", () => {

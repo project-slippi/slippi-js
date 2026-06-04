@@ -1,5 +1,3 @@
-import get from "lodash/get";
-
 import type { FrameEntryType, FramesType, GameStartType } from "../types.js";
 import { Frames } from "../types.js";
 
@@ -81,7 +79,7 @@ function isCompletedFrame(players: number[], frame?: FrameEntryType): frame is F
   // follower frames are not used for any stat calculations so this doesn't matter
   // for our purposes.
   for (const player of players) {
-    const playerPostFrame = get(frame, ["players", player, "post"]);
+    const playerPostFrame = frame?.players?.[player]?.post;
     if (!playerPostFrame) {
       return false;
     }

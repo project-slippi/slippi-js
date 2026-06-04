@@ -1,10 +1,5 @@
-import filter from "lodash/filter";
-import get from "lodash/get";
-import groupBy from "lodash/groupBy";
-import last from "lodash/last";
-import orderBy from "lodash/orderBy";
-
 import type { FrameEntryType, FramesType, GameStartType, PostFrameUpdateType } from "../types.js";
+import { groupBy } from "../utils/groupBy.js";
 import { TypedEventEmitter } from "../utils/typedEventEmitter.js";
 import type { ConversionType, MoveLandedType, PlayerIndexedType } from "./common.js";
 import {
@@ -86,7 +81,7 @@ export class ConversionComputer
         const terminated = handleConversionCompute(allFrames, state, indices, frame, this.conversions);
         if (terminated) {
           this.emit("CONVERSION", {
-            combo: last(this.conversions),
+            combo: this.conversions[this.conversions.length - 1],
             settings: this.settings,
           });
         }
@@ -101,18 +96,20 @@ export class ConversionComputer
 
   private _populateConversionTypes(): void {
     // Post-processing step: set the openingTypes
-    const conversionsToHandle = filter(this.conversions, (conversion) => {
+    const conversionsToHandle = this.conversions.filter((conversion) => {
       return conversion.openingType === "unknown";
     });
 
-    // Group new conversions by startTime and sort
-    const groupedConversions = groupBy(conversionsToHandle, "startFrame");
-    const sortedConversions = orderBy(groupedConversions, (conversions) => get(conversions, [0, "startFrame"]));
+    // Group new conversions by startFrame and sort
+    const groupedConversions = groupBy(conversionsToHandle, (c) => c.startFrame);
+    const sortedConversions = Object.values(groupedConversions).sort(
+      (a, b) => (a[0]?.startFrame ?? 0) - (b[0]?.startFrame ?? 0),
+    );
 
     // Set the opening types on the conversions we need to handle
-    sortedConversions.forEach((conversions) => {
-      const isTrade = conversions.length >= 2;
-      conversions.forEach((conversion) => {
+    sortedConversions.forEach((convs) => {
+      const isTrade = convs.length >= 2;
+      convs.forEach((conversion) => {
         // Set end frame for this conversion
         this.metadata.lastEndFrameByOppIdx[conversion.playerIndex] = conversion.endFrame!;
 
@@ -123,7 +120,8 @@ export class ConversionComputer
         }
 
         // If not trade, check the opponent endFrame
-        const lastMove = last(conversion.moves);
+        const moves = conversion.moves;
+        const lastMove = moves[moves.length - 1];
         const oppEndFrame =
           this.metadata.lastEndFrameByOppIdx[lastMove ? lastMove.playerIndex : conversion.playerIndex];
         const isCounterAttack = oppEndFrame && oppEndFrame > conversion.startFrame;

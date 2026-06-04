@@ -50,17 +50,6 @@ const createBrowserOutput = (dir, format) => ({
   chunkFileNames: `[name].${format === "esm" ? "esm.js" : "cjs"}`,
   sourcemap: true,
   exports: "named",
-  // This fixes the lodash ESM import issue as described here:
-  // https://github.com/project-slippi/slippi-js/issues/168
-  paths:
-    format !== "esm"
-      ? undefined
-      : (id) => {
-          if (id.startsWith("lodash/")) {
-            return id + ".js";
-          }
-          return id;
-        },
 });
 
 /**
@@ -74,17 +63,6 @@ const createNodeOutput = (dir, format) => ({
   entryFileNames: `[name].${format === "esm" ? "esm.js" : "cjs"}`,
   sourcemap: true,
   exports: "named",
-  // This fixes the lodash ESM import issue as described here:
-  // https://github.com/project-slippi/slippi-js/issues/168
-  paths:
-    format !== "esm"
-      ? undefined
-      : (id) => {
-          if (id.startsWith("lodash/")) {
-            return id + ".js";
-          }
-          return id;
-        },
 });
 
 /**
