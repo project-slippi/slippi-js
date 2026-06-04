@@ -211,178 +211,82 @@ function handleActionCompute(state: PlayerActionState, indices: PlayerIndexedTyp
   const didDashDance =
     last3Frames.length === dashDanceAnimations.length &&
     last3Frames.every((frame, i) => frame === dashDanceAnimations[i]);
-  incrementCount((c) => {
-    c.dashDanceCount += 1;
-  }, didDashDance);
+  incrementCount((c) => (c.dashDanceCount += 1), didDashDance);
 
-  incrementCount((c) => {
-    c.rollCount += 1;
-  }, isRolling(currentAnimation));
-  incrementCount((c) => {
-    c.spotDodgeCount += 1;
-  }, currentAnimation === State.SPOT_DODGE);
-  incrementCount((c) => {
-    c.airDodgeCount += 1;
-  }, currentAnimation === State.AIR_DODGE);
-  incrementCount((c) => {
-    c.ledgegrabCount += 1;
-  }, currentAnimation === State.CLIFF_CATCH);
+  incrementCount((c) => (c.rollCount += 1), isRolling(currentAnimation));
+  incrementCount((c) => (c.spotDodgeCount += 1), currentAnimation === State.SPOT_DODGE);
+  incrementCount((c) => (c.airDodgeCount += 1), currentAnimation === State.AIR_DODGE);
+  incrementCount((c) => (c.ledgegrabCount += 1), currentAnimation === State.CLIFF_CATCH);
 
   // Taunts
-  incrementCount((c) => {
-    c.tauntCount += 1;
-  }, isTaunting(currentAnimation));
+  incrementCount((c) => (c.tauntCount += 1), isTaunting(currentAnimation));
 
   // Grabs
-  incrementCount((c) => {
-    c.grabCount.success += 1;
-  }, isGrabbing(prevAnimation) && isGrabAction(currentAnimation));
-  incrementCount((c) => {
-    c.grabCount.fail += 1;
-  }, isGrabbing(prevAnimation) && !isGrabAction(currentAnimation));
+  incrementCount((c) => (c.grabCount.success += 1), isGrabbing(prevAnimation) && isGrabAction(currentAnimation));
+  incrementCount((c) => (c.grabCount.fail += 1), isGrabbing(prevAnimation) && !isGrabAction(currentAnimation));
   if (currentAnimation === State.DASH_GRAB && prevAnimation === State.ATTACK_DASH) {
     state.playerCounts.attackCount.dash -= 1; // subtract from dash attack if boost grab
   }
 
   // Basic attacks
-  incrementCount((c) => {
-    c.attackCount.jab1 += 1;
-  }, currentAnimation === State.ATTACK_JAB1);
-  incrementCount((c) => {
-    c.attackCount.jab2 += 1;
-  }, currentAnimation === State.ATTACK_JAB2);
-  incrementCount((c) => {
-    c.attackCount.jab3 += 1;
-  }, currentAnimation === State.ATTACK_JAB3);
-  incrementCount((c) => {
-    c.attackCount.jabm += 1;
-  }, currentAnimation === State.ATTACK_JABM);
-  incrementCount((c) => {
-    c.attackCount.dash += 1;
-  }, currentAnimation === State.ATTACK_DASH);
-  incrementCount((c) => {
-    c.attackCount.ftilt += 1;
-  }, isForwardTilt(currentAnimation));
-  incrementCount((c) => {
-    c.attackCount.utilt += 1;
-  }, currentAnimation === State.ATTACK_UTILT);
-  incrementCount((c) => {
-    c.attackCount.dtilt += 1;
-  }, currentAnimation === State.ATTACK_DTILT);
-  incrementCount((c) => {
-    c.attackCount.fsmash += 1;
-  }, isForwardSmash(currentAnimation));
-  incrementCount((c) => {
-    c.attackCount.usmash += 1;
-  }, currentAnimation === State.ATTACK_USMASH);
-  incrementCount((c) => {
-    c.attackCount.dsmash += 1;
-  }, currentAnimation === State.ATTACK_DSMASH);
-  incrementCount((c) => {
-    c.attackCount.nair += 1;
-  }, currentAnimation === State.AERIAL_NAIR);
-  incrementCount((c) => {
-    c.attackCount.fair += 1;
-  }, currentAnimation === State.AERIAL_FAIR);
-  incrementCount((c) => {
-    c.attackCount.bair += 1;
-  }, currentAnimation === State.AERIAL_BAIR);
-  incrementCount((c) => {
-    c.attackCount.uair += 1;
-  }, currentAnimation === State.AERIAL_UAIR);
-  incrementCount((c) => {
-    c.attackCount.dair += 1;
-  }, currentAnimation === State.AERIAL_DAIR);
+  incrementCount((c) => (c.attackCount.jab1 += 1), currentAnimation === State.ATTACK_JAB1);
+  incrementCount((c) => (c.attackCount.jab2 += 1), currentAnimation === State.ATTACK_JAB2);
+  incrementCount((c) => (c.attackCount.jab3 += 1), currentAnimation === State.ATTACK_JAB3);
+  incrementCount((c) => (c.attackCount.jabm += 1), currentAnimation === State.ATTACK_JABM);
+  incrementCount((c) => (c.attackCount.dash += 1), currentAnimation === State.ATTACK_DASH);
+  incrementCount((c) => (c.attackCount.ftilt += 1), isForwardTilt(currentAnimation));
+  incrementCount((c) => (c.attackCount.utilt += 1), currentAnimation === State.ATTACK_UTILT);
+  incrementCount((c) => (c.attackCount.dtilt += 1), currentAnimation === State.ATTACK_DTILT);
+  incrementCount((c) => (c.attackCount.fsmash += 1), isForwardSmash(currentAnimation));
+  incrementCount((c) => (c.attackCount.usmash += 1), currentAnimation === State.ATTACK_USMASH);
+  incrementCount((c) => (c.attackCount.dsmash += 1), currentAnimation === State.ATTACK_DSMASH);
+  incrementCount((c) => (c.attackCount.nair += 1), currentAnimation === State.AERIAL_NAIR);
+  incrementCount((c) => (c.attackCount.fair += 1), currentAnimation === State.AERIAL_FAIR);
+  incrementCount((c) => (c.attackCount.bair += 1), currentAnimation === State.AERIAL_BAIR);
+  incrementCount((c) => (c.attackCount.uair += 1), currentAnimation === State.AERIAL_UAIR);
+  incrementCount((c) => (c.attackCount.dair += 1), currentAnimation === State.AERIAL_DAIR);
 
   // GnW is weird and has unique IDs for some moves
   if (playerFrame.internalCharacterId === 0x18) {
-    incrementCount((c) => {
-      c.attackCount.jab1 += 1;
-    }, currentAnimation === State.GNW_JAB1);
-    incrementCount((c) => {
-      c.attackCount.jabm += 1;
-    }, currentAnimation === State.GNW_JABM);
-    incrementCount((c) => {
-      c.attackCount.dtilt += 1;
-    }, currentAnimation === State.GNW_DTILT);
-    incrementCount((c) => {
-      c.attackCount.fsmash += 1;
-    }, currentAnimation === State.GNW_FSMASH);
-    incrementCount((c) => {
-      c.attackCount.nair += 1;
-    }, currentAnimation === State.GNW_NAIR);
-    incrementCount((c) => {
-      c.attackCount.bair += 1;
-    }, currentAnimation === State.GNW_BAIR);
-    incrementCount((c) => {
-      c.attackCount.uair += 1;
-    }, currentAnimation === State.GNW_UAIR);
+    incrementCount((c) => (c.attackCount.jab1 += 1), currentAnimation === State.GNW_JAB1);
+    incrementCount((c) => (c.attackCount.jabm += 1), currentAnimation === State.GNW_JABM);
+    incrementCount((c) => (c.attackCount.dtilt += 1), currentAnimation === State.GNW_DTILT);
+    incrementCount((c) => (c.attackCount.fsmash += 1), currentAnimation === State.GNW_FSMASH);
+    incrementCount((c) => (c.attackCount.nair += 1), currentAnimation === State.GNW_NAIR);
+    incrementCount((c) => (c.attackCount.bair += 1), currentAnimation === State.GNW_BAIR);
+    incrementCount((c) => (c.attackCount.uair += 1), currentAnimation === State.GNW_UAIR);
   }
 
   // Peach is also weird and has a unique ID for her fsmash
   // FSMASH1 = Golf Club, FSMASH2 = Frying Pan, FSMASH3 = Tennis Racket
   if (playerFrame.internalCharacterId === 0x09) {
-    incrementCount((c) => {
-      c.attackCount.fsmash += 1;
-    }, currentAnimation === State.PEACH_FSMASH1);
-    incrementCount((c) => {
-      c.attackCount.fsmash += 1;
-    }, currentAnimation === State.PEACH_FSMASH2);
-    incrementCount((c) => {
-      c.attackCount.fsmash += 1;
-    }, currentAnimation === State.PEACH_FSMASH3);
+    incrementCount((c) => (c.attackCount.fsmash += 1), currentAnimation === State.PEACH_FSMASH1);
+    incrementCount((c) => (c.attackCount.fsmash += 1), currentAnimation === State.PEACH_FSMASH2);
+    incrementCount((c) => (c.attackCount.fsmash += 1), currentAnimation === State.PEACH_FSMASH3);
   }
 
   // Throws
-  incrementCount((c) => {
-    c.throwCount.up += 1;
-  }, currentAnimation === State.THROW_UP);
-  incrementCount((c) => {
-    c.throwCount.forward += 1;
-  }, currentAnimation === State.THROW_FORWARD);
-  incrementCount((c) => {
-    c.throwCount.down += 1;
-  }, currentAnimation === State.THROW_DOWN);
-  incrementCount((c) => {
-    c.throwCount.back += 1;
-  }, currentAnimation === State.THROW_BACK);
+  incrementCount((c) => (c.throwCount.up += 1), currentAnimation === State.THROW_UP);
+  incrementCount((c) => (c.throwCount.forward += 1), currentAnimation === State.THROW_FORWARD);
+  incrementCount((c) => (c.throwCount.down += 1), currentAnimation === State.THROW_DOWN);
+  incrementCount((c) => (c.throwCount.back += 1), currentAnimation === State.THROW_BACK);
 
   // Techs
   const opponentDir = playerFrame.positionX! > opponentFrame.positionX! ? -1 : 1;
   const facingOpponent = playerFrame.facingDirection === opponentDir;
 
-  incrementCount((c) => {
-    c.groundTechCount.fail += 1;
-  }, isMissGroundTech(currentAnimation));
-  incrementCount((c) => {
-    c.groundTechCount.in += 1;
-  }, currentAnimation === State.FORWARD_TECH && facingOpponent);
-  incrementCount((c) => {
-    c.groundTechCount.in += 1;
-  }, currentAnimation === State.BACKWARD_TECH && !facingOpponent);
-  incrementCount((c) => {
-    c.groundTechCount.neutral += 1;
-  }, currentAnimation === State.NEUTRAL_TECH);
-  incrementCount((c) => {
-    c.groundTechCount.away += 1;
-  }, currentAnimation === State.BACKWARD_TECH && facingOpponent);
-  incrementCount((c) => {
-    c.groundTechCount.away += 1;
-  }, currentAnimation === State.FORWARD_TECH && !facingOpponent);
-  incrementCount((c) => {
-    c.wallTechCount.success += 1;
-  }, currentAnimation === State.WALL_TECH);
-  incrementCount((c) => {
-    c.wallTechCount.fail += 1;
-  }, currentAnimation === State.MISSED_WALL_TECH);
+  incrementCount((c) => (c.groundTechCount.fail += 1), isMissGroundTech(currentAnimation));
+  incrementCount((c) => (c.groundTechCount.in += 1), currentAnimation === State.FORWARD_TECH && facingOpponent);
+  incrementCount((c) => (c.groundTechCount.in += 1), currentAnimation === State.BACKWARD_TECH && !facingOpponent);
+  incrementCount((c) => (c.groundTechCount.neutral += 1), currentAnimation === State.NEUTRAL_TECH);
+  incrementCount((c) => (c.groundTechCount.away += 1), currentAnimation === State.BACKWARD_TECH && facingOpponent);
+  incrementCount((c) => (c.groundTechCount.away += 1), currentAnimation === State.FORWARD_TECH && !facingOpponent);
+  incrementCount((c) => (c.wallTechCount.success += 1), currentAnimation === State.WALL_TECH);
+  incrementCount((c) => (c.wallTechCount.fail += 1), currentAnimation === State.MISSED_WALL_TECH);
 
   if (isAerialLanding(currentAnimation)) {
-    incrementCount((c) => {
-      c.lCancelCount.success += 1;
-    }, playerFrame.lCancelStatus === 1);
-    incrementCount((c) => {
-      c.lCancelCount.fail += 1;
-    }, playerFrame.lCancelStatus === 2);
+    incrementCount((c) => (c.lCancelCount.success += 1), playerFrame.lCancelStatus === 1);
+    incrementCount((c) => (c.lCancelCount.fail += 1), playerFrame.lCancelStatus === 2);
   }
 
   // check for edge canceled aerial
@@ -395,12 +299,8 @@ function handleActionCompute(state: PlayerActionState, indices: PlayerIndexedTyp
     const [landingLag, lCanceledLag] = getLandLagFromLandAnimation(prevAnimation, playerFrame.internalCharacterId)!;
 
     // only counts as a successful edge cancel if an L cancel wouldn't have been faster
-    incrementCount((c) => {
-      c.edgeCancelCount.success += 1;
-    }, landingFrames < lCanceledLag);
-    incrementCount((c) => {
-      c.edgeCancelCount.slow += 1;
-    }, landingFrames >= lCanceledLag && landingFrames < landingLag);
+    incrementCount((c) => (c.edgeCancelCount.success += 1), landingFrames < lCanceledLag);
+    incrementCount((c) => (c.edgeCancelCount.slow += 1), landingFrames >= lCanceledLag && landingFrames < landingLag);
 
     // make edge cancels not count as failed L cancels
     if (landingFrames <= lCanceledLag && state.lastLCancelStatus === 2) {
