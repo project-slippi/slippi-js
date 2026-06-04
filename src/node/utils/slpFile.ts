@@ -1,6 +1,5 @@
 import type { WriteStream } from "fs";
 import fs from "fs";
-
 import type { WritableOptions } from "stream";
 import { Writable } from "stream";
 
