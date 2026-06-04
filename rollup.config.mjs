@@ -178,6 +178,7 @@ export default defineConfig([
           // Skip lib checks to speed up type resolution
           skipLibCheck: true,
         },
+        sourcemap: true,
       }),
     ],
   },
