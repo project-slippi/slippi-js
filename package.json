@@ -12,8 +12,7 @@
   },
   "files": [
     "node",
-    "dist",
-    "!dist/**/*.map"
+    "dist"
   ],
   "main": "./dist/browser/index.cjs",
   "module": "./dist/browser/index.esm.js",

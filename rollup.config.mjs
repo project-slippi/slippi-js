@@ -48,7 +48,7 @@ const createBrowserOutput = (dir, format) => ({
   format,
   entryFileNames: `[name].${format === "esm" ? "esm.js" : "cjs"}`,
   chunkFileNames: `[name].${format === "esm" ? "esm.js" : "cjs"}`,
-  sourcemap: "hidden",
+  sourcemap: true,
   exports: "named",
   // This fixes the lodash ESM import issue as described here:
   // https://github.com/project-slippi/slippi-js/issues/168
@@ -72,7 +72,7 @@ const createNodeOutput = (dir, format) => ({
   preserveModules: true,
   preserveModulesRoot: "src",
   entryFileNames: `[name].${format === "esm" ? "esm.js" : "cjs"}`,
-  sourcemap: "hidden",
+  sourcemap: true,
   exports: "named",
   // This fixes the lodash ESM import issue as described here:
   // https://github.com/project-slippi/slippi-js/issues/168
