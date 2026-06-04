@@ -167,7 +167,7 @@ export default defineConfig([
       index: "src/browser/index.ts",
       "index.node": "src/node/index.ts",
     },
-    output: { dir: "dist", format: "esm" },
+    output: { dir: "dist", format: "esm", sourcemap: true },
     external,
     plugins: [
       dts({
