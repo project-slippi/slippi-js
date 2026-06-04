@@ -63,7 +63,7 @@ export class ConsoleConnection extends TypedEventEmitter<ConnectionEventMap> imp
   private options: ConsoleConnectionOptions;
   private shouldReconnect = false;
 
-  public constructor(options?: Partial<ConsoleConnectionOptions>) {
+  constructor(options?: Partial<ConsoleConnectionOptions>) {
     super();
     this.ipAddress = "0.0.0.0";
     this.port = Ports.DEFAULT;
@@ -74,14 +74,14 @@ export class ConsoleConnection extends TypedEventEmitter<ConnectionEventMap> imp
   /**
    * @returns The current connection status.
    */
-  public getStatus(): ConnectionStatus {
+  getStatus(): ConnectionStatus {
     return this.connectionStatus;
   }
 
   /**
    * @returns The IP address and port of the current connection.
    */
-  public getSettings(): ConnectionSettings {
+  getSettings(): ConnectionSettings {
     return {
       ipAddress: this.ipAddress,
       port: this.port,
@@ -91,7 +91,7 @@ export class ConsoleConnection extends TypedEventEmitter<ConnectionEventMap> imp
   /**
    * @returns The specific details about the connected console.
    */
-  public getDetails(): ConnectionDetails {
+  getDetails(): ConnectionDetails {
     return { ...this.connDetails };
   }
 
@@ -103,12 +103,7 @@ export class ConsoleConnection extends TypedEventEmitter<ConnectionEventMap> imp
    * @param timeout Optional. The timeout in milliseconds when attempting to connect
    *                to the Wii or relay.
    */
-  public async connect(
-    ip: string,
-    port: number,
-    isRealtime = false,
-    timeout = DEFAULT_CONNECTION_TIMEOUT_MS,
-  ): Promise<void> {
+  async connect(ip: string, port: number, isRealtime = false, timeout = DEFAULT_CONNECTION_TIMEOUT_MS): Promise<void> {
     this.ipAddress = ip;
     this.port = port;
     this.isRealtime = isRealtime;
@@ -247,7 +242,7 @@ export class ConsoleConnection extends TypedEventEmitter<ConnectionEventMap> imp
   /**
    * Terminate the current connection.
    */
-  public disconnect(): void {
+  disconnect(): void {
     // Prevent reconnections and disconnect
     if (this.connection) {
       this.connection.reconnect = false;

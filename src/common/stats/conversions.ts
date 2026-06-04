@@ -46,14 +46,14 @@ export class ConversionComputer
   private metadata: MetadataType;
   private settings?: GameStartType;
 
-  public constructor() {
+  constructor() {
     super();
     this.metadata = {
       lastEndFrameByOppIdx: {},
     };
   }
 
-  public setup(settings: GameStartType): void {
+  setup(settings: GameStartType): void {
     // Reset the state
     this.playerPermutations = getSinglesPlayerPermutationsFromSettings(settings);
     this.conversions = [];
@@ -74,7 +74,7 @@ export class ConversionComputer
     });
   }
 
-  public processFrame(frame: FrameEntryType, allFrames: FramesType): void {
+  processFrame(frame: FrameEntryType, allFrames: FramesType): void {
     this.playerPermutations.forEach((indices) => {
       const state = this.state.get(indices);
       if (state) {
@@ -89,7 +89,7 @@ export class ConversionComputer
     });
   }
 
-  public fetch(): ConversionType[] {
+  fetch(): ConversionType[] {
     this._populateConversionTypes();
     return this.conversions;
   }

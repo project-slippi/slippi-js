@@ -8,7 +8,7 @@ export class RollbackCounter {
   private currentRollbackLength = 0;
   private rollbackLengths: number[] = [];
 
-  public checkIfRollbackFrame(currentFrame: FrameEntryType | undefined, playerIdx: number) {
+  checkIfRollbackFrame(currentFrame: FrameEntryType | undefined, playerIdx: number) {
     if (this.rollbackPlayerIdx == null) {
       // we only want to follow a single player to avoid double counting. So we use whoever is on first.
       this.rollbackPlayerIdx = playerIdx;
@@ -37,15 +37,15 @@ export class RollbackCounter {
     return this.lastFrameWasRollback;
   }
 
-  public getFrames() {
+  getFrames() {
     return this.rollbackFrames;
   }
 
-  public getCount() {
+  getCount() {
     return this.rollbackFrameCount;
   }
 
-  public getLengths() {
+  getLengths() {
     return this.rollbackLengths;
   }
 }

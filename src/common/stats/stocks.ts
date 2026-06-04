@@ -12,7 +12,7 @@ export class StockComputer implements StatComputer<StockType[]> {
   private playerPermutations: PlayerIndexedType[] = [];
   private stocks: StockType[] = [];
 
-  public setup(settings: GameStartType): void {
+  setup(settings: GameStartType): void {
     // Reset state
     this.state = new Map();
     this.playerPermutations = getSinglesPlayerPermutationsFromSettings(settings);
@@ -26,7 +26,7 @@ export class StockComputer implements StatComputer<StockType[]> {
     });
   }
 
-  public processFrame(frame: FrameEntryType, allFrames: FramesType): void {
+  processFrame(frame: FrameEntryType, allFrames: FramesType): void {
     this.playerPermutations.forEach((indices) => {
       const state = this.state.get(indices);
       if (state) {
@@ -35,7 +35,7 @@ export class StockComputer implements StatComputer<StockType[]> {
     });
   }
 
-  public fetch(): StockType[] {
+  fetch(): StockType[] {
     return this.stocks;
   }
 }

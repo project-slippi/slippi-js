@@ -7,7 +7,7 @@ import { SlpFileInputRef } from "./utils/slpFileInputRef.js";
 export class SlippiGameNode extends SlippiGameBase {
   private readonly filePath?: string;
 
-  public constructor(input: string | BinaryLike, opts?: StatOptions) {
+  constructor(input: string | BinaryLike, opts?: StatOptions) {
     if (typeof input === "string") {
       super(new SlpFileInputRef(input), opts);
       this.filePath = input;
@@ -18,7 +18,7 @@ export class SlippiGameNode extends SlippiGameBase {
     }
   }
 
-  public override getFilePath(): string | undefined {
+  override getFilePath(): string | undefined {
     return this.filePath;
   }
 }

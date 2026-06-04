@@ -5,8 +5,8 @@ declare module "enet" {
 
   export const PACKET_FLAG: any;
   export class Packet {
-    public constructor(data: string | Buffer, flag: any);
-    public data(): Buffer;
+    constructor(data: string | Buffer, flag: any);
+    data(): Buffer;
   }
   export interface Peer extends EventEmitter {
     ping(): void;

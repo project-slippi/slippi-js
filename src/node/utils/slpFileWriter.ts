@@ -52,7 +52,7 @@ export class SlpFileWriter extends Writable {
   /**
    * Creates an instance of SlpFileWriter.
    */
-  public constructor(options?: Partial<SlpFileWriterOptions>, opts?: WritableOptions) {
+  constructor(options?: Partial<SlpFileWriterOptions>, opts?: WritableOptions) {
     super(opts);
     this.options = Object.assign({}, defaultSettings, options);
     this.processor = new SlpStream(options);
@@ -62,13 +62,13 @@ export class SlpFileWriter extends Writable {
   /**
    * Access the underlying SlpStream processor for event listening
    */
-  public getProcessor(): SlpStream {
+  getProcessor(): SlpStream {
     return this.processor;
   }
 
   // Implement _write to handle incoming data
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public override _write(chunk: Buffer, _encoding: string, callback: (error?: Error | null) => void): void {
+  override _write(chunk: Buffer, _encoding: string, callback: (error?: Error | null) => void): void {
     try {
       this.processor.process(new Uint8Array(chunk));
       callback();
@@ -114,7 +114,7 @@ export class SlpFileWriter extends Writable {
    * @returns {(string | undefined)}
    * @memberof SlpFileWriter
    */
-  public getCurrentFilename(): string | undefined {
+  getCurrentFilename(): string | undefined {
     if (this.currentFile != null) {
       return path.resolve(this.currentFile.path());
     }
@@ -127,7 +127,7 @@ export class SlpFileWriter extends Writable {
    * @returns {(string | undefined)}
    * @memberof SlpFileWriter
    */
-  public endCurrentFile(): void {
+  endCurrentFile(): void {
     this._handleEndGame();
   }
 
@@ -137,7 +137,7 @@ export class SlpFileWriter extends Writable {
    * @param {Partial<SlpFileWriterOptions>} settings
    * @memberof SlpFileWriter
    */
-  public updateSettings(settings: Partial<SlpFileWriterOptions>): void {
+  updateSettings(settings: Partial<SlpFileWriterOptions>): void {
     this.options = Object.assign({}, this.options, settings);
   }
 

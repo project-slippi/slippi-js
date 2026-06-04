@@ -11,13 +11,13 @@ export class TargetBreakComputer implements StatComputer<TargetBreakType[]> {
   private targetBreaks: TargetBreakType[] = [];
   private isTargetTestGame = false;
 
-  public setup(settings: GameStartType): void {
+  setup(settings: GameStartType): void {
     // Reset the state
     this.targetBreaks = [];
     this.isTargetTestGame = settings.gameMode === GameMode.TARGET_TEST;
   }
 
-  public processFrame(frame: FrameEntryType, allFrames: FramesType): void {
+  processFrame(frame: FrameEntryType, allFrames: FramesType): void {
     if (!this.isTargetTestGame) {
       return;
     }
@@ -25,7 +25,7 @@ export class TargetBreakComputer implements StatComputer<TargetBreakType[]> {
     handleTargetBreak(allFrames, frame, this.targetBreaks);
   }
 
-  public fetch(): TargetBreakType[] {
+  fetch(): TargetBreakType[] {
     return this.targetBreaks;
   }
 }

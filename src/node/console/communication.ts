@@ -26,7 +26,7 @@ export class ConsoleCommunication {
   private receiveBuf = Buffer.from([]);
   private messages: CommunicationMessage[] = [];
 
-  public receive(data: Buffer): void {
+  receive(data: Buffer): void {
     this.receiveBuf = Buffer.concat([this.receiveBuf, data]);
 
     while (this.receiveBuf.length >= 4) {
@@ -50,18 +50,18 @@ export class ConsoleCommunication {
     }
   }
 
-  public getReceiveBuffer(): Buffer {
+  getReceiveBuffer(): Buffer {
     return this.receiveBuf;
   }
 
-  public getMessages(): Array<CommunicationMessage> {
+  getMessages(): Array<CommunicationMessage> {
     const toReturn = this.messages;
     this.messages = [];
 
     return toReturn;
   }
 
-  public genHandshakeOut(cursor: Uint8Array, clientToken: number, isRealtime = false): Buffer {
+  genHandshakeOut(cursor: Uint8Array, clientToken: number, isRealtime = false): Buffer {
     const clientTokenBuf = Buffer.from([0, 0, 0, 0]);
     clientTokenBuf.writeUInt32BE(clientToken, 0);
 

@@ -9,21 +9,21 @@ export interface SlpInputRef {
 }
 
 export class SlpBufferInputRef implements SlpInputRef {
-  public constructor(private readonly buffer: BinaryLike) {}
+  constructor(private readonly buffer: BinaryLike) {}
 
-  public open(): void {
+  open(): void {
     // Do nothing
   }
 
-  public size(): number {
+  size(): number {
     return byteLength(this.buffer);
   }
 
-  public close(): void {
+  close(): void {
     // Do nothing
   }
 
-  public read(targetBuffer: Uint8Array, offset: number, length: number, position: number): number {
+  read(targetBuffer: Uint8Array, offset: number, length: number, position: number): number {
     if (position >= this.size()) {
       return 0;
     }

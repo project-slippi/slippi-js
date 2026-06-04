@@ -48,7 +48,7 @@ export class ComboComputer extends TypedEventEmitter<ComboEventMap> implements S
   private combos: ComboType[] = [];
   private settings?: GameStartType;
 
-  public setup(settings: GameStartType): void {
+  setup(settings: GameStartType): void {
     // Reset the state
     this.settings = settings;
     this.state = new Map();
@@ -67,7 +67,7 @@ export class ComboComputer extends TypedEventEmitter<ComboEventMap> implements S
     });
   }
 
-  public processFrame(frame: FrameEntryType, allFrames: FramesType): void {
+  processFrame(frame: FrameEntryType, allFrames: FramesType): void {
     this.playerPermutations.forEach((indices) => {
       const state = this.state.get(indices);
       if (state) {
@@ -85,7 +85,7 @@ export class ComboComputer extends TypedEventEmitter<ComboEventMap> implements S
     });
   }
 
-  public fetch(): ComboType[] {
+  fetch(): ComboType[] {
     return this.combos;
   }
 }

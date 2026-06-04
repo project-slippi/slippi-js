@@ -26,7 +26,7 @@ export class DolphinConnection extends TypedEventEmitter<ConnectionEventMap> imp
   private peer?: Peer;
   private client?: Host;
 
-  public constructor() {
+  constructor() {
     super();
     this.ipAddress = "0.0.0.0";
     this.port = Ports.DEFAULT;
@@ -35,21 +35,21 @@ export class DolphinConnection extends TypedEventEmitter<ConnectionEventMap> imp
   /**
    * @returns The current connection status.
    */
-  public getStatus(): ConnectionStatus {
+  getStatus(): ConnectionStatus {
     return this.connectionStatus;
   }
 
   /**
    * @returns The IP address and port of the current connection.
    */
-  public getSettings(): ConnectionSettings {
+  getSettings(): ConnectionSettings {
     return {
       ipAddress: this.ipAddress,
       port: this.port,
     };
   }
 
-  public getDetails(): ConnectionDetails {
+  getDetails(): ConnectionDetails {
     return {
       consoleNick: this.nickname,
       gameDataCursor: this.gameCursor,
@@ -57,7 +57,7 @@ export class DolphinConnection extends TypedEventEmitter<ConnectionEventMap> imp
     };
   }
 
-  public async connect(ip: string, port: number): Promise<void> {
+  async connect(ip: string, port: number): Promise<void> {
     // console.log(`Connecting to: ${ip}:${port}`);
     this.ipAddress = ip;
     this.port = port;
@@ -180,7 +180,7 @@ export class DolphinConnection extends TypedEventEmitter<ConnectionEventMap> imp
     this.destroyClient();
   }
 
-  public disconnect(): void {
+  disconnect(): void {
     if (this.peer) {
       this.peer.disconnectLater();
     } else {

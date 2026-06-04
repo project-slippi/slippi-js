@@ -30,7 +30,7 @@ export class InputComputer implements StatComputer<PlayerInput[]> {
   private state = new Map<PlayerIndexedType, PlayerInput>();
   private playerPermutations: PlayerIndexedType[] = [];
 
-  public setup(settings: GameStartType): void {
+  setup(settings: GameStartType): void {
     // Reset the state
     this.state = new Map();
     this.playerPermutations = getSinglesPlayerPermutationsFromSettings(settings);
@@ -49,7 +49,7 @@ export class InputComputer implements StatComputer<PlayerInput[]> {
     });
   }
 
-  public processFrame(frame: FrameEntryType, allFrames: FramesType): void {
+  processFrame(frame: FrameEntryType, allFrames: FramesType): void {
     this.playerPermutations.forEach((indices) => {
       const state = this.state.get(indices);
       if (state) {
@@ -58,7 +58,7 @@ export class InputComputer implements StatComputer<PlayerInput[]> {
     });
   }
 
-  public fetch(): PlayerInput[] {
+  fetch(): PlayerInput[] {
     return Array.from(this.state.values());
   }
 }

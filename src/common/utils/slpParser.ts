@@ -68,13 +68,13 @@ export class SlpParser extends TypedEventEmitter<SlpParserEventMap> {
   private options: SlpParserOptions;
   private geckoList?: GeckoListType;
 
-  public constructor(options?: Partial<SlpParserOptions>) {
+  constructor(options?: Partial<SlpParserOptions>) {
     super();
     this.options = Object.assign({}, defaultSlpParserOptions, options);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public handleCommand(command: Command, payload: any): void {
+  handleCommand(command: Command, payload: any): void {
     switch (command) {
       case Command.GAME_START:
         this._handleGameStart(payload as GameStartType);
@@ -118,7 +118,7 @@ export class SlpParser extends TypedEventEmitter<SlpParserEventMap> {
   /**
    * Resets the parser state to their default values.
    */
-  public reset(): void {
+  reset(): void {
     this.frames = {};
     this.settings = undefined;
     this.gameEnd = undefined;
@@ -127,18 +127,18 @@ export class SlpParser extends TypedEventEmitter<SlpParserEventMap> {
     this.lastFinalizedFrame = Frames.FIRST - 1;
   }
 
-  public getLatestFrameNumber(): number {
+  getLatestFrameNumber(): number {
     return this.latestFrameIndex ?? Frames.FIRST - 1;
   }
 
-  public getPlayableFrameCount(): number {
+  getPlayableFrameCount(): number {
     if (this.latestFrameIndex == null) {
       return 0;
     }
     return this.latestFrameIndex < Frames.FIRST_PLAYABLE ? 0 : this.latestFrameIndex - Frames.FIRST_PLAYABLE;
   }
 
-  public getLatestFrame(): FrameEntryType | undefined {
+  getLatestFrame(): FrameEntryType | undefined {
     // return this.playerFrames[this.latestFrameIndex];
 
     // TODO: Modify this to check if we actually have all the latest frame data and return that
@@ -149,11 +149,11 @@ export class SlpParser extends TypedEventEmitter<SlpParserEventMap> {
     return allFrames[indexToUse] || undefined;
   }
 
-  public getSettings(): GameStartType | undefined {
+  getSettings(): GameStartType | undefined {
     return this.settingsComplete ? this.settings : undefined;
   }
 
-  public getItems(): EnabledItemType[] | undefined {
+  getItems(): EnabledItemType[] | undefined {
     if (this.settings?.itemSpawnBehavior === ItemSpawnType.OFF) {
       return undefined;
     }
@@ -176,15 +176,15 @@ export class SlpParser extends TypedEventEmitter<SlpParserEventMap> {
     return enabledItems;
   }
 
-  public getGameEnd(): GameEndType | undefined {
+  getGameEnd(): GameEndType | undefined {
     return this.gameEnd;
   }
 
-  public getFrames(): FramesType {
+  getFrames(): FramesType {
     return this.frames;
   }
 
-  public getRollbackFrames(): RollbackFrames {
+  getRollbackFrames(): RollbackFrames {
     return {
       frames: this.rollbackCounter.getFrames(),
       count: this.rollbackCounter.getCount(),
@@ -192,11 +192,11 @@ export class SlpParser extends TypedEventEmitter<SlpParserEventMap> {
     };
   }
 
-  public getFrame(num: number): FrameEntryType | undefined {
+  getFrame(num: number): FrameEntryType | undefined {
     return this.frames[num] || undefined;
   }
 
-  public getGeckoList(): GeckoListType | undefined {
+  getGeckoList(): GeckoListType | undefined {
     return this.geckoList;
   }
 

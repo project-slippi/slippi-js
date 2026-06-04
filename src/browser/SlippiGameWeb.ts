@@ -5,7 +5,7 @@ import { isBufferLike } from "../common/utils/bufferHelpers.js";
 import { SlpBufferInputRef } from "../common/utils/slpInputRef.js";
 
 export class SlippiGameWeb extends SlippiGameBase {
-  public constructor(input: BinaryLike, opts?: StatOptions) {
+  constructor(input: BinaryLike, opts?: StatOptions) {
     if (isBufferLike(input)) {
       super(new SlpBufferInputRef(input), opts);
     } else if (typeof input === "string") {
@@ -17,7 +17,7 @@ export class SlippiGameWeb extends SlippiGameBase {
     }
   }
 
-  public override getFilePath(): string | undefined {
+  override getFilePath(): string | undefined {
     return undefined;
   }
 }

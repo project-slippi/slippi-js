@@ -22,7 +22,7 @@ export class ActionsComputer implements StatComputer<ActionCountsType[]> {
   private playerPermutations: PlayerIndexedType[] = [];
   private state = new Map<PlayerIndexedType, PlayerActionState>();
 
-  public setup(settings: GameStartType): void {
+  setup(settings: GameStartType): void {
     this.state = new Map();
     this.playerPermutations = getSinglesPlayerPermutationsFromSettings(settings);
     this.playerPermutations.forEach((indices) => {
@@ -95,7 +95,7 @@ export class ActionsComputer implements StatComputer<ActionCountsType[]> {
     });
   }
 
-  public processFrame(frame: FrameEntryType): void {
+  processFrame(frame: FrameEntryType): void {
     this.playerPermutations.forEach((indices) => {
       const state = this.state.get(indices);
       if (state) {
@@ -104,7 +104,7 @@ export class ActionsComputer implements StatComputer<ActionCountsType[]> {
     });
   }
 
-  public fetch(): ActionCountsType[] {
+  fetch(): ActionCountsType[] {
     return Array.from(this.state.values()).map((val) => val.playerCounts);
   }
 }

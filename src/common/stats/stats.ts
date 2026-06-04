@@ -22,14 +22,14 @@ export class Stats {
   private players: number[] = [];
   private allComputers: StatComputer<unknown>[] = [];
 
-  public constructor(options?: StatOptions) {
+  constructor(options?: StatOptions) {
     this.options = Object.assign({}, defaultOptions, options);
   }
 
   /**
    * Should reset the frames to their default values.
    */
-  public setup(settings: GameStartType): void {
+  setup(settings: GameStartType): void {
     // Reset the frames since it's a new game
     this.frames = {};
     this.players = settings.players.map((v) => v.playerIndex);
@@ -38,11 +38,11 @@ export class Stats {
     this.allComputers.forEach((comp) => comp.setup(settings));
   }
 
-  public register(...computer: StatComputer<unknown>[]): void {
+  register(...computer: StatComputer<unknown>[]): void {
     this.allComputers.push(...computer);
   }
 
-  public process(): void {
+  process(): void {
     if (this.players.length === 0) {
       return;
     }
@@ -60,7 +60,7 @@ export class Stats {
     }
   }
 
-  public addFrame(frame: FrameEntryType): void {
+  addFrame(frame: FrameEntryType): void {
     this.frames[frame.frame] = frame;
 
     if (this.options.processOnTheFly) {

@@ -63,12 +63,12 @@ export class SlpStream extends TypedEventEmitter<SlpStreamEventMap> {
    * @param {Partial<SlpStreamSettings>} [slpOptions]
    * @memberof SlpStream
    */
-  public constructor(slpOptions?: Partial<SlpStreamSettings>) {
+  constructor(slpOptions?: Partial<SlpStreamSettings>) {
     super();
     this.settings = Object.assign({}, defaultSettings, slpOptions);
   }
 
-  public restart(): void {
+  restart(): void {
     this.gameEnded = false;
     this.payloadSizes = undefined;
   }
@@ -77,7 +77,7 @@ export class SlpStream extends TypedEventEmitter<SlpStreamEventMap> {
    * Process a chunk of data. This is the main entry point for feeding data
    * into the stream processor.
    */
-  public process(newData: Uint8Array): void {
+  process(newData: Uint8Array): void {
     // Join the current data with the old data
     const combinedLength = this.previousBuffer.length + newData.length;
     const data = new Uint8Array(combinedLength);

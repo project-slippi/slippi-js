@@ -29,7 +29,13 @@ module.exports = {
       },
     ],
     "@typescript-eslint/explicit-module-boundary-types": "off",
-    "@typescript-eslint/explicit-member-accessibility": "error",
+    "@typescript-eslint/explicit-member-accessibility": [
+      "error",
+      {
+        accessibility: "no-public",
+        overrides: { constructors: "no-public" },
+      },
+    ],
     "@typescript-eslint/no-explicit-any": "warn",
     "@typescript-eslint/consistent-type-imports": "warn",
     "import/no-default-export": "error",

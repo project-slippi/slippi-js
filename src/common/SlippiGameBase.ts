@@ -51,7 +51,7 @@ export abstract class SlippiGameBase {
   private targetBreakComputer: TargetBreakComputer = new TargetBreakComputer();
   protected statsComputer: Stats;
 
-  public constructor(private readonly input: SlpInputRef, opts?: StatOptions) {
+  constructor(private readonly input: SlpInputRef, opts?: StatOptions) {
     // Set up stats calculation
     this.statsComputer = new Stats(opts);
     this.statsComputer.register(
@@ -103,23 +103,23 @@ export abstract class SlippiGameBase {
    * Gets the game settings, these are the settings that describe the starting state of
    * the game such as characters, stage, etc.
    */
-  public getSettings(): GameStartType | undefined {
+  getSettings(): GameStartType | undefined {
     // Settings is only complete after post-frame update
     this._process(() => this.parser.getSettings() != null);
     return this.parser.getSettings();
   }
 
-  public getItems(): EnabledItemType[] | undefined {
+  getItems(): EnabledItemType[] | undefined {
     this._process();
     return this.parser.getItems();
   }
 
-  public getLatestFrame(): FrameEntryType | undefined {
+  getLatestFrame(): FrameEntryType | undefined {
     this._process();
     return this.parser.getLatestFrame();
   }
 
-  public getGameEnd(options: { skipProcessing?: boolean } = {}): GameEndType | undefined {
+  getGameEnd(options: { skipProcessing?: boolean } = {}): GameEndType | undefined {
     if (options?.skipProcessing) {
       // Read game end block directly
       this.input.open();
@@ -133,22 +133,22 @@ export abstract class SlippiGameBase {
     return this.parser.getGameEnd();
   }
 
-  public getFrames(): FramesType {
+  getFrames(): FramesType {
     this._process();
     return this.parser.getFrames();
   }
 
-  public getRollbackFrames(): RollbackFrames {
+  getRollbackFrames(): RollbackFrames {
     this._process();
     return this.parser.getRollbackFrames();
   }
 
-  public getGeckoList(): GeckoListType | undefined {
+  getGeckoList(): GeckoListType | undefined {
     this._process(() => this.parser.getGeckoList() != null);
     return this.parser.getGeckoList();
   }
 
-  public getStats(): StatsType | undefined {
+  getStats(): StatsType | undefined {
     if (this.finalStats) {
       return this.finalStats;
     }
@@ -193,7 +193,7 @@ export abstract class SlippiGameBase {
     return stats;
   }
 
-  public getStadiumStats(): StadiumStatsType | undefined {
+  getStadiumStats(): StadiumStatsType | undefined {
     this._process();
 
     const settings = this.parser.getSettings();
@@ -232,7 +232,7 @@ export abstract class SlippiGameBase {
     }
   }
 
-  public getMetadata(): MetadataType | undefined {
+  getMetadata(): MetadataType | undefined {
     if (this.metadata) {
       return this.metadata;
     }
@@ -243,9 +243,9 @@ export abstract class SlippiGameBase {
     return this.metadata;
   }
 
-  public abstract getFilePath(): string | undefined;
+  abstract getFilePath(): string | undefined;
 
-  public getWinners(): PlacementType[] {
+  getWinners(): PlacementType[] {
     this.input.open();
     const slpfile = openSlpFile(this.input);
     this._process(() => this.parser.getSettings() != null, slpfile);

@@ -48,7 +48,7 @@ export class SlpFile extends Writable {
    * @param {WritableOptions} [opts] Options for writing.
    * @memberof SlpFile
    */
-  public constructor(filePath: string, slpStream?: SlpStream, opts?: WritableOptions) {
+  constructor(filePath: string, slpStream?: SlpStream, opts?: WritableOptions) {
     super(opts);
     this.filePath = filePath;
     this.metadata = {
@@ -73,7 +73,7 @@ export class SlpFile extends Writable {
    * @returns {string} The location of the current file path
    * @memberof SlpFile
    */
-  public path(): string {
+  path(): string {
     return this.filePath;
   }
 
@@ -81,11 +81,11 @@ export class SlpFile extends Writable {
    * Sets the metadata of the Slippi file, such as consoleNickname, lastFrame, and players.
    * @param metadata The metadata to be written
    */
-  public setMetadata(metadata: Partial<SlpFileMetadata>): void {
+  setMetadata(metadata: Partial<SlpFileMetadata>): void {
     this.metadata = Object.assign({}, this.metadata, metadata);
   }
 
-  public _write(chunk: Uint8Array, encoding: string, callback: (error?: Error | null) => void): void {
+  _write(chunk: Uint8Array, encoding: string, callback: (error?: Error | null) => void): void {
     if (encoding !== "buffer") {
       throw new Error(`Unsupported stream encoding. Expected 'buffer' got '${encoding}'.`);
     }
@@ -192,7 +192,7 @@ export class SlpFile extends Writable {
     this.fileStream.write(header);
   }
 
-  public _final(callback: (error?: Error | null) => void): void {
+  _final(callback: (error?: Error | null) => void): void {
     let footer = Buffer.concat([Buffer.from("U"), Buffer.from([8]), Buffer.from("metadata{")]);
 
     // Write game start time
