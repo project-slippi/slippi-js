@@ -31,6 +31,10 @@ describe("when fetching animations", () => {
 });
 
 describe("when fetching character information", () => {
+  it("should return only the playable characters if mode is not specified", () => {
+    expect(Melee.characters.getAllCharacters().length).toEqual(26);
+  });
+
   it("should return the expected ID value", () => {
     expect(Melee.characters.getCharacterInfo(foxCharacter.id)).toEqual(foxCharacter);
   });
@@ -96,11 +100,12 @@ describe("when fetching stage information", () => {
 
   it("should return the vs mode stage list by default", () => {
     // It should return only the VS mode stages by default
-    expect(Melee.stages.getStages().length).toEqual(30);
+    expect(Melee.stages.getStages().length).toEqual(29);
   });
 
   it("should return the correct stage list when specifying the mode", () => {
-    expect(Melee.stages.getStages("vs").length).toEqual(30);
+    expect(Melee.stages.getStages("vs").length).toEqual(29);
+    expect(Melee.stages.getStages("debug").length).toEqual(1);
     expect(Melee.stages.getStages("target-test").length).toEqual(26);
     expect(Melee.stages.getStages("home-run-contest").length).toEqual(1);
   });
