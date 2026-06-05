@@ -1,6 +1,6 @@
 import stagesInfoMap from "./stages.json";
 
-type StageMode = "vs" | "target-test" | "home-run-contest";
+type StageMode = "vs" | "target-test" | "home-run-contest" | "debug";
 
 export type StageInfo = {
   id: number;

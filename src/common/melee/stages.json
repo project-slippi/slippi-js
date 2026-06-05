@@ -22,7 +22,7 @@
   "23": { "name": "Poké Floats", "mode": "vs" },
   "24": { "name": "Big Blue", "mode": "vs" },
   "25": { "name": "Icicle Mountain", "mode": "vs" },
-  "26": { "name": "Icetop", "mode": "vs" },
+  "26": { "name": "Icetop", "mode": "debug" },
   "27": { "name": "Flat Zone", "mode": "vs" },
   "28": { "name": "Dream Land N64", "mode": "vs" },
   "29": { "name": "Yoshi's Island N64", "mode": "vs" },
