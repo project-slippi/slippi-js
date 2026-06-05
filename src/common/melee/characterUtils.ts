@@ -39,10 +39,17 @@ function generateCharacterInfo(
   };
 }
 
-export function getAllCharacters(): CharacterInfo[] {
-  return Object.entries(characters)
+export function getAllCharacters(mode: "playable" | "all" = "playable"): CharacterInfo[] {
+  const allCharacters = Object.entries(characters)
     .map(([id, data]) => generateCharacterInfo(parseInt(id, 10), data))
     .sort((a, b) => a.id - b.id);
+
+  if (mode === "playable") {
+    // Playable characters are from 0 (Falcon) to 25 (Ganondorf)
+    return allCharacters.filter((character) => character.id >= 0 && character.id <= 25);
+  }
+
+  return allCharacters;
 }
 
 export function getCharacterInfo(externalCharacterId: number): CharacterInfo {
