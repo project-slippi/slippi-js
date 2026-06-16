@@ -73,11 +73,8 @@ export function getWinners(
     (!gameEndMethod || gameEndMethod === GameEndMethod.TIME) && activePlayers.length >= 2;
 
   if (shouldDetermineFromLastFrame) {
-    if (isTeams) {
-      return getTeamsWinners(players, activePlayers);
-    }
-    const winners = getFFAWinners(activePlayers);
-    return applyLedgeGrabLimit(winners, players, gameEndMethod, options);
+    const winners = isTeams ? getTeamsWinners(players, activePlayers) : getFFAWinners(activePlayers);
+    return applyLedgeGrabLimit(winners, players, gameEndMethod, isTeams, options);
   }
 
   // ==========================================================================
@@ -244,13 +241,10 @@ function applyLedgeGrabLimit(
   winners: PlacementType[],
   players: GameStartType["players"],
   gameEndMethod: GameEndMethod | undefined,
+  isTeams: boolean | undefined,
   options?: GetWinnersOptions,
 ): PlacementType[] {
   if (gameEndMethod !== GameEndMethod.TIME) {
-    return winners;
-  }
-
-  if (players.length !== 2) {
     return winners;
   }
 
@@ -263,18 +257,35 @@ function applyLedgeGrabLimit(
     return winners;
   }
 
-  // Check if any winner exceeded the limit
+  if (isTeams) {
+    return applyTeamLedgeGrabLimit(winners, players, ledgeGrabLimit, ledgeGrabCounts);
+  }
+
+  // Non-teams: only apply to 1v1 (exactly 2 players)
+  if (players.length !== 2) {
+    return winners;
+  }
+
+  return applyOneVOneLedgeGrabLimit(winners, players, ledgeGrabLimit, ledgeGrabCounts);
+}
+
+function applyOneVOneLedgeGrabLimit(
+  winners: PlacementType[],
+  players: GameStartType["players"],
+  ledgeGrabLimit: number,
+  ledgeGrabCounts: Record<number, number>,
+): PlacementType[] {
   const winnersExceeding = winners.filter((w) => (ledgeGrabCounts[w.playerIndex] ?? 0) > ledgeGrabLimit);
 
   if (winnersExceeding.length === 0) {
     return winners;
   }
 
-  // If all players exceeded the limit, it's a draw
+  // If all players exceeded, disregard the rule (return original stock/percent winners)
   const allPlayersExceed = players.every((p) => (ledgeGrabCounts[p.playerIndex] ?? 0) > ledgeGrabLimit);
 
   if (allPlayersExceed) {
-    return [];
+    return winners;
   }
 
   // At least one non-exceeding player exists - they win
@@ -284,4 +295,42 @@ function applyLedgeGrabLimit(
     playerIndex: p.playerIndex,
     position: 0,
   }));
+}
+
+function applyTeamLedgeGrabLimit(
+  winners: PlacementType[],
+  players: GameStartType["players"],
+  ledgeGrabLimit: number,
+  ledgeGrabCounts: Record<number, number>,
+): PlacementType[] {
+  // Group players by team and determine which teams have exceeding members
+  const teamPlayers = new Map<number, GameStartType["players"]>();
+  const teamsExceeding = new Set<number>();
+
+  for (const p of players) {
+    const teamId = p.teamId ?? -1;
+    const existing = teamPlayers.get(teamId) ?? [];
+    teamPlayers.set(teamId, [...existing, p]);
+
+    if ((ledgeGrabCounts[p.playerIndex] ?? 0) > ledgeGrabLimit) {
+      teamsExceeding.add(teamId);
+    }
+  }
+
+  // If no teams exceed, or all teams exceed, disregard the rule
+  if (teamsExceeding.size === 0 || teamsExceeding.size === teamPlayers.size) {
+    return winners;
+  }
+
+  // Non-exceeding teams win
+  const nonExceedingTeamIds = [...teamPlayers.keys()].filter((tid) => !teamsExceeding.has(tid));
+
+  return nonExceedingTeamIds
+    .flatMap((tid) =>
+      (teamPlayers.get(tid) ?? []).map((p) => ({
+        playerIndex: p.playerIndex,
+        position: 0,
+      })),
+    )
+    .sort((a, b) => a.playerIndex - b.playerIndex);
 }
