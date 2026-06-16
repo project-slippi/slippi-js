@@ -8,10 +8,16 @@ type TeamAggregate = {
   players: PostFrameUpdateType[];
 };
 
+export type GetWinnersOptions = {
+  ledgeGrabLimit?: number;
+  ledgeGrabCounts?: Record<number, number>;
+};
+
 export function getWinners(
   gameEnd: Partial<GameEndType>,
   settings: Pick<GameStartType, "players" | "isTeams">,
   finalPostFrameUpdates: PostFrameUpdateType[],
+  options?: GetWinnersOptions,
 ): PlacementType[] {
   const { placements, gameEndMethod, lrasInitiatorIndex } = gameEnd;
   const { players, isTeams } = settings;
@@ -70,7 +76,8 @@ export function getWinners(
     if (isTeams) {
       return getTeamsWinners(players, activePlayers);
     }
-    return getFFAWinners(activePlayers);
+    const winners = getFFAWinners(activePlayers);
+    return applyLedgeGrabLimit(winners, players, gameEndMethod, options);
   }
 
   // ==========================================================================
@@ -231,4 +238,50 @@ function sortByPerformance(players: PostFrameUpdateType[]): PostFrameUpdateType[
     }
     return (a.percent ?? 0) - (b.percent ?? 0);
   });
+}
+
+function applyLedgeGrabLimit(
+  winners: PlacementType[],
+  players: GameStartType["players"],
+  gameEndMethod: GameEndMethod | undefined,
+  options?: GetWinnersOptions,
+): PlacementType[] {
+  if (gameEndMethod !== GameEndMethod.TIME) {
+    return winners;
+  }
+
+  if (players.length !== 2) {
+    return winners;
+  }
+
+  const { ledgeGrabLimit, ledgeGrabCounts } = options ?? {};
+  if (!ledgeGrabLimit || ledgeGrabLimit <= 0 || !ledgeGrabCounts) {
+    return winners;
+  }
+
+  if (winners.length === 0) {
+    return winners;
+  }
+
+  // Check if any winner exceeded the limit
+  const winnersExceeding = winners.filter((w) => (ledgeGrabCounts[w.playerIndex] ?? 0) > ledgeGrabLimit);
+
+  if (winnersExceeding.length === 0) {
+    return winners;
+  }
+
+  // If all players exceeded the limit, it's a draw
+  const allPlayersExceed = players.every((p) => (ledgeGrabCounts[p.playerIndex] ?? 0) > ledgeGrabLimit);
+
+  if (allPlayersExceed) {
+    return [];
+  }
+
+  // At least one non-exceeding player exists - they win
+  const nonExceedingPlayers = players.filter((p) => (ledgeGrabCounts[p.playerIndex] ?? 0) <= ledgeGrabLimit);
+
+  return nonExceedingPlayers.map((p) => ({
+    playerIndex: p.playerIndex,
+    position: 0,
+  }));
 }

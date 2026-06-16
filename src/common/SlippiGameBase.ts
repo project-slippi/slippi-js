@@ -22,7 +22,7 @@ import type {
   RollbackFrames,
 } from "./types.js";
 import { GameMode } from "./types.js";
-import { getWinners } from "./utils/getWinners.js";
+import { type GetWinnersOptions, getWinners } from "./utils/getWinners.js";
 import { extractDistanceInfoFromFrame } from "./utils/homeRunDistance.js";
 import type { SlpInputRef } from "./utils/slpInputRef.js";
 import { SlpParser, SlpParserEvent } from "./utils/slpParser.js";
@@ -245,7 +245,7 @@ export abstract class SlippiGameBase {
 
   abstract getFilePath(): string | undefined;
 
-  getWinners(): PlacementType[] {
+  getWinners(options?: { ledgeGrabLimit?: number }): PlacementType[] {
     this.input.open();
     const slpfile = openSlpFile(this.input);
     this._process(() => this.parser.getSettings() != null, slpfile);
@@ -258,6 +258,19 @@ export abstract class SlippiGameBase {
     const finalPostFrameUpdates = extractFinalPostFrameUpdates(slpfile);
     const gameEnd: Partial<GameEndType> = getGameEnd(slpfile) ?? {};
     this.input.close();
-    return getWinners(gameEnd, settings, finalPostFrameUpdates);
+
+    let getWinnersOpts: GetWinnersOptions | undefined;
+    if (options?.ledgeGrabLimit) {
+      const stats = this.getStats();
+      const ledgeGrabCounts: Record<number, number> = {};
+      if (stats?.actionCounts) {
+        for (const ac of stats.actionCounts) {
+          ledgeGrabCounts[ac.playerIndex] = ac.ledgegrabCount;
+        }
+      }
+      getWinnersOpts = { ledgeGrabLimit: options.ledgeGrabLimit, ledgeGrabCounts };
+    }
+
+    return getWinners(gameEnd, settings, finalPostFrameUpdates, getWinnersOpts);
   }
 }
