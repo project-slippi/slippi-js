@@ -1,7 +1,7 @@
 import type { Host, Packet, Peer } from "enet";
+import enet from "enet";
 
 import { TypedEventEmitter } from "../../common/utils/typedEventEmitter.js";
-import { loadEnetModule } from "./loadEnetModule.js";
 import type { Connection, ConnectionDetails, ConnectionEventMap, ConnectionSettings } from "./types.js";
 import { ConnectionEvent, ConnectionStatus, Ports } from "./types.js";
 
@@ -62,7 +62,6 @@ export class DolphinConnection extends TypedEventEmitter<ConnectionEventMap> imp
     this.ipAddress = ip;
     this.port = port;
 
-    const enet = await loadEnetModule();
     // Create the enet client
     let client: Host | undefined = this.client;
     if (!client) {

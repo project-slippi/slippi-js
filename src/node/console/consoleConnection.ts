@@ -1,11 +1,11 @@
 import net from "net";
 import type { Instance } from "reconnect-core";
+import inject from "reconnect-core";
 
 import { NETWORK_MESSAGE } from "../../common/utils/slpStream.js";
 import { TypedEventEmitter } from "../../common/utils/typedEventEmitter.js";
 import type { CommunicationMessage } from "./communication.js";
 import { CommunicationType, ConsoleCommunication } from "./communication.js";
-import { loadReconnectCoreModule } from "./loadReconnectCoreModule.js";
 import type { Connection, ConnectionDetails, ConnectionEventMap, ConnectionSettings } from "./types.js";
 import { ConnectionEvent, ConnectionStatus, Ports } from "./types.js";
 
@@ -111,8 +111,6 @@ export class ConsoleConnection extends TypedEventEmitter<ConnectionEventMap> imp
   }
 
   private async _connectOnPort(ip: string, port: number, timeout: number): Promise<void> {
-    const inject = await loadReconnectCoreModule();
-
     // set up reconnect
     const reconnect = inject(() =>
       net.connect({
