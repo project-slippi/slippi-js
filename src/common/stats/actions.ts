@@ -16,6 +16,7 @@ type PlayerActionState = {
   actionFrameCounters: number[];
   positionsY: number[];
   lastLCancelStatus: number;
+  lastHandledAirDodgeEndIndex: number;
 };
 
 export class ActionsComputer implements StatComputer<ActionCountsType[]> {
@@ -90,6 +91,7 @@ export class ActionsComputer implements StatComputer<ActionCountsType[]> {
         actionFrameCounters: [],
         positionsY: [],
         lastLCancelStatus: 0,
+        lastHandledAirDodgeEndIndex: -1,
       };
       this.state.set(indices, playerState);
     });
@@ -309,14 +311,19 @@ function handleActionCompute(state: PlayerActionState, indices: PlayerIndexedTyp
   }
 
   // Handles wavedash detection (and waveland)
-  handleActionWavedash(state.playerCounts, state.animations, state.positionsY);
+  handleActionWavedash(state.playerCounts, state.animations, state.positionsY, state);
 
   if (exists(playerFrame.lCancelStatus) && playerFrame.lCancelStatus > 0) {
     state.lastLCancelStatus = playerFrame.lCancelStatus;
   }
 }
 
-function handleActionWavedash(counts: ActionCountsType, animations: State[], positionsY: number[]): void {
+function handleActionWavedash(
+  counts: ActionCountsType,
+  animations: State[],
+  positionsY: number[],
+  playerState: PlayerActionState,
+): void {
   const currentAnimation = animations[animations.length - 1];
   const prevAnimation = animations[animations.length - 2] as number;
 
@@ -336,16 +343,27 @@ function handleActionWavedash(counts: ActionCountsType, animations: State[], pos
   const recentFrames = animations.slice(-lookbackFrames);
   const recentAnimations = keyBy(recentFrames, (animation) => animation);
 
+  // Find the most recent air dodge within the lookback window. A single air dodge span
+  // can only be consumed by one landing, so if it was already decremented by a previous
+  // landing, don't count it again.
+  const airDodgeEndIndex = findLastIndexWithinLookback(animations, lookbackFrames);
+
   if (Object.keys(recentAnimations).length === 2 && recentAnimations[State.AIR_DODGE]) {
     // If the only other animation is air dodge, this might be really late to the point
     // where it was actually an air dodge. Air dodge animation is really long
+    if (airDodgeEndIndex !== undefined) {
+      playerState.lastHandledAirDodgeEndIndex = airDodgeEndIndex;
+    }
     return;
   }
 
   if (recentAnimations[State.AIR_DODGE]) {
-    // If one of the recent animations was an air dodge, let's remove that from the
-    // air dodge counter, we don't want to count air dodges used to wavedash/land
-    counts.airDodgeCount -= 1;
+    if (airDodgeEndIndex !== undefined && airDodgeEndIndex > playerState.lastHandledAirDodgeEndIndex) {
+      // If one of the recent animations was an air dodge, let's remove that from the
+      // air dodge counter, we don't want to count air dodges used to wavedash/land
+      counts.airDodgeCount -= 1;
+      playerState.lastHandledAirDodgeEndIndex = airDodgeEndIndex;
+    }
   }
 
   if (recentAnimations[State.ACTION_KNEE_BEND]) {
@@ -393,4 +411,22 @@ function isWavedashInitiationAnimation(animation: State): boolean {
   const isAboveMin = animation >= State.CONTROLLED_JUMP_START;
   const isBelowMax = animation <= State.CONTROLLED_JUMP_END;
   return isAboveMin && isBelowMax;
+}
+
+/**
+ * Find the index of the most recent AIR_DODGE frame within the last `lookbackFrames`
+ * frames of `animations`. Each entry in `animations` corresponds to a frame, so the
+ * returned number represents where that air dodge sits in the player's frame history.
+ * Should be used to determine whether a landing's air dodge has already been consumed by a
+ * previous landing (via `lastHandledAirDodgeEndIndex`), preventing an air dodge from
+ * being decremented from the count more than once.
+ * Returns undefined if there is no air dodge within the lookback window.
+ */
+function findLastIndexWithinLookback(animations: State[], lookbackFrames: number): number | undefined {
+  for (let i = animations.length - 1; i >= Math.max(0, animations.length - lookbackFrames); i--) {
+    if (animations[i] === State.AIR_DODGE) {
+      return i;
+    }
+  }
+  return undefined;
 }
