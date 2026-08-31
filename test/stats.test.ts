@@ -303,6 +303,13 @@ describe("when calculating stats", () => {
     expect(p1Taunts).toBe(1);
     expect(p2Taunts).toBe(0);
   });
+
+  it("should not return negative air dodge counts", () => {
+    const game = new SlippiGame("slp/air_dodge.slp");
+    const stats = game.getStats()!;
+    const p1AirDodge = stats.actionCounts[0]!.airDodgeCount;
+    expect(p1AirDodge).toBeGreaterThanOrEqual(0);
+  });
 });
 
 describe("when calculating stock information", () => {
