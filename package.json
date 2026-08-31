@@ -71,12 +71,12 @@
   "dependencies": {
     "@shelacek/ubjson": "^1.0.1",
     "date-fns": "^3.3.0",
+    "enet": "^0.2.9",
     "iconv-cp932": "^1.2.2",
+    "reconnect-core": "^1.3.0",
     "semver": "^7.3.2"
   },
   "optionalDependencies": {
-    "enet": "^0.2.9",
-    "reconnect-core": "^1.3.0",
     "ws": ">=7.0.0"
   },
   "devDependencies": {
