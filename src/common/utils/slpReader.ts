@@ -22,6 +22,9 @@ import type { SlpInputRef } from "./slpInputRef.js";
 
 const utf8Decoder = new TextDecoder("utf-8");
 
+// Internal character id (not the external one in Game Start)
+const GAME_AND_WATCH_INTERNAL_ID = 0x18;
+
 export type SlpFileType = {
   ref: SlpInputRef;
   rawDataPosition: number;
@@ -417,6 +420,13 @@ export function parseMessage(command: Command, payload: Uint8Array): EventPayloa
         animationIndex: readUint32(view, 0x4d),
         instanceHitBy: readUint16(view, 0x51),
         instanceId: readUint16(view, 0x53),
+        storedCharge: readUint8(view, 0x55),
+        spentBitFlags: readUint8(view, 0x56),
+        wallJumpsUsed: readUint8(view, 0x57),
+        characterByte: readUint8(view, 0x58),
+        // Mr. Game & Watch's value is an int32 (Oil Panic damage), every other character's is a float
+        characterValue:
+          readUint8(view, 0x7) === GAME_AND_WATCH_INTERNAL_ID ? readInt32(view, 0x59) : readFloat(view, 0x59),
       };
     case Command.ITEM_UPDATE:
       return {
