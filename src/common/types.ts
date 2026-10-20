@@ -216,9 +216,9 @@ export type PostFrameUpdateType = {
   animationIndex: number | undefined;
   instanceHitBy: number | undefined;
   instanceId: number | undefined;
-  /** Charge kept between uses of a move (Giant Punch, Charge Shot, Oil Panic...). Added in 3.20.0 */
+  /** Charge kept between uses of a move (Giant Punch, Charge Shot, Oil Panic...); for Zelda, the needles Sheik holds while Zelda is in play. Added in 3.20.0 */
   storedCharge: number | undefined;
-  /** Lifts, float and tether used and not yet given back, see the spec's Spent Bit Flags table. Added in 3.20.0 */
+  /** Lifts, float, tether and air item catch used and not yet given back, see the spec's Spent Bit Flags table. Added in 3.20.0 */
   spentBitFlags: number | undefined;
   /** Wall jumps since the character last touched the ground. Added in 3.20.0 */
   wallJumpsUsed: number | undefined;
