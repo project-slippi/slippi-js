@@ -216,6 +216,16 @@ export type PostFrameUpdateType = {
   animationIndex: number | undefined;
   instanceHitBy: number | undefined;
   instanceId: number | undefined;
+  /** Charge kept between uses of a move (Giant Punch, Charge Shot, Oil Panic...); for Zelda, the needles Sheik holds while Zelda is in play. Added in 3.21.0 */
+  storedCharge: number | undefined;
+  /** Lifts, float, tether and air item catch used and not yet given back, see the spec's Spent Bit Flags table. Added in 3.21.0 */
+  spentBitFlags: number | undefined;
+  /** Wall jumps since the character last touched the ground. Added in 3.21.0 */
+  wallJumpsUsed: number | undefined;
+  /** Kirby's copied ability as an internal character id, or Mr. Game & Watch's last two Judge numbers (one per nibble). Added in 3.21.0 */
+  characterByte: number | undefined;
+  /** Bowser's Fire Breath fuel, Peach's float frames left (floats), or Mr. Game & Watch's Oil Panic damage (an integer). Added in 3.21.0 */
+  characterValue: number | undefined;
 };
 
 export type SelfInducedSpeedsType = {
